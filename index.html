@@ -25,6 +25,8 @@
             font-size: 20px;
             color: #333;
             margin: 20px 0;
+            position: relative;
+            z-index: 1;
         }
         #progress.loading::after {
             content: '';
@@ -53,15 +55,33 @@
             to { transform: rotate(360deg); }
         }
         #person-image {
+            display: block;
             max-width: 100%;
             max-height: 300px;
-            object-fit: cover;
+            width: auto;
+            height: auto;
             border: 2px solid #999;
             border-radius: 10px;
+            margin: 0 auto;
+            z-index: 2;
         }
         #person-name {
             font-size: 18px;
             margin-top: 10px;
+        }
+        #retry-btn {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        #retry-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -69,8 +89,9 @@
     <div class="container">
         <h1>Просте фото з Wikidata</h1>
         <div id="progress" class="loading">Завантаження...</div>
-        <img id="person-image" alt="Person">
+        <img id="person-image" alt="Person" crossorigin="anonymous">
         <div id="person-name"></div>
+        <button id="retry-btn" onclick="loadPerson()">Повторити</button>
     </div>
     <script>
         console.log('Simple app started');
@@ -94,11 +115,49 @@
             return url;
         }
 
+        // Validate image
+        async function isValidImage(url) {
+            try {
+                console.log(`Validating image: ${url}`);
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                const loadPromise = new Promise((resolve) => {
+                    img.onload = () => {
+                        console.log(`Image loaded: ${url}, width: ${img.width}, height: ${img.height}`);
+                        resolve(img.width > 0 && img.height > 0);
+                    };
+                    img.onerror = () => {
+                        console.error(`Image load failed: ${url}`);
+                        resolve(false);
+                    };
+                    img.src = url;
+                });
+                const timeoutPromise = new Promise((resolve) => {
+                    setTimeout(() => {
+                        console.error(`Image validation timeout: ${url}`);
+                        resolve(false);
+                    }, 5000);
+                });
+                return await Promise.race([loadPromise, timeoutPromise]);
+            } catch (e) {
+                console.error(`Image validation error: ${e.message}`);
+                return false;
+            }
+        }
+
         // Load person from Wikidata
         async function loadPerson(useFallback = false) {
             const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
+            const retryBtn = document.getElementById('retry-btn');
+
+            progress.textContent = 'Завантаження...';
+            progress.classList.add('loading');
+            progress.classList.remove('error', 'mock');
+            retryBtn.style.display = 'none';
+            personImage.src = '';
+            personName.textContent = '';
 
             try {
                 console.log('Sending SPARQL request...');
@@ -134,13 +193,22 @@
                 const url = `${endpoint}?query=${encodedQuery}&format=json`;
                 console.log('Request URL:', url);
 
+                const controller = new AbortController();
+                const timeout = setTimeout(() => {
+                    controller.abort();
+                    console.error('Request timed out');
+                }, 10000);
+
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/sparql-results+json',
-                        'User-Agent': 'SimplePhotoApp/1.0 (krv.mod@gmail.com)'
-                    }
+                        'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
+                    },
+                    signal: controller.signal
                 });
+
+                clearTimeout(timeout);
                 console.log(`Response status: ${response.status}`);
                 const responseText = await response.text();
                 console.log(`Response body: ${responseText || 'Empty response'}`);
@@ -148,7 +216,7 @@
                 if (!response.ok) {
                     if (response.status === 400 && !useFallback) {
                         console.warn('Bad request, trying fallback query...');
-                        return await loadPerson(true); // Retry with fallback
+                        return await loadPerson(true);
                     }
                     throw new Error(`HTTP ${response.status}: ${responseText}`);
                 }
@@ -162,23 +230,48 @@
                 }
 
                 const imageUrl = convertCommonsUrl(person.image.value);
+                const isValid = await isValidImage(imageUrl);
+                if (!isValid) {
+                    throw new Error('Invalid image');
+                }
+
                 personImage.src = imageUrl;
+                personImage.onerror = () => {
+                    console.error(`Image failed to load: ${imageUrl}`);
+                    progress.textContent = 'Не вдалося завантажити зображення';
+                    progress.classList.add('error');
+                    progress.classList.remove('loading', 'mock');
+                    retryBtn.style.display = 'block';
+                    personImage.src = 'https://via.placeholder.com/300';
+                };
                 personName.textContent = person.personLabel.value;
                 progress.textContent = 'Фото завантажено!';
                 progress.classList.remove('loading', 'error', 'mock');
                 console.log('Photo displayed:', imageUrl);
             } catch (error) {
                 console.error('Error:', error.message);
+                let errorMessage = 'Помилка завантаження фото';
+                if (error.message.includes('Timeout')) {
+                    errorMessage = 'Тайм-аут запиту до Wikidata';
+                } else if (error.message.includes('HTTP 400')) {
+                    errorMessage = 'Некоректний SPARQL-запит';
+                } else if (error.message.includes('No person found')) {
+                    errorMessage = 'Не знайдено даних про людину';
+                } else if (error.message.includes('Invalid image')) {
+                    errorMessage = 'Зображення недоступне';
+                }
+
                 if (!useFallback) {
                     console.warn('Retrying with fallback query...');
                     return await loadPerson(true);
                 }
-                // Use mock image as last resort
+
                 personImage.src = 'https://via.placeholder.com/300';
                 personName.textContent = 'Тестовий персонаж';
-                progress.textContent = 'Не вдалося завантажити дані, використано тестовий малюнок';
+                progress.textContent = errorMessage + '. Використано тестовий малюнок';
                 progress.classList.add('mock');
                 progress.classList.remove('loading', 'error');
+                retryBtn.style.display = 'block';
                 console.log('Mock photo displayed: https://via.placeholder.com/300');
             }
         }
