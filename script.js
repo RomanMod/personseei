@@ -58,28 +58,40 @@ const lesserKnownPeople = [
         age: 80,
         hasChildren: true,
         cocoon: "Rectangular",
-        image: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vitthal_Umap.jpg", // Замените на реальное изображение
+        image: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vitthal_Umap.jpg", // Предполагаемое изображение
         wiki: "https://en.wikipedia.org/wiki/Vitthal_Umap"
     },
     {
         name: "Miles Quadruplets",
+5,
         gender: "Female",
         alive: true,
         age: 89,
         hasChildren: false,
         cocoon: "Oval",
-        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Miles_Quadruplets.jpg/220px-Miles_Quadruplets.jpg", // Замените на реальное изображение
+        image: "", // Пустое изображение для теста поведения
         wiki: "https://en.wikipedia.org/wiki/List_of_multiple_births#Quadruplets_(4)"
     }
 ];
 
 // Fetch random person based on game mode
 async function fetchRandomPerson(hardMode) {
-    if (hardMode) {
-        return popularPeople[Math.floor(Math.random() * popularPeople.length)];
-    } else {
-        return lesserKnownPeople[Math.floor(Math.random() * lesserKnownPeople.length)];
-    }
+    let person;
+    let attempts = 0;
+    const maxAttempts = 10; // Ограничение на количество попыток
+
+    do {
+        person = hardMode
+            ? popularPeople[Math.floor(Math.random() * popularPeople.length)]
+            : lesserKnownPeople[Math.floor(Math.random() * lesserKnownPeople.length)];
+        attempts++;
+        if (attempts >= maxAttempts) {
+            console.warn('Max attempts reached, returning default person');
+            return popularPeople[0]; // Запасной вариант
+        }
+    } while (!person.image || person.image === ''); // Повторяем, если изображение отсутствует
+
+    return person;
 }
 
 // Start game
@@ -140,7 +152,7 @@ async function startGame(hardMode) {
 
     gamesPlayed++;
     gamesPlayedText.textContent = gamesPlayed;
-    gtag('event', 'game_start', { mode: isHardMode ? 'hard' : 'easy' });
+    gtag('event', 'game_start', { mode: isHardMode ? 'hard' : 'easy', person_type: isHardMode ? 'popular' : 'lesser_known' });
 }
 
 // Check answers
@@ -168,7 +180,8 @@ function checkAnswers() {
     gtag('event', 'game_end', {
         mode: isHardMode ? 'hard' : 'easy',
         correct_answers: correctAnswers,
-        total_questions: Object.keys(answers).length
+        total_questions: Object.keys(answers).length,
+        person_type: isHardMode ? 'popular' : 'lesser_known'
     });
 }
 
