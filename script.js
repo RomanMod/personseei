@@ -39,7 +39,8 @@ const translations = {
         incorrect: 'Неправильно!',
         imageError: 'Зображення недоступне',
         loading: 'Завантаження...',
-        timeout: 'Час очікування вичерпано'
+        timeout: 'Час очікування вичерпано',
+        sparqlError: 'Помилка запиту до бази даних'
     },
     ru: {
         alive: 'Жив',
@@ -51,7 +52,8 @@ const translations = {
         incorrect: 'Неправильно!',
         imageError: 'Изображение недоступно',
         loading: 'Загрузка...',
-        timeout: 'Время ожидания истекло'
+        timeout: 'Время ожидания истекло',
+        sparqlError: 'Ошибка запроса к базе данных'
     },
     en: {
         alive: 'Alive',
@@ -63,7 +65,8 @@ const translations = {
         incorrect: 'Incorrect!',
         imageError: 'Image unavailable',
         loading: 'Loading...',
-        timeout: 'Request timed out'
+        timeout: 'Request timed out',
+        sparqlError: 'Database query error'
     },
     alien: {
         alive: '👽 Живий',
@@ -75,7 +78,8 @@ const translations = {
         incorrect: '🪐 Неправильно!',
         imageError: '🖼️ Зображення недоступне',
         loading: '🛸 Завантаження...',
-        timeout: '⏰ Час вичерпано'
+        timeout: '⏰ Час вичерпано',
+        sparqlError: '🪐 Помилка запиту до бази'
     }
 };
 
@@ -203,33 +207,20 @@ async function loadNewPerson(useMock = false) {
         return;
     }
     if (retryCount >= maxRetries) {
-        console.error('Max retries reached, stopping load');
-        progress.textContent = translations[lang].timeout;
-        progress.classList.add('error');
-        if (imageError) imageError.style.display = 'block';
-        if (retryCount >= maxRetries * 2) {
-            console.warn('Using mock data due to repeated failures');
-            currentPerson = mockPerson;
-            progress.textContent = '100%';
-            progress.classList.remove('error');
-            if (imageError) imageError.style.display = 'none';
-            personImage.src = currentPerson.image;
-            console.log('Person loaded from mock:', currentPerson);
-            gtag('event', 'load_person', {
-                source: 'mock',
-                success: true,
-                person: currentPerson.name,
-                retries: retryCount
-            });
-            retryCount = 0;
-            isLoading = false;
-            return;
-        }
-        gtag('event', 'load_person_failed', {
-            source: 'wikidata',
-            reason: 'max_retries',
+        console.warn('Max retries reached, using mock data');
+        currentPerson = mockPerson;
+        progress.textContent = '100%';
+        progress.classList.remove('error', 'loading');
+        if (imageError) imageError.style.display = 'none';
+        personImage.src = currentPerson.image;
+        console.log('Person loaded from mock:', currentPerson);
+        gtag('event', 'load_person', {
+            source: 'mock',
+            success: true,
+            person: currentPerson.name,
             retries: retryCount
         });
+        retryCount = 0;
         isLoading = false;
         return;
     }
@@ -296,7 +287,7 @@ async function loadNewPerson(useMock = false) {
                 ?gender rdfs:label ?genderLabel.
                 FILTER (LANG(?personLabel) = "en").
                 FILTER (LANG(?genderLabel) = "en").
-                FILTER (REGEX(STR(?image), "\\.(jpg|png)$", "i")).
+                FILTER (REGEX(STR(?image), "\\.jpg|\\.png$", "i")).
             }
             ORDER BY RAND()
             LIMIT 1
@@ -321,7 +312,7 @@ async function loadNewPerson(useMock = false) {
             throw new Error('Too Many Requests');
         }
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${responseText || 'No error message provided'}`);
+            throw new Error(`HTTP ${response.status}: ${responseText.includes('MalformedQueryException') ? 'Malformed SPARQL query' : responseText}`);
         }
         const data = JSON.parse(responseText);
         progress.textContent = translations[lang].loading + ' 60%';
@@ -368,7 +359,8 @@ async function loadNewPerson(useMock = false) {
         });
     } catch (error) {
         console.error('Error loading person from Wikidata:', error.message);
-        progress.textContent = `${translations[lang].timeout}: ${error.message}`;
+        const errorMessage = error.message.includes('Malformed SPARQL query') ? translations[lang].sparqlError : `${translations[lang].timeout}: ${error.message}`;
+        progress.textContent = errorMessage;
         progress.classList.add('error');
         progress.classList.remove('loading');
         if (imageError) imageError.style.display = 'block';
