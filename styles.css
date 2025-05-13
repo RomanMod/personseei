@@ -88,9 +88,9 @@ select {
     color: var(--text-color);
     font-weight: bold;
     background: rgba(0, 0, 0, 0.8);
-    padding: 10px;
+    padding: 15px;
     border-radius: 5px;
-    max-width: 80%;
+    max-width: 90%;
     text-align: center;
     position: relative;
 }
@@ -98,8 +98,8 @@ select {
 #progress.loading::after {
     content: '';
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     margin-left: 10px;
     border: 2px solid var(--text-color);
     border-radius: 50%;
@@ -114,22 +114,39 @@ select {
 #progress.error {
     color: #ff4444;
     background: rgba(0, 0, 0, 0.95);
-    border: 1px solid #ff4444;
+    border: 2px solid #ff4444;
+    font-size: 22px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    animation: errorShake 0.5s ease;
+}
+
+#progress.mock {
+    color: #ffcc00;
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #ffcc00;
     font-size: 20px;
     padding: 15px;
 }
 
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
 #image-error {
-    font-size: 20px;
+    font-size: 22px;
     color: #ff4444;
     background: rgba(0, 0, 0, 0.95);
-    padding: 15px;
+    padding: 20px;
     border-radius: 5px;
     border: 2px solid #ff4444;
     display: none;
     max-width: 90%;
     text-align: center;
     box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+    animation: errorShake 0.5s ease;
 }
 
 #person-image {
