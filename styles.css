@@ -111,7 +111,7 @@ select {
     to { transform: rotate(360deg); }
 }
 
-#progress.error {
+#progress.error, #progress.init-error {
     color: #ff4444;
     background: rgba(0, 0, 0, 0.95);
     border: 2px solid #ff4444;
