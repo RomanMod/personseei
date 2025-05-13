@@ -11,6 +11,8 @@ let correctAnswers = 0;
 let gamesPlayed = 0;
 let totalCorrect = 0;
 let isHardMode = false;
+let apiRequestCount = 0; // Счётчик запросов к API
+const maxApiRequests = 50; // Лимит запросов за игру
 
 // DOM elements
 const gameDiv = document.getElementById('game');
@@ -60,16 +62,6 @@ const lesserKnownPeople = [
         cocoon: "Rectangular",
         image: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vitthal_Umap.jpg",
         wiki: "https://en.wikipedia.org/wiki/Vitthal_Umap"
-    },
-    {
-        name: "Miles Quadruplets",
-        gender: "Female",
-        alive: true,
-        age: 89,
-        hasChildren: false,
-        cocoon: "Oval",
-        image: "",
-        wiki: "https://en.wikipedia.org/wiki/List_of_multiple_births#Quadruplets_(4)"
     }
 ];
 
@@ -77,13 +69,19 @@ const lesserKnownPeople = [
 async function fetchRandomPerson(hardMode) {
     console.log(`[fetchRandomPerson] Starting for ${hardMode ? 'hard' : 'easy'} mode`);
     let attempts = 0;
-    const maxAttempts = 10;
+    const maxAttempts = 15; // Увеличено для надёжности
 
     while (attempts < maxAttempts) {
-        console.log(`[fetchRandomPerson] Attempt ${attempts + 1}/${maxAttempts}`);
+        if (apiRequestCount >= maxApiRequests) {
+            console.warn('[fetchRandomPerson] API request limit reached, returning default person');
+            return popularPeople[0];
+        }
+
+        console.log(`[fetchRandomPerson] Attempt ${attempts + 1}/${maxAttempts}, API requests: ${apiRequestCount}`);
         try {
             // Получаем случайную статью
             console.log('[fetchRandomPerson] Sending Wikipedia random query');
+            apiRequestCount++;
             const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
@@ -94,6 +92,8 @@ async function fetchRandomPerson(hardMode) {
             console.log(`[fetchRandomPerson] Selected title: ${title}`);
 
             // Проверяем, что это человек
+            console.log('[fetchRandomPerson] Sending categories query');
+            apiRequestCount++;
             const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories&titles=${encodeURIComponent(title)}&cllimit=10&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
@@ -111,6 +111,8 @@ async function fetchRandomPerson(hardMode) {
             }
 
             // Проверяем популярность
+            console.log('[fetchRandomPerson] Sending page views query');
+            apiRequestCount++;
             const pageViewResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=pageviews&titles=${encodeURIComponent(title)}&pvip=30&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
@@ -136,6 +138,7 @@ async function fetchRandomPerson(hardMode) {
 
             // Получаем данные, инфобокс и изображение
             console.log('[fetchRandomPerson] Fetching person data, infobox, and image');
+            apiRequestCount++;
             const infoResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages|revisions&titles=${encodeURIComponent(title)}&exintro&explaintext&piprop=thumbnail&pithumbsize=200&rvprop=content&rvsection=0&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
@@ -217,12 +220,12 @@ async function fetchRandomPerson(hardMode) {
             console.error(`[fetchRandomPerson] Error in attempt ${attempts + 1}:`, error.message, error.stack);
             attempts++;
         }
-        console.log('[fetchRandomPerson] Waiting 100ms before next attempt');
-        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log('[fetchRandomPerson] Waiting 200ms before next attempt');
+        await new Promise(resolve => setTimeout(resolve, 200)); // Увеличена пауза
     }
 
     console.warn('[fetchRandomPerson] Max attempts reached, returning default person');
-    return popularPeople[0];
+    return popularPeople[0]; // Гарантированно с изображением
 }
 
 // Start game
@@ -233,8 +236,8 @@ async function startGame(hardMode) {
     easyModeBtn.style.display = 'none';
     hardModeBtn.style.display = 'none';
     resultDiv.style.display = 'none';
-    questionsDiv.innerHTML = ''; // Очистка вопросов
-    questionsDiv.style.display = 'block'; // Гарантия видимости
+    questionsDiv.innerHTML = '';
+    questionsDiv.style.display = 'block';
     answers = {};
     correctAnswers = 0;
 
@@ -242,18 +245,31 @@ async function startGame(hardMode) {
     personImage.src = '';
     personImage.style.display = 'none';
 
+    await loadNewPerson();
+
+    console.log('[startGame] Questions rendered:', questionsDiv.innerHTML);
+    gamesPlayed++;
+    gamesPlayedText.textContent = gamesPlayed;
+    gtag('event', 'game_start', { mode: isHardMode ? 'hard' : 'easy', person_type: isHardMode ? 'popular' : 'lesser_known' });
+    console.log('[startGame] Game started, questions rendered');
+}
+
+// Load new person
+async function loadNewPerson() {
+    console.log('[loadNewPerson] Loading new person');
     try {
-        currentPerson = await fetchRandomPerson(hardMode);
-        console.log('[startGame] Current person:', currentPerson);
+        currentPerson = await fetchRandomPerson(isHardMode);
+        console.log('[loadNewPerson] Current person:', currentPerson);
     } catch (error) {
-        console.error('[startGame] Failed to fetch person:', error.message, error.stack);
+        console.error('[loadNewPerson] Failed to fetch person:', error.message, error.stack);
         currentPerson = popularPeople[0]; // Fallback
     }
 
-    personImage.src = currentPerson.image;
+    personImage.src = currentPerson.image || popularPeople[0].image; // Запасное изображение
     personImage.style.display = isHardMode ? 'none' : 'block';
     curtain.style.display = isHardMode ? 'block' : 'none';
 
+    questionsDiv.innerHTML = ''; // Очистка вопросов
     const questions = isHardMode
         ? [
             { id: 'gender', text: 'Gender?', options: ['Male', 'Female'] },
@@ -294,12 +310,11 @@ async function startGame(hardMode) {
     submitBtn.onclick = checkAnswers;
     questionsDiv.appendChild(submitBtn);
 
-    console.log('[startGame] Questions rendered:', questionsDiv.innerHTML); // Логируем HTML вопросов
-
-    gamesPlayed++;
-    gamesPlayedText.textContent = gamesPlayed;
-    gtag('event', 'game_start', { mode: isHardMode ? 'hard' : 'easy', person_type: isHardMode ? 'popular' : 'lesser_known' });
-    console.log('[startGame] Game started, questions rendered');
+    const nextPersonBtn = document.createElement('button');
+    nextPersonBtn.id = 'next-person-btn';
+    nextPersonBtn.textContent = 'Next Person';
+    nextPersonBtn.onclick = loadNewPerson;
+    questionsDiv.appendChild(nextPersonBtn);
 }
 
 // Check answers
@@ -352,11 +367,26 @@ function showResult() {
     console.log('[showResult] Results displayed, restart button added');
 }
 
+// Exit game
+function exitGame() {
+    console.log('[exitGame] Attempting to exit');
+    try {
+        tg.close();
+        console.log('[exitGame] tg.close() called');
+    } catch (error) {
+        console.error('[exitGame] tg.close() failed:', error.message);
+        // Запасной вариант: возврат на главный экран
+        gameDiv.style.display = 'none';
+        resultDiv.style.display = 'none';
+        questionsDiv.style.display = 'none';
+        easyModeBtn.style.display = 'block';
+        hardModeBtn.style.display = 'block';
+        console.log('[exitGame] Returned to main screen');
+    }
+    gtag('event', 'exit_game');
+}
+
 // Event listeners
 easyModeBtn.addEventListener('click', () => startGame(false));
 hardModeBtn.addEventListener('click', () => startGame(true));
-exitBtn.addEventListener('click', () => {
-    console.log('[exit] Exiting game');
-    tg.close();
-    gtag('event', 'exit_game');
-});
+exitBtn.addEventListener('click', exitGame);
