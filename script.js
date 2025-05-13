@@ -100,67 +100,78 @@ languageSelect.addEventListener('change', updateLanguage);
 // Difficulty switch
 difficultySelect.addEventListener('change', updateDifficulty);
 
-// Wikipedia API to fetch random person
+// Wikidata API to fetch random person
 async function loadNewPerson() {
     progress.textContent = '0%';
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
-    console.log('Loading new person...');
+    console.log('Loading new person from Wikidata...');
 
     try {
         progress.textContent = '20%';
-        // Fetch random article
-        let url = 'https://en.wikipedia.org/w/api.php?' +
-            'action=query&format=json&list=random&rnnamespace=0&rnlimit=1';
-        if (difficulty === 'easy') {
-            url += '&rnfilterredir=nonredirects';
-        }
-        const res = await fetch(url, { mode: 'cors' });
-        const data = await res.json();
-        const title = data.query.random[0].title;
-        console.log(`Selected article: ${title}`);
-
-        progress.textContent = '40%';
-        // Fetch article details
-        const pageRes = await fetch(`https://en.wikipedia.org/w/api.php?` +
-            `action=query&format=json&prop=info|pageimages&inprop=url&titles=${encodeURIComponent(title)}&piprop=original`);
-        const pageData = await res.json();
-        const page = Object.values(pageData.query.pages)[0];
-        const imageUrl = page.original ? page.original.source : null;
-
+        // SPARQL-запрос к Wikidata
+        const query = `
+            SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image WHERE {
+                ?person wdt:P31 wd:Q5; # Человек
+                        wdt:P21 ?gender; # Пол
+                        wdt:P569 ?birth; # Дата рождения
+                        wdt:P18 ?image. # Изображение
+                OPTIONAL { ?person wdt:P570 ?death. } # Дата смерти (если есть)
+                SERVICE wikibase:label { bd:serviceParam wikibase:language "uk,en". }
+                ${difficulty === 'easy' ? 'OPTIONAL { ?person wdt:P1651 ?youtube. }' : ''} # Фильтр популярности
+            } LIMIT 1
+        `;
+        const response = await fetch('https://query.wikidata.org/sparql?query=' + encodeURIComponent(query) + '&format=json', {
+            headers: { 'Accept': 'application/sparql-results+json' }
+        });
+        const data = await response.json();
         progress.textContent = '60%';
-        // Basic face detection simulation (placeholder)
-        if (!imageUrl || !(await isValidImage(imageUrl))) {
+
+        const person = data.results.bindings[0];
+        if (!person) throw new Error('No person found');
+
+        currentPerson = {
+            name: person.personLabel.value,
+            alive: person.death ? 'dead' : 'alive',
+            gender: person.genderLabel.value.toLowerCase().includes('male') ? 'male' : 'female',
+            image: person.image.value,
+            wiki: person.person.value.replace('http://www.wikidata.org/entity/', 'https://en.wikipedia.org/wiki/')
+        };
+
+        progress.textContent = '80%';
+        if (!(await isValidImage(currentPerson.image))) {
             console.warn('Invalid image, retrying...');
             return loadNewPerson();
         }
 
-        progress.textContent = '80%';
-        // Fetch person info (simplified)
-        currentPerson = {
-            name: title,
-            alive: Math.random() > 0.5 ? 'alive' : 'dead',
-            gender: Math.random() > 0.5 ? 'male' : 'female',
-            image: imageUrl,
-            wiki: page.fullurl
-        };
-
         progress.textContent = '100%';
         personImage.src = currentPerson.image;
         console.log('Person loaded:', currentPerson);
+
+        // Логирование в GA4
+        gtag('event', 'load_person', {
+            source: 'wikidata',
+            success: true,
+            person: currentPerson.name
+        });
     } catch (error) {
-        console.error('Error loading person:', error);
+        console.error('Error loading person from Wikidata:', error);
         progress.textContent = 'Error';
+        gtag('event', 'load_person', {
+            source: 'wikidata',
+            success: false
+        });
         setTimeout(loadNewPerson, 2000);
     }
 }
 
-// Validate image (placeholder for face detection)
+// Validate image
 async function isValidImage(url) {
     try {
-        const res = await fetch(url, { method: 'HEAD' });
-        return res.ok;
+        const response = await fetch(url, { method: 'HEAD' });
+        const contentLength = response.headers.get('content-length');
+        return response.ok && contentLength && parseInt(contentLength) > 10000; // Минимальный размер
     } catch {
         return false;
     }
