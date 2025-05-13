@@ -1,246 +1,144 @@
-:root {
-    --primary-bg: #2c3e50; /* Space Grayish */
-    --secondary-bg: #34495e;
-    --text-color: #ecf0f1;
-    --accent-color: #3498db;
-    --border-color: #7f8c8d;
-    --correct-color: #2ecc71;
-    --incorrect-color: #e74c3c;
-    --button-bg: #566573;
-    --button-hover-bg: #798591;
-
-    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
-
-body.light-theme {
-    --primary-bg: #bdc3c7;
-    --secondary-bg: #dde1e2;
-    --text-color: #2c3e50;
-    --accent-color: #2980b9;
-    --border-color: #95a5a6;
-    --button-bg: #AABBC3;
-    --button-hover-bg: #CAD5DB;
-}
-
 body {
-    font-family: var(--font-family);
-    background-color: var(--primary-bg);
-    color: var(--text-color);
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
     margin: 0;
-    padding: 10px;
+    padding: 0;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align to top for scrolling */
-    min-height: 100vh;
-    box-sizing: border-box;
-    transition: background-color 0.3s, color 0.3s;
+    align-items: center;
+    height: 100vh;
 }
 
-#app-container {
-    width: 100%;
-    max-width: 500px; /* Max width for typical mini app view */
-    background-color: var(--secondary-bg);
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    padding: 15px;
-    box-sizing: border-box;
+.container {
+    width: 90%;
+    max-width: 600px;
+    background-color: #2c2c2c;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-header {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-#theme-toggle, #language-select, button {
-    padding: 8px 12px;
-    background-color: var(--button-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+.header select, .header button {
+    background-color: #3c3c3c;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s;
 }
 
-#theme-toggle:hover, #language-select:hover, button:hover {
-    background-color: var(--button-hover-bg);
+.header button {
+    font-size: 1.2em;
 }
 
-#language-select {
-    padding: 8px; /* Ensure padding matches button */
-}
-
-#welcome-message {
-    font-size: 0.9em;
-    text-align: right;
-}
-
-.difficulty-selector {
-    margin-bottom: 15px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.difficulty-btn {
-    flex-grow: 1;
-}
-
-.difficulty-btn.active {
-    background-color: var(--accent-color);
-    font-weight: bold;
-}
-
-#photo-frame-container {
-    position: relative;
-    width: 100%;
-    max-width: 300px; /* Control image size */
-    height: 300px; /* Fixed height */
-    margin: 0 auto 20px auto;
-    border: 3px solid var(--border-color);
-    background-color: #000; /* Fallback for image load */
-    overflow: hidden; /* Important for shutter */
-    border-radius: 5px;
-}
-
-#photo-frame {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#person-photo {
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain; /* Changed to contain to see full image */
-    border-radius: 3px; /* Slightly rounded corners for the image itself */
-}
-
-#shutter {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--secondary-bg); /* Same as app container for seamless look */
-    border: 2px dashed var(--border-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5em;
-    color: var(--text-color);
-    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-    opacity: 1;
-    visibility: visible;
-}
-
-#shutter.closed::before {
-    content: attr(data-text-reveal); /* For translated "Reveal" text */
-    opacity: 0.7;
-}
-
-
-#shutter.open {
-    opacity: 0;
-    visibility: hidden;
-}
-
-#questions-area {
+.player-info {
     text-align: center;
     margin-bottom: 20px;
 }
 
-#questions-area p {
-    margin: 15px 0 8px 0;
+.display {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background-color: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.answer-btn {
-    margin: 5px;
-    min-width: 100px;
+#person-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
-.answer-btn.selected {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
+#loading-progress {
+    font-size: 2em;
+    color: #ffffff;
 }
 
-.answer-btn.correct {
-    background-color: var(--correct-color);
-    color: #fff;
-    border-color: var(--correct-color);
-}
-
-.answer-btn.incorrect {
-    background-color: var(--incorrect-color);
-    color: #fff;
-    border-color: var(--incorrect-color);
-}
-
-#results-area {
-    text-align: center;
-    margin-top: 20px;
-    padding: 15px;
-    background-color: var(--primary-bg);
-    border-radius: 5px;
-}
-
-#results-area h2 {
-    margin-top: 0;
-    color: var(--accent-color);
-}
-
-#results-area a {
-    color: var(--text-color);
-    text-decoration: none;
-    padding: 8px 12px;
-    background-color: var(--button-bg);
-    border-radius: 5px;
-    display: inline-block;
-    margin-top: 10px;
-}
-#results-area a:hover {
-    background-color: var(--button-hover-bg);
-}
-
-
-#loading-indicator {
-    text-align: center;
-    padding: 20px;
-    font-size: 1.2em;
-}
-
-#stats-area {
-    margin-top: 20px;
+#next-photo {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #3c3c3c;
+    color: #ffffff;
+    border: none;
     padding: 10px;
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.questions {
+    margin: 20px 0;
+}
+
+.question {
     margin-bottom: 10px;
 }
 
-#stats-area h3 {
-    margin-top: 0;
+.question label {
+    margin-right: 20px;
+}
+
+#check-answer {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.result {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.result a {
+    color: #007bff;
+}
+
+.statistics {
     text-align: center;
 }
 
-#stats-area p {
-    font-size: 0.9em;
-    margin: 5px 0;
+.light-theme {
+    background-color: #ffffff;
+    color: #000000;
 }
 
-.footer-nav {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+.light-theme .container {
+    background-color: #f0f0f0;
+}
+
+.light-theme .header select,
+.light-theme .header button,
+.light-theme #next-photo {
+    background-color: #d0d0d0;
+    color: #000000;
+}
+
+.light-theme #check-answer {
+    background-color: #0056b3;
+}
+
+.correct {
+    color: #28a745 !important;
+}
+
+.incorrect {
+    color: #dc3545 !important;
 }
