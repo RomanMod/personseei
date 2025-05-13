@@ -1,80 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Who Is It? - Telegram Mini App</title>
+    <title>Guess Who - Telegram Mini App</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-TQ5F8JW26S');
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-TQ5F8JW26S');
     </script>
 </head>
 <body>
     <div class="container">
-        <!-- Header with player name -->
-        <h1 id="player-name">Welcome, Player!</h1>
-
-        <!-- Settings -->
-        <div class="settings">
-            <select id="theme">
-                <option value="night">Night</option>
-                <option value="day">Day</option>
-            </select>
-            <select id="language">
-                <option value="en">English</option>
-                <option value="uk">Українська</option>
-                <option value="ru">Русский</option>
-                <option value="alien">👽 Alien</option>
-            </select>
-            <select id="difficulty">
-                <option value="easy">Попроще</option>
-                <option value="hard">Просто</option>
-            </select>
-        </div>
-
-        <!-- Display for photo and progress -->
+        <header>
+            <h1 id="player-name">Player</h1>
+            <div class="settings">
+                <select id="language">
+                    <option value="uk">Українська</option>
+                    <option value="ru">Русский</option>
+                    <option value="en">English</option>
+                    <option value="alien">👽 Alien</option>
+                </select>
+                <button id="theme-toggle">🌙 Ніч</button>
+                <select id="difficulty">
+                    <option value="easy">Попроще</option>
+                    <option value="hard">Просто</option>
+                </select>
+            </div>
+        </header>
         <div class="display">
-            <div id="progress">Loading: 0%</div>
-            <img id="person-photo" src="" alt="Person Photo" style="display: none;">
-            <button id="next-photo" class="arrow">➡️</button>
+            <div id="loading-progress">0%</div>
+            <img id="person-image" src="" alt="Person" style="display: none;">
+            <button id="next-photo">➡️</button>
         </div>
-
-        <!-- Questions -->
         <div class="questions">
-            <div class="question">
-                <label>Alive or Dead?</label><br>
-                <input type="radio" name="alive" value="alive"> Alive
-                <input type="radio" name="alive" value="dead"> Dead
+            <div id="status-question">
+                <label><input type="radio" name="status" value="alive"> Жив</label>
+                <label><input type="radio" name="status" value="dead"> Мерт</label>
             </div>
-            <div class="question" id="gender-question" style="display: none;">
-                <label>Gender?</label><br>
-                <input type="radio" name="gender" value="male"> Male
-                <input type="radio" name="gender" value="female"> Female
+            <div id="gender-question" class="hidden">
+                <button class="gender-btn" data-gender="male">Чоловік</button>
+                <button class="gender-btn" data-gender="female">Жінка</button>
             </div>
         </div>
-
-        <!-- Check Button -->
-        <button id="check-answer">Check</button>
-
-        <!-- Result -->
-        <div id="result" style="display: none;">
-            <p id="person-info"></p>
-            <a id="wiki-link" href="#" target="_blank">Wikipedia</a>
+        <button id="check-answer">Перевірити</button>
+        <div id="result" class="hidden">
+            <h2 id="person-info"></h2>
+            <a id="wiki-link" href="#" target="_blank">Вікіпедія</a>
         </div>
-
-        <!-- Statistics -->
-        <div class="statistics">
-            <h3>Statistics</h3>
-            <p>Total Questions: <span id="total">0</span></p>
-            <p>Correct Answers: <span id="correct">0</span></p>
-            <p>Accuracy: <span id="accuracy">0%</span></p>
+        <div id="statistics">
+            <p>Правильних відповідей: <span id="correct-answers">0</span></p>
+            <p>Загалом питань: <span id="total-questions">0</span></p>
         </div>
     </div>
     <script src="script.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
