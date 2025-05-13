@@ -73,7 +73,7 @@ const lesserKnownPeople = [
     }
 ];
 
-// Fetch random person with Wikidata and logging
+// Fetch random person with Wikipedia API (fallback to mock)
 async function fetchRandomPerson(hardMode) {
     console.log(`[fetchRandomPerson] Starting for ${hardMode ? 'hard' : 'easy'} mode`);
     let attempts = 0;
@@ -82,60 +82,44 @@ async function fetchRandomPerson(hardMode) {
     while (attempts < maxAttempts) {
         console.log(`[fetchRandomPerson] Attempt ${attempts + 1}/${maxAttempts}`);
         try {
-            // Simplified Wikidata SPARQL query
-            const sparqlQuery = `
-                SELECT ?item ?itemLabel ?gender ?birth ?death ?image ?article WHERE {
-                    ?item wdt:P31 wd:Q5 . # Instance of human
-                    ?item wdt:P18 ?image . # Has image
-                    OPTIONAL { ?item wdt:P21 ?gender . }
-                    OPTIONAL { ?item wdt:P569 ?birth . }
-                    OPTIONAL { ?item wdt:P570 ?death . }
-                    ?article schema:about ?item ;
-                             schema:isPartOf <https://en.wikipedia.org/> .
-                    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
-                }
-                ORDER BY RAND()
-                LIMIT 1
-            `;
-            console.log('[fetchRandomPerson] Sending Wikidata SPARQL query');
-            const wdResponse = await fetch(`https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}&format=json`, {
+            // Получаем случайную статью
+            console.log('[fetchRandomPerson] Sending Wikipedia random query');
+            const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
-            const wdData = await wdResponse.json();
-            console.log('[fetchRandomPerson] Wikidata response:', wdData);
+            const data = await response.json();
+            console.log('[fetchRandomPerson] Wikipedia random response:', data);
 
-            const person = wdData.results.bindings[0];
-            if (!person || !person.image) {
-                console.log('[fetchRandomPerson] No person or image found, retrying');
-                attempts++;
-                continue;
-            }
+            const title = data.query.random[0].title;
+            console.log(`[fetchRandomPerson] Selected title: ${title}`);
 
-            const title = person.article.value.split('/').pop();
-            const image = person.image.value;
-            console.log(`[fetchRandomPerson] Selected person: ${person.itemLabel.value}, Title: ${title}, Image: ${image}`);
-
-            // Filter non-portrait images
-            const imageName = image.toLowerCase();
-            if (imageName.includes('logo') || imageName.includes('team') || imageName.includes('yacht') || imageName.includes('symbol') || (!imageName.includes('jpg') && !imageName.includes('jpeg') && !imageName.includes('png'))) {
-                console.log(`[fetchRandomPerson] Image rejected (non-portrait): ${image}`);
-                attempts++;
-                continue;
-            }
-
-            // Check popularity
-            console.log('[fetchRandomPerson] Checking popularity via Wikipedia');
-            const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories|pageviews&titles=${encodeURIComponent(title)}&cllimit=10&pvprop=pageviews&pvip=30&format=json&origin=*`, {
+            // Проверяем, что это человек
+            const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories&titles=${encodeURIComponent(title)}&cllimit=10&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
             const catData = await catResponse.json();
-            console.log('[fetchRandomPerson] Wikipedia response:', catData);
+            console.log('[fetchRandomPerson] Categories response:', catData);
 
             const pageId = Object.keys(catData.query.pages)[0];
             const categories = catData.query.pages[pageId].categories || [];
-            const pageViews = catData.query.pages[pageId].pageviews || {};
+            const isPerson = categories.some(cat => cat.title.includes('Living people') || cat.title.includes('people') || cat.title.includes('births') || cat.title.includes('deaths'));
+
+            if (!isPerson) {
+                console.log(`[fetchRandomPerson] Not a person (categories: ${categories.map(c => c.title).join(', ')}), retrying`);
+                attempts++;
+                continue;
+            }
+
+            // Проверяем популярность
+            const pageViewResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=pageviews&titles=${encodeURIComponent(title)}&pvip=30&format=json&origin=*`, {
+                headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
+            });
+            const pvData = await pageViewResponse.json();
+            console.log('[fetchRandomPerson] Page views response:', pvData);
+
+            const pageViews = pvData.query.pages[pageId].pageviews || {};
             const totalViews = Object.values(pageViews).reduce((sum, val) => sum + (val || 0), 0);
-            const isPopular = categories.some(cat => cat.title.includes('Living people') || cat.title.includes('Nobel laureates') || cat.title.includes('Heads of state') || cat.title.includes('Grammy Award winners')) || totalViews > 1000;
+            const isPopular = categories.some(cat => cat.title.includes('Nobel laureates') || cat.title.includes('Heads of state') || cat.title.includes('Grammy Award winners')) || totalViews > 1000;
 
             console.log(`[fetchRandomPerson] Categories: ${categories.map(c => c.title).join(', ')}, Total views: ${totalViews}, Is popular: ${isPopular}`);
 
@@ -150,20 +134,45 @@ async function fetchRandomPerson(hardMode) {
                 continue;
             }
 
-            // Parse data
+            // Получаем данные и изображение
+            console.log('[fetchRandomPerson] Fetching person data and image');
+            const infoResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=${encodeURIComponent(title)}&exintro&explaintext&piprop=thumbnail&pithumbsize=200&format=json&origin=*`, {
+                headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
+            });
+            const infoData = await infoResponse.json();
+            console.log('[fetchRandomPerson] Person data response:', infoData);
+
+            const page = infoData.query.pages[pageId];
+            const image = page.thumbnail ? page.thumbnail.source : null;
+
+            if (!image) {
+                console.log('[fetchRandomPerson] No image found, retrying');
+                attempts++;
+                continue;
+            }
+
+            // Фильтруем неподходящие изображения
+            const imageName = image.toLowerCase();
+            if (imageName.includes('logo') || imageName.includes('team') || imageName.includes('yacht') || imageName.includes('symbol') || (!imageName.includes('jpg') && !imageName.includes('jpeg') && !imageName.includes('png'))) {
+                console.log(`[fetchRandomPerson] Image rejected (non-portrait): ${image}`);
+                attempts++;
+                continue;
+            }
+
+            // Парсим данные
             console.log('[fetchRandomPerson] Parsing person data');
-            const gender = person.gender ? person.gender.value.includes('female') ? 'Female' : 'Male' : 'Male';
-            const birthYear = person.birth ? new Date(person.birth.value).getFullYear() : null;
-            const deathYear = person.death ? new Date(person.death.value).getFullYear() : null;
-            const alive = !deathYear;
-            const age = birthYear ? (alive ? new Date().getFullYear() - birthYear : deathYear - birthYear) : 50;
-            const hasChildren = Math.random() > 0.5; // Placeholder
+            const extract = page.extract || '';
+            const gender = extract.includes('she') || extract.includes('her') ? 'Female' : 'Male';
+            const alive = categories.some(cat => cat.title.includes('Living people'));
+            const ageMatch = extract.match(/born.*?(\d{4})/);
+            const age = ageMatch ? (alive ? new Date().getFullYear() - parseInt(ageMatch[1]) : 80) : 50;
+            const hasChildren = Math.random() > 0.5;
             const cocoon = ['Oval', 'Rectangular', 'Other'][Math.floor(Math.random() * 3)];
 
-            console.log(`[fetchRandomPerson] Success: Name: ${person.itemLabel.value}, Gender: ${gender}, Alive: ${alive}, Age: ${age}, Image: ${image}`);
+            console.log(`[fetchRandomPerson] Success: Name: ${title}, Gender: ${gender}, Alive: ${alive}, Age: ${age}, Image: ${image}`);
 
             return {
-                name: person.itemLabel.value,
+                name: title,
                 gender,
                 alive,
                 age,
@@ -173,7 +182,7 @@ async function fetchRandomPerson(hardMode) {
                 wiki: `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`
             };
         } catch (error) {
-            console.error('[fetchRandomPerson] Error:', error);
+            console.error(`[fetchRandomPerson] Error in attempt ${attempts + 1}:`, error.message, error.stack);
             attempts++;
         }
         console.log('[fetchRandomPerson] Waiting 100ms before next attempt');
@@ -196,8 +205,14 @@ async function startGame(hardMode) {
     answers = {};
     correctAnswers = 0;
 
-    currentPerson = await fetchRandomPerson(hardMode);
-    console.log('[startGame] Current person:', currentPerson);
+    try {
+        currentPerson = await fetchRandomPerson(hardMode);
+        console.log('[startGame] Current person:', currentPerson);
+    } catch (error) {
+        console.error('[startGame] Failed to fetch person:', error.message, error.stack);
+        currentPerson = popularPeople[0]; // Запасной вариант
+    }
+
     personImage.src = currentPerson.image;
     personImage.style.display = isHardMode ? 'none' : 'block';
     curtain.style.display = isHardMode ? 'block' : 'none';
