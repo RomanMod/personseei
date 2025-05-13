@@ -22,6 +22,7 @@ let correctAnswers = 0;
 let totalQuestions = 0;
 let currentPerson = null;
 let difficulty = 'easier';
+let isLoading = false; // Флаг для предотвращения повторных вызовов
 
 // Language translations
 const translations = {
@@ -89,6 +90,13 @@ function updateDifficulty() {
     loadNewPerson();
 }
 
+// Sync theme with Telegram
+function syncTheme() {
+    const isDark = tg.colorScheme === 'dark';
+    document.body.className = isDark ? 'night' : 'day';
+    themeSelect.value = isDark ? 'night' : 'day';
+}
+
 // Theme switch
 themeSelect.addEventListener('change', () => {
     document.body.className = themeSelect.value;
@@ -100,8 +108,16 @@ languageSelect.addEventListener('change', updateLanguage);
 // Difficulty switch
 difficultySelect.addEventListener('change', updateDifficulty);
 
+// Telegram theme change
+tg.onEvent('themeChanged', syncTheme);
+
 // Wikidata API to fetch random person
 async function loadNewPerson() {
+    if (isLoading) {
+        console.log('loadNewPerson skipped: already loading');
+        return;
+    }
+    isLoading = true;
     progress.textContent = '0%';
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
@@ -118,9 +134,10 @@ async function loadNewPerson() {
                         wdt:P569 ?birth; # Дата рождения
                         wdt:P18 ?image. # Изображение
                 OPTIONAL { ?person wdt:P570 ?death. } # Дата смерти (если есть)
+                FILTER (regex(str(?image), "\\.(jpg|png)$", "i")) # Только JPG/PNG
                 SERVICE wikibase:label { bd:serviceParam wikibase:language "uk,en". }
                 ${difficulty === 'easy' ? 'OPTIONAL { ?person wdt:P1651 ?youtube. }' : ''} # Фильтр популярности
-            } LIMIT 1
+            } ORDER BY RAND() LIMIT 1
         `;
         const response = await fetch('https://query.wikidata.org/sparql?query=' + encodeURIComponent(query) + '&format=json', {
             headers: { 'Accept': 'application/sparql-results+json' }
@@ -142,6 +159,7 @@ async function loadNewPerson() {
         progress.textContent = '80%';
         if (!(await isValidImage(currentPerson.image))) {
             console.warn('Invalid image, retrying...');
+            isLoading = false;
             return loadNewPerson();
         }
 
@@ -156,13 +174,18 @@ async function loadNewPerson() {
             person: currentPerson.name
         });
     } catch (error) {
-        console.error('Error loading person from Wikidata:', error);
+        console.error('Error loading person from Wikidata:', erdatalimitror);
         progress.textContent = 'Error';
         gtag('event', 'load_person', {
             source: 'wikidata',
             success: false
         });
-        setTimeout(loadNewPerson, 2000);
+        setTimeout(() => {
+            isLoading = false;
+            loadNewPerson();
+        }, 2000);
+    } finally {
+        isLoading = false;
     }
 }
 
@@ -171,8 +194,13 @@ async function isValidImage(url) {
     try {
         const response = await fetch(url, { method: 'HEAD' });
         const contentLength = response.headers.get('content-length');
-        return response.ok && contentLength && parseInt(contentLength) > 10000; // Минимальный размер
-    } catch {
+        const contentType = response.headers.get('content-type');
+        return response.ok && 
+               contentLength && 
+               parseInt(contentLength) > 10000 && 
+               contentType.includes('image');
+    } catch (error) {
+        console.error('Image validation failed:', error);
         return false;
     }
 }
@@ -248,7 +276,7 @@ nextPhotoBtn.addEventListener('click', () => {
 });
 
 // Initialize
-document.body.className = 'night';
+syncTheme(); // Синхронизация темы с Telegram
+document.body.className = tg.colorScheme === 'dark' ? 'night' : 'day';
 updateLanguage();
 updateDifficulty();
-loadNewPerson();
