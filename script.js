@@ -86,6 +86,8 @@ function updateLanguage() {
 function updateDifficulty() {
     difficulty = difficultySelect.value;
     console.log(`Difficulty changed to: ${difficulty}`);
+    document.querySelectorAll('.correct').forEach(el => el.classList.remove('correct'));
+    document.querySelectorAll('input[name="alive"]').forEach(input => input.checked = false);
     document.getElementById('alive-question').style.display = difficulty === 'easy' ? 'block' : 'none';
     document.getElementById('gender-question').style.display = difficulty === 'easy' ? 'block' : 'none';
     document.getElementById('easier-question').style.display = difficulty === 'easier' ? 'block' : 'none';
@@ -126,6 +128,21 @@ tg.onEvent('themeChanged', () => {
     syncTheme();
 });
 
+// Check cache
+function getCachedPerson() {
+    const cached = localStorage.getItem('cachedPerson');
+    if (cached) {
+        console.log('Using cached person');
+        return JSON.parse(cached);
+    }
+    return null;
+}
+
+function setCachedPerson(person) {
+    console.log('Caching person:', person.name);
+    localStorage.setItem('cachedPerson', JSON.stringify(person));
+}
+
 // Wikidata API to fetch random person
 async function loadNewPerson() {
     if (isLoading) {
@@ -150,25 +167,52 @@ async function loadNewPerson() {
     personImage.src = '';
     console.log(`Loading new person from Wikidata (attempt ${retryCount}/${maxRetries})...`);
 
+    // Try cache first
+    const cachedPerson = getCachedPerson();
+    if (cachedPerson && retryCount === 1) {
+        currentPerson = cachedPerson;
+        progress.textContent = '100%';
+        personImage.src = currentPerson.image;
+        console.log('Person loaded from cache:', currentPerson);
+        gtag('event', 'load_person', {
+            source: 'cache',
+            success: true,
+            person: currentPerson.name,
+            retries: retryCount
+        });
+        retryCount = 0;
+        isLoading = false;
+        return;
+    }
+
     try {
         progress.textContent = '20%';
         console.log('Sending SPARQL query to Wikidata...');
         const query = `
             SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image WHERE {
-                ?person wdt:P31 wd:Q5; # Человек
-                        wdt:P21 ?gender; # Пол
-                        wdt:P569 ?birth; # Дата рождения
-                        wdt:P18 ?image. # Изображение
-                OPTIONAL { ?person wdt:P570 ?death. } # Дата смерти (если есть)
-                FILTER (regex(str(?image), "\\.(jpg|png)$", "i")) # Только JPG/PNG
+                ?person wdt:P31 wd:Q5;
+                        wdt:P21 ?gender;
+                        wdt:P569 ?birth;
+                        wdt:P18 ?image.
+                OPTIONAL { ?person wdt:P570 ?death. }
+                FILTER (regex(str(?image), "\\.(jpg|png)$", "i"))
                 SERVICE wikibase:label { bd:serviceParam wikibase:language "uk,en". }
-                ${difficulty === 'easy' ? 'OPTIONAL { ?person wdt:P1651 ?youtube. }' : ''} # Фильтр популярности
-            } ORDER BY RAND() LIMIT 1
+            } LIMIT 1
         `;
+        console.log('SPARQL query:', query);
         const response = await fetch('https://query.wikidata.org/sparql?query=' + encodeURIComponent(query) + '&format=json', {
-            headers: { 'Accept': 'application/sparql-results+json' }
+            headers: {
+                'Accept': 'application/sparql-results+json',
+                'User-Agent': 'GuessWhoMiniApp/1.0 (https://your-domain.com; your-email@example.com)'
+            }
         });
-        console.log(`Wikidata response status: ${response.status}`);
+        console.log(`Wikidata response status: ${response.status}, headers:`, Object.fromEntries(response.headers));
+        if (response.status === 429) {
+            throw new Error('Too Many Requests');
+        }
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
         const data = await response.json();
         progress.textContent = '60%';
         console.log('Wikidata data received:', data);
@@ -198,7 +242,8 @@ async function loadNewPerson() {
         progress.textContent = '100%';
         personImage.src = currentPerson.image;
         console.log('Person successfully loaded:', currentPerson);
-        retryCount = 0; // Сброс счетчика при успехе
+        setCachedPerson(currentPerson);
+        retryCount = 0;
 
         // Логирование в GA4
         gtag('event', 'load_person', {
@@ -208,8 +253,8 @@ async function loadNewPerson() {
             retries: retryCount
         });
     } catch (error) {
-        console.error('Error loading person from Wikidata:', error);
-        progress.textContent = 'Помилка завантаження';
+        console.error('Error loading person from Wikidata:', error.message);
+        progress.textContent = `Помилка: ${error.message}`;
         gtag('event', 'load_person_failed', {
             source: 'wikidata',
             reason: error.message,
@@ -218,7 +263,7 @@ async function loadNewPerson() {
         setTimeout(() => {
             isLoading = false;
             loadNewPerson();
-        }, 2000);
+        }, 5000);
     } finally {
         isLoading = false;
     }
@@ -236,7 +281,20 @@ async function isValidImage(url) {
                         parseInt(contentLength) > 10000 && 
                         contentType.includes('image');
         console.log(`Image validation result: ${isValid} (status: ${response.status}, size: ${contentLength}, type: ${contentType})`);
-        return isValid;
+        
+        // Дополнительная проверка разрешения
+        if (isValid) {
+            const img = new Image();
+            const promise = new Promise((resolve) => {
+                img.onload = () => resolve(img.width >= 100 && img.height >= 100);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+            const isHighRes = await promise;
+            console.log(`Image resolution check: ${isHighRes} (width: ${img.width}, height: ${img.height})`);
+            return isHighRes;
+        }
+        return false;
     } catch (error) {
         console.error('Image validation failed:', error);
         return false;
@@ -314,7 +372,7 @@ nextPhotoBtn.addEventListener('click', () => {
     console.log('Next photo requested');
     document.querySelectorAll('.correct').forEach(el => el.classList.remove('correct'));
     document.querySelectorAll('input[name="alive"]').forEach(input => input.checked = false);
-    retryCount = 0; // Сброс счетчика при ручном запросе
+    retryCount = 0;
     loadNewPerson();
 });
 
