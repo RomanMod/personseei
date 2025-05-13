@@ -3,61 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess Who - Telegram Mini App</title>
+    <title>Guess the Person - Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="styles.css">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TQ5F8JW26S');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-TQ5F8JW26S');
     </script>
 </head>
-<body>
+<body class="space-gray night">
     <div class="container">
         <header>
-            <h1 id="player-name">Player</h1>
+            <h1 id="game-title">Вгадай Особу</h1>
+            <p id="player-name">Гравець: Завантаження...</p>
             <div class="settings">
                 <select id="language">
-                    <option value="uk">Українська</option>
+                    <option value="uk" selected>Українська</option>
                     <option value="ru">Русский</option>
                     <option value="en">English</option>
                     <option value="alien">👽 Alien</option>
                 </select>
-                <button id="theme-toggle">🌙 Ніч</button>
                 <select id="difficulty">
-                    <option value="easy">Попроще</option>
-                    <option value="hard">Просто</option>
+                    <option value="easier" selected>Попроще</option>
+                    <option value="easy">Просто</option>
                 </select>
+                <button id="theme-toggle">Ніч</button>
             </div>
         </header>
-        <div class="display">
-            <div id="loading-progress">0%</div>
-            <img id="person-image" src="" alt="Person" style="display: none;">
-            <button id="next-photo">➡️</button>
-        </div>
-        <div class="questions">
-            <div id="status-question">
-                <label><input type="radio" name="status" value="alive"> Жив</label>
-                <label><input type="radio" name="status" value="dead"> Мерт</label>
+        <main>
+            <div class="photo-display">
+                <div id="loading-progress">0%</div>
+                <img id="person-photo" src="" alt="Person Photo" style="display: none;">
+                <button id="next-photo" class="arrow">→</button>
             </div>
-            <div id="gender-question" class="hidden">
-                <button class="gender-btn" data-gender="male">Чоловік</button>
-                <button class="gender-btn" data-gender="female">Жінка</button>
+            <div id="game-options">
+                <div id="easier-options">
+                    <button class="option" data-status="alive">Жив</button>
+                    <button class="option" data-status="dead">Мерт</button>
+                </div>
+                <div id="easy-options" style="display: none;">
+                    <div class="radio-group">
+                        <label><input type="radio" name="status" value="alive"> Жив</label>
+                        <label><input type="radio" name="status" value="dead"> Мерт</label>
+                    </div>
+                    <button class="option" data-gender="male">Чоловік</button>
+                    <button class="option" data-gender="female">Жінка</button>
+                </div>
             </div>
-        </div>
-        <button id="check-answer">Перевірити</button>
-        <div id="result" class="hidden">
-            <h2 id="person-info"></h2>
-            <a id="wiki-link" href="#" target="_blank">Вікіпедія</a>
-        </div>
-        <div id="statistics">
-            <p>Правильних відповідей: <span id="correct-answers">0</span></p>
-            <p>Загалом питань: <span id="total-questions">0</span></p>
-        </div>
+            <button id="check-answer">Перевірити</button>
+            <div id="result" style="display: none;">
+                <p id="person-info"></p>
+                <a id="wiki-link" href="#" target="_blank">Вікіпедія</a>
+            </div>
+            <div id="statistics">
+                <h2>Статистика</h2>
+                <p>Правильні відповіді: <span id="correct-answers">0</span></p>
+                <p>Загалом питань: <span id="total-questions">0</span></p>
+            </div>
+        </main>
     </div>
     <script src="script.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
 </html>
