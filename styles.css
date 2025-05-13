@@ -35,7 +35,14 @@ body {
 h1 {
     font-size: 24px;
     margin-bottom: 20px;
-    color: var(--highlight); /* Для отладки темы */
+    color: var(--highlight);
+    animation: themeChange 0.5s ease; /* Мигание при смене темы */
+}
+
+@keyframes themeChange {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
 }
 
 .settings {
@@ -69,7 +76,7 @@ select {
     font-size: 24px;
     color: var(--text-color);
     font-weight: bold;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     padding: 10px;
     border-radius: 5px;
 }
