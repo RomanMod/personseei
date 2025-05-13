@@ -3,486 +3,467 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Who Is This? - Telegram Mini App</title>
-    <!-- Google Tag Manager for GA4 -->
+    <title>Guess Who - Telegram Mini App</title>
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-TQ5F8JW26S');
     </script>
     <style>
         body {
-            background-color: #2c2c2e; /* Space gray */
-            color: #ffffff;
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #1C2526; /* Space gray background */
+            color: #E8ECEF;
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
         }
+
         body.light {
-            background-color: #f5f5f5;
-            color: #000000;
+            background-color: #E8ECEF;
+            color: #1C2526;
         }
-        #display {
-            width: 300px;
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .settings select, .settings button {
+            padding: 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2E2E2E;
+            color: #E8ECEF;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .settings select:hover, .settings button:hover {
+            background-color: #3E3E3E;
+        }
+
+        .settings button {
+            background-color: #4CAF50;
+        }
+
+        .settings button:hover {
+            background-color: #45a049;
+        }
+
+        .display {
+            width: 100%;
             height: 300px;
-            background-color: #1c1c1e;
+            background-color: #2E2E2E;
+            border-radius: 10px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 10px;
-            overflow: hidden;
             position: relative;
+            overflow: hidden;
         }
-        #display img {
+
+        .display img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+            display: none;
         }
-        #loading {
-            position: absolute;
+
+        .display .loading {
             font-size: 24px;
-            color: #ffffff;
+            color: #E8ECEF;
         }
-        #next-arrow {
+
+        .next-arrow {
             position: absolute;
-            right: -40px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
             font-size: 30px;
+            color: #E8ECEF;
             cursor: pointer;
-            color: #007aff;
-            transition: transform 0.2s;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
         }
-        #next-arrow:hover {
-            transform: translateY(-50%) scale(1.2);
+
+        .next-arrow:hover {
+            background-color: rgba(0, 0, 0, 0.8);
         }
-        #questions {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .radio-group {
-            margin: 10px 0;
-        }
-        .radio-group label {
-            margin: 0 10px;
-            cursor: pointer;
-        }
-        #check-btn {
-            background-color: #007aff;
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 20px;
-            font-size: 16px;
-        }
-        #check-btn:disabled {
-            background-color: #555;
-            cursor: not-allowed;
-        }
-        #result {
-            margin-top: 20px;
-            text-align: center;
-        }
-        #result a {
-            color: #007aff;
-            text-decoration: none;
-        }
-        #stats {
-            margin-top: 20px;
-            text-align: center;
-        }
-        .correct {
-            color: #00ff00 !important;
-        }
-        .incorrect {
-            color: #ff0000 !important;
-        }
-        #controls {
-            display: flex;
-            justify-content: space-between;
-            width: 300px;
+
+        .questions {
             margin-bottom: 20px;
         }
-        select, button {
-            padding: 5px;
-            border-radius: 5px;
-            background-color: #3c3c3e;
-            color: #ffffff;
-            border: none;
+
+        .questions label {
+            margin: 0 10px;
         }
-        body.light select, body.light button {
-            background-color: #ffffff;
-            color: #000000;
-            border: 1px solid #ccc;
+
+        .questions input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        .questions .correct {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .questions .incorrect {
+            color: #FF5252;
+        }
+
+        .check-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: #E8ECEF;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .check-button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .result a:hover {
+            text-decoration: underline;
+        }
+
+        .statistics {
+            margin-top: 20px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="controls">
-        <button id="theme-btn">🌙 Night</button>
-        <select id="language">
-            <option value="uk">Українська</option>
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-            <option value="alien">👽 Alien</option>
-        </select>
-        <select id="difficulty">
-            <option value="simple">Simple</option>
-            <option value="very-simple">Very Simple</option>
-        </select>
+    <div class="container">
+        <div class="header">
+            <div class="settings">
+                <select id="language">
+                    <option value="uk">Українська</option>
+                    <option value="ru">Русский</option>
+                    <option value="en" selected>English</option>
+                    <option value="alien">👾 Alien</option>
+                </select>
+                <select id="difficulty">
+                    <option value="simple">Simple</option>
+                    <option value="very-simple" selected>Very Simple</option>
+                </select>
+                <button id="theme-toggle">🌙 Night</button>
+            </div>
+            <span id="player-name">Player</span>
+        </div>
+        <div class="display" id="display">
+            <div class="loading" id="loading">Loading: 0%</div>
+            <img id="person-image" src="" alt="Person">
+            <div class="next-arrow" id="next-arrow">➡️</div>
+        </div>
+        <div class="questions" id="questions">
+            <div id="alive-question">
+                <label><input type="radio" name="alive" value="alive"> Alive</label>
+                <label><input type="radio" name="alive" value="dead"> Dead</label>
+            </div>
+            <div id="gender-question" style="display: none;">
+                <label><input type="radio" name="gender" value="male"> Male</label>
+                <label><input type="radio" name="gender" value="female"> Female</label>
+            </div>
+        </div>
+        <button class="check-button" id="check-button">Check</button>
+        <div class="result" id="result"></div>
+        <div class="statistics" id="statistics">
+            Correct: <span id="correct-count">0</span> | Incorrect: <span id="incorrect-count">0</span>
+        </div>
     </div>
-    <div id="display">
-        <div id="loading">0%</div>
-        <img id="photo" style="display: none;">
-        <div id="next-arrow">➡️</div>
-    </div>
-    <div id="questions"></div>
-    <button id="check-btn" disabled>Check</button>
-    <div id="result"></div>
-    <div id="stats"></div>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        // Telegram Web Apps integration
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        document.getElementById('player-name').textContent = tg.initDataUnsafe.user?.first_name || 'Player';
+
         // Language translations
         const translations = {
             uk: {
-                alive: "Живий",
-                dead: "Мертвий",
-                male: "Чоловік",
-                female: "Жінка",
-                check: "Перевірити",
-                correct: "Правильних відповідей",
-                total: "Всього питань",
-                next: "Наступне фото",
-                simple: "Просто",
-                verySimple: "Попростіше"
+                alive: 'Живий', dead: 'Мертвий', male: 'Чоловік', female: 'Жінка',
+                check: 'Перевірити', simple: 'Простий', verySimple: 'Дуже простий',
+                correct: 'Правильно', incorrect: 'Неправильно'
             },
             ru: {
-                alive: "Жив",
-                dead: "Мёртв",
-                male: "Мужчина",
-                female: "Женщина",
-                check: "Проверить",
-                correct: "Правильных ответов",
-                total: "Всего вопросов",
-                next: "Следующее фото",
-                simple: "Просто",
-                verySimple: "Попростіше"
+                alive: 'Жив', dead: 'Мёртв', male: 'Мужчина', female: 'Женщина',
+                check: 'Проверить', simple: 'Простой', verySimple: 'Очень простой',
+                correct: 'Правильно', incorrect: 'Неправильно'
             },
             en: {
-                alive: "Alive",
-                dead: "Dead",
-                male: "Male",
-                female: "Female",
-                check: "Check",
-                correct: "Correct answers",
-                total: "Total questions",
-                next: "Next photo",
-                simple: "Simple",
-                verySimple: "Very Simple"
+                alive: 'Alive', dead: 'Dead', male: 'Male', female: 'Female',
+                check: 'Check', simple: 'Simple', verySimple: 'Very Simple',
+                correct: 'Correct', incorrect: 'Incorrect'
             },
             alien: {
-                alive: "🛸",
-                dead: "💀",
-                male: "👨‍🚀",
-                female: "👩‍🚀",
-                check: "🔍",
-                correct: "✅",
-                total: "📊",
-                next: "🚀",
-                simple: "🌌",
-                verySimple: "☄️"
+                alive: '👽', dead: '💀', male: '🚹', female: '🚺',
+                check: '🔍', simple: '🪐', verySimple: '🌌',
+                correct: '✅', incorrect: '❌'
             }
         };
 
         // State
-        let currentLang = 'en';
-        let currentDifficulty = 'simple';
-        let isLightTheme = false;
-        let correctAnswers = 0;
-        let totalQuestions = 0;
         let currentPerson = null;
-        let loadingPercent = 0;
+        let correctAnswers = 0;
+        let incorrectAnswers = 0;
+        let difficulty = 'very-simple';
+        let language = 'en';
+        let isChecking = false;
 
-        // DOM Elements
-        const themeBtn = document.getElementById('theme-btn');
-        const languageSelect = document.getElementById('language');
-        const difficultySelect = document.getElementById('difficulty');
+        // Elements
         const display = document.getElementById('display');
-        const photo = document.getElementById('photo');
+        const personImage = document.getElementById('person-image');
         const loading = document.getElementById('loading');
         const nextArrow = document.getElementById('next-arrow');
-        const questionsDiv = document.getElementById('questions');
-        const checkBtn = document.getElementById('check-btn');
-        const resultDiv = document.getElementById('result');
-        const statsDiv = document.getElementById('stats');
+        const questions = document.getElementById('questions');
+        const aliveQuestion = document.getElementById('alive-question');
+        const genderQuestion = document.getElementById('gender-question');
+        const checkButton = document.getElementById('check-button');
+        const result = document.getElementById('result');
+        const correctCount = document.getElementById('correct-count');
+        const incorrectCount = document.getElementById('incorrect-count');
+        const languageSelect = document.getElementById('language');
+        const difficultySelect = document.getElementById('difficulty');
+        const themeToggle = document.getElementById('theme-toggle');
 
         // Theme toggle
-        themeBtn.addEventListener('click', () => {
-            isLightTheme = !isLightTheme;
-            document.body.classList.toggle('light', isLightTheme);
-            themeBtn.textContent = isLightTheme ? '☀️ Day' : '🌙 Night';
-            gtag('event', 'theme_change', { theme: isLightTheme ? 'day' : 'night' });
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            themeToggle.textContent = document.body.classList.contains('light') ? '☀️ Day' : '🌙 Night';
         });
 
-        // Language change
-        languageSelect.addEventListener('change', (e) => {
-            currentLang = e.target.value;
+        // Language and difficulty change
+        languageSelect.addEventListener('change', () => {
+            language = languageSelect.value;
             updateUI();
-            gtag('event', 'language_change', { language: currentLang });
         });
 
-        // Difficulty change
-        difficultySelect.addEventListener('change', (e) => {
-            currentDifficulty = e.target.value;
-            resetGame();
+        difficultySelect.addEventListener('change', () => {
+            difficulty = difficultySelect.value;
+            updateUI();
             fetchNewPerson();
-            gtag('event', 'difficulty_change', { difficulty: currentDifficulty });
         });
 
         // Update UI based on language and difficulty
         function updateUI() {
-            const t = translations[currentLang];
-            checkBtn.textContent = t.check;
-            statsDiv.innerHTML = `${t.correct}: ${correctAnswers} / ${t.total}: ${totalQuestions}`;
-            if (currentPerson) {
-                renderQuestions();
-            }
-            // Update difficulty select text
-            difficultySelect.options[0].text = t.simple;
-            difficultySelect.options[1].text = t.verySimple;
-        }
-
-        // Render questions based on difficulty
-        function renderQuestions() {
-            const t = translations[currentLang];
-            questionsDiv.innerHTML = `
-                <div class="radio-group">
-                    <label><input type="radio" name="status" value="alive"> ${t.alive}</label>
-                    <label><input type="radio" name="status" value="dead"> ${t.dead}</label>
-                </div>
+            const t = translations[language];
+            aliveQuestion.innerHTML = `
+                <label><input type="radio" name="alive" value="alive"> ${t.alive}</label>
+                <label><input type="radio" name="alive" value="dead"> ${t.dead}</label>
             `;
-            if (currentDifficulty === 'simple') {
-                questionsDiv.innerHTML += `
-                    <div class="radio-group">
-                        <label><input type="radio" name="gender" value="male"> ${t.male}</label>
-                        <label><input type="radio" name="gender" value="female"> ${t.female}</label>
-                    </div>
-                `;
-            }
-            checkBtn.disabled = false;
+            genderQuestion.innerHTML = `
+                <label><input type="radio" name="gender" value="male"> ${t.male}</label>
+                <label><input type="radio" name="gender" value="female"> ${t.female}</label>
+            `;
+            checkButton.textContent = t.check;
+            difficultySelect.options[0].textContent = t.simple;
+            difficultySelect.options[1].textContent = t.verySimple;
+            genderQuestion.style.display = difficulty === 'simple' ? 'block' : 'none';
+            personImage.style.display = difficulty === 'very-simple' && currentPerson ? 'block' : 'none';
         }
 
-        // Fetch random person from Wikipedia
-        async function fetchNewPerson(attempts = 0, maxAttempts = 5) {
-            if (attempts >= maxAttempts) {
-                console.error('Max attempts reached for fetching person');
-                resultDiv.textContent = 'Error loading person. Please try again.';
-                return;
-            }
-
-            loadingPercent = 0;
-            loading.textContent = '0%';
-            photo.style.display = 'none';
-            checkBtn.disabled = true;
-            resultDiv.textContent = '';
-            questionsDiv.innerHTML = '';
-
-            // Simulate loading progress
-            const loadingInterval = setInterval(() => {
-                loadingPercent = Math.min(loadingPercent + 10, 90);
-                loading.textContent = `${loadingPercent}%`;
-            }, 500);
+        // Fetch random person from Wikipedia API
+        async function fetchNewPerson() {
+            if (isChecking) return;
+            isChecking = true;
+            loading.style.display = 'block';
+            personImage.style.display = 'none';
+            result.style.display = 'none';
+            checkButton.style.display = 'block';
+            questions.style.display = 'block';
+            resetRadioButtons();
 
             try {
-                // Fetch random article (prioritize people in Simple mode)
-                let url = 'https://en.wikipedia.org/w/api.php?';
-                if (currentDifficulty === 'simple') {
-                    url += 'action=query&list=random&rnnamespace=0&rnfilterredir=nonredirects&rnlimit=1&origin=*';
-                } else {
-                    url += 'action=query&list=random&rnnamespace=0&rnlimit=1&origin=*';
-                }
+                loading.textContent = 'Loading: 10%';
+                // Get random article
+                let response = await fetch('https://en.wikipedia.org/w/api.php?' +
+                    'action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*');
+                let data = await response.json();
+                let randomTitle = data.query.random[0].title;
 
-                const res = await fetch(url);
-                const data = await res.json();
-                const pageId = data.query.random[0].id;
-                loadingPercent = 95;
-                loading.textContent = '95%';
-
-                // Fetch page details
-                const pageRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=pageimages|info&piprop=original&inprop=url&pageids=${pageId}&format=json&origin=*`);
-                const pageData = await pageRes.json();
-                const page = pageData.query.pages[pageId];
-
-                // Check if the article is about a person (basic heuristic)
-                const isPerson = page.title && !page.title.includes('disambiguation') && !page.title.includes('List of');
-                if (!isPerson && currentDifficulty === 'simple') {
-                    clearInterval(loadingInterval);
+                // Ensure it's a person (category check)
+                loading.textContent = 'Loading: 30%';
+                response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(randomTitle)}&prop=categories&cllimit=10&format=json&origin=*`);
+                data = await response.json();
+                const page = Object.values(data.query.pages)[0];
+                if (!page.categories || !page.categories.some(cat => cat.title.includes('Living people') || cat.title.includes('people'))) {
                     console.log('Not a person, retrying...');
-                    return fetchNewPerson(attempts + 1, maxAttempts);
+                    isChecking = false;
+                    return fetchNewPerson();
                 }
 
-                // Fetch image
-                const imageUrl = page.original ? page.original.source : null;
-                if (!imageUrl) {
-                    clearInterval(loadingInterval);
-                    console.log('No image found, retrying...');
-                    return fetchNewPerson(attempts + 1, maxAttempts);
+                // Get person details
+                loading.textContent = 'Loading: 50%';
+                response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(randomTitle)}&prop=extracts|pageimages&exintro&explaintext&pithumbsize=500&format=json&origin=*`);
+                data = await response.json();
+                const personPage = Object.values(data.query.pages)[0];
+                const extract = personPage.extract || '';
+
+                // Determine if alive or dead
+                const isAlive = extract.includes('born') && !extract.includes('died');
+                const gender = extract.includes('she ') || extract.includes('her ') ? 'female' : 'male';
+
+                // Get image
+                loading.textContent = 'Loading: 70%';
+                let imageUrl = personPage.thumbnail?.source || null;
+                if (imageUrl && !await isValidImage(imageUrl)) {
+                    console.log('Invalid image, retrying...');
+                    isChecking = false;
+                    return fetchNewPerson();
                 }
 
-                // Simulate face detection (basic validation)
-                const img = new Image();
-                img.src = imageUrl;
-                await new Promise((resolve, reject) => {
-                    img.onload = () => {
-                        if (img.width < 50 || img.height < 50 || img.width / img.height > 3 || img.height / img.width > 3) {
-                            console.log('Invalid image dimensions, retrying...');
-                            reject();
-                        } else {
-                            resolve();
-                        }
-                    };
-                    img.onerror = () => {
-                        console.log('Image load error, retrying...');
-                        reject();
-                    };
-                }).catch(() => {
-                    clearInterval(loadingInterval);
-                    return fetchNewPerson(attempts + 1, maxAttempts);
-                });
-
-                // Simulate person data (Wikipedia doesn't provide alive/dead or gender directly)
                 currentPerson = {
-                    name: page.title.split(' ')[0] || 'Unknown',
-                    surname: page.title.split(' ').slice(1).join(' ') || 'Person',
-                    wikiUrl: page.fullurl,
+                    name: randomTitle,
+                    isAlive: isAlive ? 'alive' : 'dead',
+                    gender,
                     imageUrl,
-                    isAlive: Math.random() > 0.5,
-                    gender: Math.random() > 0.5 ? 'male' : 'female'
+                    wikiUrl: `https://en.wikipedia.org/wiki/${encodeURIComponent(randomTitle)}`
                 };
 
-                clearInterval(loadingInterval);
-                loadingPercent = 100;
-                loading.textContent = '100%';
+                loading.textContent = 'Loading: 100%';
                 setTimeout(() => {
                     loading.style.display = 'none';
-                    photo.src = currentPerson.imageUrl;
-                    photo.style.display = currentDifficulty === 'very-simple' ? 'block' : 'none';
-                    renderQuestions();
+                    if (difficulty === 'very-simple' && currentPerson.imageUrl) {
+                        personImage.src = currentPerson.imageUrl;
+                        personImage.style.display = 'block';
+                    }
+                    isChecking = false;
                 }, 500);
 
-                gtag('event', 'new_person_fetched', { page_title: page.title });
-            } catch (error) {
-                clearInterval(loadingInterval);
+                console.log('Person loaded:', currentPerson);
+            } catch (error)37 {
                 console.error('Error fetching person:', error);
-                fetchNewPerson(attempts + 1, maxAttempts);
+                loading.textContent = 'Error, retrying...';
+                isChecking = false;
+                setTimeout(fetchNewPerson, 1000);
             }
+        }
+
+        // Validate image
+        async function isValidImage(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                if (!response.ok) return false;
+                const contentType = response.headers.get('content-type');
+                return contentType.startsWith('image/');
+            } catch {
+                return false;
+            }
+        }
+
+        // Reset radio buttons
+        function resetRadioButtons() {
+            document.querySelectorAll('input[type="radio"]').forEach(input => {
+                input.checked = false;
+                input.parentElement.classList.remove('correct', 'incorrect');
+            });
         }
 
         // Check answers
-        checkBtn.addEventListener('click', () => {
-            const statusInput = document.querySelector('input[name="status"]:checked');
-            const genderInput = document.querySelector('input[name="gender"]:checked');
-            let statusCorrect = false;
-            let genderCorrect = false;
+        checkButton.addEventListener('click', () => {
+            if (!currentPerson || isChecking) return;
+            const aliveAnswer = document.querySelector('input[name="alive"]:checked')?.value;
+            let genderAnswer = document.querySelector('input[name="gender"]:checked')?.value;
 
-            if (!statusInput || (currentDifficulty === 'simple' && !genderInput)) {
-                resultDiv.textContent = translations[currentLang].check;
+            if (!aliveAnswer || (difficulty === 'simple' && !genderAnswer)) {
+                alert('Please select all answers.');
                 return;
             }
 
-            totalQuestions++;
-            statusCorrect = statusInput.value === (currentPerson.isAlive ? 'alive' : 'dead');
-            if (currentDifficulty === 'simple') {
-                genderCorrect = genderInput.value === currentPerson.gender;
-                if (statusCorrect && genderCorrect) correctAnswers++;
+            let correct = true;
+            const t = translations[language];
+
+            // Check alive/dead
+            if (aliveAnswer === currentPerson.isAlive) {
+                document.querySelector(`input[name="alive"][value="${aliveAnswer}"]`).parentElement.classList.add('correct');
             } else {
-                if (statusCorrect) correctAnswers++;
+                document.querySelector(`input[name="alive"][value="${aliveAnswer}"]`).parentElement.classList.add('incorrect');
+                correct = false;
             }
 
-            // Highlight answers
-            document.querySelectorAll('input[name="status"]').forEach(input => {
-                input.disabled = true;
-                const label = input.parentElement;
-                if (input.value === (currentPerson.isAlive ? 'alive' : 'dead')) {
-                    label.classList.add('correct');
-                } else if (input.checked) {
-                    label.classList.add('incorrect');
+            // Check gender (if simple mode)
+            if (difficulty === 'simple') {
+                if (genderAnswer === currentPerson.gender) {
+                    document.querySelector(`input[name="gender"][value="${genderAnswer}"]`).parentElement.classList.add('correct');
+                } else {
+                    vídocument.querySelector(`input[name="gender"][value="${genderAnswer}"]`).parentElement.classList.add('incorrect');
+                    correct = false;
                 }
-            });
-            if (currentDifficulty === 'simple') {
-                document.querySelectorAll('input[name="gender"]').forEach(input => {
-                    input.disabled = true;
-                    const label = input.parentElement;
-                    if (input.value === currentPerson.gender) {
-                        label.classList.add('correct');
-                    } else if (input.checked) {
-                        label.classList.add('incorrect');
-                    }
-                });
             }
+
+            // Update statistics
+            if (correct) {
+                correctAnswers++;
+                gtag('event', 'answer_correct', { mode: difficulty, language });
+            } else {
+                incorrectAnswers++;
+                gtag('event', 'answer_incorrect', { mode: difficulty, language });
+            }
+            correctCount.textContent = correctAnswers;
+            incorrectCount.textContent = incorrectAnswers;
 
             // Show result
-            photo.style.display = 'block';
-            resultDiv.innerHTML = `
-                ${currentPerson.name} ${currentPerson.surname}<br>
+            personImage.src = currentPerson.imageUrl || '';
+            personImage.style.display = currentPerson.imageUrl ? 'block' : 'none';
+            result.innerHTML = `
+                <p>${currentPerson.name}</p>
                 <a href="${currentPerson.wikiUrl}" target="_blank">Wikipedia</a>
             `;
-            checkBtn.disabled = true;
-            nextArrow.textContent = translations[currentLang].next;
+            result.style.display = 'block';
+            checkButton.style.display = 'none';
+            questions.style.display = 'none';
 
-            // Update stats
-            updateUI();
-
-            // Send to GA4
-            gtag('event', 'answer_submitted', {
-                status_correct: statusCorrect,
-                gender_correct: genderCorrect || null,
-                difficulty: currentDifficulty,
-                correct_answers: correctAnswers,
-                total_questions: totalQuestions
-            });
+            isChecking = false;
         });
 
         // Next person
         nextArrow.addEventListener('click', () => {
-            resetGame();
+            if (isChecking) return;
             fetchNewPerson();
         });
 
-        // Reset game state
-        function resetGame() {
-            photo.style.display = 'none';
-            loading.style.display = 'block';
-            loading.textContent = '0%';
-            questionsDiv.innerHTML = '';
-            resultDiv.textContent = '';
-            checkBtn.disabled = true;
-            nextArrow.textContent = '➡️';
-            currentPerson = null;
-        }
-
-        // Telegram Mini App integration
-        if (window.Telegram?.WebApp) {
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            Telegram.WebApp.onEvent('themeChanged', () => {
-                isLightTheme = Telegram.WebApp.themeParams.bg_color === '#ffffff';
-                document.body.classList.toggle('light', isLightTheme);
-                themeBtn.textContent = isLightTheme ? '☀️ Day' : '🌙 Night';
-            });
-        }
-
-        // Initial fetch
+        // Initial setup
+        updateUI();
         fetchNewPerson();
+
+        // Log for debugging
+        console.log('Game initialized');
     </script>
 </body>
 </html>
