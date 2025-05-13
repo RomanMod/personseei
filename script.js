@@ -1,198 +1,319 @@
-// Initialize Telegram Web App
+// Инициализация Telegram Web App
 const tg = window.Telegram.WebApp;
 tg.ready();
+tg.expand();
 
-// Set Telegram header and bottom bar colors to match space gray theme
-tg.setHeaderColor('#2a2a2e');
-tg.setBottomBarColor('#2a2a2e');
-
-// Language translations (unchanged)
-const translations = {/* Same as before */};
-
-// Game state (unchanged)
-let currentPerson = null;
-let correctAnswers = 0;
-let totalQuestions = 0;
-let difficulty = 'easier';
-let language = 'uk';
-let isNight = true;
-
-// DOM elements (unchanged)
+// Отображение имени игрока
 const playerName = document.getElementById('player-name');
-const gameTitle = document.getElementById('game-title');
-const languageSelect = document.getElementById('language');
-const difficultySelect = document.getElementById('difficulty');
+playerName.textContent = `Гравець: ${tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : 'Анонім'}`;
+
+// Элементы интерфейса
 const themeToggle = document.getElementById('theme-toggle');
-const photoDisplay = document.getElementById('person-photo');
+const languageSelect = document.getElementById('language-select');
+const modeSelect = document.getElementById('mode-select');
+const personImage = document.getElementById('person-image');
 const loadingProgress = document.getElementById('loading-progress');
-const nextPhotoBtn = document.getElementById('next-photo');
-const easierOptions = document.getElementById('easier-options');
-const easyOptions = document.getElementById('easy-options');
-const checkAnswerBtn = document.getElementById('check-answer');
+const nextPhotoButton = document.getElementById('next-photo');
+const hardModeQuestions = document.getElementById('hard-mode-questions');
+const easyModeQuestions = document.getElementById('easy-mode-questions');
+const checkAnswerButton = document.getElementById('check-answer');
 const resultDiv = document.getElementById('result');
 const personInfo = document.getElementById('person-info');
 const wikiLink = document.getElementById('wiki-link');
 const correctAnswersSpan = document.getElementById('correct-answers');
 const totalQuestionsSpan = document.getElementById('total-questions');
 
-// Set player name
-playerName.textContent = `Гравець: ${tg.initDataUnsafe.user?.first_name || 'Невідомий'}`;
+// Переводы
+const translations = {
+    uk: {
+        title: 'Вікторина: Хто це?',
+        alive: 'Живий',
+        dead: 'Мертвий',
+        male: 'Чоловік',
+        female: 'Жінка',
+        check: 'Перевірити',
+        stats: 'Статистика',
+        correct: 'Правильні відповіді',
+        total: 'Всього питань',
+        loading: 'Завантаження',
+        next: 'Наступне фото'
+    },
+    ru: {
+        title: 'Викторина: Кто это?',
+        alive: 'Жив',
+        dead: 'Мертв',
+        male: 'Мужчина',
+        female: 'Женщина',
+        check: 'Проверить',
+        stats: 'Статистика',
+        correct: 'Правильные ответы',
+        total: 'Всего вопросов',
+        loading: 'Загрузка',
+        next: 'Следующее фото'
+    },
+    en: {
+        title: 'Quiz: Who is it?',
+        alive: 'Alive',
+        dead: 'Dead',
+        male: 'Male',
+        female: 'Female',
+        check: 'Check',
+        stats: 'Statistics',
+        correct: 'Correct answers',
+        total: 'Total questions',
+        loading: 'Loading',
+        next: 'Next photo'
+    },
+    alien: {
+        title: '👾 Квіз: Хто це? 👾',
+        alive: '🟢 Живий',
+        dead: '💀 Мертвий',
+        male: '👨 Чоловік',
+        female: '👩 Жінка',
+        check: '🛸 Перевірити',
+        stats: '📊 Статистика',
+        correct: '✅ Правильні відповіді',
+        total: '🔢 Всього питань',
+        loading: '⏳ Завантаження',
+        next: '🚀 Наступне фото'
+    }
+};
 
-// Sync with Telegram theme
-function syncTelegramTheme() {
-    const telegramTheme = tg.themeParams.bg_color?.toLowerCase() === '#ffffff' ? 'day' : 'night';
-    isNight = telegramTheme === 'night';
-    document.body.classList.toggle('day', !isNight);
-    document.body.classList.toggle('night', isNight);
-    themeToggle.textContent = translations[language][isNight ? 'night' : 'day'];
-    console.log(`Synced with Telegram theme: ${telegramTheme}`);
-}
+// Состояние игры
+let currentPerson = null;
+let correctAnswers = 0;
+let totalQuestions = 0;
+let currentMode = 'easy';
+let currentLanguage = 'uk';
+let isDarkTheme = true;
 
-// Listen for theme changes
-tg.onEvent('themeChanged', syncTelegramTheme);
-syncTelegramTheme();
-
-// Update UI based on language (unchanged)
-function updateLanguage() {/* Same as before */}
-
-// Theme toggle
+// Переключение темы
 themeToggle.addEventListener('click', () => {
-    isNight = !isNight;
-    document.body.classList.toggle('day', !isNight);
-    document.body.classList.toggle('night', isNight);
-    themeToggle.textContent = translations[language][isNight ? 'night' : 'day'];
-    tg.setHeaderColor(isNight ? '#2a2a2e' : '#f5f5f5');
-    tg.setBottomBarColor(isNight ? '#2a2a2e' : '#f5f5f5');
-    gtag('event', 'theme_toggle', { theme: isNight ? 'night' : 'day' });
+    isDarkTheme = !isDarkTheme;
+    document.body.classList.toggle('theme-light', !isDarkTheme);
+    themeToggle.textContent = isDarkTheme ? translations[currentLanguage].night || 'Ніч' : translations[currentLanguage].day || 'День';
+    gtag('event', 'theme_change', { theme: isDarkTheme ? 'dark' : 'light' });
 });
 
-// Language and difficulty change (unchanged)
-languageSelect.addEventListener('change', (e) => {/* Same as before */});
-difficultySelect.addEventListener('change', (e) => {/* Same as before */});
+// Переключение языка
+languageSelect.addEventListener('change', () => {
+    currentLanguage = languageSelect.value;
+    updateUIText();
+    gtag('event', 'language_change', { language: currentLanguage });
+});
 
-// Initialize UI (unchanged)
-updateLanguage();
-easierOptions.style.display = 'block';
-easyOptions.style.display = 'none';
-photoDisplay.style.display = 'block';
+// Переключение режима
+modeSelect.addEventListener('change', () => {
+    currentMode = modeSelect.value;
+    updateMode();
+    loadNewPerson();
+    gtag('event', 'mode_change', { mode: currentMode });
+});
 
-// Wikipedia API for random person
-async function fetchRandomPerson() {
+// Обновление текста интерфейса
+function updateUIText() {
+    const t = translations[currentLanguage];
+    document.querySelector('h1').textContent = t.title;
+    document.querySelectorAll('.status[data-status="alive"]').forEach(btn => btn.textContent = t.alive);
+    document.querySelectorAll('.status[data-status="dead"]').forEach(btn => btn.textContent = t.dead);
+    document.querySelectorAll('.gender[data-gender="male"]').forEach(btn => btn.textContent = t.male);
+    document.querySelectorAll('.gender[data-gender="female"]').forEach(btn => btn.textContent = t.female);
+    checkAnswerButton.textContent = t.check;
+    document.querySelector('.stats h3').textContent = t.stats;
+    document.querySelector('.stats p:nth-child(2)').childNodes[0].textContent = `${t.correct}: `;
+    document.querySelector('.stats p:nth-child(3)').childNodes[0].textContent = `${t.total}: `;
+}
+
+// Обновление режима
+function updateMode() {
+    hardModeQuestions.style.display = currentMode === 'hard' ? 'block' : 'none';
+    easyModeQuestions.style.display = currentMode === 'easy' ? 'block' : 'none';
+    personImage.style.display = currentMode === 'easy' ? 'block' : 'none';
+}
+
+// Загрузка нового человека
+async function loadNewPerson() {
+    resetUI();
+    loadingProgress.style.display = 'block';
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 10;
+        loadingProgress.textContent = `${translations[currentLanguage].loading}: ${progress}%`;
+        if (progress >= 80) clearInterval(progressInterval);
+    }, 200);
+
     try {
-        console.log('Fetching random person...');
-        let url = 'https://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*';
-        if (difficulty === 'easy') {
-            url += '&rnfilterredir=nonredirects';
-        }
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const pageId = data.query.random[0].id;
-
-        // Fetch page details
-        const pageRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=pageimages|info&inprop=url&piprop=original&pilimit=1&pageids=${pageId}&format=json&origin=*`);
-        if (!pageRes.ok) throw new Error(`HTTP ${pageRes.status}`);
-        const pageData = await pageRes.json(); // Fixed: Use pageRes, not res
-        const page = pageData.query.pages[pageId];
-        console.log('Page data:', page);
-
-        return {
-            title: page.title,
-            url: page.fullurl,
-            image: page.original?.source || null
-        };
+        const person = await fetchRandomPerson();
+        if (!person) throw new Error('Не удалось загрузить человека');
+        currentPerson = person;
+        personImage.src = person.image;
+        personImage.style.display = currentMode === 'easy' ? 'block' : 'none';
+        loadingProgress.textContent = `${translations[currentLanguage].loading}: 100%`;
+        setTimeout(() => loadingProgress.style.display = 'none', 500);
+        console.log('Загружен человек:', person); // Логи для отладки
     } catch (error) {
-        console.error('Error fetching person:', error);
-        gtag('event', 'fetch_error', { error: error.message });
-        return null;
+        console.error('Ошибка загрузки:', error);
+        loadingProgress.textContent = 'Помилка. Спробуйте ще раз.';
+        setTimeout(loadNewPerson, 2000);
     }
 }
 
-// Simple face detection
-async function isValidFace(imageUrl) {
+// Получение случайного человека через Wikipedia API
+async function fetchRandomPerson() {
+    const wikiLang = currentLanguage === 'uk' ? 'uk' : currentLanguage === 'ru' ? 'ru' : 'en';
+    const endpoint = `https://${wikiLang}.wikipedia.org/w/api.php`;
+
+    // Получение списка популярных страниц (для режима "Просто")
+    const category = currentMode === 'hard' ? 'Category:Living_people' : 'Category:All_people';
+    let queryParams = {
+        action: 'query',
+        list: 'categorymembers',
+        cmtitle: category,
+        cmlimit: 50,
+        cmtype: 'page',
+        format: 'json',
+        origin: '*'
+    };
+
+    let response = await fetch(`${endpoint}?${new URLSearchParams(queryParams)}`);
+    let data = await response.json();
+    let pages = data.query.categorymembers;
+
+    // Случайный выбор страницы
+    let page;
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    while (attempts < maxAttempts) {
+        page = pages[Math.floor(Math.random() * pages.length)];
+        queryParams = {
+            action: 'query',
+            prop: 'pageimages|info|extracts',
+            pageids: page.pageid,
+            pithumbsize: 300,
+            inprop: 'url',
+            exintro: true,
+            explaintext: true,
+            format: 'json',
+            origin: '*'
+        };
+
+        response = await fetch(`${endpoint}?${new URLSearchParams(queryParams)}`);
+        data = await response.json();
+        const pageData = data.query.pages[page.pageid];
+
+        // Проверка изображения
+        if (pageData.thumbnail && pageData.thumbnail.source) {
+            const imageUrl = pageData.thumbnail.source;
+            const isValidImage = await checkImage(imageUrl);
+            if (isValidImage) {
+                return {
+                    name: pageData.title,
+                    image: imageUrl,
+                    wikiUrl: pageData.fullurl,
+                    isAlive: pageData.extract.includes('died') ? 'dead' : 'alive',
+                    gender: await guessGender(pageData.title, wikiLang) // Упрощенная логика
+                };
+            }
+        }
+        attempts++;
+    }
+    return null;
+}
+
+// Проверка изображения
+async function checkImage(url) {
     try {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        return new Promise((resolve) => {
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-                const imageData = ctx.getImageData(0, 0, img.width, img.height).data;
-                const hasContent = imageData.some(pixel => pixel !== 0);
-                resolve(hasContent && img.width > 50 && img.height > 50);
-            };
-            img.onerror = () => {
-                console.error('Image load failed:', imageUrl);
-                resolve(false);
-            };
-            img.src = imageUrl;
-        });
-    } catch (error) {
-        console.error('Face detection error:', error);
-        gtag('event', 'image_error', { error: error.message });
+        const response = await fetch(url, { method: 'HEAD' });
+        const contentType = response.headers.get('content-type');
+        return response.ok && contentType.startsWith('image/');
+    } catch {
         return false;
     }
 }
 
-// Load new person
-async function loadNewPerson() {
-    loadingProgress.style.display = 'block';
-    photoDisplay.style.display = difficulty === 'easier' ? 'block' : 'none';
-    resultDiv.style.display = 'none';
-    checkAnswerBtn.disabled = true;
-
-    let validPerson = null;
-    let attempts = 0;
-    const maxAttempts = 5;
-
-    while (!validPerson && attempts < maxAttempts) {
-        const progress = Math.round((attempts / maxAttempts) * 50);
-        loadingProgress.textContent = `${progress}%`;
-        const person = await fetchRandomPerson();
-        if (person && person.image) {
-            loadingProgress.textContent = '75%';
-            const isValid = await isValidFace(person.image);
-            if (isValid) {
-                validPerson = person;
-            } else {
-                console.warn(`Invalid image for ${person.title}, retrying...`);
-            }
-        } else {
-            console.warn('No person or image found, retrying...');
-        }
-        attempts++;
-    }
-
-    if (!validPerson) {
-        console.error('Failed to find valid person after max attempts');
-        loadingProgress.textContent = translations[language].error || 'Помилка завантаження';
-        gtag('event', 'load_failure', { attempts: maxAttempts });
-        checkAnswerBtn.disabled = false;
-        return;
-    }
-
-    currentPerson = validPerson;
-    photoDisplay.src = validPerson.image;
-    photoDisplay.style.display = difficulty === 'easier' ? 'block' : 'none';
-    loadingProgress.textContent = '100%';
-    setTimeout(() => {
-        loadingProgress.style.display = 'none';
-        checkAnswerBtn.disabled = false;
-    }, 500);
-
-    console.log('Loaded person:', validPerson);
-    gtag('event', 'person_loaded', { title: validPerson.title });
+// Упрощенная проверка пола (заглушка)
+async function guessGender(name, lang) {
+    const maleIndicators = lang === 'uk' ? ['ий', 'ов', 'ич'] : lang === 'ru' ? ['ов', 'ий', 'ич'] : ['son', 'man'];
+    const femaleIndicators = lang === 'uk' ? ['на', 'ка', 'ія'] : lang === 'ru' ? ['на', 'ая', 'ия'] : ['woman', 'ia'];
+    return maleIndicators.some(ind => name.toLowerCase().endsWith(ind)) ? 'male' :
+           femaleIndicators.some(ind => name.toLowerCase().endsWith(ind)) ? 'female' : 'unknown';
 }
 
-// Check answer, option selection, next photo, reset game (unchanged)
-checkAnswerBtn.addEventListener('click', () => {/* Same as before */});
-document.querySelectorAll('#easier-options .option').forEach(btn => {/* Same as before */});
-document.querySelectorAll('#easy-options .option').forEach(btn => {/* Same as before */});
-nextPhotoBtn.addEventListener('click', () => {/* Same as before */});
-function resetGame() {/* Same as before */}
+// Проверка ответа
+checkAnswerButton.addEventListener('click', () => {
+    if (!currentPerson) return;
 
-// Initial load
+    let isCorrect = true;
+    if (currentMode === 'hard') {
+        const selectedStatus = document.querySelector('input[name="status"]:checked');
+        const selectedGender = document.querySelector('.gender.correct');
+        if (selectedStatus) {
+            const statusCorrect = selectedStatus.value === currentPerson.isAlive;
+            if (statusCorrect) selectedStatus.parentElement.style.backgroundColor = 'var(--highlight-color)';
+            else isCorrect = false;
+        } else isCorrect = false;
+
+        if (selectedGender) {
+            const genderCorrect = selectedGender.dataset.gender === currentPerson.gender;
+            if (genderCorrect) selectedGender.classList.add('correct');
+            else isCorrect = false;
+        } else isCorrect = false;
+    } else {
+        const selectedStatus = document.querySelector('.status.correct');
+        if (selectedStatus) {
+            const statusCorrect = selectedStatus.dataset.status === currentPerson.isAlive;
+            if (statusCorrect) selectedStatus.classList.add('correct');
+            else isCorrect = false;
+        } else isCorrect = false;
+    }
+
+    // Показ результата
+    personImage.style.display = 'block';
+    personInfo.textContent = currentPerson.name;
+    wikiLink.href = currentPerson.wikiUrl;
+    resultDiv.style.display = 'block';
+
+    // Обновление статистики
+    totalQuestions++;
+    if (isCorrect) correctAnswers++;
+    correctAnswersSpan.textContent = correctAnswers;
+    totalQuestionsSpan.textContent = totalQuestions;
+
+    // Отправка в GA4
+    gtag('event', 'answer_submitted', {
+        mode: currentMode,
+        is_correct: isCorrect,
+        person_name: currentPerson.name
+    });
+
+    console.log('Проверка ответа:', { isCorrect, person: currentPerson }); // Логи для отладки
+});
+
+// Следующее фото
+nextPhotoButton.addEventListener('click', loadNewPerson);
+
+// Сброс интерфейса
+function resetUI() {
+    resultDiv.style.display = 'none';
+    personInfo.textContent = '';
+    wikiLink.href = '#';
+    personImage.src = '';
+    personImage.style.display = currentMode === 'easy' ? 'block' : 'none';
+    document.querySelectorAll('.correct').forEach(el => el.classList.remove('correct'));
+    document.querySelectorAll('input[name="status"]').forEach(input => input.checked = false);
+}
+
+// Обработка кликов по кнопкам статуса и пола
+document.querySelectorAll('.status, .gender').forEach(button => {
+    button.addEventListener('click', () => {
+        const group = button.classList.contains('status') ? '.status' : '.gender';
+        document.querySelectorAll(group).forEach(btn => btn.classList.remove('correct'));
+        button.classList.add('correct');
+    });
+});
+
+// Инициализация
+updateUIText();
+updateMode();
 loadNewPerson();
