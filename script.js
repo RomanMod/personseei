@@ -77,6 +77,7 @@ function updateLanguage() {
         btn.textContent = i === 0 ? translations[lang].alive : translations[lang].dead;
     });
     checkAnswerBtn.textContent = translations[lang].check;
+    console.log(`Language updated to: ${lang}`);
 }
 
 // Update UI based on difficulty
@@ -87,19 +88,28 @@ function updateDifficulty() {
     document.getElementById('easier-question').style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     result.style.display = 'none';
+    console.log(`Difficulty updated to: ${difficulty}`);
     loadNewPerson();
 }
 
 // Sync theme with Telegram
 function syncTheme() {
     const isDark = tg.colorScheme === 'dark';
-    document.body.className = isDark ? 'night' : 'day';
-    themeSelect.value = isDark ? 'night' : 'day';
+    const theme = isDark ? 'night' : 'day';
+    document.body.className = theme;
+    themeSelect.value = theme;
+    tg.setHeaderColor(isDark ? '#1c2526' : '#f5f5f5');
+    tg.setBottomBarColor(isDark ? '#2e3b3e' : '#d3d3d3');
+    console.log(`Theme synced: ${theme}, colorScheme: ${tg.colorScheme}`);
 }
 
-// Theme switch
+// Theme switch (manual override)
 themeSelect.addEventListener('change', () => {
     document.body.className = themeSelect.value;
+    const isDark = themeSelect.value === 'night';
+    tg.setHeaderColor(isDark ? '#1c2526' : '#f5f5f5');
+    tg.setBottomBarColor(isDark ? '#2e3b3e' : '#d3d3d3');
+    console.log(`Theme manually changed to: ${themeSelect.value}`);
 });
 
 // Language switch
@@ -122,10 +132,12 @@ async function loadNewPerson() {
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
+    progress.innerHTML = '0%';
     console.log('Loading new person from Wikidata...');
 
     try {
         progress.textContent = '20%';
+        console.log('Sending SPARQL query to Wikidata...');
         // SPARQL-запрос к Wikidata
         const query = `
             SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image WHERE {
@@ -142,8 +154,10 @@ async function loadNewPerson() {
         const response = await fetch('https://query.wikidata.org/sparql?query=' + encodeURIComponent(query) + '&format=json', {
             headers: { 'Accept': 'application/sparql-results+json' }
         });
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
         const data = await response.json();
         progress.textContent = '60%';
+        console.log('Wikidata response received:', data);
 
         const person = data.results.bindings[0];
         if (!person) throw new Error('No person found');
@@ -155,8 +169,10 @@ async function loadNewPerson() {
             image: person.image.value,
             wiki: person.person.value.replace('http://www.wikidata.org/entity/', 'https://en.wikipedia.org/wiki/')
         };
+        console.log('Person data parsed:', currentPerson);
 
         progress.textContent = '80%';
+        console.log(`Validating image: ${currentPerson.image}`);
         if (!(await isValidImage(currentPerson.image))) {
             console.warn('Invalid image, retrying...');
             isLoading = false;
@@ -165,20 +181,35 @@ async function loadNewPerson() {
 
         progress.textContent = '100%';
         personImage.src = currentPerson.image;
-        console.log('Person loaded:', currentPerson);
+        personImage.onload = () => {
+            console.log('Image successfully loaded and displayed:', currentPerson.image);
+            progress.textContent = '';
+            gtag('event', 'image_load', {
+                source: 'wikidata',
+                success: true,
+                person: currentPerson.name
+            });
+        };
+        personImage.onerror = () => {
+            console.error('Image failed to load:', currentPerson.image);
+            progress.innerHTML = '<span id="image-error">Image load failed</span>';
+            isLoading = false;
+            loadNewPerson();
+        };
 
-        // Логирование в GA4
+        console.log('Person successfully loaded:', currentPerson);
         gtag('event', 'load_person', {
             source: 'wikidata',
             success: true,
             person: currentPerson.name
         });
     } catch (error) {
-        console.error('Error loading person from Wikidata:', erdatalimitror);
-        progress.textContent = 'Error';
+        console.error('Error loading person from Wikidata:', error.message);
+        progress.innerHTML = '<span id="image-error">Error loading data</span>';
         gtag('event', 'load_person', {
             source: 'wikidata',
-            success: false
+            success: false,
+            error: error.message
         });
         setTimeout(() => {
             isLoading = false;
@@ -195,12 +226,14 @@ async function isValidImage(url) {
         const response = await fetch(url, { method: 'HEAD' });
         const contentLength = response.headers.get('content-length');
         const contentType = response.headers.get('content-type');
-        return response.ok && 
-               contentLength && 
-               parseInt(contentLength) > 10000 && 
-               contentType.includes('image');
+        const isValid = response.ok && 
+                        contentLength && 
+                        parseInt(contentLength) > 10000 && 
+                        contentType.includes('image');
+        console.log(`Image validation result: ${isValid}, URL: ${url}, Size: ${contentLength}, Type: ${contentType}`);
+        return isValid;
     } catch (error) {
-        console.error('Image validation failed:', error);
+        console.error('Image validation failed:', error.message);
         return false;
     }
 }
@@ -272,11 +305,12 @@ document.querySelectorAll('.status-btn').forEach(btn => {
 nextPhotoBtn.addEventListener('click', () => {
     document.querySelectorAll('.correct').forEach(el => el.classList.remove('correct'));
     document.querySelectorAll('input[name="alive"]').forEach(input => input.checked = false);
+    console.log('Next photo requested');
     loadNewPerson();
 });
 
 // Initialize
-syncTheme(); // Синхронизация темы с Telegram
-document.body.className = tg.colorScheme === 'dark' ? 'night' : 'day';
+console.log('Initializing app...');
+syncTheme();
 updateLanguage();
 updateDifficulty();
