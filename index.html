@@ -100,16 +100,23 @@
         async function getCommonsImageUrl(fileName) {
             try {
                 console.log(`Fetching image URL for: ${fileName}`);
-                const encodedFileName = encodeURIComponent(`File:${fileName}`);
+                const cleanFileName = fileName.replace(/^File:/i, '');
+                const encodedFileName = encodeURIComponent(`File:${cleanFileName}`);
                 const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodedFileName}&prop=imageinfo&iiprop=url&format=json`;
+                console.log(`Commons API URL: ${apiUrl}`);
                 const response = await fetch(apiUrl, {
+                    method: 'GET',
                     headers: {
+                        'Accept': 'application/json',
                         'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
                     }
                 });
                 console.log(`Commons API status: ${response.status}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
                 const data = await response.json();
-                console.log('Commons API response:', data);
+                console.log('Commons API response:', JSON.stringify(data, null, 2));
                 const pages = data.query.pages;
                 const pageId = Object.keys(pages)[0];
                 if (pageId === '-1' || !pages[pageId].imageinfo) {
@@ -187,7 +194,8 @@
                     SELECT ?person ?personLabel ?image
                     WHERE {
                         ?person wdt:P31 wd:Q5;
-                                wdt:P18 ?image.
+                                wdt:P18 ?image;
+                                wdt:P27 ?country. # Filter for people with citizenship
                         ?person rdfs:label ?personLabel.
                         FILTER (LANG(?personLabel) = "en").
                     }
@@ -199,7 +207,8 @@
                         SELECT ?person ?personLabel ?image
                         WHERE {
                             ?person wdt:P31 wd:Q5;
-                                    wdt:P18 ?image.
+                                    wdt:P18 ?image;
+                                    wdt:P27 ?country.
                             ?person rdfs:label ?personLabel.
                             FILTER (LANG(?personLabel) = "en").
                         }
@@ -291,7 +300,7 @@
                 } else if (error.message.includes('No person found')) {
                     errorMessage = 'Не знайдено даних про людину';
                 } else if (error.message.includes('Invalid image')) {
-                    errorMessage = 'Зображення не знайдено (HTTP 404)';
+                    errorMessage = 'Не вдалося отримати URL зображення';
                 }
 
                 if (!useFallback) {
