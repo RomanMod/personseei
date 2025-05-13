@@ -203,7 +203,7 @@ async function loadNewPerson() {
         const response = await fetch('https://query.wikidata.org/sparql?query=' + encodeURIComponent(query) + '&format=json', {
             headers: {
                 'Accept': 'application/sparql-results+json',
-                'User-Agent': 'GuessWhoMiniApp/1.0 (https://your-domain.com; your-email@example.com)'
+                'User-Agent': 'GuessWhoMiniApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
             }
         });
         console.log(`Wikidata response status: ${response.status}, headers:`, Object.fromEntries(response.headers));
