@@ -23,15 +23,19 @@
             <button id="hard-mode">Hard Mode</button>
         </div>
         <div class="game" id="game" style="display: none;">
-            <div class="image-frame">
-                <img id="person-image" src="" alt="Person" style="display: none;">
-                <div id="curtain" class="curtain"></div>
+            <div class="image-container">
+                <div class="image-frame">
+                    <img id="person-image" src="" alt="Person" style="display: none;">
+                    <div id="curtain" class="curtain"></div>
+                </div>
+                <button id="next-person-btn" title="Next Person"></button>
             </div>
             <div class="questions" id="questions"></div>
             <div class="result" id="result" style="display: none;">
                 <h2>Result</h2>
                 <p id="person-info"></p>
                 <p id="correct-answers"></p>
+                <p id="answer-details"></p>
             </div>
             <div class="stats">
                 <p>Games Played: <span id="games-played">0</span></p>
