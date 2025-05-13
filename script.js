@@ -105,6 +105,7 @@ function syncTheme() {
     themeSelect.value = theme;
     tg.setHeaderColor(isDark ? '#1c2526' : '#f5f5f5');
     tg.setBottomBarColor(isDark ? '#1c2526' : '#ffffff');
+    console.log(`Theme applied: ${theme}, body class: ${document.body.className}`);
 }
 
 // Theme switch
@@ -114,6 +115,7 @@ themeSelect.addEventListener('change', () => {
     document.body.className = theme;
     tg.setHeaderColor(theme === 'night' ? '#1c2526' : '#f5f5f5');
     tg.setBottomBarColor(theme === 'night' ? '#1c2526' : '#ffffff');
+    console.log(`Theme applied: ${theme}, body class: ${document.body.className}`);
 });
 
 // Language switch
@@ -135,6 +137,7 @@ function getCachedPerson() {
         console.log('Using cached person');
         return JSON.parse(cached);
     }
+    console.log('No cached person found');
     return null;
 }
 
@@ -144,7 +147,7 @@ function setCachedPerson(person) {
 }
 
 // Wikidata API to fetch random person
-async function loadNewPerson() {
+async function loadNewPerson(useAlternativeQuery = false) {
     if (isLoading) {
         console.log('loadNewPerson skipped: already loading');
         return;
@@ -165,7 +168,7 @@ async function loadNewPerson() {
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
-    console.log(`Loading new person from Wikidata (attempt ${retryCount}/${maxRetries})...`);
+    console.log(`Loading new person from Wikidata (attempt ${retryCount}/${maxRetries}, alternative: ${useAlternativeQuery})...`);
 
     // Try cache first
     const cachedPerson = getCachedPerson();
@@ -188,17 +191,31 @@ async function loadNewPerson() {
     try {
         progress.textContent = '20%';
         console.log('Sending SPARQL query to Wikidata...');
-        const query = `
-            SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image WHERE {
-                ?person wdt:P31 wd:Q5;
-                        wdt:P21 ?gender;
-                        wdt:P569 ?birth;
-                        wdt:P18 ?image.
-                OPTIONAL { ?person wdt:P570 ?death. }
-                FILTER (regex(str(?image), "\\.(jpg|png)$", "i"))
-                SERVICE wikibase:label { bd:serviceParam wikibase:language "uk,en". }
-            } LIMIT 1
-        `;
+        let query;
+        if (useAlternativeQuery) {
+            query = `
+                SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image WHERE {
+                    ?person wdt:P31 wd:Q5;
+                            wdt:P21 ?gender;
+                            wdt:P569 ?birth;
+                            wdt:P18 ?image.
+                    OPTIONAL { ?person wdt:P570 ?death. }
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+                } LIMIT 1
+            `;
+        } else {
+            query = `
+                SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image WHERE {
+                    ?person wdt:P31 wd:Q5;
+                            wdt:P21 ?gender;
+                            wdt:P569 ?birth;
+                            wdt:P18 ?image.
+                    OPTIONAL { ?person wdt:P570 ?death. }
+                    FILTER (regex(str(?image), "\\.(jpg|png)$", "i"))
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "uk,en". }
+                } LIMIT 1
+            `;
+        }
         console.log('SPARQL query:', query);
         const response = await fetch('https://query.wikidata.org/sparql?query=' + encodeURIComponent(query) + '&format=json', {
             headers: {
@@ -211,7 +228,14 @@ async function loadNewPerson() {
             throw new Error('Too Many Requests');
         }
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
+            const errorText = await response.text();
+            console.error(`Error response body: ${errorText}`);
+            if (response.status === 400 && !useAlternativeQuery) {
+                console.warn('Retrying with alternative query...');
+                isLoading = false;
+                return loadNewPerson(true);
+            }
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
         const data = await response.json();
         progress.textContent = '60%';
@@ -236,7 +260,7 @@ async function loadNewPerson() {
         if (!(await isValidImage(currentPerson.image))) {
             console.warn('Invalid image, retrying...');
             isLoading = false;
-            return loadNewPerson();
+            return loadNewPerson(useAlternativeQuery);
         }
 
         progress.textContent = '100%';
@@ -262,7 +286,7 @@ async function loadNewPerson() {
         });
         setTimeout(() => {
             isLoading = false;
-            loadNewPerson();
+            loadNewPerson(useAlternativeQuery);
         }, 5000);
     } finally {
         isLoading = false;
@@ -297,7 +321,9 @@ async function isValidImage(url) {
         return false;
     } catch (error) {
         console.error('Image validation failed:', error);
-        return false;
+        // Запасной URL (например, заглушка)
+        console.log('Using fallback image');
+        return url === 'https://via.placeholder.com/150' ? false : isValidImage('https://via.placeholder.com/150');
     }
 }
 
