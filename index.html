@@ -3,66 +3,673 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess Who - Telegram Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-TQ5F8JW26S');
-    </script>
+    <title>Вгадай персонажа</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Night Mode (Default) */
+        .night-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        .night-mode .container {
+            background-color: #2a2a2a;
+        }
+
+        .night-mode button {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #4a4a4a;
+        }
+
+        .night-mode .display {
+            background-color: #333;
+            border: 2px solid #444;
+        }
+
+        .night-mode .result-area {
+            background-color: #333;
+            border: 1px solid #444;
+        }
+
+        /* Day Mode */
+        .day-mode {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .day-mode .container {
+            background-color: #fff;
+        }
+
+        .day-mode button {
+            background-color: #e0e0e0;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        .day-mode .display {
+            background-color: #eee;
+            border: 2px solid #ddd;
+        }
+
+        .day-mode .result-area {
+            background-color: #eee;
+            border: 1px solid #ddd;
+        }
+
+        /* Common Styles */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .theme-toggle, .language-select, .difficulty-select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .display-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .display {
+            flex: 1;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #photo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .next-photo-btn {
+            margin-left: 10px;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .gender-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .status-options {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .status-btn {
+            flex: 1;
+            padding: 15px;
+            margin: 0 5px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .check-btn {
+            width: 100%;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .result-area {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            font-size: 16px;
+        }
+
+        .correct {
+            background-color: #4caf50 !important;
+            color: white !important;
+        }
+
+        .incorrect {
+            background-color: #f44336 !important;
+            color: white !important;
+        }
+
+        .selected {
+            background-color: #2196F3 !important;
+            color: white !important;
+        }
+
+        #loading-progress {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
 </head>
-<body>
+<body class="night-mode">
     <div class="container">
-        <h1 id="player-name">Loading...</h1>
-        <div class="settings">
-            <select id="theme-select">
-                <option value="night">Ніч</option
-                <option value="day">День</option>
+        <div class="header">
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+            <select id="language-select" class="language-select">
+                <option value="uk">🇺🇦 Українська</option>
+                <option value="ru">🇷🇺 Русский</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="alien">👽 Инопланетный</option>
             </select>
-            <select id="language-select">
-                <option value="uk">Українська</option>
-                <option value="ru">Русский</option>
-                <option value="en">English</option>
-                <option value="alien">👾 Alien</option>
-            </select>
-            <select id="difficulty-select">
-                <option value="easier">Попроще</option>
-                <option value="easy">Просто</option>
+            <select id="difficulty-select" class="difficulty-select">
+                <option value="easy">Попроще</option>
+                <option value="hard">Просто</option>
             </select>
         </div>
-        <div class="display">
-            <div id="progress">0%</div>
-            <img id="person-image" src="" alt="Person" style="display: none;">
-            <button id="next-photo">➡️</button>
-        </div>
-        <div class="questions">
-            <div id="alive-question">
-                <label><input type="radio" name="alive" value="alive"> Живий</label>
-                <label><input type="radio" name="alive" value="dead"> Мертвий</label>
+
+        <div class="game-area">
+            <div id="error-message" class="error-message" style="display: none;"></div>
+            
+            <div class="display-container">
+                <div id="display" class="display">
+                    <div id="loading-progress">0%</div>
+                    <img id="photo" src="" alt="Фото персонажа" style="display: none;">
+                </div>
+                <button id="next-photo" class="next-photo-btn">➡️</button>
             </div>
-            <div id="gender-question" style="display: none;">
-                <button class="gender-btn" data-gender="male">Чоловік</button>
-                <button class="gender-btn" data-gender="female">Жінка</button>
+
+            <div id="question-area">
+                <div id="gender-buttons" class="gender-buttons">
+                    <button id="male-btn" class="gender-btn">👨 Мужчина</button>
+                    <button id="female-btn" class="gender-btn">👩 Женщина</button>
+                </div>
+                <div id="status-options" class="status-options"></div>
             </div>
-            <div id="easier-question">
-                <button class="status-btn" data-status="alive">Живий</button>
-                <button class="status-btn" data-status="dead">Мертвий</button>
+
+            <button id="check-btn" class="check-btn">Проверить</button>
+
+            <div id="result-area" class="result-area" style="display: none;">
+                <h3 id="person-name"></h3>
+                <a id="wiki-link" href="#" target="_blank">Читать в Википедии</a>
             </div>
-        </div>
-        <button id="check-answer">Перевірити</button>
-        <div id="result" style="display: none;">
-            <p id="person-info"></p>
-            <a id="wiki-link" href="" target="_blank">Вікіпедія</a>
-        </div>
-        <div class="stats">
-            <p>Правильних відповідей: <span id="correct-answers">0</span></p>
-            <p>Загалом питань: <span id="total-questions">0</span></p>
+
+            <div class="stats">
+                <div>Правильно: <span id="correct-count">0</span></div>
+                <div>Неправильно: <span id="wrong-count">0</span></div>
+                <div>Точность: <span id="accuracy">0%</span></div>
+            </div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        // Game state
+        let gameState = {
+            playerName: 'Гравець',
+            difficulty: 'easy',
+            language: 'uk',
+            theme: 'night',
+            currentPerson: null,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            loading: false,
+            sparqlEndpoint: 'https://query.wikidata.org/sparql',
+            commonsUrl: 'https://commons.wikimedia.org/wiki/Special:FilePath/'
+        };
+
+        // DOM elements
+        const elements = {
+            themeToggle: document.getElementById('theme-toggle'),
+            languageSelect: document.getElementById('language-select'),
+            difficultySelect: document.getElementById('difficulty-select'),
+            display: document.getElementById('display'),
+            photo: document.getElementById('photo'),
+            loadingProgress: document.getElementById('loading-progress'),
+            nextPhotoBtn: document.getElementById('next-photo'),
+            genderButtons: document.getElementById('gender-buttons'),
+            maleBtn: document.getElementById('male-btn'),
+            femaleBtn: document.getElementById('female-btn'),
+            statusOptions: document.getElementById('status-options'),
+            checkBtn: document.getElementById('check-btn'),
+            resultArea: document.getElementById('result-area'),
+            personName: document.getElementById('person-name'),
+            wikiLink: document.getElementById('wiki-link'),
+            correctCount: document.getElementById('correct-count'),
+            wrongCount: document.getElementById('wrong-count'),
+            accuracy: document.getElementById('accuracy'),
+            errorMessage: document.getElementById('error-message')
+        };
+
+        // Initialize the game
+        function initGame() {
+            // Set up event listeners
+            elements.themeToggle.addEventListener('click', toggleTheme);
+            elements.languageSelect.addEventListener('change', changeLanguage);
+            elements.difficultySelect.addEventListener('change', changeDifficulty);
+            elements.nextPhotoBtn.addEventListener('click', loadRandomPerson);
+            elements.maleBtn.addEventListener('click', () => selectGender('male'));
+            elements.femaleBtn.addEventListener('click', () => selectGender('female'));
+            elements.checkBtn.addEventListener('click', checkAnswers);
+
+            // Load first person
+            updateQuestionUI();
+            loadRandomPerson();
+        }
+
+        // Toggle between day and night theme
+        function toggleTheme() {
+            if (gameState.theme === 'night') {
+                gameState.theme = 'day';
+                document.body.classList.remove('night-mode');
+                document.body.classList.add('day-mode');
+                elements.themeToggle.textContent = '☀️';
+            } else {
+                gameState.theme = 'night';
+                document.body.classList.remove('day-mode');
+                document.body.classList.add('night-mode');
+                elements.themeToggle.textContent = '🌙';
+            }
+        }
+
+        // Change game language
+        function changeLanguage() {
+            gameState.language = elements.languageSelect.value;
+            updateUIText();
+        }
+
+        // Change game difficulty
+        function changeDifficulty() {
+            gameState.difficulty = elements.difficultySelect.value;
+            updateQuestionUI();
+            loadRandomPerson();
+        }
+
+        // Update UI text based on selected language
+        function updateUIText() {
+            // This would be expanded with translations for all UI elements
+            console.log('Language changed to', gameState.language);
+        }
+
+        // Update question UI based on difficulty
+        function updateQuestionUI() {
+            elements.statusOptions.innerHTML = '';
+            
+            if (gameState.difficulty === 'hard') {
+                // Hard mode - radio buttons
+                elements.statusOptions.innerHTML = `
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="alive" name="status" value="alive">
+                            <label for="alive">Жив</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="dead" name="status" value="dead">
+                            <label for="dead">Мерт</label>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Easy mode - big buttons
+                elements.statusOptions.innerHTML = `
+                    <button id="alive-btn" class="status-btn">Жив</button>
+                    <button id="dead-btn" class="status-btn">Мерт</button>
+                `;
+                
+                document.getElementById('alive-btn').addEventListener('click', () => selectStatus('alive'));
+                document.getElementById('dead-btn').addEventListener('click', () => selectStatus('dead'));
+            }
+        }
+
+        // Select gender
+        function selectGender(gender) {
+            if (!gameState.currentPerson) return;
+            
+            gameState.currentPerson.userGuess = gameState.currentPerson.userGuess || {};
+            gameState.currentPerson.userGuess.gender = gender;
+            
+            // Update button styles
+            elements.maleBtn.classList.remove('correct', 'incorrect', 'selected');
+            elements.femaleBtn.classList.remove('correct', 'incorrect', 'selected');
+            
+            if (gender === 'male') {
+                elements.maleBtn.classList.add('selected');
+            } else {
+                elements.femaleBtn.classList.add('selected');
+            }
+        }
+
+        // Select status
+        function selectStatus(status) {
+            if (!gameState.currentPerson) return;
+            
+            gameState.currentPerson.userGuess = gameState.currentPerson.userGuess || {};
+            gameState.currentPerson.userGuess.status = status;
+            
+            // Update button styles
+            const aliveBtn = document.getElementById('alive-btn') || document.getElementById('alive');
+            const deadBtn = document.getElementById('dead-btn') || document.getElementById('dead');
+            
+            if (aliveBtn) aliveBtn.classList.remove('correct', 'incorrect', 'selected');
+            if (deadBtn) deadBtn.classList.remove('correct', 'incorrect', 'selected');
+            
+            if (status === 'alive') {
+                if (aliveBtn) aliveBtn.classList.add('selected');
+            } else {
+                if (deadBtn) deadBtn.classList.add('selected');
+            }
+        }
+
+        // Check answers
+        function checkAnswers() {
+            if (!gameState.currentPerson || !gameState.currentPerson.userGuess) {
+                showError('Спочатку оберіть відповіді!');
+                return;
+            }
+            
+            const person = gameState.currentPerson;
+            const guess = person.userGuess;
+            
+            // Check gender
+            const genderCorrect = guess.gender === person.gender;
+            
+            // Check status
+            const statusCorrect = guess.status === (person.dateOfDeath ? 'dead' : 'alive');
+            
+            // Update button styles based on correctness
+            if (genderCorrect) {
+                if (person.gender === 'male') {
+                    elements.maleBtn.classList.add('correct');
+                } else {
+                    elements.femaleBtn.classList.add('correct');
+                }
+            } else {
+                if (guess.gender === 'male') {
+                    elements.maleBtn.classList.add('incorrect');
+                } else {
+                    elements.femaleBtn.classList.add('incorrect');
+                }
+            }
+            
+            // Update status buttons
+            const correctStatus = person.dateOfDeath ? 'dead' : 'alive';
+            const aliveBtn = document.getElementById('alive-btn') || document.getElementById('alive');
+            const deadBtn = document.getElementById('dead-btn') || document.getElementById('dead');
+            
+            if (aliveBtn && deadBtn) {
+                if (correctStatus === 'alive') {
+                    aliveBtn.classList.add('correct');
+                } else {
+                    deadBtn.classList.add('correct');
+                }
+                
+                if (guess.status !== correctStatus) {
+                    if (guess.status === 'alive') {
+                        aliveBtn.classList.add('incorrect');
+                    } else {
+                        deadBtn.classList.add('incorrect');
+                    }
+                }
+            }
+            
+            // Show result
+            showResult(person, genderCorrect && statusCorrect);
+            
+            // Update stats
+            if (genderCorrect && statusCorrect) {
+                gameState.correctAnswers++;
+            } else {
+                gameState.wrongAnswers++;
+            }
+            
+            updateStats();
+            
+            // Log to console for testing
+            console.log('Answer checked:', {
+                correct: genderCorrect && statusCorrect,
+                difficulty: gameState.difficulty,
+                person: person
+            });
+        }
+
+        // Show result
+        function showResult(person, isCorrect) {
+            elements.photo.style.display = 'block';
+            elements.resultArea.style.display = 'block';
+            
+            elements.personName.textContent = person.name;
+            elements.wikiLink.href = person.wikiUrl;
+            
+            if (isCorrect) {
+                elements.resultArea.style.backgroundColor = gameState.theme === 'night' ? '#2e7d32' : '#81c784';
+            } else {
+                elements.resultArea.style.backgroundColor = gameState.theme === 'night' ? '#c62828' : '#e57373';
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            elements.correctCount.textContent = gameState.correctAnswers;
+            elements.wrongCount.textContent = gameState.wrongAnswers;
+            
+            const total = gameState.correctAnswers + gameState.wrongAnswers;
+            if (total > 0) {
+                const accuracy = Math.round((gameState.correctAnswers / total) * 100);
+                elements.accuracy.textContent = `${accuracy}%`;
+            } else {
+                elements.accuracy.textContent = '0%';
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            elements.errorMessage.textContent = message;
+            elements.errorMessage.style.display = 'block';
+            setTimeout(() => {
+                elements.errorMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // SPARQL query to get random person with photo
+        async function getRandomPersonFromWikidata() {
+            const sparqlQuery = `
+                SELECT ?person ?personLabel ?genderLabel ?image ?dateOfBirth ?dateOfDeath ?article WHERE {
+                    {
+                        SELECT ?person WHERE {
+                            ?person wdt:P31 wd:Q5;     # Human
+                                    wdt:P18 ?image;    # With image
+                                    wdt:P21 ?gender.    # With gender
+                            FILTER(EXISTS { ?person wdt:P569 ?dateOfBirth. }) # With birth date
+                            ${gameState.difficulty === 'hard' ? '' : '?person wdt:P106/wdt:P279* wd:Q901.'} # Professions (for less famous people in easy mode)
+                        ORDER BY RAND()
+                        LIMIT 1
+                    }
+                    
+                    OPTIONAL { ?person wdt:P570 ?dateOfDeath. }
+                    ?person wdt:P21 ?gender;
+                            wdt:P18 ?image;
+                            wdt:P569 ?dateOfBirth.
+                    
+                    OPTIONAL {
+                        ?article schema:about ?person;
+                                schema:inLanguage "uk";
+                                schema:isPartOf <https://uk.wikipedia.org/>.
+                    }
+                    
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "uk,en". }
+                }
+                LIMIT 1
+            `;
+
+            const url = `${gameState.sparqlEndpoint}?query=${encodeURIComponent(sparqlQuery)}&format=json`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'User-Agent': 'GuessThePersonGame/1.0'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return parseWikidataResponse(data);
+            } catch (error) {
+                console.error('Error fetching from Wikidata:', error);
+                throw error;
+            }
+        }
+
+        // Parse Wikidata response
+        function parseWikidataResponse(data) {
+            if (!data.results || !data.results.bindings || data.results.bindings.length === 0) {
+                throw new Error('No results from Wikidata');
+            }
+            
+            const result = data.results.bindings[0];
+            const personId = result.person.value.split('/').pop();
+            
+            return {
+                id: personId,
+                name: result.personLabel.value,
+                gender: result.genderLabel.value === 'чоловіча стать' ? 'male' : 'female',
+                dateOfBirth: result.dateOfBirth.value,
+                dateOfDeath: result.dateOfDeath ? result.dateOfDeath.value : null,
+                imageUrl: `${gameState.commonsUrl}${result.image.value.replace(/^.*\//, '')}?width=300`,
+                wikiUrl: result.article ? result.article.value : `https://www.wikidata.org/wiki/${personId}`
+            };
+        }
+
+        // Load random person from Wikidata
+        async function loadRandomPerson() {
+            if (gameState.loading) return;
+            gameState.loading = true;
+            
+            // Reset UI
+            elements.photo.style.display = gameState.difficulty === 'easy' ? 'none' : 'block';
+            elements.resultArea.style.display = 'none';
+            elements.maleBtn.classList.remove('correct', 'incorrect', 'selected');
+            elements.femaleBtn.classList.remove('correct', 'incorrect', 'selected');
+            
+            const aliveBtn = document.getElementById('alive-btn') || document.getElementById('alive');
+            const deadBtn = document.getElementById('dead-btn') || document.getElementById('dead');
+            
+            if (aliveBtn) aliveBtn.classList.remove('correct', 'incorrect', 'selected');
+            if (deadBtn) deadBtn.classList.remove('correct', 'incorrect', 'selected');
+            
+            // Show loading
+            elements.loadingProgress.style.display = 'block';
+            elements.loadingProgress.textContent = '0%';
+            
+            try {
+                // Step 1: Get person data from Wikidata
+                elements.loadingProgress.textContent = 'Завантаження даних...';
+                const personData = await getRandomPersonFromWikidata();
+                elements.loadingProgress.textContent = '50%';
+                
+                // Step 2: Load image
+                elements.loadingProgress.textContent = 'Завантаження фото...';
+                await loadImage(personData.imageUrl);
+                
+                // Hide loading
+                elements.loadingProgress.style.display = 'none';
+                
+                // Set person data
+                gameState.currentPerson = personData;
+                
+                console.log('Loaded person:', gameState.currentPerson);
+            } catch (error) {
+                console.error('Error loading person:', error);
+                showError('Помилка завантаження. Спробуємо ще раз...');
+                elements.loadingProgress.textContent = 'Помилка';
+                setTimeout(loadRandomPerson, 2000); // Retry after 2 seconds
+            } finally {
+                gameState.loading = false;
+            }
+        }
+
+        // Load image with validation
+        function loadImage(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = url;
+                
+                img.onload = () => {
+                    // Basic image validation
+                    if (img.width < 50 || img.height < 50) {
+                        reject(new Error('Image too small'));
+                        return;
+                    }
+                    
+                    elements.photo.src = url;
+                    elements.photo.onerror = () => reject(new Error('Image load error'));
+                    elements.photo.onload = () => resolve();
+                };
+                
+                img.onerror = () => reject(new Error('Image load error'));
+            });
+        }
+
+        // Initialize the game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
 </body>
 </html>
