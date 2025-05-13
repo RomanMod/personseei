@@ -5,8 +5,6 @@
     --button-text: #e0e0e0;
     --highlight: #4caf50;
     --border-color: #4b5e61;
-    --header-color: #1c2526; /* Для Telegram */
-    --bottom-bar-color: #2e3b3e;
 }
 
 body.day {
@@ -15,8 +13,6 @@ body.day {
     --button-bg: #d3d3d3;
     --button-text: #333;
     --border-color: #999;
-    --header-color: #f5f5f5;
-    --bottom-bar-color: #d3d3d3;
 }
 
 body {
@@ -26,6 +22,8 @@ body {
     margin: 0;
     padding: 20px;
     font-size: 16px;
+    border: 2px solid var(--border-color); /* Для отладки темы */
+    transition: all 0.3s ease; /* Плавное переключение темы */
 }
 
 .container {
@@ -69,17 +67,16 @@ select {
 #progress {
     font-size: 24px;
     color: var(--text-color);
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.5); /* Для лучшей видимости */
+    padding: 10px;
+    border-radius: 5px;
 }
 
 #person-image {
     max-width: 100%;
     max-height: 100%;
     object-fit: cover;
-}
-
-#image-error {
-    color: #ff4444;
-    font-size: 18px;
 }
 
 #next-photo {
