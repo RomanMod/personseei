@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess Who - Telegram Mini App</title>
+    <title>Игра "Угадай личность" - Telegram Mini App</title>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
@@ -14,345 +14,415 @@
     </script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #1c2526; /* Space Gray - Night */
-            color: #ffffff;
-            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1C2526; /* Space Gray Night */
+            color: #E8ECEF;
+            transition: all 0.3s ease;
         }
+
         body.day {
-            background-color: #f0f0f0; /* Day */
-            color: #000000;
+            background: #F5F5F7; /* Day theme */
+            color: #1C2526;
         }
+
         .container {
             max-width: 600px;
-            margin: 0 auto;
+            padding: 20px;
             text-align: center;
         }
-        #display {
+
+        .display {
             width: 100%;
             height: 300px;
-            background-color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: #2C3539;
+            border-radius: 10px;
             margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
             overflow: hidden;
         }
-        #display img {
+
+        .display img {
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
+            display: none;
         }
-        #display.hidden {
-            background-color: #000;
-            color: #fff;
+
+        .display .loading {
             font-size: 24px;
+            color: #E8ECEF;
         }
-        #next-arrow {
+
+        .arrow {
             position: absolute;
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 30px;
+            background: #4A5859;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
             cursor: pointer;
-            color: #00ccff;
+            color: #E8ECEF;
         }
-        .button, .theme-toggle, .lang-select, .mode-select {
-            background-color: #3a3f44; /* Space Gray button */
-            color: #ffffff;
+
+        .arrow:hover {
+            background: #5A6A6B;
+        }
+
+        button, input[type="submit"] {
+            background: #4A5859;
             border: none;
             padding: 10px 20px;
-            margin: 5px;
+            border-radius: 8px;
+            color: #E8ECEF;
             cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            margin: 5px;
+            font-size: 16px;
+            transition: background 0.2s;
         }
-        body.day .button, body.day .theme-toggle, body.day .lang-select, body.day .mode-select {
-            background-color: #d0d0d0; /* Day button */
-            color: #000000;
+
+        button:hover, input[type="submit"]:hover {
+            background: #5A6A6B;
         }
-        .button:hover, .theme-toggle:hover, .lang-select:hover, .mode-select:hover {
-            background-color: #00ccff;
-        }
+
         .radio-group {
             margin: 20px 0;
         }
+
         .radio-group label {
             margin: 0 10px;
+            font-size: 16px;
         }
+
+        input[type="radio"]:checked + label {
+            color: #00FF00; /* Green for correct answers */
+        }
+
         .correct {
-            color: #00ff00 !important;
+            color: #00FF00 !important;
         }
-        .incorrect {
-            color: #ff0000 !important;
+
+        .wrong {
+            color: #FF0000 !important;
         }
-        #result {
+
+        .info, .stats {
             margin-top: 20px;
+            font-size: 18px;
         }
-        #stats {
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
-            color: #fff;
+
+        select {
+            background: #4A5859;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            color: #E8ECEF;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 id="player-name">Player</h1>
-        <button class="theme-toggle" onclick="toggleTheme()">Night Mode</button><br>
-        <select class="lang-select" onchange="changeLanguage(this.value)">
-            <option value="en">English</option>
-            <option value="uk">Українська</option>
-            <option value="ru">Русский</option>
-            <option value="alien">👽 Alien</option>
-        </select><br>
-        <select class="mode-select" onchange="changeMode(this.value)">
-            <option value="very-simple">Very Simple</option>
-            <option value="simple">Simple</option>
-        </select>
-        <div id="display">
-            <div id="loading">Loading: 0%</div>
-            <div id="next-arrow" onclick="loadNewPerson()">➡️</div>
+        <h1 id="playerName">Игра "Угадай личность"</h1>
+        <div>
+            <button onclick="toggleTheme()">Тема: Ночь</button>
+            <select id="language" onchange="changeLanguage()">
+                <option value="ru">Русский</option>
+                <option value="uk">Українська</option>
+                <option value="en">English</option>
+                <option value="alien">👽 Инопланетный</option>
+            </select>
+            <select id="difficulty" onchange="changeDifficulty()">
+                <option value="easy">Попроще</option>
+                <option value="hard">Просто</option>
+            </select>
         </div>
-        <div class="radio-group" id="alive-group">
-            <label><input type="radio" name="alive" value="alive"> Alive</label>
-            <label><input type="radio" name="alive" value="dead"> Dead</label>
+        <div class="display">
+            <div class="loading" id="loading">Загрузка: 0%</div>
+            <img id="personImage" alt="Person Image">
+            <button class="arrow" onclick="loadNewPerson()">➡️</button>
         </div>
-        <div class="radio-group" id="gender-group">
-            <label><input type="radio" name="gender" value="male"> Male</label>
-            <label><input type="radio" name="gender" value="female"> Female</label>
+        <div class="radio-group" id="statusGroup">
+            <input type="radio" name="status" id="alive" value="alive">
+            <label for="alive" id="aliveLabel">Жив</label>
+            <input type="radio" name="status" id="dead" value="dead">
+            <label for="dead" id="deadLabel">Мёртв</label>
         </div>
-        <button class="button" onclick="checkAnswers()">Check</button>
-        <div id="result"></div>
-        <div id="stats">Games Played: 0 | Correct Answers: 0</div>
+        <div class="radio-group" id="genderGroup" style="display: none;">
+            <input type="radio" name="gender" id="male" value="male">
+            <label for="male" id="maleLabel">Мужчина</label>
+            <input type="radio" name="gender" id="female" value="female">
+            <label for="female" id="femaleLabel">Женщина</label>
+        </div>
+        <input type="submit" value="Проверить" onclick="checkAnswers()">
+        <div class="info" id="personInfo"></div>
+        <div class="stats" id="stats">Правильных ответов: 0 | Всего попыток: 0</div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Telegram Web Apps API Integration
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        document.getElementById('player-name').textContent = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : 'Player';
+        // Telegram Web Apps API
+        window.Telegram.WebApp.ready();
+        const playerName = window.Telegram.WebApp.initDataUnsafe.user?.first_name || "Игрок";
+        document.getElementById("playerName").textContent = `Игра "Угадай личность", ${playerName}`;
 
-        // Game State
-        let currentPerson = null;
-        let gamesPlayed = 0;
-        let correctAnswers = 0;
-        let mode = 'very-simple'; // Default mode
-        let language = 'en'; // Default language
-        let isNightMode = true; // Default night mode
-
-        // Language Translations
+        // Переводы
         const translations = {
-            en: {
-                alive: 'Alive', dead: 'Dead', male: 'Male', female: 'Female', check: 'Check',
-                correct: 'Correct!', incorrect: 'Incorrect!', stats: 'Games Played: {games} | Correct Answers: {correct}',
-                loading: 'Loading: {percent}%', error: 'Error loading image. Trying another...'
+            ru: {
+                title: "Игра 'Угадай личность'",
+                alive: "Жив",
+                dead: "Мёртв",
+                male: "Мужчина",
+                female: "Женщина",
+                check: "Проверить",
+                theme: "Тема: Ночь",
+                themeDay: "Тема: День",
+                stats: "Правильных ответов: {{correct}} | Всего попыток: {{total}}"
             },
             uk: {
-                alive: 'Живий', dead: 'Мертвий', male: 'Чоловік', female: 'Жінка', check: 'Перевірити',
-                correct: 'Правильно!', incorrect: 'Неправильно!', stats: 'Ігор зіграно: {games} | Правильних відповідей: {correct}',
-                loading: 'Завантаження: {percent}%', error: 'Помилка завантаження зображення. Спробуємо інше...'
+                title: "Гра 'Вгадай особу'",
+                alive: "Живий",
+                dead: "Мертвий",
+                male: "Чоловік",
+                female: "Жінка",
+                check: "Перевірити",
+                theme: "Тема: Ніч",
+                themeDay: "Тема: День",
+                stats: "Правильних відповідей: {{correct}} | Всього спроб: {{total}}"
             },
-            ru: {
-                alive: 'Жив', dead: 'Мёртв', male: 'Мужчина', female: 'Женщина', check: 'Проверить',
-                correct: 'Правильно!', incorrect: 'Неправильно!', stats: 'Игр сыграно: {games} | Правильных ответов: {correct}',
-                loading: 'Загрузка: {percent}%', error: 'Ошибка загрузки изображения. Пробуем другое...'
+            en: {
+                title: "Guess the Person Game",
+                alive: "Alive",
+                dead: "Dead",
+                male: "Male",
+                female: "Female",
+                check: "Check",
+                theme: "Theme: Night",
+                themeDay: "Theme: Day",
+                stats: "Correct answers: {{correct}} | Total attempts: {{total}}"
             },
             alien: {
-                alive: '👽', dead: '💀', male: '♂', female: '♀', check: '🔍',
-                correct: '✅', incorrect: '❌', stats: '🎮: {games} | ✅: {correct}',
-                loading: '🛸: {percent}%', error: '🚫 🖼️. 🌌...'
+                title: "👽 ɢᴀᴍᴇ 'ɢᴜᴇꜱꜱ ᴛʜᴇ ᴘᴇʀꜱᴏɴ'",
+                alive: "🛸 ᴀʟɪᴠᴇ",
+                dead: "💫 ᴅᴇᴀᴅ",
+                male: "👾 ᴍᴀʟᴇ",
+                female: "🌌 ꜰᴇᴍᴀʟᴇ",
+                check: "🔍 ᴄʜᴇᴄᴋ",
+                theme: "🌑 ᴛʜᴇᴍᴇ: ɴɪɢʜᴛ",
+                themeDay: "☀️ ᴛʜᴇᴍᴇ: ᴅᴀʏ",
+                stats: "✅ ᴄᴏʀʀᴇᴄᴛ: {{correct}} | 🔢 ᴛᴏᴛᴀʟ: {{total}}"
             }
         };
 
-        // Theme Toggle
+        let currentLang = "ru";
+        let difficulty = "easy";
+        let correctAnswers = 0;
+        let totalAttempts = 0;
+        let currentPerson = null;
+        let isNight = true;
+
+        // Смена языка
+        function changeLanguage() {
+            currentLang = document.getElementById("language").value;
+            updateUIText();
+        }
+
+        // Смена сложности
+        function changeDifficulty() {
+            difficulty = document.getElementById("difficulty").value;
+            document.getElementById("genderGroup").style.display = difficulty === "hard" ? "block" : "none";
+            document.getElementById("personImage").style.display = difficulty === "easy" ? "block" : "none";
+            loadNewPerson();
+        }
+
+        // Смена темы
         function toggleTheme() {
-            isNightMode = !isNightMode;
-            document.body.classList.toggle('day', !isNightMode);
-            document.querySelector('.theme-toggle').textContent = isNightMode ? 'Night Mode' : 'Day Mode';
+            isNight = !isNight;
+            document.body.classList.toggle("day", !isNight);
+            document.querySelector("button[onclick='toggleTheme()']").textContent = 
+                isNight ? translations[currentLang].theme : translations[currentLang].themeDay;
         }
 
-        // Language Change
-        function changeLanguage(lang) {
-            language = lang;
-            updateUI();
+        // Обновление текста интерфейса
+        function updateUIText() {
+            const t = translations[currentLang];
+            document.getElementById("playerName").textContent = `${t.title}, ${playerName}`;
+            document.getElementById("aliveLabel").textContent = t.alive;
+            document.getElementById("deadLabel").textContent = t.dead;
+            document.getElementById("maleLabel").textContent = t.male;
+            document.getElementById("femaleLabel").textContent = t.female;
+            document.querySelector("input[type='submit']").value = t.check;
+            document.querySelector("button[onclick='toggleTheme()']").textContent = 
+                isNight ? t.theme : t.themeDay;
+            updateStats();
         }
 
-        // Mode Change
-        function changeMode(newMode) {
-            mode = newMode;
-            document.getElementById('gender-group').style.display = mode === 'simple' ? 'block' : 'none';
-            document.getElementById('display').classList.toggle('hidden', mode === 'simple' && !currentPerson?.checked);
-            updateUI();
-        }
-
-        // Update UI with translations
-        function updateUI() {
-            const t = translations[language];
-            document.querySelectorAll('#alive-group label')[0].textContent = t.alive;
-            document.querySelectorAll('#alive-group label')[1].textContent = t.dead;
-            if (mode === 'simple') {
-                document.querySelectorAll('#gender-group label')[0].textContent = t.male;
-                document.querySelectorAll('#gender-group label')[1].textContent = t.female;
-            }
-            document.querySelector('.button').textContent = t.check;
-            document.getElementById('stats').textContent = t.stats.replace('{games}', gamesPlayed).replace('{correct}', correctAnswers);
-            if (!currentPerson?.image) {
-                document.getElementById('loading').textContent = t.loading.replace('{percent}', currentPerson?.loadingPercent || 0);
-            }
-        }
-
-        // Load New Person
+        // Загрузка нового человека через Wikipedia API
         async function loadNewPerson() {
-            log('Loading new person...');
-            currentPerson = { loadingPercent: 0, checked: false };
-            updateUI();
-            document.getElementById('display').classList.add('hidden', mode === 'simple');
-            document.getElementById('display').innerHTML = `<div id="loading">${translations[language].loading.replace('{percent}', '0')}</div><div id="next-arrow" onclick="loadNewPerson()">➡️</div>`;
-            document.getElementById('result').innerHTML = '';
-            resetRadios();
+            document.getElementById("personInfo").innerHTML = "";
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("personImage").style.display = "none";
+            resetRadioButtons();
+
+            let progress = 0;
+            const loadingInterval = setInterval(() => {
+                progress += 10;
+                document.getElementById("loading").textContent = `Загрузка: ${progress}%`;
+                if (progress >= 100) clearInterval(loadingInterval);
+            }, 200);
 
             try {
-                // Fetch random Wikipedia article
-                let query = mode === 'simple' ? 'Category:Notable_people' : 'Category:People';
-                let response = await fetch(`https://${language}.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&origin=*`);
-                currentPerson.loadingPercent = 20;
-                updateUI();
+                // Выбираем случайную страницу из списка популярных личностей
+                const response = await fetch(
+                    difficulty === "hard"
+                        ? `https://${currentLang}.wikipedia.org/w/api.php?action=query&list=mostviewed&format=json&pvimetric=pageviews&pvilimit=50&origin=*`
+                        : `https://${currentLang}.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`
+                );
+                const data = await response.json();
 
-                let data = await response.json();
-                let title = data.query.random[0].title;
-
-                // Fetch article details
-                response = await fetch(`https://${language}.wikipedia.org/w/api.php?action=query&prop=pageimages|extracts&titles=${encodeURIComponent(title)}&pithumbsize=500&exintro&explaintext&origin=*`);
-                currentPerson.loadingPercent = 40;
-                updateUI();
-
-                data = await response.json();
-                let page = Object.values(data.query.pages)[0];
-                let imageUrl = page.thumbnail?.source;
-                currentPerson.name = page.title;
-                currentPerson.extract = page.extract;
-
-                // Parse extract for alive/dead and gender (simplified)
-                currentPerson.isAlive = !page.extract.includes('died') && !page.extract.includes('смерть') && !page.extract.includes('помер');
-                currentPerson.gender = page.extract.includes('she') || page.extract.includes('her') || page.extract.includes('вона') || page.extract.includes('її') ? 'female' : 'male';
-
-                // Fetch Wikipedia page URL
-                response = await fetch(`https://${language}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=info&inprop=url&origin=*`);
-                data = await response.json();
-                currentPerson.wikiUrl = Object.values(data.query.pages)[0].fullurl;
-                currentPerson.loadingPercent = 60;
-                updateUI();
-
-                // Validate image
-                if (!imageUrl) throw new Error('No image found');
-                let img = new Image();
-                img.src = imageUrl;
-                await new Promise((resolve, reject) => {
-                    img.onload = () => {
-                        // Basic validation: check if image is too small or likely not a face
-                        if (img.width < 100 || img.height < 100) {
-                            reject(new Error('Image too small'));
-                        } else {
-                            resolve();
-                        }
-                    };
-                    img.onerror = () => reject(new Error('Image load error'));
-                });
-
-                currentPerson.image = imageUrl;
-                currentPerson.loadingPercent = 100;
-                document.getElementById('display').innerHTML = `<img src="${imageUrl}" alt="${currentPerson.name}"><div id="next-arrow" onclick="loadNewPerson()">➡️</div>`;
-                document.getElementById('display').classList.remove('hidden', mode === 'very-simple');
-                log('Person loaded:', currentPerson);
-            } catch (error) {
-                log('Error:', error.message);
-                document.getElementById('loading').textContent = translations[language].error;
-                setTimeout(loadNewPerson, 2000); // Retry after delay
-            }
-        }
-
-        // Reset Radio Buttons
-        function resetRadios() {
-            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
-            document.querySelectorAll('label').forEach(label => label.classList.remove('correct', 'incorrect'));
-        }
-
-        // Check Answers
-        function checkAnswers() {
-            if (!currentPerson?.image) return;
-            if (currentPerson.checked) return;
-
-            let aliveAnswer = document.querySelector('input[name="alive"]:checked')?.value;
-            let genderAnswer = document.querySelector('input[name="gender"]:checked')?.value;
-            let correct = 0;
-
-            // Check alive/dead
-            let isAliveCorrect = aliveAnswer === (currentPerson.isAlive ? 'alive' : 'dead');
-            if (isAliveCorrect) correct++;
-            document.querySelector(`input[name="alive"][value="${currentPerson.isAlive ? 'alive' : 'dead'}"]`).parentElement.classList.add('correct');
-            if (aliveAnswer && !isAliveCorrect) {
-                document.querySelector(`input[name="alive"][value="${aliveAnswer}"]`).parentElement.classList.add('incorrect');
-            }
-
-            // Check gender (only in simple mode)
-            let isGenderCorrect = true;
-            if (mode === 'simple') {
-                isGenderCorrect = genderAnswer === currentPerson.gender;
-                if (isGenderCorrect) correct++;
-                document.querySelector(`input[name="gender"][value="${currentPerson.gender}"]`).parentElement.classList.add('correct');
-                if (genderAnswer && !isGenderCorrect) {
-                    document.querySelector(`input[name="gender"][value="${genderAnswer}"]`).parentElement.classList.add('incorrect');
+                let pageId;
+                if (difficulty === "hard") {
+                    const articles = data.query.mostviewed.filter(a => a.ns === 0 && !a.title.includes(":")); // Только статьи о людях
+                    pageId = articles[Math.floor(Math.random() * articles.length)].id;
+                } else {
+                    pageId = data.query.random[0].id;
                 }
+
+                // Получаем информацию о странице
+                const pageResponse = await fetch(
+                    `https://${currentLang}.wikipedia.org/w/api.php?action=query&prop=pageimages|info&inprop=url&piprop=original&format=json&pageids=${pageId}&origin=*`
+                );
+                const pageData = await pageResponse.json();
+                const page = pageData.query.pages[pageId];
+
+                // Проверяем изображение
+                let imageUrl = page.original?.source;
+                if (!imageUrl || !await isValidImage(imageUrl)) {
+                    console.log("Некорректное изображение, ищем новое...");
+                    clearInterval(loadingInterval);
+                    document.getElementById("loading").textContent = "Ошибка, ищем новое фото...";
+                    return loadNewPerson(); // Повторяем запрос
+                }
+
+                // Получаем краткую информацию о личности
+                const extractResponse = await fetch(
+                    `https://${currentLang}.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&format=json&pageids=${pageId}&origin=*`
+                );
+                const extractData = await extractResponse.json();
+                const extract = extractData.query.pages[pageId].extract;
+
+                // Определяем статус и пол (упрощённо, на основе текста)
+                const isAlive = !extract.includes("умер") && !extract.includes("смерть");
+                const isMale = extract.includes("мужчина") || extract.includes("актёр") || extract.includes("политик") || !extract.includes("женщина");
+
+                currentPerson = {
+                    title: page.title,
+                    image: imageUrl,
+                    wikiUrl: page.fullurl,
+                    isAlive,
+                    isMale
+                };
+
+                document.getElementById("personImage").src = imageUrl;
+                document.getElementById("personImage").style.display = difficulty === "easy" ? "block" : "none";
+                document.getElementById("loading").style.display = "none";
+
+                console.log("Загружен человек:", currentPerson);
+            } catch (error) {
+                console.error("Ошибка загрузки:", error);
+                document.getElementById("loading").textContent = "Ошибка, попробуйте снова...";
+                clearInterval(loadingInterval);
+                setTimeout(loadNewPerson, 2000); // Повторяем через 2 секунды
+            }
+        }
+
+        // Проверка валидности изображения
+        async function isValidImage(url) {
+            try {
+                const response = await fetch(url, { method: "HEAD" });
+                const contentType = response.headers.get("content-type");
+                return response.ok && contentType?.startsWith("image/");
+            } catch {
+                return false;
+            }
+        }
+
+        // Проверка ответов
+        function checkAnswers() {
+            if (!currentPerson) return;
+
+            const statusAnswer = document.querySelector("input[name='status']:checked")?.value;
+            const genderAnswer = document.querySelector("input[name='gender']:checked")?.value;
+
+            let isStatusCorrect = false;
+            let isGenderCorrect = true; // По умолчанию true, если пол не проверяется
+
+            if (statusAnswer) {
+                isStatusCorrect = (statusAnswer === "alive" && currentPerson.isAlive) || (statusAnswer === "dead" && !currentPerson.isAlive);
+                document.getElementById(statusAnswer + "Label").classList.add(isStatusCorrect ? "correct" : "wrong");
+                document.getElementById((statusAnswer === "alive" ? "dead" : "alive") + "Label").classList.add(isStatusCorrect ? "wrong" : "correct");
             }
 
-            // Show result
-            currentPerson.checked = true;
-            document.getElementById('display').classList.remove('hidden');
-            if (!document.getElementById('display').querySelector('img')) {
-                document.getElementById('display').innerHTML = `<img src="${currentPerson.image}" alt="${currentPerson.name}"><div id="next-arrow" onclick="loadNewPerson()">➡️</div>`;
+            if (difficulty === "hard" && genderAnswer) {
+                isGenderCorrect = (genderAnswer === "male" && currentPerson.isMale) || (genderAnswer === "female" && !currentPerson.isMale);
+                document.getElementById(genderAnswer + "Label").classList.add(isGenderCorrect ? "correct" : "wrong");
+                document.getElementById((genderAnswer === "male" ? "female" : "male") + "Label").classList.add(isGenderCorrect ? "wrong" : "correct");
             }
-            document.getElementById('result').innerHTML = `
-                <p>${currentPerson.name}</p>
-                <a href="${currentPerson.wikiUrl}" target="_blank">Wikipedia</a>
-                <p>${isAliveCorrect && isGenderCorrect ? translations[language].correct : translations[language].incorrect}</p>
-            `;
 
-            // Update stats
-            gamesPlayed++;
-            correctAnswers += correct;
-            updateUI();
+            const isCorrect = isStatusCorrect && isGenderCorrect;
+            if (isCorrect) correctAnswers++;
+            totalAttempts++;
 
-            // Log to GA4
-            gtag('event', 'game_played', {
-                mode: mode,
-                language: language,
-                correct_answers: correct,
-                person: currentPerson.name
+            // Отправка в GA4
+            gtag("event", "check_answer", {
+                event_category: "Game",
+                event_label: isCorrect ? "Correct" : "Incorrect",
+                value: isCorrect ? 1 : 0,
+                difficulty,
+                language: currentLang
             });
 
-            log('Answers checked:', { aliveAnswer, genderAnswer, isAliveCorrect, isGenderCorrect, correct });
+            // Показываем информацию
+            if (difficulty === "hard") {
+                document.getElementById("personImage").style.display = "block";
+            }
+            document.getElementById("personInfo").innerHTML = `
+                ${currentPerson.title}<br>
+                <a href="${currentPerson.wikiUrl}" target="_blank">Страница на Википедии</a>
+            `;
+
+            updateStats();
         }
 
-        // Logging
-        function log(...args) {
-            console.log('[Game]', ...args);
+        // Обновление статистики
+        function updateStats() {
+            const t = translations[currentLang];
+            document.getElementById("stats").textContent = t.stats
+                .replace("{{correct}}", correctAnswers)
+                .replace("{{total}}", totalAttempts);
         }
 
-        // Initialize
-        document.getElementById('gender-group').style.display = 'none'; // Default very-simple mode
+        // Сброс радиокнопок
+        function resetRadioButtons() {
+            document.querySelectorAll("input[type='radio']").forEach(input => {
+                input.checked = false;
+            });
+            document.querySelectorAll(".radio-group label").forEach(label => {
+                label.classList.remove("correct", "wrong");
+            });
+        }
+
+        // Инициализация
         loadNewPerson();
+        updateUIText();
     </script>
 </body>
 </html>
