@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Who’s Behind the Curtain?</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Google tag (gtag.js) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Guess Who - Wiki Edition</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -15,36 +15,67 @@
     </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Who’s Behind the Curtain?</h1>
-        <p id="player-name">Welcome, Player!</p>
-        <div class="difficulty">
-            <button id="easy-mode">Easy Mode</button>
-            <button id="hard-mode">Hard Mode</button>
-        </div>
-        <div class="game" id="game" style="display: none;">
-            <div class="image-container">
-                <div class="image-frame">
-                    <img id="person-image" src="" alt="Person" style="display: none;">
-                    <div id="curtain" class="curtain"></div>
+    <div id="app-container">
+        <header>
+            <div class="header-controls">
+                <button id="theme-toggle" data-translate="toggleTheme">☀️</button>
+                <select id="language-select">
+                    <option value="en" data-translate="langEnglish">English</option>
+                    <option value="uk" data-translate="langUkrainian">Українська</option>
+                    <option value="ru" data-translate="langRussian">Русский</option>
+                    <option value="alien" data-translate="langAlien">👽︎◆︎●︎♓︎■︎</option>
+                </select>
+            </div>
+            <div id="welcome-message" data-translate="welcome">Welcome, Player!</div>
+        </header>
+
+        <main>
+            <div class="difficulty-selector">
+                <label data-translate="difficultyLabel">Difficulty:</label>
+                <button id="difficulty-open" class="difficulty-btn active" data-translate="difficultyOpen">Open</button>
+                <button id="difficulty-closed" class="difficulty-btn" data-translate="difficultyClosed">Closed</button>
+            </div>
+
+            <div id="game-area">
+                <div id="photo-frame-container">
+                    <div id="photo-frame">
+                        <img id="person-photo" src="placeholder.jpg" alt="Person">
+                    </div>
+                    <div id="shutter" class="closed"></div>
                 </div>
-                <button id="next-person-btn" title="Next Person"></button>
+
+                <div id="questions-area">
+                    <p data-translate="question1">Is this person alive or dead?</p>
+                    <button class="answer-btn" data-answer-group="aliveDead" data-answer="alive" data-translate="alive">Alive</button>
+                    <button class="answer-btn" data-answer-group="aliveDead" data-answer="dead" data-translate="dead">Dead</button>
+
+                    <p data-translate="question2">Is this person a man or a woman?</p>
+                    <button class="answer-btn" data-answer-group="gender" data-answer="man" data-translate="man">Man</button>
+                    <button class="answer-btn" data-answer-group="gender" data-answer="woman" data-translate="woman">Woman</button>
+                </div>
+
+                <div id="results-area" style="display: none;">
+                    <h2 id="person-name"></h2>
+                    <p><a id="wiki-link" href="#" target="_blank" data-translate="wikiLink">View on Wikipedia</a></p>
+                </div>
+                 <div id="loading-indicator" style="display: none;" data-translate="loading">Loading new person...</div>
             </div>
-            <div class="questions" id="questions"></div>
-            <div class="result" id="result" style="display: none;">
-                <h2>Result</h2>
-                <p id="person-info"></p>
-                <p id="correct-answers"></p>
-                <p id="answer-details"></p>
+        </main>
+
+        <footer>
+            <div id="stats-area">
+                <h3 data-translate="statsTitle">Statistics</h3>
+                <p><span data-translate="gamesPlayed">Games Played:</span> <span id="games-played">0</span></p>
+                <p><span data-translate="correctAnswers">Correct Answers:</span> <span id="correct-answers">0</span></p>
+                <p><span data-translate="totalQuestions">Total Questions Answered:</span> <span id="total-questions">0</span></p>
             </div>
-            <div class="stats">
-                <p>Games Played: <span id="games-played">0</span></p>
-                <p>Correct Answers: <span id="correct-total">0</span></p>
+            <div class="footer-nav">
+                <button id="exit-button" data-translate="exit">Exit</button>
+                <button id="next-photo-button" data-translate="nextPhoto">Next Photo</button>
             </div>
-            <button id="exit-btn">Exit</button>
-        </div>
+        </footer>
     </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <script src="script.js"></script>
 </body>
 </html>
