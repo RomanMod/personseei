@@ -36,13 +36,24 @@ h1 {
     font-size: 24px;
     margin-bottom: 20px;
     color: var(--highlight);
-    animation: themeChange 0.5s ease; /* Мигание при смене темы */
+    animation: themeChange 1s ease 2;
+    position: relative;
+}
+
+h1::after {
+    content: 'Theme: ' attr(data-theme);
+    font-size: 12px;
+    color: var(--text-color);
+    position: absolute;
+    top: -10px;
+    right: 0;
+    opacity: 0.7;
 }
 
 @keyframes themeChange {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
+    0% { opacity: 0.2; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0.2; transform: scale(0.9); }
 }
 
 .settings {
@@ -79,6 +90,13 @@ select {
     background: rgba(0, 0, 0, 0.8);
     padding: 10px;
     border-radius: 5px;
+    max-width: 80%;
+    text-align: center;
+}
+
+#progress.error {
+    color: #ff4444;
+    background: rgba(0, 0, 0, 0.9);
 }
 
 #person-image {
