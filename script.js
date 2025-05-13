@@ -11,8 +11,8 @@ let correctAnswers = 0;
 let gamesPlayed = 0;
 let totalCorrect = 0;
 let isHardMode = false;
-let apiRequestCount = 0; // Счётчик запросов к API
-const maxApiRequests = 50; // Лимит запросов за игру
+let apiRequestCount = 0;
+const maxApiRequests = 50;
 
 // DOM elements
 const gameDiv = document.getElementById('game');
@@ -22,6 +22,7 @@ const personImage = document.getElementById('person-image');
 const curtain = document.getElementById('curtain');
 const personInfo = document.getElementById('person-info');
 const correctAnswersText = document.getElementById('correct-answers');
+const answerDetails = document.getElementById('answer-details');
 const gamesPlayedText = document.getElementById('games-played');
 const correctTotalText = document.getElementById('correct-total');
 const easyModeBtn = document.getElementById('easy-mode');
@@ -69,7 +70,7 @@ const lesserKnownPeople = [
 async function fetchRandomPerson(hardMode) {
     console.log(`[fetchRandomPerson] Starting for ${hardMode ? 'hard' : 'easy'} mode`);
     let attempts = 0;
-    const maxAttempts = 15; // Увеличено для надёжности
+    const maxAttempts = 15;
 
     while (attempts < maxAttempts) {
         if (apiRequestCount >= maxApiRequests) {
@@ -79,7 +80,6 @@ async function fetchRandomPerson(hardMode) {
 
         console.log(`[fetchRandomPerson] Attempt ${attempts + 1}/${maxAttempts}, API requests: ${apiRequestCount}`);
         try {
-            // Получаем случайную статью
             console.log('[fetchRandomPerson] Sending Wikipedia random query');
             apiRequestCount++;
             const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`, {
@@ -91,7 +91,6 @@ async function fetchRandomPerson(hardMode) {
             const title = data.query.random[0].title;
             console.log(`[fetchRandomPerson] Selected title: ${title}`);
 
-            // Проверяем, что это человек
             console.log('[fetchRandomPerson] Sending categories query');
             apiRequestCount++;
             const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories&titles=${encodeURIComponent(title)}&cllimit=10&format=json&origin=*`, {
@@ -110,7 +109,6 @@ async function fetchRandomPerson(hardMode) {
                 continue;
             }
 
-            // Проверяем популярность
             console.log('[fetchRandomPerson] Sending page views query');
             apiRequestCount++;
             const pageViewResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=pageviews&titles=${encodeURIComponent(title)}&pvip=30&format=json&origin=*`, {
@@ -136,7 +134,6 @@ async function fetchRandomPerson(hardMode) {
                 continue;
             }
 
-            // Получаем данные, инфобокс и изображение
             console.log('[fetchRandomPerson] Fetching person data, infobox, and image');
             apiRequestCount++;
             const infoResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages|revisions&titles=${encodeURIComponent(title)}&exintro&explaintext&piprop=thumbnail&pithumbsize=200&rvprop=content&rvsection=0&format=json&origin=*`, {
@@ -154,7 +151,6 @@ async function fetchRandomPerson(hardMode) {
                 continue;
             }
 
-            // Фильтруем неподходящие изображения
             const imageName = image.toLowerCase();
             if (imageName.includes('logo') || imageName.includes('team') || imageName.includes('yacht') || imageName.includes('symbol') || (!imageName.includes('jpg') && !imageName.includes('jpeg') && !imageName.includes('png'))) {
                 console.log(`[fetchRandomPerson] Image rejected (non-portrait): ${image}`);
@@ -162,7 +158,6 @@ async function fetchRandomPerson(hardMode) {
                 continue;
             }
 
-            // Проверяем размеры изображения
             console.log('[fetchRandomPerson] Checking image dimensions');
             const img = new Image();
             img.src = image;
@@ -183,25 +178,23 @@ async function fetchRandomPerson(hardMode) {
                 continue;
             }
 
-            // Парсим инфобокс для пола
             console.log('[fetchRandomPerson] Parsing infobox for gender');
             const infoboxContent = page.revisions ? page.revisions[0]['*'] : '';
             console.log('[fetchRandomPerson] Infobox content:', infoboxContent.substring(0, 200));
-            let gender = 'Male'; // По умолчанию
+            let gender = 'Male';
             if (infoboxContent.includes('|gender=female') || infoboxContent.includes('|sex=female')) {
                 gender = 'Female';
             } else if (infoboxContent.includes('|gender=male') || infoboxContent.includes('|sex=male')) {
                 gender = 'Male';
             }
 
-            // Парсим данные
             console.log('[fetchRandomPerson] Parsing person data');
             const extract = page.extract || '';
             console.log('[fetchRandomPerson] Extract:', extract.substring(0, 200));
             const alive = categories.some(cat => cat.title.includes('Living people'));
             const ageMatch = extract.match(/born.*?(\d{4})/);
             const age = ageMatch ? (alive ? new Date().getFullYear() - parseInt(ageMatch[1]) : 80) : 50;
-            const hasChildren = Math.random() > 0.5; // Placeholder
+            const hasChildren = Math.random() > 0.5;
             const cocoon = ['Oval', 'Rectangular', 'Other'][Math.floor(Math.random() * 3)];
 
             console.log(`[fetchRandomPerson] Success: Name: ${title}, Gender: ${gender}, Alive: ${alive}, Age: ${age}, Image: ${image}`);
@@ -221,11 +214,11 @@ async function fetchRandomPerson(hardMode) {
             attempts++;
         }
         console.log('[fetchRandomPerson] Waiting 200ms before next attempt');
-        await new Promise(resolve => setTimeout(resolve, 200)); // Увеличена пауза
+        await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     console.warn('[fetchRandomPerson] Max attempts reached, returning default person');
-    return popularPeople[0]; // Гарантированно с изображением
+    return popularPeople[0];
 }
 
 // Start game
@@ -241,7 +234,6 @@ async function startGame(hardMode) {
     answers = {};
     correctAnswers = 0;
 
-    // Очистка изображения
     personImage.src = '';
     personImage.style.display = 'none';
 
@@ -262,14 +254,14 @@ async function loadNewPerson() {
         console.log('[loadNewPerson] Current person:', currentPerson);
     } catch (error) {
         console.error('[loadNewPerson] Failed to fetch person:', error.message, error.stack);
-        currentPerson = popularPeople[0]; // Fallback
+        currentPerson = popularPeople[0];
     }
 
-    personImage.src = currentPerson.image || popularPeople[0].image; // Запасное изображение
+    personImage.src = currentPerson.image || popularPeople[0].image;
     personImage.style.display = isHardMode ? 'none' : 'block';
     curtain.style.display = isHardMode ? 'block' : 'none';
 
-    questionsDiv.innerHTML = ''; // Очистка вопросов
+    questionsDiv.innerHTML = '';
     const questions = isHardMode
         ? [
             { id: 'gender', text: 'Gender?', options: ['Male', 'Female'] },
@@ -309,48 +301,61 @@ async function loadNewPerson() {
     submitBtn.textContent = 'Submit Answers';
     submitBtn.onclick = checkAnswers;
     questionsDiv.appendChild(submitBtn);
-
-    const nextPersonBtn = document.createElement('button');
-    nextPersonBtn.id = 'next-person-btn';
-    nextPersonBtn.textContent = 'Next Person';
-    nextPersonBtn.onclick = loadNewPerson;
-    questionsDiv.appendChild(nextPersonBtn);
 }
 
 // Check answers
 function checkAnswers() {
     console.log('[checkAnswers] Checking answers');
     correctAnswers = 0;
+    answers = {};
+    const answerStatus = [];
+
     questionsDiv.querySelectorAll('.question').forEach(q => {
         const id = q.querySelector('select, input').id;
         const value = q.querySelector('select, input').value;
         answers[id] = value;
 
         let isCorrect = false;
-        if (id === 'gender') isCorrect = value === currentPerson.gender;
-        if (id === 'alive') isCorrect = value === (currentPerson.alive ? 'Alive' : 'Dead');
-        if (id === 'hasChildren') isCorrect = value === (currentPerson.hasChildren ? 'Yes' : 'No');
-        if (id === 'cocoon') isCorrect = value === currentPerson.cocoon;
-        if (id === 'age') isCorrect = Math.abs(parseInt(value) - currentPerson.age) <= 5;
+        if (id === 'gender') {
+            isCorrect = value === currentPerson.gender;
+            answerStatus.push(`Gender: Your answer "${value}" was ${isCorrect ? 'correct' : 'incorrect'} (Correct: ${currentPerson.gender})`);
+        }
+        if (id === 'alive') {
+            isCorrect = value === (currentPerson.alive ? 'Alive' : 'Dead');
+            answerStatus.push(`Alive or Dead: Your answer "${value}" was ${isCorrect ? 'correct' : 'incorrect'} (Correct: ${currentPerson.alive ? 'Alive' : 'Dead'})`);
+        }
+        if (id === 'age') {
+            isCorrect = Math.abs(parseInt(value) - currentPerson.age) <= 5;
+            answerStatus.push(`Age: Your answer "${value}" was ${isCorrect ? 'correct' : 'incorrect'} (Correct: ${currentPerson.age})`);
+        }
+        // hasChildren и cocoon не учитываются
+        if (id === 'hasChildren') {
+            answerStatus.push(`Has Children: Your answer "${value}" (not scored)`);
+        }
+        if (id === 'cocoon') {
+            answerStatus.push(`Cocoon Shape: Your answer "${value}" (not scored)`);
+        }
 
-        if (isCorrect) correctAnswers++;
+        if (isCorrect && id !== 'hasChildren' && id !== 'cocoon') {
+            correctAnswers++;
+        }
     });
 
     totalCorrect += correctAnswers;
     correctTotalText.textContent = totalCorrect;
-    console.log(`[checkAnswers] Correct answers: ${correctAnswers}/${Object.keys(answers).length}`);
+    console.log(`[checkAnswers] Correct answers: ${correctAnswers}/${isHardMode ? 3 : 1}`);
 
-    showResult();
+    showResult(answerStatus);
     gtag('event', 'game_end', {
         mode: isHardMode ? 'hard' : 'easy',
         correct_answers: correctAnswers,
-        total_questions: Object.keys(answers).length,
+        total_questions: isHardMode ? 3 : 1,
         person_type: isHardMode ? 'popular' : 'lesser_known'
     });
 }
 
 // Show result
-function showResult() {
+function showResult(answerStatus) {
     console.log('[showResult] Showing results');
     questionsDiv.style.display = 'none';
     resultDiv.style.display = 'block';
@@ -358,7 +363,8 @@ function showResult() {
     curtain.style.display = 'none';
 
     personInfo.innerHTML = `${currentPerson.name} <a href="${currentPerson.wiki}" target="_blank">Wikipedia</a>`;
-    correctAnswersText.textContent = `Correct Answers: ${correctAnswers} out of ${Object.keys(answers).length}`;
+    correctAnswersText.textContent = `Correct Answers: ${correctAnswers} out of ${isHardMode ? 3 : 1}`;
+    answerDetails.innerHTML = answerStatus.join('<br>');
 
     const restartBtn = document.createElement('button');
     restartBtn.textContent = 'Play Again';
@@ -375,7 +381,6 @@ function exitGame() {
         console.log('[exitGame] tg.close() called');
     } catch (error) {
         console.error('[exitGame] tg.close() failed:', error.message);
-        // Запасной вариант: возврат на главный экран
         gameDiv.style.display = 'none';
         resultDiv.style.display = 'none';
         questionsDiv.style.display = 'none';
