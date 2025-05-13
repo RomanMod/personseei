@@ -1,0 +1,134 @@
+body {
+    background-color: #1C2526;
+    color: #E8ECEF;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    background-color: #2C3333;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #A9B1B4;
+}
+
+#player-name {
+    font-size: 16px;
+    color: #CED4DA;
+    margin-bottom: 20px;
+}
+
+.difficulty button {
+    background-color: #395B64;
+    color: #E8ECEF;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.difficulty button:hover {
+    background-color: #4A707A;
+}
+
+.image-frame {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    border: 2px solid #A9B1B4;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+#person-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.curtain {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1C2526;
+    opacity: 0.9;
+}
+
+.questions {
+    margin: 20px 0;
+}
+
+.question {
+    margin: 10px 0;
+}
+
+.question label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #CED4DA;
+}
+
+.question select, .question input {
+    background-color: #395B64;
+    color: #E8ECEF;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 200px;
+}
+
+.result {
+    margin: 20px 0;
+}
+
+#person-info a {
+    color: #4A707A;
+    text-decoration: none;
+}
+
+#person-info a:hover {
+    text-decoration: underline;
+}
+
+.stats {
+    margin: 20px 0;
+    font-size: 14px;
+    color: #A9B1B4;
+}
+
+#exit-btn {
+    background-color: #CB4B4B;
+    color: #E8ECEF;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+#exit-btn:hover {
+    background-color: #E57373;
+}
