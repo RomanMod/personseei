@@ -63,6 +63,16 @@ select {
 }
 
 #progress {
+    font-size: 24[Telegram.WebView] > postEvent web_app_set_header_color {color_key: 'bg_color'}
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_set_bottom_bar_color {color: '#ffffff'}
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_theme 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_viewport 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_safe_area 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_request_content_safe_area 
+telegram-web-app.js:135 [Telegram.WebView] > postEvent web_app_ready 
+script.js:109 Loading new person...
+script.js:109 Loading new person...
+6script.js:109 Loading new person...
     font-size: 24px;
     color: var(--text-color);
 }
