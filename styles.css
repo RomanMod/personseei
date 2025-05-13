@@ -92,6 +92,23 @@ select {
     border-radius: 5px;
     max-width: 80%;
     text-align: center;
+    position: relative;
+}
+
+#progress.loading::after {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-left: 10px;
+    border: 2px solid var(--text-color);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 #progress.error {
@@ -103,10 +120,13 @@ select {
 #image-error {
     font-size: 18px;
     color: #ff4444;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     padding: 10px;
     border-radius: 5px;
+    border: 1px solid #ff4444;
     display: none;
+    max-width: 80%;
+    text-align: center;
 }
 
 #person-image {
