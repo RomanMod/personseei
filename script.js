@@ -37,7 +37,9 @@ const translations = {
         check: 'Перевірити',
         correct: 'Правильно!',
         incorrect: 'Неправильно!',
-        imageError: 'Зображення недоступне'
+        imageError: 'Зображення недоступне',
+        loading: 'Завантаження...',
+        timeout: 'Час очікування вичерпано'
     },
     ru: {
         alive: 'Жив',
@@ -47,7 +49,9 @@ const translations = {
         check: 'Проверить',
         correct: 'Правильно!',
         incorrect: 'Неправильно!',
-        imageError: 'Изображение недоступно'
+        imageError: 'Изображение недоступно',
+        loading: 'Загрузка...',
+        timeout: 'Время ожидания истекло'
     },
     en: {
         alive: 'Alive',
@@ -57,7 +61,9 @@ const translations = {
         check: 'Check',
         correct: 'Correct!',
         incorrect: 'Incorrect!',
-        imageError: 'Image unavailable'
+        imageError: 'Image unavailable',
+        loading: 'Loading...',
+        timeout: 'Request timed out'
     },
     alien: {
         alive: '👽 Живий',
@@ -67,7 +73,9 @@ const translations = {
         check: '🛸 Перевірити',
         correct: '🌟 Правильно!',
         incorrect: '🪐 Неправильно!',
-        imageError: '🖼️ Зображення недоступне'
+        imageError: '🖼️ Зображення недоступне',
+        loading: '🛸 Завантаження...',
+        timeout: '⏰ Час вичерпано'
     }
 };
 
@@ -85,7 +93,7 @@ function updateLanguage() {
         btn.textContent = i === 0 ? translations[lang].alive : translations[lang].dead;
     });
     checkAnswerBtn.textContent = translations[lang].check;
-    imageError.textContent = translations[lang].imageError;
+    if (imageError) imageError.textContent = translations[lang].imageError;
 }
 
 // Update UI based on difficulty
@@ -98,7 +106,7 @@ function updateDifficulty() {
     document.getElementById('gender-question').style.display = difficulty === 'easy' ? 'block' : 'none';
     document.getElementById('easier-question').style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
-    imageError.style.display = 'none';
+    if (imageError) imageError.style.display = 'none';
     result.style.display = 'none';
     loadNewPerson();
 }
@@ -128,7 +136,7 @@ themeSelect.addEventListener('change', () => {
     tg.setBottomBarColor(theme === 'night' ? '#1c2526' : '#ffffff');
     const bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
     console.log(`Theme applied: ${theme}, body class: ${document.body.className}, --bg-color: ${bgColor}, h1 animation: themeChange`);
-    imageError.textContent = translations[lang].imageError;
+    if (imageError) imageError.textContent = translations[lang].imageError;
 });
 
 // Language switch
@@ -171,35 +179,40 @@ const mockPerson = {
 // Convert Wikimedia Commons URL to direct image URL
 function convertCommonsUrl(url) {
     if (url.includes('commons.wikimedia.org/wiki/Special:FilePath')) {
-        const fileName = url.split('/').pop();
-        const decodedFileName = decodeURIComponent(fileName);
-        // Generate MD5 hash for file path (simplified, assumes file name is enough)
-        const firstChar = decodedFileName[0].toLowerCase();
-        const secondChar = decodedFileName[1] ? decodedFileName[1].toLowerCase() : firstChar;
-        const directUrl = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${firstChar}${secondChar}/${fileName}`;
-        console.log(`Converted Commons URL: ${url} -> ${directUrl}`);
-        return directUrl;
+        try {
+            const fileName = decodeURIComponent(url.split('/').pop());
+            const encodedFileName = encodeURIComponent(fileName);
+            const firstChar = fileName[0].toLowerCase();
+            const secondChar = fileName[1] ? fileName[1].toLowerCase() : firstChar;
+            const directUrl = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${firstChar}${secondChar}/${encodedFileName}`;
+            console.log(`Converted Commons URL: ${url} -> ${directUrl}`);
+            return directUrl;
+        } catch (e) {
+            console.error(`Error converting Commons URL: ${url}, error: ${e.message}`);
+            return url;
+        }
     }
     return url;
 }
 
 // Wikidata API to fetch random person
 async function loadNewPerson(useMock = false) {
+    const lang = languageSelect.value;
     if (isLoading) {
         console.log('loadNewPerson skipped: already loading');
         return;
     }
     if (retryCount >= maxRetries) {
         console.error('Max retries reached, stopping load');
-        progress.textContent = 'Помилка: не вдалося завантажити. Спробуйте ще раз.';
+        progress.textContent = translations[lang].timeout;
         progress.classList.add('error');
-        imageError.style.display = 'block';
+        if (imageError) imageError.style.display = 'block';
         if (retryCount >= maxRetries * 2) {
             console.warn('Using mock data due to repeated failures');
             currentPerson = mockPerson;
             progress.textContent = '100%';
             progress.classList.remove('error');
-            imageError.style.display = 'none';
+            if (imageError) imageError.style.display = 'none';
             personImage.src = currentPerson.image;
             console.log('Person loaded from mock:', currentPerson);
             gtag('event', 'load_person', {
@@ -217,13 +230,15 @@ async function loadNewPerson(useMock = false) {
             reason: 'max_retries',
             retries: retryCount
         });
+        isLoading = false;
         return;
     }
     isLoading = true;
     retryCount++;
-    progress.textContent = '0%';
+    progress.textContent = translations[lang].loading;
+    progress.classList.add('loading');
     progress.classList.remove('error');
-    imageError.style.display = 'none';
+    if (imageError) imageError.style.display = 'none';
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
@@ -234,6 +249,7 @@ async function loadNewPerson(useMock = false) {
     if (cachedPerson && retryCount === 1) {
         currentPerson = cachedPerson;
         progress.textContent = '100%';
+        progress.classList.remove('loading');
         personImage.src = currentPerson.image;
         console.log('Person loaded from cache:', currentPerson);
         gtag('event', 'load_person', {
@@ -250,7 +266,8 @@ async function loadNewPerson(useMock = false) {
     if (useMock) {
         currentPerson = mockPerson;
         progress.textContent = '100%';
-        imageError.style.display = 'none';
+        progress.classList.remove('loading');
+        if (imageError) imageError.style.display = 'none';
         personImage.src = currentPerson.image;
         console.log('Person loaded from mock:', currentPerson);
         gtag('event', 'load_person', {
@@ -265,8 +282,8 @@ async function loadNewPerson(useMock = false) {
     }
 
     try {
-        progress.textContent = '20%';
-        console.log('Sending SPARQL query to Wikidata...');
+        console.log('Starting Wikidata request...');
+        progress.textContent = translations[lang].loading + ' 20%';
         const query = `
             SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image
             WHERE {
@@ -307,7 +324,7 @@ async function loadNewPerson(useMock = false) {
             throw new Error(`HTTP ${response.status}: ${responseText || 'No error message provided'}`);
         }
         const data = JSON.parse(responseText);
-        progress.textContent = '60%';
+        progress.textContent = translations[lang].loading + ' 60%';
         console.log('Wikidata data received:', data);
 
         const person = data.results.bindings[0];
@@ -326,15 +343,16 @@ async function loadNewPerson(useMock = false) {
         };
         console.log('Person data parsed:', currentPerson);
 
-        progress.textContent = '80%';
+        progress.textContent = translations[lang].loading + ' 80%';
         console.log(`Validating image: ${currentPerson.image}`);
-        if (!(await isValidImage(currentPerson.image))) {
+        const isImageValid = await isValidImage(currentPerson.image);
+        if (!isImageValid) {
             console.warn('Invalid image, retrying...');
-            isLoading = false;
-            return loadNewPerson();
+            throw new Error('Invalid image');
         }
 
         progress.textContent = '100%';
+        progress.classList.remove('loading');
         personImage.src = currentPerson.image;
         console.log('Person successfully loaded:', currentPerson);
         console.log('Photo displayed at:', currentPerson.image);
@@ -350,9 +368,10 @@ async function loadNewPerson(useMock = false) {
         });
     } catch (error) {
         console.error('Error loading person from Wikidata:', error.message);
-        progress.textContent = `Помилка: ${error.message}`;
+        progress.textContent = `${translations[lang].timeout}: ${error.message}`;
         progress.classList.add('error');
-        imageError.style.display = 'block';
+        progress.classList.remove('loading');
+        if (imageError) imageError.style.display = 'block';
         gtag('event', 'load_person_failed', {
             source: 'wikidata',
             reason: error.message,
@@ -364,15 +383,23 @@ async function loadNewPerson(useMock = false) {
         }, 5000);
     } finally {
         isLoading = false;
+        console.log('loadNewPerson completed, isLoading reset to false');
     }
 }
 
-// Validate image
+// Validate image with timeout
 async function isValidImage(url) {
+    const lang = languageSelect.value;
     try {
         console.log(`Checking image: ${url}`);
         const img = new Image();
-        const promise = new Promise((resolve) => {
+        const timeoutPromise = new Promise((resolve) => {
+            setTimeout(() => {
+                console.error(`Image validation timeout: ${url}`);
+                resolve(false);
+            }, 10000); // 10 seconds timeout
+        });
+        const loadPromise = new Promise((resolve) => {
             img.onload = () => {
                 console.log(`Image loaded: ${url}, width: ${img.width}, height: ${img.height}`);
                 resolve(img.width >= 100 && img.height >= 100);
@@ -383,7 +410,7 @@ async function isValidImage(url) {
             };
             img.src = url;
         });
-        const isValid = await promise;
+        const isValid = await Promise.race([loadPromise, timeoutPromise]);
         console.log(`Image validation result: ${isValid}`);
         if (!isValid && url !== 'https://via.placeholder.com/300') {
             console.log('Using fallback image');
@@ -392,6 +419,8 @@ async function isValidImage(url) {
         return isValid;
     } catch (error) {
         console.error(`Image validation error: ${url}, error: ${error.message}`);
+        progress.textContent = translations[lang].imageError;
+        progress.classList.add('error');
         return false;
     }
 }
