@@ -88,6 +88,7 @@
         // Получение прямой ссылки на изображение из Commons
         async function getCommonsImageUrl(fileName) {
             try {
+                console.log(`Fetching image URL for: ${fileName}`);
                 const cleanFileName = fileName.replace(/^File:/i, '');
                 const encodedFileName = encodeURIComponent(`File:${cleanFileName}`);
                 const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodedFileName}&prop=imageinfo&iiprop=url&format=json&origin=*`;
@@ -98,6 +99,7 @@
                         'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
                     }
                 });
+                console.log(`Commons API status: ${response.status}`);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -105,11 +107,13 @@
                 const pages = data.query.pages;
                 const pageId = Object.keys(pages)[0];
                 if (pageId === '-1' || !pages[pageId].imageinfo) {
-                    throw new Error('Image not found');
+                    throw new Error('Image not found in Commons');
                 }
-                return pages[pageId].imageinfo[0].url;
+                const imageUrl = pages[pageId].imageinfo[0].url;
+                console.log(`Direct image URL: ${imageUrl}`);
+                return imageUrl;
             } catch (e) {
-                console.error(`Error fetching image URL: ${e.message}`);
+                console.error(`Error fetching Commons image URL: ${e.message}`);
                 return null;
             }
         }
@@ -144,27 +148,43 @@
                 `;
                 if (useFallback) {
                     query = query.replace('ORDER BY RAND()', '');
+                    console.log('Using fallback query:', query);
+                } else {
+                    console.log('Using main query:', query);
                 }
 
                 const endpoint = 'https://query.wikidata.org/sparql';
                 const encodedQuery = encodeURIComponent(query);
                 const url = `${endpoint}?query=${encodedQuery}&format=json&nocache=${Date.now()}`;
+                console.log('Request URL:', url);
+
+                const controller = new AbortController();
+                const timeout = setTimeout(() => {
+                    controller.abort();
+                    console.error('Request timed out');
+                }, 10000);
+
                 const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/sparql-results+json',
                         'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
-                    }
+                    },
+                    signal: controller.signal
                 });
 
+                clearTimeout(timeout);
+                console.log(`Response status: ${response.status}`);
                 if (!response.ok) {
                     if (response.status === 400 && !useFallback) {
+                        console.warn('Bad request, trying fallback query...');
                         return await loadPerson(true);
                     }
                     throw new Error(`HTTP ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log('Data received:', data);
                 const person = data.results.bindings[0];
                 if (!person) {
                     throw new Error('No person found');
@@ -181,11 +201,18 @@
                 personImage.src = imageUrl;
                 personImage.onerror = () => {
                     console.error(`Failed to load image: ${imageUrl}`);
-                    progress.textContent = 'Не вдалося завантажити зображення';
-                    progress.classList.add('error');
-                    progress.classList.remove('loading');
-                    personImage.src = 'https://via.placeholder.com/300';
-                    retryBtn.style.display = 'block';
+                    // Попытка через прокси
+                    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`;
+                    console.log(`Trying proxy URL: ${proxyUrl}`);
+                    personImage.src = proxyUrl;
+                    personImage.onerror = () => {
+                        console.error(`Proxy image failed: ${proxyUrl}`);
+                        progress.textContent = 'Не вдалося завантажити зображення';
+                        progress.classList.add('error');
+                        progress.classList.remove('loading');
+                        personImage.src = 'https://via.placeholder.com/300';
+                        retryBtn.style.display = 'block';
+                    };
                 };
                 personImage.onload = () => {
                     progress.textContent = 'Фото завантажено!';
@@ -193,9 +220,21 @@
                 };
 
                 personName.textContent = person.personLabel.value;
+                console.log('Person data:', person);
             } catch (error) {
                 console.error('Error:', error.message);
-                progress.textContent = 'Помилка завантаження: ' + error.message;
+                let errorMessage = 'Помилка завантаження';
+                if (error.message.includes('Timeout')) {
+                    errorMessage = 'Тайм-аут запиту до Wikidata';
+                } else if (error.message.includes('HTTP 400')) {
+                    errorMessage = 'Некоректний SPARQL-запит';
+                } else if (error.message.includes('No person found')) {
+                    errorMessage = 'Не знайдено даних про людину';
+                } else if (error.message.includes('Invalid image')) {
+                    errorMessage = 'Не вдалося отримати зображення';
+                }
+
+                progress.textContent = errorMessage;
                 progress.classList.add('error');
                 progress.classList.remove('loading');
                 personImage.src = 'https://via.placeholder.com/300';
@@ -204,7 +243,7 @@
 
                 if (!useFallback) {
                     console.warn('Retrying with fallback query...');
-                    await loadPerson(true);
+                    return await loadPerson(true);
                 }
             }
         }
