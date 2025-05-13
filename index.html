@@ -96,24 +96,32 @@
     <script>
         console.log('Simple app started');
 
-        // Convert Wikimedia Commons URL to direct image URL
-        function convertCommonsUrl(url) {
-            if (url.includes('commons.wikimedia.org/wiki/Special:FilePath')) {
-                try {
-                    const fileName = decodeURIComponent(url.split('/').pop());
-                    console.log(`Raw file name: ${fileName}`);
-                    const encodedFileName = encodeURIComponent(fileName);
-                    const firstChar = fileName[0].toLowerCase();
-                    const secondChar = fileName[1] ? fileName[1].toLowerCase() : firstChar;
-                    const directUrl = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${firstChar}${secondChar}/${encodedFileName}`;
-                    console.log(`Converted URL: ${url} -> ${directUrl}`);
-                    return directUrl;
-                } catch (e) {
-                    console.error(`Error converting URL: ${e.message}`);
-                    return url;
+        // Get direct image URL from Commons API
+        async function getCommonsImageUrl(fileName) {
+            try {
+                console.log(`Fetching image URL for: ${fileName}`);
+                const encodedFileName = encodeURIComponent(`File:${fileName}`);
+                const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodedFileName}&prop=imageinfo&iiprop=url&format=json`;
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
+                    }
+                });
+                console.log(`Commons API status: ${response.status}`);
+                const data = await response.json();
+                console.log('Commons API response:', data);
+                const pages = data.query.pages;
+                const pageId = Object.keys(pages)[0];
+                if (pageId === '-1' || !pages[pageId].imageinfo) {
+                    throw new Error('Image not found in Commons');
                 }
+                const imageUrl = pages[pageId].imageinfo[0].url;
+                console.log(`Direct image URL: ${imageUrl}`);
+                return imageUrl;
+            } catch (e) {
+                console.error(`Error fetching Commons image URL: ${e.message}`);
+                return null;
             }
-            return url;
         }
 
         // Validate image
@@ -182,15 +190,6 @@
                                 wdt:P18 ?image.
                         ?person rdfs:label ?personLabel.
                         FILTER (LANG(?personLabel) = "en").
-                        # Verify file exists in Commons
-                        SERVICE wikibase:mwapi {
-                            bd:serviceParam wikibase:endpoint "commons.wikimedia.org";
-                                            wikibase:api "Generator";
-                                            mwapi:generator "allpages";
-                                            mwapi:gapfrom ?image;
-                                            mwapi:gapto ?image;
-                                            mwapi:gapnamespace 6 . # File namespace
-                        }
                     }
                     ORDER BY RAND()
                     LIMIT 1
@@ -203,14 +202,6 @@
                                     wdt:P18 ?image.
                             ?person rdfs:label ?personLabel.
                             FILTER (LANG(?personLabel) = "en").
-                            SERVICE wikibase:mwapi {
-                                bd:serviceParam wikibase:endpoint "commons.wikimedia.org";
-                                                wikibase:api "Generator";
-                                                mwapi:generator "allpages";
-                                                mwapi:gapfrom ?image;
-                                                mwapi:gapto ?image;
-                                                mwapi:gapnamespace 6 .
-                            }
                         }
                         LIMIT 1
                     `;
@@ -260,7 +251,13 @@
                     throw new Error('No person found');
                 }
 
-                let imageUrl = convertCommonsUrl(person.image.value);
+                // Extract file name from image URL
+                const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                let imageUrl = await getCommonsImageUrl(fileName);
+                if (!imageUrl) {
+                    throw new Error('Invalid image');
+                }
+
                 const isValid = await isValidImage(imageUrl);
                 if (!isValid) {
                     console.log(`Trying proxy URL for: ${imageUrl}`);
