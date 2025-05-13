@@ -89,7 +89,7 @@
     <div class="container">
         <h1>Просте фото з Wikidata</h1>
         <div id="progress" class="loading">Завантаження...</div>
-        <img id="person-image" alt="Person" crossorigin="anonymous">
+        <img id="person-image" alt="Person" crossorigin="anonymous" referrerpolicy="no-referrer">
         <div id="person-name"></div>
         <button id="retry-btn" onclick="loadPerson()">Повторити</button>
     </div>
@@ -119,15 +119,30 @@
         async function isValidImage(url) {
             try {
                 console.log(`Validating image: ${url}`);
+                // First, check HTTP status
+                const response = await fetch(url, {
+                    method: 'HEAD',
+                    headers: {
+                        'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
+                    }
+                });
+                console.log(`Image status: ${response.status}`);
+                if (!response.ok) {
+                    console.error(`Image fetch failed: HTTP ${response.status}`);
+                    return false;
+                }
+
+                // Then, try loading image
                 const img = new Image();
                 img.crossOrigin = 'anonymous';
+                img.referrerPolicy = 'no-referrer';
                 const loadPromise = new Promise((resolve) => {
                     img.onload = () => {
                         console.log(`Image loaded: ${url}, width: ${img.width}, height: ${img.height}`);
                         resolve(img.width > 0 && img.height > 0);
                     };
-                    img.onerror = () => {
-                        console.error(`Image load failed: ${url}`);
+                    img.onerror = (e) => {
+                        console.error(`Image load error: ${url}, ${e.message || 'Unknown error'}`);
                         resolve(false);
                     };
                     img.src = url;
@@ -140,7 +155,7 @@
                 });
                 return await Promise.race([loadPromise, timeoutPromise]);
             } catch (e) {
-                console.error(`Image validation error: ${e.message}`);
+                console.error(`Image validation error: ${url}, ${e.message}`);
                 return false;
             }
         }
@@ -229,18 +244,24 @@
                     throw new Error('No person found');
                 }
 
-                const imageUrl = convertCommonsUrl(person.image.value);
+                let imageUrl = convertCommonsUrl(person.image.value);
                 const isValid = await isValidImage(imageUrl);
                 if (!isValid) {
-                    throw new Error('Invalid image');
+                    // Try proxy URL
+                    console.log(`Trying proxy URL for: ${imageUrl}`);
+                    imageUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`;
+                    const isProxyValid = await isValidImage(imageUrl);
+                    if (!isProxyValid) {
+                        throw new Error('Invalid image');
+                    }
                 }
 
                 personImage.src = imageUrl;
                 personImage.onerror = () => {
                     console.error(`Image failed to load: ${imageUrl}`);
-                    progress.textContent = 'Не вдалося завантажити зображення';
-                    progress.classList.add('error');
-                    progress.classList.remove('loading', 'mock');
+                    progress.textContent = 'Не вдалося завантажити зображення. Використано тестовий малюнок';
+                    progress.classList.add('mock');
+                    progress.classList.remove('loading', 'error');
                     retryBtn.style.display = 'block';
                     personImage.src = 'https://via.placeholder.com/300';
                 };
@@ -258,7 +279,7 @@
                 } else if (error.message.includes('No person found')) {
                     errorMessage = 'Не знайдено даних про людину';
                 } else if (error.message.includes('Invalid image')) {
-                    errorMessage = 'Зображення недоступне';
+                    errorMessage = 'Зображення недоступне, можливо, через CORS';
                 }
 
                 if (!useFallback) {
