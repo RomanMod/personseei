@@ -26,32 +26,60 @@ const easyModeBtn = document.getElementById('easy-mode');
 const hardModeBtn = document.getElementById('hard-mode');
 const exitBtn = document.getElementById('exit-btn');
 
-// Mock Wikipedia API (replace with real API calls)
-async function fetchRandomPerson() {
-    // Simulated data (use real Wikipedia API in production)
-    const people = [
-        {
-            name: "Albert Einstein",
-            gender: "Male",
-            alive: false,
-            age: 76,
-            hasChildren: true,
-            cocoon: "Oval",
-            image: "https://upload.wikimedia.org/wikipedia/commons/7/78/Albert_Einstein_1921_by_F_Schmutzer_-_restoration.jpg",
-            wiki: "https://en.wikipedia.org/wiki/Albert_Einstein"
-        },
-        {
-            name: "Marie Curie",
-            gender: "Female",
-            alive: false,
-            age: 66,
-            hasChildren: true,
-            cocoon: "Rectangular",
-            image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Marie_Curie_1920.jpg/220px-Marie_Curie_1920.jpg",
-            wiki: "https://en.wikipedia.org/wiki/Marie_Curie"
-        }
-    ];
-    return people[Math.floor(Math.random() * people.length)];
+// Mock data for popular and lesser-known people
+const popularPeople = [
+    {
+        name: "Albert Einstein",
+        gender: "Male",
+        alive: false,
+        age: 76,
+        hasChildren: true,
+        cocoon: "Oval",
+        image: "https://upload.wikimedia.org/wikipedia/commons/7/78/Albert_Einstein_1921_by_F_Schmutzer_-_restoration.jpg",
+        wiki: "https://en.wikipedia.org/wiki/Albert_Einstein"
+    },
+    {
+        name: "Beyoncé",
+        gender: "Female",
+        alive: true,
+        age: 44,
+        hasChildren: true,
+        cocoon: "Rectangular",
+        image: "https://upload.wikimedia.org/wikipedia/commons/1/17/Beyonc%C3%A9_at_The_Lion_King_European_Premiere_2019.png",
+        wiki: "https://en.wikipedia.org/wiki/Beyonc%C3%A9"
+    }
+];
+
+const lesserKnownPeople = [
+    {
+        name: "Vitthal Umap",
+        gender: "Male",
+        alive: false,
+        age: 80,
+        hasChildren: true,
+        cocoon: "Rectangular",
+        image: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vitthal_Umap.jpg", // Замените на реальное изображение
+        wiki: "https://en.wikipedia.org/wiki/Vitthal_Umap"
+    },
+    {
+        name: "Miles Quadruplets",
+        gender: "Female",
+        alive: true,
+        age: 89,
+        hasChildren: false,
+        cocoon: "Oval",
+        image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Miles_Quadruplets.jpg/220px-Miles_Quadruplets.jpg", // Замените на реальное изображение
+        wiki: "https://en.wikipedia.org/wiki/List_of_multiple_births#Quadruplets_(4)"
+    }
+];
+
+// Fetch random person based on game mode
+async function fetchRandomPerson(hardMode) {
+    if (hardMode) {
+        return popularPeople[Math.floor(Math.random() * popularPeople.length)];
+    } else {
+        return lesserKnownPeople[Math.floor(Math.random() * lesserKnownPeople.length)];
+    }
 }
 
 // Start game
@@ -65,7 +93,7 @@ async function startGame(hardMode) {
     answers = {};
     correctAnswers = 0;
 
-    currentPerson = await fetchRandomPerson();
+    currentPerson = await fetchRandomPerson(hardMode);
     personImage.src = currentPerson.image;
     personImage.style.display = isHardMode ? 'none' : 'block';
     curtain.style.display = isHardMode ? 'block' : 'none';
