@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guess the Person - Telegram Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Вікторина: Хто це?</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
@@ -15,57 +14,82 @@
         gtag('config', 'G-TQ5F8JW26S');
     </script>
 </head>
-<body class="space-gray night">
+<body class="theme-dark">
     <div class="container">
         <header>
-            <h1 id="game-title">Вгадай Особу</h1>
+            <h1>Вікторина: Хто це?</h1>
             <p id="player-name">Гравець: Завантаження...</p>
-            <div class="settings">
-                <select id="language">
+        </header>
+
+        <!-- Настройки -->
+        <div class="settings">
+            <div>
+                <label>Тема:</label>
+                <button id="theme-toggle" class="button">Ніч</button>
+            </div>
+            <div>
+                <label>Мова:</label>
+                <select id="language-select" class="button">
                     <option value="uk" selected>Українська</option>
                     <option value="ru">Русский</option>
                     <option value="en">English</option>
-                    <option value="alien">👽 Alien</option>
+                    <option value="alien">👾 Іншопланетна</option>
                 </select>
-                <select id="difficulty">
-                    <option value="easier" selected>Попроще</option>
-                    <option value="easy">Просто</option>
+            </div>
+            <div>
+                <label>Режим:</label>
+                <select id="mode-select" class="button">
+                    <option value="easy" selected>Попроще</option>
+                    <option value="hard">Просто</option>
                 </select>
-                <button id="theme-toggle">Ніч</button>
             </div>
-        </header>
-        <main>
-            <div class="photo-display">
-                <div id="loading-progress">0%</div>
-                <img id="person-photo" src="" alt="Person Photo" style="display: none;">
-                <button id="next-photo" class="arrow">→</button>
-            </div>
-            <div id="game-options">
-                <div id="easier-options">
-                    <button class="option" data-status="alive">Жив</button>
-                    <button class="option" data-status="dead">Мерт</button>
+        </div>
+
+        <!-- Дисплей -->
+        <div class="display">
+            <div id="loading-progress">Завантаження: 0%</div>
+            <img id="person-image" src="" alt="Фото людини" style="display: none;">
+            <button id="next-photo" class="button arrow">➡️</button>
+        </div>
+
+        <!-- Вопросы -->
+        <div class="questions">
+            <!-- Режим "Просто" -->
+            <div id="hard-mode-questions" style="display: none;">
+                <div class="question">
+                    <label>Живий чи мертвий?</label>
+                    <label><input type="radio" name="status" value="alive"> Живий</label>
+                    <label><input type="radio" name="status" value="dead"> Мертвий</label>
                 </div>
-                <div id="easy-options" style="display: none;">
-                    <div class="radio-group">
-                        <label><input type="radio" name="status" value="alive"> Жив</label>
-                        <label><input type="radio" name="status" value="dead"> Мерт</label>
-                    </div>
-                    <button class="option" data-gender="male">Чоловік</button>
-                    <button class="option" data-gender="female">Жінка</button>
+                <div class="question">
+                    <button class="button gender" data-gender="male">Чоловік</button>
+                    <button class="button gender" data-gender="female">Жінка</button>
                 </div>
             </div>
-            <button id="check-answer">Перевірити</button>
-            <div id="result" style="display: none;">
-                <p id="person-info"></p>
-                <a id="wiki-link" href="#" target="_blank">Вікіпедія</a>
+            <!-- Режим "Попроще" -->
+            <div id="easy-mode-questions">
+                <button class="button status" data-status="alive">Живий</button>
+                <button class="button status" data-status="dead">Мертвий</button>
             </div>
-            <div id="statistics">
-                <h2>Статистика</h2>
-                <p>Правильні відповіді: <span id="correct-answers">0</span></p>
-                <p>Загалом питань: <span id="total-questions">0</span></p>
-            </div>
-        </main>
+        </div>
+
+        <!-- Кнопка проверки -->
+        <button id="check-answer" class="button">Перевірити</button>
+
+        <!-- Результат -->
+        <div id="result" style="display: none;">
+            <p id="person-info"></p>
+            <a id="wiki-link" href="#" target="_blank">Дізнатись більше на Вікіпедії</a>
+        </div>
+
+        <!-- Статистика -->
+        <div class="stats">
+            <h3>Статистика</h3>
+            <p>Правильні відповіді: <span id="correct-answers">0</span></p>
+            <p>Всього питань: <span id="total-questions">0</span></ pang>
+        </div>
     </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
