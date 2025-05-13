@@ -73,14 +73,16 @@ const lesserKnownPeople = [
     }
 ];
 
-// Fetch random person with Wikidata and Wikipedia API
+// Fetch random person with Wikidata and logging
 async function fetchRandomPerson(hardMode) {
+    console.log(`[fetchRandomPerson] Starting for ${hardMode ? 'hard' : 'easy'} mode`);
     let attempts = 0;
     const maxAttempts = 10;
 
     while (attempts < maxAttempts) {
+        console.log(`[fetchRandomPerson] Attempt ${attempts + 1}/${maxAttempts}`);
         try {
-            // Получаем случайного человека через Wikidata
+            // Simplified Wikidata SPARQL query
             const sparqlQuery = `
                 SELECT ?item ?itemLabel ?gender ?birth ?death ?image ?article WHERE {
                     ?item wdt:P31 wd:Q5 . # Instance of human
@@ -95,52 +97,70 @@ async function fetchRandomPerson(hardMode) {
                 ORDER BY RAND()
                 LIMIT 1
             `;
+            console.log('[fetchRandomPerson] Sending Wikidata SPARQL query');
             const wdResponse = await fetch(`https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}&format=json`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
             const wdData = await wdResponse.json();
-            const person = wdData.results.bindings[0];
+            console.log('[fetchRandomPerson] Wikidata response:', wdData);
 
-            if (!person) {
+            const person = wdData.results.bindings[0];
+            if (!person || !person.image) {
+                console.log('[fetchRandomPerson] No person or image found, retrying');
                 attempts++;
                 continue;
             }
 
             const title = person.article.value.split('/').pop();
             const image = person.image.value;
+            console.log(`[fetchRandomPerson] Selected person: ${person.itemLabel.value}, Title: ${title}, Image: ${image}`);
 
-            // Проверяем популярность через Wikipedia
-            const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories&titles=${encodeURIComponent(title)}&cllimit=10&format=json&origin=*`, {
+            // Filter non-portrait images
+            const imageName = image.toLowerCase();
+            if (imageName.includes('logo') || imageName.includes('team') || imageName.includes('yacht') || imageName.includes('symbol') || (!imageName.includes('jpg') && !imageName.includes('jpeg') && !imageName.includes('png'))) {
+                console.log(`[fetchRandomPerson] Image rejected (non-portrait): ${image}`);
+                attempts++;
+                continue;
+            }
+
+            // Check popularity
+            console.log('[fetchRandomPerson] Checking popularity via Wikipedia');
+            const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories|pageviews&titles=${encodeURIComponent(title)}&cllimit=10&pvprop=pageviews&pvip=30&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
             const catData = await catResponse.json();
+            console.log('[fetchRandomPerson] Wikipedia response:', catData);
+
             const pageId = Object.keys(catData.query.pages)[0];
             const categories = catData.query.pages[pageId].categories || [];
-            const isPopular = categories.some(cat => cat.title.includes('Living people') || cat.title.includes('Nobel laureates') || cat.title.includes('Heads of state') || cat.title.includes('Grammy Award winners'));
+            const pageViews = catData.query.pages[pageId].pageviews || {};
+            const totalViews = Object.values(pageViews).reduce((sum, val) => sum + (val || 0), 0);
+            const isPopular = categories.some(cat => cat.title.includes('Living people') || cat.title.includes('Nobel laureates') || cat.title.includes('Heads of state') || cat.title.includes('Grammy Award winners')) || totalViews > 1000;
+
+            console.log(`[fetchRandomPerson] Categories: ${categories.map(c => c.title).join(', ')}, Total views: ${totalViews}, Is popular: ${isPopular}`);
 
             if (hardMode && !isPopular) {
+                console.log('[fetchRandomPerson] Not popular enough for hard mode, retrying');
                 attempts++;
                 continue;
             }
             if (!hardMode && isPopular) {
+                console.log('[fetchRandomPerson] Too popular for easy mode, retrying');
                 attempts++;
                 continue;
             }
 
-            // Проверяем, что изображение — портрет (упрощённо, по имени файла)
-            if (!image.includes('portrait') && !image.includes('headshot') && image.includes('logo') || image.includes('team') || image.includes('yacht')) {
-                attempts++;
-                continue;
-            }
-
-            // Парсинг данных
+            // Parse data
+            console.log('[fetchRandomPerson] Parsing person data');
             const gender = person.gender ? person.gender.value.includes('female') ? 'Female' : 'Male' : 'Male';
             const birthYear = person.birth ? new Date(person.birth.value).getFullYear() : null;
             const deathYear = person.death ? new Date(person.death.value).getFullYear() : null;
             const alive = !deathYear;
             const age = birthYear ? (alive ? new Date().getFullYear() - birthYear : deathYear - birthYear) : 50;
-            const hasChildren = Math.random() > 0.5; // Требует инфобокса
+            const hasChildren = Math.random() > 0.5; // Placeholder
             const cocoon = ['Oval', 'Rectangular', 'Other'][Math.floor(Math.random() * 3)];
+
+            console.log(`[fetchRandomPerson] Success: Name: ${person.itemLabel.value}, Gender: ${gender}, Alive: ${alive}, Age: ${age}, Image: ${image}`);
 
             return {
                 name: person.itemLabel.value,
@@ -153,18 +173,20 @@ async function fetchRandomPerson(hardMode) {
                 wiki: `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`
             };
         } catch (error) {
-            console.error('Error fetching person:', error);
+            console.error('[fetchRandomPerson] Error:', error);
             attempts++;
         }
-        await new Promise(resolve => setTimeout(resolve, 100)); // Задержка
+        console.log('[fetchRandomPerson] Waiting 100ms before next attempt');
+        await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    console.warn('Max attempts reached, returning default person');
+    console.warn('[fetchRandomPerson] Max attempts reached, returning default person');
     return popularPeople[0];
 }
 
 // Start game
 async function startGame(hardMode) {
+    console.log(`[startGame] Starting ${hardMode ? 'hard' : 'easy'} mode`);
     isHardMode = hardMode;
     gameDiv.style.display = 'block';
     easyModeBtn.style.display = 'none';
@@ -175,6 +197,7 @@ async function startGame(hardMode) {
     correctAnswers = 0;
 
     currentPerson = await fetchRandomPerson(hardMode);
+    console.log('[startGame] Current person:', currentPerson);
     personImage.src = currentPerson.image;
     personImage.style.display = isHardMode ? 'none' : 'block';
     curtain.style.display = isHardMode ? 'block' : 'none';
@@ -222,10 +245,12 @@ async function startGame(hardMode) {
     gamesPlayed++;
     gamesPlayedText.textContent = gamesPlayed;
     gtag('event', 'game_start', { mode: isHardMode ? 'hard' : 'easy', person_type: isHardMode ? 'popular' : 'lesser_known' });
+    console.log('[startGame] Game started, questions rendered');
 }
 
 // Check answers
 function checkAnswers() {
+    console.log('[checkAnswers] Checking answers');
     correctAnswers = 0;
     questionsDiv.querySelectorAll('.question').forEach(q => {
         const id = q.querySelector('select, input').id;
@@ -244,6 +269,7 @@ function checkAnswers() {
 
     totalCorrect += correctAnswers;
     correctTotalText.textContent = totalCorrect;
+    console.log(`[checkAnswers] Correct answers: ${correctAnswers}/${Object.keys(answers).length}`);
 
     showResult();
     gtag('event', 'game_end', {
@@ -256,6 +282,7 @@ function checkAnswers() {
 
 // Show result
 function showResult() {
+    console.log('[showResult] Showing results');
     questionsDiv.style.display = 'none';
     resultDiv.style.display = 'block';
     personImage.style.display = 'block';
@@ -268,12 +295,14 @@ function showResult() {
     restartBtn.textContent = 'Play Again';
     restartBtn.onclick = () => startGame(isHardMode);
     resultDiv.appendChild(restartBtn);
+    console.log('[showResult] Results displayed, restart button added');
 }
 
 // Event listeners
 easyModeBtn.addEventListener('click', () => startGame(false));
 hardModeBtn.addEventListener('click', () => startGame(true));
 exitBtn.addEventListener('click', () => {
+    console.log('[exit] Exiting game');
     tg.close();
     gtag('event', 'exit_game');
 });
