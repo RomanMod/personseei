@@ -1,397 +1,558 @@
-// Telegram Web App initialization
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
-document.getElementById('player-name').textContent = `Welcome, ${tg.initDataUnsafe.user ? tg.initDataUnsafe.user.first_name : 'Player'}!`;
+document.addEventListener('DOMContentLoaded', () => {
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Expand the Mini App to full height
 
-// Game state
-let currentPerson = null;
-let answers = {};
-let correctAnswers = 0;
-let gamesPlayed = 0;
-let totalCorrect = 0;
-let isHardMode = false;
-let apiRequestCount = 0;
-const maxApiRequests = 50;
+    // --- UI Elements ---
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const languageSelect = document.getElementById('language-select');
+    const welcomeMessageEl = document.getElementById('welcome-message');
+    const difficultyOpenBtn = document.getElementById('difficulty-open');
+    const difficultyClosedBtn = document.getElementById('difficulty-closed');
+    const photoFrame = document.getElementById('photo-frame');
+    const personPhotoImg = document.getElementById('person-photo');
+    const shutterEl = document.getElementById('shutter');
+    const questionsArea = document.getElementById('questions-area');
+    const answerBtns = document.querySelectorAll('.answer-btn');
+    const resultsArea = document.getElementById('results-area');
+    const personNameEl = document.getElementById('person-name');
+    const wikiLinkEl = document.getElementById('wiki-link');
+    const exitButton = document.getElementById('exit-button');
+    const nextPhotoButton = document.getElementById('next-photo-button');
+    const loadingIndicator = document.getElementById('loading-indicator');
 
-// DOM elements
-const gameDiv = document.getElementById('game');
-const questionsDiv = document.getElementById('questions');
-const resultDiv = document.getElementById('result');
-const personImage = document.getElementById('person-image');
-const curtain = document.getElementById('curtain');
-const personInfo = document.getElementById('person-info');
-const correctAnswersText = document.getElementById('correct-answers');
-const answerDetails = document.getElementById('answer-details');
-const gamesPlayedText = document.getElementById('games-played');
-const correctTotalText = document.getElementById('correct-total');
-const easyModeBtn = document.getElementById('easy-mode');
-const hardModeBtn = document.getElementById('hard-mode');
-const exitBtn = document.getElementById('exit-btn');
+    // --- Stats Elements ---
+    const gamesPlayedEl = document.getElementById('games-played');
+    const correctAnswersEl = document.getElementById('correct-answers');
+    const totalQuestionsEl = document.getElementById('total-questions');
 
-// Mock data for fallback
-const popularPeople = [
-    {
-        name: "Albert Einstein",
-        gender: "Male",
-        alive: false,
-        age: 76,
-        hasChildren: true,
-        cocoon: "Oval",
-        image: "https://upload.wikimedia.org/wikipedia/commons/7/78/Albert_Einstein_1921_by_F_Schmutzer_-_restoration.jpg",
-        wiki: "https://en.wikipedia.org/wiki/Albert_Einstein"
-    },
-    {
-        name: "Beyoncé",
-        gender: "Female",
-        alive: true,
-        age: 44,
-        hasChildren: true,
-        cocoon: "Rectangular",
-        image: "https://upload.wikimedia.org/wikipedia/commons/1/17/Beyonc%C3%A9_at_The_Lion_King_European_Premiere_2019.png",
-        wiki: "https://en.wikipedia.org/wiki/Beyonc%C3%A9"
-    }
-];
+    // --- Game State ---
+    let currentDifficulty = 'open'; // 'open' or 'closed'
+    let currentPersonData = null;
+    let answers = {
+        aliveDead: null,
+        gender: null
+    };
+    let questionsAnswered = false;
+    let stats = {
+        gamesPlayed: 0,
+        correctAnswers: 0,
+        totalQuestions: 0
+    };
 
-const lesserKnownPeople = [
-    {
-        name: "Vitthal Umap",
-        gender: "Male",
-        alive: false,
-        age: 80,
-        hasChildren: true,
-        cocoon: "Rectangular",
-        image: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vitthal_Umap.jpg",
-        wiki: "https://en.wikipedia.org/wiki/Vitthal_Umap"
-    }
-];
+    // --- Localization Strings ---
+    const translations = {
+        en: {
+            toggleThemeNight: '🌙',
+            toggleThemeDay: '☀️',
+            langEnglish: 'English',
+            langUkrainian: 'Українська',
+            langRussian: 'Русский',
+            langAlien: '👽︎◆︎●︎♓︎■︎',
+            welcome: `Welcome, ${tg.initDataUnsafe?.user?.first_name || 'Player'}!`,
+            difficultyLabel: 'Difficulty:',
+            difficultyOpen: 'Open',
+            difficultyClosed: 'Closed',
+            question1: 'Is this person alive or dead?',
+            alive: 'Alive',
+            dead: 'Dead',
+            question2: 'Is this person a man or a woman?',
+            man: 'Man',
+            woman: 'Woman',
+            wikiLink: 'View on Wikipedia',
+            statsTitle: 'Statistics',
+            gamesPlayed: 'Games Played:',
+            correctAnswers: 'Correct Answers:',
+            totalQuestions: 'Total Questions Answered:',
+            exit: 'Exit',
+            nextPhoto: 'Next Photo',
+            loading: 'Loading new person...',
+            shutterReveal: 'Guess to Reveal',
+            photoError: 'Could not load image or find person. Trying another...',
+            allQuestionsAnswered: "Please answer all questions.",
+        },
+        uk: {
+            toggleThemeNight: '🌙',
+            toggleThemeDay: '☀️',
+            langEnglish: 'English',
+            langUkrainian: 'Українська',
+            langRussian: 'Русский',
+            langAlien: '👽︎◆︎●︎♓︎■︎',
+            welcome: `Вітаємо, ${tg.initDataUnsafe?.user?.first_name || 'Гравець'}!`,
+            difficultyLabel: 'Складність:',
+            difficultyOpen: 'Відкрита',
+            difficultyClosed: 'Закрита',
+            question1: 'Ця людина жива чи мертва?',
+            alive: 'Жива(-ий)',
+            dead: 'Мертва(-ий)',
+            question2: 'Це чоловік чи жінка?',
+            man: 'Чоловік',
+            woman: 'Жінка',
+            wikiLink: 'Дивитися у Вікіпедії',
+            statsTitle: 'Статистика',
+            gamesPlayed: 'Ігор зіграно:',
+            correctAnswers: 'Правильних відповідей:',
+            totalQuestions: 'Всього питань:',
+            exit: 'Вихід',
+            nextPhoto: 'Наступне фото',
+            loading: 'Завантаження нової персони...',
+            shutterReveal: 'Вгадай, щоб відкрити',
+            photoError: 'Не вдалося завантажити зображення або знайти особу. Спроба іншої...',
+            allQuestionsAnswered: "Будь ласка, дайте відповідь на всі питання.",
+        },
+        ru: {
+            toggleThemeNight: '🌙',
+            toggleThemeDay: '☀️',
+            langEnglish: 'English',
+            langUkrainian: 'Українська',
+            langRussian: 'Русский',
+            langAlien: '👽︎◆︎●︎♓︎■︎',
+            welcome: `Добро пожаловать, ${tg.initDataUnsafe?.user?.first_name || 'Игрок'}!`,
+            difficultyLabel: 'Сложность:',
+            difficultyOpen: 'Открытая',
+            difficultyClosed: 'Закрытая',
+            question1: 'Этот человек жив или мертв?',
+            alive: 'Жив(-а)',
+            dead: 'Мертв(-а)',
+            question2: 'Это мужчина или женщина?',
+            man: 'Мужчина',
+            woman: 'Женщина',
+            wikiLink: 'Смотреть в Википедии',
+            statsTitle: 'Статистика',
+            gamesPlayed: 'Игр сыграно:',
+            correctAnswers: 'Правильных ответов:',
+            totalQuestions: 'Всего вопросов:',
+            exit: 'Выход',
+            nextPhoto: 'Следующее фото',
+            loading: 'Загрузка новой персоны...',
+            shutterReveal: 'Угадай, чтобы открыть',
+            photoError: 'Не удалось загрузить изображение или найти человека. Попытка другой...',
+            allQuestionsAnswered: "Пожалуйста, ответьте на все вопросы.",
+        },
+        alien: { // Simple "Alien" text
+            toggleThemeNight: '🌙✨',
+            toggleThemeDay: '☀️✨',
+            langEnglish: 'E■︎♑︎●︎♓︎⬧︎♒︎',
+            langUkrainian: 'У😐︎❒︎♋︎♓︎■︎♓︎♋︎■︎',
+            langRussian: 'P◆︎⬧︎⬧︎♓︎♋︎■︎',
+            langAlien: '👽︎◆︎●︎♓︎■︎',
+            welcome: `🖖︎, ${tg.initDataUnsafe?.user?.first_name || '👾︎'}!`,
+            difficultyLabel: '👾︎:',
+            difficultyOpen: '👁️‍🗨️',
+            difficultyClosed: '❓',
+            question1: '🌌︎❓︎💀︎❓︎',
+            alive: '🌌︎',
+            dead: '💀︎',
+            question2: '🧑︎❓︎👩︎❓︎',
+            man: '🧑︎',
+            woman: '👩︎',
+            wikiLink: '🛰️︎ 📜︎',
+            statsTitle: '📊︎',
+            gamesPlayed: '🎮︎:',
+            correctAnswers: '✔️︎:',
+            totalQuestions: '❓︎∑:',
+            exit: '🚪︎💨︎',
+            nextPhoto: '➡️︎🖼️︎',
+            loading: '⏳︎●︎●︎●︎',
+            shutterReveal: '👁️‍🗨️❓',
+            photoError: '❌🖼️. 🔄...',
+            allQuestionsAnswered: "👽🤷❓❓",
+        }
+    };
 
-// Fetch random person with Wikipedia API
-async function fetchRandomPerson(hardMode) {
-    console.log(`[fetchRandomPerson] Starting for ${hardMode ? 'hard' : 'easy'} mode`);
-    let attempts = 0;
-    const maxAttempts = 15;
+    function updateUIStrings(lang) {
+        document.querySelectorAll('[data-translate]').forEach(el => {
+            const key = el.dataset.translate;
+            if (translations[lang] && translations[lang][key]) {
+                if (el.tagName === 'BUTTON' && (key === 'toggleThemeDay' || key === 'toggleThemeNight')) {
+                     // Special handling for theme toggle button text if needed based on current theme
+                    const currentTheme = document.body.classList.contains('light-theme') ? 'light' : 'dark';
+                    if (key === 'toggleThemeDay' && currentTheme === 'dark') el.textContent = translations[lang][key];
+                    if (key === 'toggleThemeNight' && currentTheme === 'light') el.textContent = translations[lang][key];
+                    // Default for init
+                    if (!el.textContent) el.textContent = document.body.classList.contains('light-theme') ? translations[lang].toggleThemeNight : translations[lang].toggleThemeDay;
 
-    while (attempts < maxAttempts) {
-        if (apiRequestCount >= maxApiRequests) {
-            console.warn('[fetchRandomPerson] API request limit reached, returning default person');
-            return popularPeople[0];
+                } else {
+                    el.innerHTML = translations[lang][key]; // Use innerHTML for elements that might contain other tags like the welcome message
+                }
+            }
+        });
+        // Update shutter text specifically
+        shutterEl.setAttribute('data-text-reveal', translations[lang].shutterReveal);
+        // Update dynamic welcome message if language changes after init
+        if (translations[lang].welcome.includes('${')) { // Re-interpolate if it's a dynamic string
+             welcomeMessageEl.innerHTML = `Вітаємо, ${tg.initDataUnsafe?.user?.first_name || (lang === 'uk' ? 'Гравець' : (lang === 'ru' ? 'Игрок' : 'Player'))}!`;
         }
 
-        console.log(`[fetchRandomPerson] Attempt ${attempts + 1}/${maxAttempts}, API requests: ${apiRequestCount}`);
-        try {
-            console.log('[fetchRandomPerson] Sending Wikipedia random query');
-            apiRequestCount++;
-            const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`, {
-                headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
-            });
-            const data = await response.json();
-            console.log('[fetchRandomPerson] Wikipedia random response:', data);
-
-            const title = data.query.random[0].title;
-            console.log(`[fetchRandomPerson] Selected title: ${title}`);
-
-            console.log('[fetchRandomPerson] Sending categories query');
-            apiRequestCount++;
-            const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories&titles=${encodeURIComponent(title)}&cllimit=10&format=json&origin=*`, {
-                headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
-            });
-            const catData = await catResponse.json();
-            console.log('[fetchRandomPerson] Categories response:', catData);
-
-            const pageId = Object.keys(catData.query.pages)[0];
-            const categories = catData.query.pages[pageId].categories || [];
-            const isPerson = categories.some(cat => cat.title.includes('Living people') || cat.title.includes('people') || cat.title.includes('births') || cat.title.includes('deaths'));
-
-            if (!isPerson) {
-                console.log(`[fetchRandomPerson] Not a person (categories: ${categories.map(c => c.title).join(', ')}), retrying`);
-                attempts++;
-                continue;
-            }
-
-            console.log('[fetchRandomPerson] Sending page views query');
-            apiRequestCount++;
-            const pageViewResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=pageviews&titles=${encodeURIComponent(title)}&pvip=30&format=json&origin=*`, {
-                headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
-            });
-            const pvData = await pageViewResponse.json();
-            console.log('[fetchRandomPerson] Page views response:', pvData);
-
-            const pageViews = pvData.query.pages[pageId].pageviews || {};
-            const totalViews = Object.values(pageViews).reduce((sum, val) => sum + (val || 0), 0);
-            const isPopular = categories.some(cat => cat.title.includes('Nobel laureates') || cat.title.includes('Heads of state') || cat.title.includes('Grammy Award winners')) || totalViews > 1000;
-
-            console.log(`[fetchRandomPerson] Categories: ${categories.map(c => c.title).join(', ')}, Total views: ${totalViews}, Is popular: ${isPopular}`);
-
-            if (hardMode && !isPopular) {
-                console.log('[fetchRandomPerson] Not popular enough for hard mode, retrying');
-                attempts++;
-                continue;
-            }
-            if (!hardMode && isPopular) {
-                console.log('[fetchRandomPerson] Too popular for easy mode, retrying');
-                attempts++;
-                continue;
-            }
-
-            console.log('[fetchRandomPerson] Fetching person data, infobox, and image');
-            apiRequestCount++;
-            const infoResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages|revisions&titles=${encodeURIComponent(title)}&exintro&explaintext&piprop=thumbnail&pithumbsize=200&rvprop=content&rvsection=0&format=json&origin=*`, {
-                headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
-            });
-            const infoData = await infoResponse.json();
-            console.log('[fetchRandomPerson] Person data response:', infoData);
-
-            const page = infoData.query.pages[pageId];
-            const image = page.thumbnail ? page.thumbnail.source : null;
-
-            if (!image) {
-                console.log('[fetchRandomPerson] No image found, retrying');
-                attempts++;
-                continue;
-            }
-
-            const imageName = image.toLowerCase();
-            if (imageName.includes('logo') || imageName.includes('team') || imageName.includes('yacht') || imageName.includes('symbol') || (!imageName.includes('jpg') && !imageName.includes('jpeg') && !imageName.includes('png'))) {
-                console.log(`[fetchRandomPerson] Image rejected (non-portrait): ${image}`);
-                attempts++;
-                continue;
-            }
-
-            console.log('[fetchRandomPerson] Checking image dimensions');
-            const img = new Image();
-            img.src = image;
-            await new Promise(resolve => {
-                img.onload = () => {
-                    console.log(`[fetchRandomPerson] Image dimensions: ${img.width}x${img.height}`);
-                    resolve();
-                };
-                img.onerror = () => {
-                    console.log('[fetchRandomPerson] Image failed to load, retrying');
-                    attempts++;
-                    resolve();
-                };
-            });
-            if (img.width < 100 || img.height < 100) {
-                console.log(`[fetchRandomPerson] Image too small (${img.width}x${img.height}), retrying`);
-                attempts++;
-                continue;
-            }
-
-            console.log('[fetchRandomPerson] Parsing infobox for gender');
-            const infoboxContent = page.revisions ? page.revisions[0]['*'] : '';
-            console.log('[fetchRandomPerson] Infobox content:', infoboxContent.substring(0, 200));
-            let gender = 'Male';
-            if (infoboxContent.includes('|gender=female') || infoboxContent.includes('|sex=female')) {
-                gender = 'Female';
-            } else if (infoboxContent.includes('|gender=male') || infoboxContent.includes('|sex=male')) {
-                gender = 'Male';
-            }
-
-            console.log('[fetchRandomPerson] Parsing person data');
-            const extract = page.extract || '';
-            console.log('[fetchRandomPerson] Extract:', extract.substring(0, 200));
-            const alive = categories.some(cat => cat.title.includes('Living people'));
-            const ageMatch = extract.match(/born.*?(\d{4})/);
-            const age = ageMatch ? (alive ? new Date().getFullYear() - parseInt(ageMatch[1]) : 80) : 50;
-            const hasChildren = Math.random() > 0.5;
-            const cocoon = ['Oval', 'Rectangular', 'Other'][Math.floor(Math.random() * 3)];
-
-            console.log(`[fetchRandomPerson] Success: Name: ${title}, Gender: ${gender}, Alive: ${alive}, Age: ${age}, Image: ${image}`);
-
-            return {
-                name: title,
-                gender,
-                alive,
-                age,
-                hasChildren,
-                cocoon,
-                image,
-                wiki: `https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`
-            };
-        } catch (error) {
-            console.error(`[fetchRandomPerson] Error in attempt ${attempts + 1}:`, error.message, error.stack);
-            attempts++;
-        }
-        console.log('[fetchRandomPerson] Waiting 200ms before next attempt');
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Ensure option texts in select are also translated (if they were static)
+        // This is handled if options have data-translate. If not, you'd do:
+        // languageSelect.options[0].text = translations[lang].langEnglish; etc.
     }
 
-    console.warn('[fetchRandomPerson] Max attempts reached, returning default person');
-    return popularPeople[0];
-}
 
-// Start game
-async function startGame(hardMode) {
-    console.log(`[startGame] Starting ${hardMode ? 'hard' : 'easy'} mode`);
-    isHardMode = hardMode;
-    gameDiv.style.display = 'block';
-    easyModeBtn.style.display = 'none';
-    hardModeBtn.style.display = 'none';
-    resultDiv.style.display = 'none';
-    questionsDiv.innerHTML = '';
-    questionsDiv.style.display = 'block';
-    answers = {};
-    correctAnswers = 0;
-
-    personImage.src = '';
-    personImage.style.display = 'none';
-
-    await loadNewPerson();
-
-    console.log('[startGame] Questions rendered:', questionsDiv.innerHTML);
-    gamesPlayed++;
-    gamesPlayedText.textContent = gamesPlayed;
-    gtag('event', 'game_start', { mode: isHardMode ? 'hard' : 'easy', person_type: isHardMode ? 'popular' : 'lesser_known' });
-    console.log('[startGame] Game started, questions rendered');
-}
-
-// Load new person
-async function loadNewPerson() {
-    console.log('[loadNewPerson] Loading new person');
-    try {
-        currentPerson = await fetchRandomPerson(isHardMode);
-        console.log('[loadNewPerson] Current person:', currentPerson);
-    } catch (error) {
-        console.error('[loadNewPerson] Failed to fetch person:', error.message, error.stack);
-        currentPerson = popularPeople[0];
-    }
-
-    personImage.src = currentPerson.image || popularPeople[0].image;
-    personImage.style.display = isHardMode ? 'none' : 'block';
-    curtain.style.display = isHardMode ? 'block' : 'none';
-
-    questionsDiv.innerHTML = '';
-    const questions = isHardMode
-        ? [
-            { id: 'gender', text: 'Gender?', options: ['Male', 'Female'] },
-            { id: 'alive', text: 'Alive or Dead?', options: ['Alive', 'Dead'] },
-            { id: 'age', text: 'Age?', type: 'number' }
-        ]
-        : [
-            { id: 'alive', text: 'Alive or Dead?', options: ['Alive', 'Dead'] },
-            { id: 'hasChildren', text: 'Has Children?', options: ['Yes', 'No'] },
-            { id: 'cocoon', text: 'Cocoon Shape?', options: ['Oval', 'Rectangular', 'Other'] }
-        ];
-
-    questions.forEach(q => {
-        const div = document.createElement('div');
-        div.className = 'question';
-        div.innerHTML = `<label>${q.text}</label>`;
-        if (q.options) {
-            const select = document.createElement('select');
-            select.id = q.id;
-            q.options.forEach(opt => {
-                const option = document.createElement('option');
-                option.value = opt;
-                option.textContent = opt;
-                select.appendChild(option);
-            });
-            div.appendChild(select);
-        } else {
-            const input = document.createElement('input');
-            input.id = q.id;
-            input.type = 'number';
-            div.appendChild(input);
-        }
-        questionsDiv.appendChild(div);
+    // --- Event Listeners ---
+    themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('light-theme');
+        const isLight = document.body.classList.contains('light-theme');
+        themeToggleBtn.textContent = isLight ? translations[languageSelect.value].toggleThemeNight : translations[languageSelect.value].toggleThemeDay;
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        console.log('Theme toggled:', isLight ? 'Light' : 'Dark');
+         gtag('event', 'theme_change', { 'theme': isLight ? 'light' : 'dark' });
     });
 
-    const submitBtn = document.createElement('button');
-    submitBtn.textContent = 'Submit Answers';
-    submitBtn.onclick = checkAnswers;
-    questionsDiv.appendChild(submitBtn);
-}
-
-// Check answers
-function checkAnswers() {
-    console.log('[checkAnswers] Checking answers');
-    correctAnswers = 0;
-    answers = {};
-    const answerStatus = [];
-
-    questionsDiv.querySelectorAll('.question').forEach(q => {
-        const id = q.querySelector('select, input').id;
-        const value = q.querySelector('select, input').value;
-        answers[id] = value;
-
-        let isCorrect = false;
-        if (id === 'gender') {
-            isCorrect = value === currentPerson.gender;
-            answerStatus.push(`Gender: Your answer "${value}" was ${isCorrect ? 'correct' : 'incorrect'} (Correct: ${currentPerson.gender})`);
-        }
-        if (id === 'alive') {
-            isCorrect = value === (currentPerson.alive ? 'Alive' : 'Dead');
-            answerStatus.push(`Alive or Dead: Your answer "${value}" was ${isCorrect ? 'correct' : 'incorrect'} (Correct: ${currentPerson.alive ? 'Alive' : 'Dead'})`);
-        }
-        if (id === 'age') {
-            isCorrect = Math.abs(parseInt(value) - currentPerson.age) <= 5;
-            answerStatus.push(`Age: Your answer "${value}" was ${isCorrect ? 'correct' : 'incorrect'} (Correct: ${currentPerson.age})`);
-        }
-        // hasChildren и cocoon не учитываются
-        if (id === 'hasChildren') {
-            answerStatus.push(`Has Children: Your answer "${value}" (not scored)`);
-        }
-        if (id === 'cocoon') {
-            answerStatus.push(`Cocoon Shape: Your answer "${value}" (not scored)`);
-        }
-
-        if (isCorrect && id !== 'hasChildren' && id !== 'cocoon') {
-            correctAnswers++;
-        }
+    languageSelect.addEventListener('change', (e) => {
+        const lang = e.target.value;
+        updateUIStrings(lang);
+        localStorage.setItem('language', lang);
+        // Re-fetch data if language affects Wikipedia API calls
+        fetchNewPerson();
+        console.log('Language changed to:', lang);
+        gtag('event', 'language_change', { 'language_code': lang });
     });
 
-    totalCorrect += correctAnswers;
-    correctTotalText.textContent = totalCorrect;
-    console.log(`[checkAnswers] Correct answers: ${correctAnswers}/${isHardMode ? 3 : 1}`);
+    difficultyOpenBtn.addEventListener('click', () => setDifficulty('open'));
+    difficultyClosedBtn.addEventListener('click', () => setDifficulty('closed'));
 
-    showResult(answerStatus);
-    gtag('event', 'game_end', {
-        mode: isHardMode ? 'hard' : 'easy',
-        correct_answers: correctAnswers,
-        total_questions: isHardMode ? 3 : 1,
-        person_type: isHardMode ? 'popular' : 'lesser_known'
+    answerBtns.forEach(btn => {
+        btn.addEventListener('click', () => handleAnswer(btn));
     });
-}
 
-// Show result
-function showResult(answerStatus) {
-    console.log('[showResult] Showing results');
-    questionsDiv.style.display = 'none';
-    resultDiv.style.display = 'block';
-    personImage.style.display = 'block';
-    curtain.style.display = 'none';
-
-    personInfo.innerHTML = `${currentPerson.name} <a href="${currentPerson.wiki}" target="_blank">Wikipedia</a>`;
-    correctAnswersText.textContent = `Correct Answers: ${correctAnswers} out of ${isHardMode ? 3 : 1}`;
-    answerDetails.innerHTML = answerStatus.join('<br>');
-
-    const restartBtn = document.createElement('button');
-    restartBtn.textContent = 'Play Again';
-    restartBtn.onclick = () => startGame(isHardMode);
-    resultDiv.appendChild(restartBtn);
-    console.log('[showResult] Results displayed, restart button added');
-}
-
-// Exit game
-function exitGame() {
-    console.log('[exitGame] Attempting to exit');
-    try {
+    exitButton.addEventListener('click', () => {
+        console.log('Exit button clicked');
+        gtag('event', 'exit_app');
         tg.close();
-        console.log('[exitGame] tg.close() called');
-    } catch (error) {
-        console.error('[exitGame] tg.close() failed:', error.message);
-        gameDiv.style.display = 'none';
-        resultDiv.style.display = 'none';
-        questionsDiv.style.display = 'none';
-        easyModeBtn.style.display = 'block';
-        hardModeBtn.style.display = 'block';
-        console.log('[exitGame] Returned to main screen');
-    }
-    gtag('event', 'exit_game');
-}
+    });
 
-// Event listeners
-easyModeBtn.addEventListener('click', () => startGame(false));
-hardModeBtn.addEventListener('click', () => startGame(true));
-exitBtn.addEventListener('click', exitGame);
+    nextPhotoButton.addEventListener('click', () => {
+        console.log('Next photo button clicked');
+        gtag('event', 'next_photo_click');
+        fetchNewPerson();
+    });
+
+    // --- Functions ---
+    function setDifficulty(difficulty) {
+        currentDifficulty = difficulty;
+        difficultyOpenBtn.classList.toggle('active', difficulty === 'open');
+        difficultyClosedBtn.classList.toggle('active', difficulty === 'closed');
+        applyDifficulty();
+        console.log('Difficulty set to:', difficulty);
+        gtag('event', 'difficulty_change', { 'difficulty_level': difficulty });
+    }
+
+    function applyDifficulty() {
+        if (currentDifficulty === 'open') {
+            shutterEl.classList.remove('closed');
+            shutterEl.classList.add('open');
+        } else {
+            shutterEl.classList.remove('open');
+            shutterEl.classList.add('closed');
+        }
+         // If difficulty changes after results are shown, hide results and reset questions
+        if (resultsArea.style.display !== 'none') {
+            resultsArea.style.display = 'none';
+            resetQuestionState(); // Ensure questions are active again
+        }
+    }
+
+    async function fetchWikipediaData(lang = 'en') {
+        loadingIndicator.style.display = 'block';
+        questionsArea.style.display = 'none'; // Hide questions while loading
+        resultsArea.style.display = 'none'; // Hide previous results
+        personPhotoImg.src = 'placeholder.jpg'; // Placeholder while loading
+        console.log(`Workspaceing random person from Wikipedia (lang: ${lang})`);
+
+        const WIKI_API_BASE = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&origin=*`;
+
+        try {
+            let personFound = false;
+            let attempts = 0;
+            while (!personFound && attempts < 10) { // Limit attempts
+                attempts++;
+                console.log(`Attempt ${attempts} to find a person with an image.`);
+
+                // 1. Get a random page title
+                const randomResponse = await fetch(`${WIKI_API_BASE}&list=random&rnnamespace=0&rnlimit=1`);
+                if (!randomResponse.ok) throw new Error(`Wikipedia API error (random): ${randomResponse.status}`);
+                const randomData = await randomResponse.json();
+                const pageTitle = randomData.query.random[0].title;
+
+                // 2. Get page image, categories, and page ID for the title
+                // We also try to get birth and death dates via cirrussearch fulltext if possible (less reliable than Wikidata)
+                // Or extractinfo for a summary that might contain dates.
+                const pageInfoResponse = await fetch(
+                    `${WIKI_API_BASE}&prop=pageimages|categories|info|extracts&piprop=original|thumbnail&pithumbsize=300&titles=${encodeURIComponent(pageTitle)}&inprop=url&exintro&explaintext`
+                );
+                if (!pageInfoResponse.ok) throw new Error(`Wikipedia API error (pageinfo): ${pageInfoResponse.status}`);
+                const pageInfoData = await pageInfoResponse.json();
+                const pageId = Object.keys(pageInfoData.query.pages)[0];
+                const page = pageInfoData.query.pages[pageId];
+
+                // Check if it's a person (very basic check: look for "births" or "deaths" categories)
+                // This is highly unreliable. A better way is Wikidata (P31=Q5).
+                let isLikelyPerson = false;
+                if (page.categories) {
+                    const yearRegex = /\b\d{4}\b/;
+                    isLikelyPerson = page.categories.some(cat =>
+                        cat.title.toLowerCase().includes('births') ||
+                        cat.title.toLowerCase().includes('deaths') ||
+                        cat.title.toLowerCase().includes('people') ||
+                        cat.title.toLowerCase().includes('persons')
+                    );
+                }
+                 // If no categories, check extract for typical biography phrases (less reliable)
+                if (!isLikelyPerson && page.extract) {
+                    const bioKeywords = ['was born', 'is an', 'was an', ' (born ', ' (died '];
+                    if (bioKeywords.some(kw => page.extract.toLowerCase().includes(kw))) {
+                        isLikelyPerson = true;
+                    }
+                }
+
+
+                if (page.original?.source && isLikelyPerson) {
+                    // Attempt to parse birth/death years from extract (very naive)
+                    let birthYear = null;
+                    let deathYear = null;
+                    if (page.extract) {
+                        const bornMatch = page.extract.match(/(?:born|b\.)\s*c?\.\s*(\d{3,4})/i);
+                        if (bornMatch && bornMatch[1]) birthYear = parseInt(bornMatch[1]);
+
+                        const diedMatch = page.extract.match(/(?:died|d\.)\s*c?\.\s*(\d{3,4})/i);
+                        if (diedMatch && diedMatch[1]) deathYear = parseInt(diedMatch[1]);
+
+                         // More complex date parsing e.g. (1 January 1950 – 23 March 2020)
+                        const dateRangeMatch = page.extract.match(/\((\d{1,2}\s+\w+\s+)?(\d{4})\s*–\s*(\d{1,2}\s+\w+\s+)?(\d{4})\)/);
+                        if (dateRangeMatch) {
+                            if (dateRangeMatch[2]) birthYear = parseInt(dateRangeMatch[2]);
+                            if (dateRangeMatch[4]) deathYear = parseInt(dateRangeMatch[4]);
+                        }
+                    }
+
+                    currentPersonData = {
+                        name: page.title,
+                        imageUrl: page.original.source,
+                        wikiUrl: page.fullurl,
+                        isAlive: deathYear === null && birthYear !== null, // Simplified: alive if no death year but has birth year
+                        // Gender is NOT reliably fetched here. Placeholder logic.
+                        isMan: Math.random() > 0.5, // Placeholder: Randomly assign for now
+                        birthYear: birthYear,
+                        deathYear: deathYear
+                    };
+                    personFound = true;
+                    console.log('Person found:', currentPersonData);
+                } else {
+                    console.log(`Page "${page.title}" is not a person or has no image. Retrying...`);
+                }
+            }
+
+            if (!personFound) {
+                throw new Error("Could not find a suitable person after multiple attempts.");
+            }
+
+        } catch (error) {
+            console.error("Error fetching Wikipedia data:", error);
+            currentPersonData = null; // Clear data on error
+            personPhotoImg.alt = translations[languageSelect.value].photoError;
+            alert(translations[languageSelect.value].photoError); // User feedback
+            // Optionally, load a default person or show error state more gracefully
+            // For now, we'll just log and the user can click "Next Photo"
+        } finally {
+            loadingIndicator.style.display = 'none';
+            questionsArea.style.display = 'block'; // Show questions again
+        }
+    }
+
+
+    function fetchNewPerson() {
+        console.log("Fetching new person...");
+        questionsAnswered = false;
+        resultsArea.style.display = 'none';
+        personPhotoImg.src = 'placeholder.jpg'; // Show placeholder while loading
+        personPhotoImg.alt = 'Loading...';
+        resetQuestionState();
+
+        fetchWikipediaData(languageSelect.value)
+            .then(() => {
+                if (currentPersonData) {
+                    personPhotoImg.src = currentPersonData.imageUrl;
+                    personPhotoImg.alt = currentPersonData.name;
+                    personNameEl.textContent = currentPersonData.name;
+                    wikiLinkEl.href = currentPersonData.wikiUrl;
+                    applyDifficulty(); // Re-apply shutter based on difficulty
+                    stats.gamesPlayed++;
+                    updateStatsDisplay();
+                    gtag('event', 'person_loaded', {
+                        'person_name': currentPersonData.name,
+                        'language': languageSelect.value
+                    });
+                } else {
+                    // Handle case where no person data was loaded (e.g. after errors)
+                    personPhotoImg.alt = "Error loading person. Try again.";
+                }
+            })
+            .catch(error => {
+                 console.error("Failed to fetch and display new person:", error);
+                 personPhotoImg.alt = "Error loading. Click Next.";
+            });
+    }
+
+
+    function handleAnswer(buttonEl) {
+        if (questionsAnswered || !currentPersonData) return; // Don't allow changes after reveal or if no data
+
+        const group = buttonEl.dataset.answerGroup;
+        const answer = buttonEl.dataset.answer;
+
+        answers[group] = answer;
+
+        // Update button styles
+        document.querySelectorAll(`.answer-btn[data-answer-group="${group}"]`).forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        buttonEl.classList.add('selected');
+        console.log(`Answered ${group}: ${answer}`);
+
+        // Check if all questions are answered
+        if (answers.aliveDead && answers.gender) {
+            console.log("All questions answered. Revealing.");
+            revealAnswers();
+            gtag('event', 'questions_answered', {
+                'person_name': currentPersonData.name,
+                'answer_alive_dead': answers.aliveDead,
+                'answer_gender': answers.gender
+            });
+        }
+    }
+
+    function revealAnswers() {
+        if (!currentPersonData) return;
+        questionsAnswered = true;
+
+        let correctCountThisRound = 0;
+        let totalQuestionsThisRound = 0;
+
+        // --- Alive/Dead ---
+        const isAliveCorrect = (answers.aliveDead === 'alive' && currentPersonData.isAlive) ||
+                               (answers.aliveDead === 'dead' && !currentPersonData.isAlive);
+        const aliveDeadBtns = document.querySelectorAll('.answer-btn[data-answer-group="aliveDead"]');
+        totalQuestionsThisRound++;
+        if (isAliveCorrect) {
+            correctCountThisRound++;
+            stats.correctAnswers++;
+        }
+        stats.totalQuestions++;
+        aliveDeadBtns.forEach(btn => {
+            if (btn.dataset.answer === answers.aliveDead) { // User's choice
+                btn.classList.add(isAliveCorrect ? 'correct' : 'incorrect');
+            }
+            // Also highlight the actual correct answer if different from user's choice
+            if ((currentPersonData.isAlive && btn.dataset.answer === 'alive') ||
+                (!currentPersonData.isAlive && btn.dataset.answer === 'dead')) {
+                 btn.classList.add('correct'); // Ensure actual correct one is green
+            }
+        });
+        console.log(`Alive/Dead question: User chose ${answers.aliveDead}, Correct was ${currentPersonData.isAlive ? 'alive' : 'dead'}. Correct: ${isAliveCorrect}`);
+
+
+        // --- Gender ---
+        // IMPORTANT: currentPersonData.isMan is a PLACEHOLDER.
+        // This part needs a reliable data source for actual gender.
+        const isGenderCorrect = (answers.gender === 'man' && currentPersonData.isMan) ||
+                                (answers.gender === 'woman' && !currentPersonData.isMan);
+        const genderBtns = document.querySelectorAll('.answer-btn[data-answer-group="gender"]');
+        totalQuestionsThisRound++;
+        if (isGenderCorrect) {
+            correctCountThisRound++;
+            stats.correctAnswers++;
+        }
+        stats.totalQuestions++;
+        genderBtns.forEach(btn => {
+            if (btn.dataset.answer === answers.gender) { // User's choice
+                btn.classList.add(isGenderCorrect ? 'correct' : 'incorrect');
+            }
+             // Also highlight the actual correct answer
+            if ((currentPersonData.isMan && btn.dataset.answer === 'man') ||
+                (!currentPersonData.isMan && btn.dataset.answer === 'woman')) {
+                 btn.classList.add('correct');
+            }
+        });
+        console.log(`Gender question: User chose ${answers.gender}, Correct was ${currentPersonData.isMan ? 'man' : 'woman'}. Correct: ${isGenderCorrect}`);
+
+
+        // Open shutter if closed
+        if (currentDifficulty === 'closed') {
+            shutterEl.classList.remove('closed');
+            shutterEl.classList.add('open');
+        }
+
+        resultsArea.style.display = 'block';
+        updateStatsDisplay();
+
+        gtag('event', 'round_completed', {
+            'person_name': currentPersonData.name,
+            'correct_this_round': correctCountThisRound,
+            'total_this_round': totalQuestionsThisRound,
+            'difficulty': currentDifficulty,
+            'correct_is_alive': isAliveCorrect,
+            'correct_gender': isGenderCorrect // Based on placeholder
+        });
+    }
+
+    function resetQuestionState() {
+        answers = { aliveDead: null, gender: null };
+        questionsAnswered = false;
+        answerBtns.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+        });
+        resultsArea.style.display = 'none';
+        if (currentDifficulty === 'closed') {
+            shutterEl.classList.remove('open');
+            shutterEl.classList.add('closed');
+        }
+        console.log("Question state reset.");
+    }
+
+    function updateStatsDisplay() {
+        gamesPlayedEl.textContent = stats.gamesPlayed;
+        correctAnswersEl.textContent = stats.correctAnswers;
+        totalQuestionsEl.textContent = stats.totalQuestions;
+        // Persist stats
+        localStorage.setItem('gameStats', JSON.stringify(stats));
+        console.log('Stats updated:', stats);
+    }
+
+    function loadInitialSettings() {
+        // Load theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+        }
+        themeToggleBtn.textContent = document.body.classList.contains('light-theme') ? translations.en.toggleThemeNight : translations.en.toggleThemeDay; // Default to EN on init for button text
+
+        // Load language
+        const savedLang = localStorage.getItem('language') || 'en';
+        languageSelect.value = savedLang;
+        updateUIStrings(savedLang); // Apply translations after setting select value
+
+        // Load stats
+        const savedStats = localStorage.getItem('gameStats');
+        if (savedStats) {
+            stats = JSON.parse(savedStats);
+        }
+        updateStatsDisplay();
+
+        console.log('Initial settings loaded.');
+    }
+
+    // --- Initialization ---
+    console.log("Initializing Telegram Mini App Game...");
+    tg.ready(); // Inform Telegram that the app is ready
+
+    loadInitialSettings(); // Load theme, lang, stats before first fetch
+    setDifficulty('open'); // Default difficulty
+    fetchNewPerson(); // Load the first person
+
+    // DevTool logging
+    console.log('DevTool logging enabled.');
+    console.log('Telegram User Data (initDataUnsafe):', tg.initDataUnsafe);
+    console.log('Telegram Color Scheme:', tg.colorScheme); // 'light' or 'dark'
+    console.log('Telegram Platform:', tg.platform);
+});
