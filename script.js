@@ -17,6 +17,7 @@ const personInfo = document.getElementById('person-info');
 const wikiLink = document.getElementById('wiki-link');
 const correctAnswersSpan = document.getElementById('correct-answers');
 const totalQuestionsSpan = document.getElementById('total-questions');
+const imageError = document.getElementById('image-error');
 
 let correctAnswers = 0;
 let totalQuestions = 0;
@@ -36,6 +37,7 @@ const translations = {
         check: 'Перевірити',
         correct: 'Правильно!',
         incorrect: 'Неправильно!',
+        imageError: 'Зображення недоступне'
     },
     ru: {
         alive: 'Жив',
@@ -45,6 +47,7 @@ const translations = {
         check: 'Проверить',
         correct: 'Правильно!',
         incorrect: 'Неправильно!',
+        imageError: 'Изображение недоступно'
     },
     en: {
         alive: 'Alive',
@@ -54,6 +57,7 @@ const translations = {
         check: 'Check',
         correct: 'Correct!',
         incorrect: 'Incorrect!',
+        imageError: 'Image unavailable'
     },
     alien: {
         alive: '👽 Живий',
@@ -63,6 +67,7 @@ const translations = {
         check: '🛸 Перевірити',
         correct: '🌟 Правильно!',
         incorrect: '🪐 Неправильно!',
+        imageError: '🖼️ Зображення недоступне'
     }
 };
 
@@ -80,6 +85,7 @@ function updateLanguage() {
         btn.textContent = i === 0 ? translations[lang].alive : translations[lang].dead;
     });
     checkAnswerBtn.textContent = translations[lang].check;
+    imageError.textContent = translations[lang].imageError;
 }
 
 // Update UI based on difficulty
@@ -92,6 +98,7 @@ function updateDifficulty() {
     document.getElementById('gender-question').style.display = difficulty === 'easy' ? 'block' : 'none';
     document.getElementById('easier-question').style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
+    imageError.style.display = 'none';
     result.style.display = 'none';
     loadNewPerson();
 }
@@ -112,6 +119,7 @@ function syncTheme() {
 
 // Theme switch
 themeSelect.addEventListener('change', () => {
+    const lang = languageSelect.value;
     const theme = themeSelect.value;
     console.log(`Theme selected: ${theme}`);
     document.body.className = theme;
@@ -120,6 +128,7 @@ themeSelect.addEventListener('change', () => {
     tg.setBottomBarColor(theme === 'night' ? '#1c2526' : '#ffffff');
     const bgColor = getComputedStyle(document.body).getPropertyValue('--bg-color').trim();
     console.log(`Theme applied: ${theme}, body class: ${document.body.className}, --bg-color: ${bgColor}, h1 animation: themeChange`);
+    imageError.textContent = translations[lang].imageError;
 });
 
 // Language switch
@@ -159,6 +168,21 @@ const mockPerson = {
     wiki: 'https://en.wikipedia.org/wiki/Test'
 };
 
+// Convert Wikimedia Commons URL to direct image URL
+function convertCommonsUrl(url) {
+    if (url.includes('commons.wikimedia.org/wiki/Special:FilePath')) {
+        const fileName = url.split('/').pop();
+        const decodedFileName = decodeURIComponent(fileName);
+        // Generate MD5 hash for file path (simplified, assumes file name is enough)
+        const firstChar = decodedFileName[0].toLowerCase();
+        const secondChar = decodedFileName[1] ? decodedFileName[1].toLowerCase() : firstChar;
+        const directUrl = `https://upload.wikimedia.org/wikipedia/commons/${firstChar}/${firstChar}${secondChar}/${fileName}`;
+        console.log(`Converted Commons URL: ${url} -> ${directUrl}`);
+        return directUrl;
+    }
+    return url;
+}
+
 // Wikidata API to fetch random person
 async function loadNewPerson(useMock = false) {
     if (isLoading) {
@@ -169,10 +193,13 @@ async function loadNewPerson(useMock = false) {
         console.error('Max retries reached, stopping load');
         progress.textContent = 'Помилка: не вдалося завантажити. Спробуйте ще раз.';
         progress.classList.add('error');
+        imageError.style.display = 'block';
         if (retryCount >= maxRetries * 2) {
             console.warn('Using mock data due to repeated failures');
             currentPerson = mockPerson;
             progress.textContent = '100%';
+            progress.classList.remove('error');
+            imageError.style.display = 'none';
             personImage.src = currentPerson.image;
             console.log('Person loaded from mock:', currentPerson);
             gtag('event', 'load_person', {
@@ -196,6 +223,7 @@ async function loadNewPerson(useMock = false) {
     retryCount++;
     progress.textContent = '0%';
     progress.classList.remove('error');
+    imageError.style.display = 'none';
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
@@ -222,6 +250,7 @@ async function loadNewPerson(useMock = false) {
     if (useMock) {
         currentPerson = mockPerson;
         progress.textContent = '100%';
+        imageError.style.display = 'none';
         personImage.src = currentPerson.image;
         console.log('Person loaded from mock:', currentPerson);
         gtag('event', 'load_person', {
@@ -250,7 +279,9 @@ async function loadNewPerson(useMock = false) {
                 ?gender rdfs:label ?genderLabel.
                 FILTER (LANG(?personLabel) = "en").
                 FILTER (LANG(?genderLabel) = "en").
+                FILTER (REGEX(STR(?image), "\\.(jpg|png)$", "i")).
             }
+            ORDER BY RAND()
             LIMIT 1
         `;
         console.log('SPARQL query:', query);
@@ -284,11 +315,13 @@ async function loadNewPerson(useMock = false) {
             throw new Error('No person found');
         }
 
+        const rawImageUrl = person.image.value;
+        const imageUrl = convertCommonsUrl(rawImageUrl);
         currentPerson = {
             name: person.personLabel.value,
             alive: person.death ? 'dead' : 'alive',
             gender: person.genderLabel.value.toLowerCase().includes('male') ? 'male' : 'female',
-            image: person.image.value,
+            image: imageUrl,
             wiki: person.person.value.replace('http://www.wikidata.org/entity/', 'https://en.wikipedia.org/wiki/')
         };
         console.log('Person data parsed:', currentPerson);
@@ -319,6 +352,7 @@ async function loadNewPerson(useMock = false) {
         console.error('Error loading person from Wikidata:', error.message);
         progress.textContent = `Помилка: ${error.message}`;
         progress.classList.add('error');
+        imageError.style.display = 'block';
         gtag('event', 'load_person_failed', {
             source: 'wikidata',
             reason: error.message,
@@ -337,33 +371,28 @@ async function loadNewPerson(useMock = false) {
 async function isValidImage(url) {
     try {
         console.log(`Checking image: ${url}`);
-        const response = await fetch(url, { method: 'HEAD' });
-        const contentLength = response.headers.get('content-length');
-        const contentType = response.headers.get('content-type');
-        const isValid = response.ok && 
-                        contentLength && 
-                        parseInt(contentLength) > 10000 && 
-                        contentType.includes('image');
-        console.log(`Image validation result: ${isValid} (status: ${response.status}, size: ${contentLength}, type: ${contentType})`);
-        
-        // Дополнительная проверка разрешения
-        if (isValid) {
-            const img = new Image();
-            const promise = new Promise((resolve) => {
-                img.onload = () => resolve(img.width >= 100 && img.height >= 100);
-                img.onerror = () => resolve(false);
-                img.src = url;
-            });
-            const isHighRes = await promise;
-            console.log(`Image resolution check: ${isHighRes} (width: ${img.width}, height: ${img.height})`);
-            return isHighRes;
+        const img = new Image();
+        const promise = new Promise((resolve) => {
+            img.onload = () => {
+                console.log(`Image loaded: ${url}, width: ${img.width}, height: ${img.height}`);
+                resolve(img.width >= 100 && img.height >= 100);
+            };
+            img.onerror = (err) => {
+                console.error(`Image load failed: ${url}, error: ${err.type}`);
+                resolve(false);
+            };
+            img.src = url;
+        });
+        const isValid = await promise;
+        console.log(`Image validation result: ${isValid}`);
+        if (!isValid && url !== 'https://via.placeholder.com/300') {
+            console.log('Using fallback image');
+            return isValidImage('https://via.placeholder.com/300');
         }
-        return false;
+        return isValid;
     } catch (error) {
-        console.error('Image validation failed:', error);
-        // Запасной URL
-        console.log('Using fallback image');
-        return url === 'https://via.placeholder.com/150' ? false : isValidImage('https://via.placeholder.com/150');
+        console.error(`Image validation error: ${url}, error: ${error.message}`);
+        return false;
     }
 }
 
