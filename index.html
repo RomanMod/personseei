@@ -43,6 +43,12 @@
             padding: 15px;
             border-radius: 5px;
         }
+        #progress.mock {
+            color: #ffcc00;
+            border: 2px solid #ffcc00;
+            padding: 15px;
+            border-radius: 5px;
+        }
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
@@ -89,28 +95,44 @@
         }
 
         // Load person from Wikidata
-        async function loadPerson() {
+        async function loadPerson(useFallback = false) {
             const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
             try {
                 console.log('Sending SPARQL request...');
-                const query = `
+                let query = `
                     SELECT ?person ?personLabel ?image
                     WHERE {
                         ?person wdt:P31 wd:Q5;
                                 wdt:P18 ?image.
                         ?person rdfs:label ?personLabel.
                         FILTER (LANG(?personLabel) = "en").
-                        FILTER (REGEX(STR(?image), "\\.jpg$|\\.png$", "i")).
                     }
                     ORDER BY RAND()
                     LIMIT 1
                 `;
+                if (useFallback) {
+                    query = `
+                        SELECT ?person ?personLabel ?image
+                        WHERE {
+                            ?person wdt:P31 wd:Q5;
+                                    wdt:P18 ?image.
+                            ?person rdfs:label ?personLabel.
+                            FILTER (LANG(?personLabel) = "en").
+                        }
+                        LIMIT 1
+                    `;
+                    console.log('Using fallback query:', query);
+                } else {
+                    console.log('Using main query:', query);
+                }
+
                 const endpoint = 'https://query.wikidata.org/sparql';
                 const encodedQuery = encodeURIComponent(query);
                 const url = `${endpoint}?query=${encodedQuery}&format=json`;
+                console.log('Request URL:', url);
 
                 const response = await fetch(url, {
                     method: 'GET',
@@ -120,10 +142,18 @@
                     }
                 });
                 console.log(`Response status: ${response.status}`);
+                const responseText = await response.text();
+                console.log(`Response body: ${responseText || 'Empty response'}`);
+
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    if (response.status === 400 && !useFallback) {
+                        console.warn('Bad request, trying fallback query...');
+                        return await loadPerson(true); // Retry with fallback
+                    }
+                    throw new Error(`HTTP ${response.status}: ${responseText}`);
                 }
-                const data = await response.json();
+
+                const data = JSON.parse(responseText);
                 console.log('Data received:', data);
 
                 const person = data.results.bindings[0];
@@ -135,13 +165,21 @@
                 personImage.src = imageUrl;
                 personName.textContent = person.personLabel.value;
                 progress.textContent = 'Фото завантажено!';
-                progress.classList.remove('loading', 'error');
+                progress.classList.remove('loading', 'error', 'mock');
                 console.log('Photo displayed:', imageUrl);
             } catch (error) {
                 console.error('Error:', error.message);
-                progress.textContent = 'Помилка завантаження фото';
-                progress.classList.add('error');
-                progress.classList.remove('loading');
+                if (!useFallback) {
+                    console.warn('Retrying with fallback query...');
+                    return await loadPerson(true);
+                }
+                // Use mock image as last resort
+                personImage.src = 'https://via.placeholder.com/300';
+                personName.textContent = 'Тестовий персонаж';
+                progress.textContent = 'Не вдалося завантажити дані, використано тестовий малюнок';
+                progress.classList.add('mock');
+                progress.classList.remove('loading', 'error');
+                console.log('Mock photo displayed: https://via.placeholder.com/300');
             }
         }
 
