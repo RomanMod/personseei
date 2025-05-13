@@ -22,7 +22,9 @@ let correctAnswers = 0;
 let totalQuestions = 0;
 let currentPerson = null;
 let difficulty = 'easier';
-let isLoading = false; // Флаг для предотвращения повторных вызовов
+let isLoading = false;
+let retryCount = 0;
+const maxRetries = 3;
 
 // Language translations
 const translations = {
@@ -67,6 +69,7 @@ const translations = {
 // Update UI based on language
 function updateLanguage() {
     const lang = languageSelect.value;
+    console.log(`Language changed to: ${lang}`);
     document.querySelectorAll('#alive-question label').forEach((label, i) => {
         label.textContent = i === 0 ? translations[lang].alive : translations[lang].dead;
     });
@@ -77,18 +80,17 @@ function updateLanguage() {
         btn.textContent = i === 0 ? translations[lang].alive : translations[lang].dead;
     });
     checkAnswerBtn.textContent = translations[lang].check;
-    console.log(`Language updated to: ${lang}`);
 }
 
 // Update UI based on difficulty
 function updateDifficulty() {
     difficulty = difficultySelect.value;
+    console.log(`Difficulty changed to: ${difficulty}`);
     document.getElementById('alive-question').style.display = difficulty === 'easy' ? 'block' : 'none';
     document.getElementById('gender-question').style.display = difficulty === 'easy' ? 'block' : 'none';
     document.getElementById('easier-question').style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     result.style.display = 'none';
-    console.log(`Difficulty updated to: ${difficulty}`);
     loadNewPerson();
 }
 
@@ -96,20 +98,20 @@ function updateDifficulty() {
 function syncTheme() {
     const isDark = tg.colorScheme === 'dark';
     const theme = isDark ? 'night' : 'day';
+    console.log(`Syncing theme with Telegram: ${theme} (colorScheme: ${tg.colorScheme})`);
     document.body.className = theme;
     themeSelect.value = theme;
     tg.setHeaderColor(isDark ? '#1c2526' : '#f5f5f5');
-    tg.setBottomBarColor(isDark ? '#2e3b3e' : '#d3d3d3');
-    console.log(`Theme synced: ${theme}, colorScheme: ${tg.colorScheme}`);
+    tg.setBottomBarColor(isDark ? '#1c2526' : '#ffffff');
 }
 
-// Theme switch (manual override)
+// Theme switch
 themeSelect.addEventListener('change', () => {
-    document.body.className = themeSelect.value;
-    const isDark = themeSelect.value === 'night';
-    tg.setHeaderColor(isDark ? '#1c2526' : '#f5f5f5');
-    tg.setBottomBarColor(isDark ? '#2e3b3e' : '#d3d3d3');
-    console.log(`Theme manually changed to: ${themeSelect.value}`);
+    const theme = themeSelect.value;
+    console.log(`Theme selected: ${theme}`);
+    document.body.className = theme;
+    tg.setHeaderColor(theme === 'night' ? '#1c2526' : '#f5f5f5');
+    tg.setBottomBarColor(theme === 'night' ? '#1c2526' : '#ffffff');
 });
 
 // Language switch
@@ -119,7 +121,10 @@ languageSelect.addEventListener('change', updateLanguage);
 difficultySelect.addEventListener('change', updateDifficulty);
 
 // Telegram theme change
-tg.onEvent('themeChanged', syncTheme);
+tg.onEvent('themeChanged', () => {
+    console.log('Telegram theme changed');
+    syncTheme();
+});
 
 // Wikidata API to fetch random person
 async function loadNewPerson() {
@@ -127,18 +132,27 @@ async function loadNewPerson() {
         console.log('loadNewPerson skipped: already loading');
         return;
     }
+    if (retryCount >= maxRetries) {
+        console.error('Max retries reached, stopping load');
+        progress.textContent = 'Помилка: не вдалося завантажити. Спробуйте ще раз.';
+        gtag('event', 'load_person_failed', {
+            source: 'wikidata',
+            reason: 'max_retries',
+            retries: retryCount
+        });
+        return;
+    }
     isLoading = true;
+    retryCount++;
     progress.textContent = '0%';
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
-    progress.innerHTML = '0%';
-    console.log('Loading new person from Wikidata...');
+    console.log(`Loading new person from Wikidata (attempt ${retryCount}/${maxRetries})...`);
 
     try {
         progress.textContent = '20%';
         console.log('Sending SPARQL query to Wikidata...');
-        // SPARQL-запрос к Wikidata
         const query = `
             SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image WHERE {
                 ?person wdt:P31 wd:Q5; # Человек
@@ -154,13 +168,15 @@ async function loadNewPerson() {
         const response = await fetch('https://query.wikidata.org/sparql?query=' + encodeURIComponent(query) + '&format=json', {
             headers: { 'Accept': 'application/sparql-results+json' }
         });
-        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        console.log(`Wikidata response status: ${response.status}`);
         const data = await response.json();
         progress.textContent = '60%';
-        console.log('Wikidata response received:', data);
+        console.log('Wikidata data received:', data);
 
         const person = data.results.bindings[0];
-        if (!person) throw new Error('No person found');
+        if (!person) {
+            throw new Error('No person found');
+        }
 
         currentPerson = {
             name: person.personLabel.value,
@@ -181,35 +197,23 @@ async function loadNewPerson() {
 
         progress.textContent = '100%';
         personImage.src = currentPerson.image;
-        personImage.onload = () => {
-            console.log('Image successfully loaded and displayed:', currentPerson.image);
-            progress.textContent = '';
-            gtag('event', 'image_load', {
-                source: 'wikidata',
-                success: true,
-                person: currentPerson.name
-            });
-        };
-        personImage.onerror = () => {
-            console.error('Image failed to load:', currentPerson.image);
-            progress.innerHTML = '<span id="image-error">Image load failed</span>';
-            isLoading = false;
-            loadNewPerson();
-        };
-
         console.log('Person successfully loaded:', currentPerson);
+        retryCount = 0; // Сброс счетчика при успехе
+
+        // Логирование в GA4
         gtag('event', 'load_person', {
             source: 'wikidata',
             success: true,
-            person: currentPerson.name
+            person: currentPerson.name,
+            retries: retryCount
         });
     } catch (error) {
-        console.error('Error loading person from Wikidata:', error.message);
-        progress.innerHTML = '<span id="image-error">Error loading data</span>';
-        gtag('event', 'load_person', {
+        console.error('Error loading person from Wikidata:', error);
+        progress.textContent = 'Помилка завантаження';
+        gtag('event', 'load_person_failed', {
             source: 'wikidata',
-            success: false,
-            error: error.message
+            reason: error.message,
+            retries: retryCount
         });
         setTimeout(() => {
             isLoading = false;
@@ -223,6 +227,7 @@ async function loadNewPerson() {
 // Validate image
 async function isValidImage(url) {
     try {
+        console.log(`Checking image: ${url}`);
         const response = await fetch(url, { method: 'HEAD' });
         const contentLength = response.headers.get('content-length');
         const contentType = response.headers.get('content-type');
@@ -230,10 +235,10 @@ async function isValidImage(url) {
                         contentLength && 
                         parseInt(contentLength) > 10000 && 
                         contentType.includes('image');
-        console.log(`Image validation result: ${isValid}, URL: ${url}, Size: ${contentLength}, Type: ${contentType}`);
+        console.log(`Image validation result: ${isValid} (status: ${response.status}, size: ${contentLength}, type: ${contentType})`);
         return isValid;
     } catch (error) {
-        console.error('Image validation failed:', error.message);
+        console.error('Image validation failed:', error);
         return false;
     }
 }
@@ -242,6 +247,7 @@ async function isValidImage(url) {
 checkAnswerBtn.addEventListener('click', () => {
     let isCorrect = true;
     const lang = languageSelect.value;
+    console.log('Checking answer...');
 
     if (difficulty === 'easy') {
         const selectedAlive = document.querySelector('input[name="alive"]:checked')?.value;
@@ -290,6 +296,7 @@ document.querySelectorAll('.gender-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('correct'));
         btn.classList.add('correct');
+        console.log(`Gender selected: ${btn.dataset.gender}`);
     });
 });
 
@@ -298,14 +305,16 @@ document.querySelectorAll('.status-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('correct'));
         btn.classList.add('correct');
+        console.log(`Status selected: ${btn.dataset.status}`);
     });
 });
 
 // Next photo
 nextPhotoBtn.addEventListener('click', () => {
+    console.log('Next photo requested');
     document.querySelectorAll('.correct').forEach(el => el.classList.remove('correct'));
     document.querySelectorAll('input[name="alive"]').forEach(input => input.checked = false);
-    console.log('Next photo requested');
+    retryCount = 0; // Сброс счетчика при ручном запросе
     loadNewPerson();
 });
 
