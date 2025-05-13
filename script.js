@@ -58,7 +58,7 @@ const lesserKnownPeople = [
         age: 80,
         hasChildren: true,
         cocoon: "Rectangular",
-        image: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vitthal_Umap.jpg", // Предполагаемое
+        image: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vitthal_Umap.jpg",
         wiki: "https://en.wikipedia.org/wiki/Vitthal_Umap"
     },
     {
@@ -68,26 +68,48 @@ const lesserKnownPeople = [
         age: 89,
         hasChildren: false,
         cocoon: "Oval",
-        image: "", // Пустое для теста
+        image: "",
         wiki: "https://en.wikipedia.org/wiki/List_of_multiple_births#Quadruplets_(4)"
     }
 ];
 
-// Fetch random person with Wikipedia API
+// Fetch random person with Wikidata and Wikipedia API
 async function fetchRandomPerson(hardMode) {
     let attempts = 0;
     const maxAttempts = 10;
 
     while (attempts < maxAttempts) {
         try {
-            // Получаем случайную статью
-            const response = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=random&rnnamespace=0&rnlimit=1&format=json&origin=*`, {
+            // Получаем случайного человека через Wikidata
+            const sparqlQuery = `
+                SELECT ?item ?itemLabel ?gender ?birth ?death ?image ?article WHERE {
+                    ?item wdt:P31 wd:Q5 . # Instance of human
+                    ?item wdt:P18 ?image . # Has image
+                    OPTIONAL { ?item wdt:P21 ?gender . }
+                    OPTIONAL { ?item wdt:P569 ?birth . }
+                    OPTIONAL { ?item wdt:P570 ?death . }
+                    ?article schema:about ?item ;
+                             schema:isPartOf <https://en.wikipedia.org/> .
+                    SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+                }
+                ORDER BY RAND()
+                LIMIT 1
+            `;
+            const wdResponse = await fetch(`https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}&format=json`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
-            const data = await response.json();
-            const title = data.query.random[0].title;
+            const wdData = await wdResponse.json();
+            const person = wdData.results.bindings[0];
 
-            // Проверяем популярность
+            if (!person) {
+                attempts++;
+                continue;
+            }
+
+            const title = person.article.value.split('/').pop();
+            const image = person.image.value;
+
+            // Проверяем популярность через Wikipedia
             const catResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=categories&titles=${encodeURIComponent(title)}&cllimit=10&format=json&origin=*`, {
                 headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
             });
@@ -105,30 +127,23 @@ async function fetchRandomPerson(hardMode) {
                 continue;
             }
 
-            // Получаем данные и изображение
-            const infoResponse = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&titles=${encodeURIComponent(title)}&exintro&explaintext&piprop=thumbnail&pithumbsize=200&format=json&origin=*`, {
-                headers: { 'User-Agent': 'PersonSeeI/1.0 (contact@example.com)' }
-            });
-            const infoData = await infoResponse.json();
-            const page = infoData.query.pages[pageId];
-            const image = page.thumbnail ? page.thumbnail.source : null;
-
-            if (!image) {
+            // Проверяем, что изображение — портрет (упрощённо, по имени файла)
+            if (!image.includes('portrait') && !image.includes('headshot') && image.includes('logo') || image.includes('team') || image.includes('yacht')) {
                 attempts++;
-                continue; // Нет изображения — новая личность
+                continue;
             }
 
-            // Упрощённый парсинг
-            const extract = page.extract || '';
-            const gender = extract.includes('she') ? 'Female' : 'Male';
-            const alive = categories.some(cat => cat.title.includes('Living people'));
-            const ageMatch = extract.match(/born.*?(\d{4})/);
-            const age = ageMatch ? (alive ? new Date().getFullYear() - parseInt(ageMatch[1]) : 80) : 50;
-            const hasChildren = Math.random() > 0.5; // Требует парсинга инфобокса
+            // Парсинг данных
+            const gender = person.gender ? person.gender.value.includes('female') ? 'Female' : 'Male' : 'Male';
+            const birthYear = person.birth ? new Date(person.birth.value).getFullYear() : null;
+            const deathYear = person.death ? new Date(person.death.value).getFullYear() : null;
+            const alive = !deathYear;
+            const age = birthYear ? (alive ? new Date().getFullYear() - birthYear : deathYear - birthYear) : 50;
+            const hasChildren = Math.random() > 0.5; // Требует инфобокса
             const cocoon = ['Oval', 'Rectangular', 'Other'][Math.floor(Math.random() * 3)];
 
             return {
-                name: title,
+                name: person.itemLabel.value,
                 gender,
                 alive,
                 age,
@@ -141,12 +156,11 @@ async function fetchRandomPerson(hardMode) {
             console.error('Error fetching person:', error);
             attempts++;
         }
-        // Задержка для соблюдения лимитов API
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100)); // Задержка
     }
 
     console.warn('Max attempts reached, returning default person');
-    return popularPeople[0]; // Запасной вариант
+    return popularPeople[0];
 }
 
 // Start game
