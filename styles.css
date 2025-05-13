@@ -22,8 +22,8 @@ body {
     margin: 0;
     padding: 20px;
     font-size: 16px;
-    border: 2px solid var(--border-color); /* Для отладки темы */
-    transition: all 0.3s ease; /* Плавное переключение темы */
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
 }
 
 .container {
@@ -35,6 +35,7 @@ body {
 h1 {
     font-size: 24px;
     margin-bottom: 20px;
+    color: var(--highlight); /* Для отладки темы */
 }
 
 .settings {
@@ -68,7 +69,7 @@ select {
     font-size: 24px;
     color: var(--text-color);
     font-weight: bold;
-    background: rgba(0, 0, 0, 0.5); /* Для лучшей видимости */
+    background: rgba(0, 0, 0, 0.7);
     padding: 10px;
     border-radius: 5px;
 }
