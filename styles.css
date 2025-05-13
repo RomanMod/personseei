@@ -1,21 +1,18 @@
-/* Space Gray (темная тема по умолчанию) */
 :root {
     --bg-color: #1c2526;
     --text-color: #e0e0e0;
     --button-bg: #2e3b3e;
-    --button-hover: #3a4b4f;
-    --highlight-color: #4caf50;
-    --display-bg: #2e2e2e;
+    --button-text: #e0e0e0;
+    --highlight: #4caf50;
+    --border-color: #4b5e61;
 }
 
-/* Светлая тема */
-.theme-light {
+body.day {
     --bg-color: #f5f5f5;
     --text-color: #333;
-    --button-bg: #d0d0d0;
-    --button-hover: #b0b0b0;
-    --highlight-color: #2196f3;
-    --display-bg: #ffffff;
+    --button-bg: #d3d3d3;
+    --button-text: #333;
+    --border-color: #999;
 }
 
 body {
@@ -23,140 +20,106 @@ body {
     color: var(--text-color);
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    padding: 20px;
+    font-size: 16px;
 }
 
 .container {
     max-width: 600px;
-    width: 100%;
-    padding: 20px;
-    box-sizing: border-box;
+    margin: 0 auto;
+    text-align: center;
 }
 
 h1 {
-    text-align: center;
     font-size: 24px;
-}
-
-#player-name {
-    text-align: center;
-    font-size: 16px;
     margin-bottom: 20px;
 }
 
 .settings {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
 }
 
-.settings div {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.button, select.button {
+select {
     background-color: var(--button-bg);
-    color: var(--text-color);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
-
-.button:hover, select.button:hover {
-    background-color: var(--button-hover);
-}
-
-.correct {
-    background-color: var(--highlight-color) !important;
+    color: var(--button-text);
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 14px;
 }
 
 .display {
     position: relative;
-    background-color: var(--display-bg);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: center;
-    min-height: 300px;
+    margin: 20px 0;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+}
+
+#progress {
+    font-size: 24px;
+    color: var(--text-color);
 }
 
 #person-image {
     max-width: 100%;
-    max-height: 280px;
-    border-radius: 8px;
+    max-height: 100%;
+    object-fit: cover;
 }
 
-#loading-progress {
-    font-size: 18px;
-}
-
-.arrow {
+#next-photo {
     position: absolute;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 24px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
     padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
 .questions {
-    margin-bottom: 20px;
+    margin: 20px 0;
 }
 
-.question {
-    margin-bottom: 15px;
+.questions label {
+    margin: 0 10px;
 }
 
-.question label {
-    margin-right: 15px;
+.gender-btn, .status-btn, #check-answer {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
 }
 
-.gender, .status {
-    width: 48%;
-    margin: 5px 1%;
-}
-
-#check-answer {
-    width: 100%;
-    padding: 15px;
-    font-size: 18px;
+.correct {
+    background-color: var(--highlight) !important;
 }
 
 #result {
-    text-align: center;
-    margin-bottom: 20px;
+    margin: 20px 0;
 }
 
 .stats {
-    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
 }
 
-.stats h3 {
-    margin-bottom: 10px;
-}
-
-@media (max-width: 400px) {
-    .settings {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .gender, .status {
-        width: 100%;
-        margin: 5px 0;
-    }
+a {
+    color: var(--highlight);
+    text-decoration: none;
 }
