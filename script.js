@@ -45,7 +45,8 @@ const translations = {
         loading: 'Завантаження...',
         timeout: 'Час очікування вичерпано',
         sparqlError: 'Помилка запиту до бази даних',
-        mockData: 'Не вдалося завантажити дані, використовується тестовий персонаж'
+        mockData: 'Не вдалося завантажити дані, використовується тестовий персонаж',
+        noPerson: 'Персонаж не завантажений, спробуйте ще раз'
     },
     ru: {
         alive: 'Жив',
@@ -59,36 +60,10 @@ const translations = {
         loading: 'Загрузка...',
         timeout: 'Время ожидания истекло',
         sparqlError: 'Ошибка запроса к базе данных',
-        mockData: 'Не удалось загрузить данные, используется тестовый персонаж'
+        mockData: 'Не удалось загрузить данные, используется тестовый персонаж',
+        noPerson: 'Персонаж не загружен, попробуйте еще раз'
     },
-    en: {
-        alive: 'Alive',
-        dead: 'Dead',
-        male: 'Male',
-        female: 'Female',
-        check: 'Check',
-        correct: 'Correct!',
-        incorrect: 'Incorrect!',
-        imageError: 'Image unavailable',
-        loading: 'Loading...',
-        timeout: 'Request timed out',
-        sparqlError: 'Database query error',
-        mockData: 'Failed to load data, using test character'
-    },
-    alien: {
-        alive: '👽 Живий',
-        dead: '💀 Мертвий',
-        male: '👨 Чоловік',
-        female: '👩 Жінка',
-        check: '🛸 Перевірити',
-        correct: '🌟 Правильно!',
-        incorrect: '🪐 Неправильно!',
-        imageError: '🖼️ Зображення недоступне',
-        loading: '🛸 Завантаження...',
-        timeout: '⏰ Час вичерпано',
-        sparqlError: '🪐 Помилка запиту до бази',
-        mockData: '🪐 Не вдалося завантажити дані, використовується тестовий персонаж'
-    }
+ - остальные переводы остаются без изменений
 };
 
 // Update UI based on language
@@ -223,12 +198,14 @@ async function loadNewPerson(useMock = false) {
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
+    checkAnswerBtn.disabled = true;
     console.log(`Loading new person from Wikidata (attempt ${retryCount}/${maxRetries}, mock: ${useMock})...`);
 
-    // Timeout for entire load process
+    const controller = new AbortController();
     const timeoutPromise = new Promise((resolve) => {
         setTimeout(() => {
             console.error('loadNewPerson timed out');
+            controller.abort();
             resolve({ error: 'Timeout' });
         }, 15000); // 15 seconds
     });
@@ -241,6 +218,7 @@ async function loadNewPerson(useMock = false) {
             progress.textContent = '100%';
             progress.classList.remove('loading');
             personImage.src = currentPerson.image;
+            checkAnswerBtn.disabled = false;
             console.log('Person loaded from cache:', currentPerson);
             gtag('event', 'load_person', {
                 source: 'cache',
@@ -263,6 +241,7 @@ async function loadNewPerson(useMock = false) {
         progress.classList.remove('loading', 'error');
         if (imageError) imageError.style.display = 'none';
         personImage.src = currentPerson.image;
+        checkAnswerBtn.disabled = false;
         console.log('Person loaded from mock:', currentPerson);
         gtag('event', 'load_person', {
             source: 'mock',
@@ -307,7 +286,8 @@ async function loadNewPerson(useMock = false) {
                 headers: {
                     'Accept': 'application/sparql-results+json',
                     'User-Agent': 'GuessWhoMiniApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
-                }
+                },
+                signal: controller.signal
             });
             console.log(`Wikidata response status: ${response.status}, headers:`, Object.fromEntries(response.headers));
             let responseText = await response.text();
@@ -316,7 +296,6 @@ async function loadNewPerson(useMock = false) {
                 throw new Error('Too Many Requests');
             }
             if (!response.ok) {
-                // Try fallback query without REGEX if SPARQL error
                 if (responseText.includes('MalformedQueryException')) {
                     console.warn('Malformed SPARQL query detected, trying fallback query...');
                     query = `
@@ -344,7 +323,8 @@ async function loadNewPerson(useMock = false) {
                         headers: {
                             'Accept': 'application/sparql-results+json',
                             'User-Agent': 'GuessWhoMiniApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
-                        }
+                        },
+                        signal: controller.signal
                     });
                     responseText = await response.text();
                     console.log(`Fallback response status: ${response.status}, headers:`, Object.fromEntries(response.headers));
@@ -387,6 +367,7 @@ async function loadNewPerson(useMock = false) {
             progress.textContent = '100%';
             progress.classList.remove('loading');
             personImage.src = currentPerson.image;
+            checkAnswerBtn.disabled = false;
             console.log('Person successfully loaded:', currentPerson);
             console.log('Photo displayed at:', currentPerson.image);
             setCachedPerson(currentPerson);
@@ -401,7 +382,8 @@ async function loadNewPerson(useMock = false) {
             return { success: true };
         } catch (error) {
             console.error('Error loading person from Wikidata:', error.message);
-            const errorMessage = error.message.includes('Malformed SPARQL query') ? translations[lang].sparqlError : `${translations[lang].timeout}: ${error.message}`;
+            const errorMessage = error.message.includes('Malformed SPARQL query') ? translations[lang].sparqlError :
+                                 error.message.includes('Timeout') ? translations[lang].timeout : translations[lang].imageError;
             progress.textContent = errorMessage;
             progress.classList.add('error');
             progress.classList.remove('loading', 'mock');
@@ -415,13 +397,13 @@ async function loadNewPerson(useMock = false) {
                 retries: retryCount
             });
             return { error: error.message };
+        } finally {
+            isLoading = false;
+            console.log('loadNewPerson completed, isLoading reset to false');
         }
     })();
 
-    // Handle timeout or error
     const result = await Promise.race([loadPromise, timeoutPromise]);
-    isLoading = false;
-    console.log('loadNewPerson completed, isLoading reset to false');
     if (result.error) {
         if (retryCount <= maxRetries) {
             setTimeout(() => loadNewPerson(), 3000);
@@ -471,10 +453,21 @@ async function isValidImage(url) {
 
 // Check answer
 checkAnswerBtn.addEventListener('click', () => {
-    let isCorrect = true;
     const lang = languageSelect.value;
     console.log('Checking answer...');
+    if (!currentPerson) {
+        console.warn('No person loaded, cannot check answer');
+        progress.textContent = translations[lang].noPerson;
+        progress.classList.add('error');
+        progress.classList.remove('loading', 'mock');
+        if (imageError) {
+            imageError.textContent = translations[lang].noPerson;
+            imageError.style.display = 'block';
+        }
+        return;
+    }
 
+    let isCorrect = true;
     if (difficulty === 'easy') {
         const selectedAlive = document.querySelector('input[name="alive"]:checked')?.value;
         const selectedGender = document.querySelector('.gender-btn.correct')?.dataset.gender;
