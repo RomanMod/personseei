@@ -48,21 +48,27 @@ h1 {
     background-color: #4A707A;
 }
 
+.image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+}
+
 .image-frame {
     width: 200px;
     height: 200px;
-    margin: 20px auto;
     border: 2px solid #A9B1B4;
     border-radius: 10px;
     position: relative;
     overflow: hidden;
-    aspect-ratio: 1 / 1; /* Зафиксировать квадратные пропорции */
+    aspect-ratio: 1 / 1;
 }
 
 #person-image {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Изменено на contain для сохранения пропорций */
+    object-fit: contain;
     object-position: center;
     display: block;
 }
@@ -77,9 +83,37 @@ h1 {
     opacity: 0.9;
 }
 
+#next-person-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #395B64;
+    border: none;
+    border-radius: 50%;
+    margin-left: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+#next-person-btn:hover {
+    background-color: #4A707A;
+}
+
+#next-person-btn::after {
+    content: '';
+    display: block;
+    width: 12px;
+    height: 12px;
+    border: solid #E8ECEF;
+    border-width: 0 3px 3px 0;
+    transform: rotate(-45deg);
+}
+
 .questions {
     margin: 20px 0;
-    display: block; /* Убедиться, что вопросы видны */
+    display: block;
 }
 
 .question {
@@ -103,6 +137,22 @@ h1 {
     width: 200px;
 }
 
+.question button {
+    background-color: #395B64;
+    color: #E8ECEF;
+    border: none;
+    padding: 12px 40px; /* Увеличено */
+    margin: 10px 5px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px; /* Увеличено */
+    transition: background-color 0.2s;
+}
+
+.question button:hover {
+    background-color: #4A707A;
+}
+
 .result {
     margin: 20px 0;
 }
@@ -116,6 +166,11 @@ h1 {
     text-decoration: underline;
 }
 
+#answer-details {
+    color: #CED4DA;
+    font-size: 14px;
+}
+
 .stats {
     margin: 20px 0;
     font-size: 14px;
@@ -123,7 +178,7 @@ h1 {
 }
 
 #exit-btn {
-    background-color: #CB4B4B;
+    background-color: #395B64; /* Space gray */
     color: #E8ECEF;
     border: none;
     padding: 10px 20px;
@@ -131,8 +186,9 @@ h1 {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.2s;
+    margin: 5px;
 }
 
 #exit-btn:hover {
-    background-color: #E57373;
+    background-color: #4A707A;
 }
