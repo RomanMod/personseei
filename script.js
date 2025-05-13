@@ -19,6 +19,10 @@ const correctAnswersSpan = document.getElementById('correct-answers');
 const totalQuestionsSpan = document.getElementById('total-questions');
 const imageError = document.getElementById('image-error');
 
+if (!imageError) {
+    console.warn('Element #image-error not found in index.html. Errors will display in #progress.');
+}
+
 let correctAnswers = 0;
 let totalQuestions = 0;
 let currentPerson = null;
@@ -40,7 +44,8 @@ const translations = {
         imageError: 'Зображення недоступне',
         loading: 'Завантаження...',
         timeout: 'Час очікування вичерпано',
-        sparqlError: 'Помилка запиту до бази даних'
+        sparqlError: 'Помилка запиту до бази даних',
+        mockData: 'Не вдалося завантажити дані, використовується тестовий персонаж'
     },
     ru: {
         alive: 'Жив',
@@ -53,7 +58,8 @@ const translations = {
         imageError: 'Изображение недоступно',
         loading: 'Загрузка...',
         timeout: 'Время ожидания истекло',
-        sparqlError: 'Ошибка запроса к базе данных'
+        sparqlError: 'Ошибка запроса к базе данных',
+        mockData: 'Не удалось загрузить данные, используется тестовый персонаж'
     },
     en: {
         alive: 'Alive',
@@ -66,7 +72,8 @@ const translations = {
         imageError: 'Image unavailable',
         loading: 'Loading...',
         timeout: 'Request timed out',
-        sparqlError: 'Database query error'
+        sparqlError: 'Database query error',
+        mockData: 'Failed to load data, using test character'
     },
     alien: {
         alive: '👽 Живий',
@@ -79,7 +86,8 @@ const translations = {
         imageError: '🖼️ Зображення недоступне',
         loading: '🛸 Завантаження...',
         timeout: '⏰ Час вичерпано',
-        sparqlError: '🪐 Помилка запиту до бази'
+        sparqlError: '🪐 Помилка запиту до бази',
+        mockData: '🪐 Не вдалося завантажити дані, використовується тестовий персонаж'
     }
 };
 
@@ -206,58 +214,53 @@ async function loadNewPerson(useMock = false) {
         console.log('loadNewPerson skipped: already loading');
         return;
     }
-    if (retryCount >= maxRetries) {
-        console.warn('Max retries reached, using mock data');
-        currentPerson = mockPerson;
-        progress.textContent = '100%';
-        progress.classList.remove('error', 'loading');
-        if (imageError) imageError.style.display = 'none';
-        personImage.src = currentPerson.image;
-        console.log('Person loaded from mock:', currentPerson);
-        gtag('event', 'load_person', {
-            source: 'mock',
-            success: true,
-            person: currentPerson.name,
-            retries: retryCount
-        });
-        retryCount = 0;
-        isLoading = false;
-        return;
-    }
     isLoading = true;
     retryCount++;
     progress.textContent = translations[lang].loading;
     progress.classList.add('loading');
-    progress.classList.remove('error');
+    progress.classList.remove('error', 'mock');
     if (imageError) imageError.style.display = 'none';
     result.style.display = 'none';
     personImage.style.display = difficulty === 'easier' ? 'block' : 'none';
     personImage.src = '';
     console.log(`Loading new person from Wikidata (attempt ${retryCount}/${maxRetries}, mock: ${useMock})...`);
 
+    // Timeout for entire load process
+    const timeoutPromise = new Promise((resolve) => {
+        setTimeout(() => {
+            console.error('loadNewPerson timed out');
+            resolve({ error: 'Timeout' });
+        }, 15000); // 15 seconds
+    });
+
     // Try cache first
-    const cachedPerson = getCachedPerson();
-    if (cachedPerson && retryCount === 1) {
-        currentPerson = cachedPerson;
-        progress.textContent = '100%';
-        progress.classList.remove('loading');
-        personImage.src = currentPerson.image;
-        console.log('Person loaded from cache:', currentPerson);
-        gtag('event', 'load_person', {
-            source: 'cache',
-            success: true,
-            person: currentPerson.name,
-            retries: retryCount
-        });
-        retryCount = 0;
-        isLoading = false;
-        return;
+    if (retryCount === 1 && !useMock) {
+        const cachedPerson = getCachedPerson();
+        if (cachedPerson) {
+            currentPerson = cachedPerson;
+            progress.textContent = '100%';
+            progress.classList.remove('loading');
+            personImage.src = currentPerson.image;
+            console.log('Person loaded from cache:', currentPerson);
+            gtag('event', 'load_person', {
+                source: 'cache',
+                success: true,
+                person: currentPerson.name,
+                retries: retryCount
+            });
+            retryCount = 0;
+            isLoading = false;
+            return;
+        }
     }
 
-    if (useMock) {
+    // Use mock data if max retries reached or useMock is true
+    if (useMock || retryCount > maxRetries) {
+        console.warn('Max retries reached or mock requested, using mock data');
         currentPerson = mockPerson;
-        progress.textContent = '100%';
-        progress.classList.remove('loading');
+        progress.textContent = translations[lang].mockData;
+        progress.classList.add('mock');
+        progress.classList.remove('loading', 'error');
         if (imageError) imageError.style.display = 'none';
         personImage.src = currentPerson.image;
         console.log('Person loaded from mock:', currentPerson);
@@ -272,110 +275,159 @@ async function loadNewPerson(useMock = false) {
         return;
     }
 
-    try {
-        console.log('Starting Wikidata request...');
-        progress.textContent = translations[lang].loading + ' 20%';
-        const query = `
-            SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image
-            WHERE {
-                ?person wdt:P31 wd:Q5;
-                        wdt:P21 ?gender;
-                        wdt:P569 ?birth;
-                        wdt:P18 ?image.
-                OPTIONAL { ?person wdt:P570 ?death. }
-                ?person rdfs:label ?personLabel.
-                ?gender rdfs:label ?genderLabel.
-                FILTER (LANG(?personLabel) = "en").
-                FILTER (LANG(?genderLabel) = "en").
-                FILTER (REGEX(STR(?image), "\\.jpg|\\.png$", "i")).
+    const loadPromise = (async () => {
+        try {
+            console.log('Starting Wikidata request...');
+            progress.textContent = translations[lang].loading + ' 20%';
+            let query = `
+                SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image
+                WHERE {
+                    ?person wdt:P31 wd:Q5;
+                            wdt:P21 ?gender;
+                            wdt:P569 ?birth;
+                            wdt:P18 ?image.
+                    OPTIONAL { ?person wdt:P570 ?death. }
+                    ?person rdfs:label ?personLabel.
+                    ?gender rdfs:label ?genderLabel.
+                    FILTER (LANG(?personLabel) = "en").
+                    FILTER (LANG(?genderLabel) = "en").
+                    FILTER (REGEX(STR(?image), "\\.jpg$|\\.png$", "i")).
+                }
+                ORDER BY RAND()
+                LIMIT 1
+            `;
+            console.log('SPARQL query:', query);
+            const endpoint = 'https://query.wikidata.org/sparql';
+            const encodedQuery = encodeURIComponent(query);
+            const url = `${endpoint}?query=${encodedQuery}&format=json`;
+            console.log('Request URL:', url);
+            console.log('Decoded URL:', decodeURIComponent(url));
+            let response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/sparql-results+json',
+                    'User-Agent': 'GuessWhoMiniApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
+                }
+            });
+            console.log(`Wikidata response status: ${response.status}, headers:`, Object.fromEntries(response.headers));
+            let responseText = await response.text();
+            console.log(`Response body: ${responseText || 'Empty response'}`);
+            if (response.status === 429) {
+                throw new Error('Too Many Requests');
             }
-            ORDER BY RAND()
-            LIMIT 1
-        `;
-        console.log('SPARQL query:', query);
-        const endpoint = 'https://query.wikidata.org/sparql';
-        const encodedQuery = encodeURIComponent(query);
-        const url = `${endpoint}?query=${encodedQuery}&format=json`;
-        console.log('Request URL:', url);
-        console.log('Decoded URL:', decodeURIComponent(url));
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/sparql-results+json',
-                'User-Agent': 'GuessWhoMiniApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
+            if (!response.ok) {
+                // Try fallback query without REGEX if SPARQL error
+                if (responseText.includes('MalformedQueryException')) {
+                    console.warn('Malformed SPARQL query detected, trying fallback query...');
+                    query = `
+                        SELECT ?person ?personLabel ?genderLabel ?birth ?death ?image
+                        WHERE {
+                            ?person wdt:P31 wd:Q5;
+                                    wdt:P21 ?gender;
+                                    wdt:P569 ?birth;
+                                    wdt:P18 ?image.
+                            OPTIONAL { ?person wdt:P570 ?death. }
+                            ?person rdfs:label ?personLabel.
+                            ?gender rdfs:label ?genderLabel.
+                            FILTER (LANG(?personLabel) = "en").
+                            FILTER (LANG(?genderLabel) = "en").
+                        }
+                        ORDER BY RAND()
+                        LIMIT 1
+                    `;
+                    console.log('Fallback SPARQL query:', query);
+                    const fallbackEncodedQuery = encodeURIComponent(query);
+                    const fallbackUrl = `${endpoint}?query=${fallbackEncodedQuery}&format=json`;
+                    console.log('Fallback Request URL:', fallbackUrl);
+                    response = await fetch(fallbackUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/sparql-results+json',
+                            'User-Agent': 'GuessWhoMiniApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
+                        }
+                    });
+                    responseText = await response.text();
+                    console.log(`Fallback response status: ${response.status}, headers:`, Object.fromEntries(response.headers));
+                    console.log(`Fallback response body: ${responseText || 'Empty response'}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${responseText}`);
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${responseText}`);
+                }
             }
-        });
-        console.log(`Wikidata response status: ${response.status}, headers:`, Object.fromEntries(response.headers));
-        const responseText = await response.text();
-        console.log(`Response body: ${responseText || 'Empty response'}`);
-        if (response.status === 429) {
-            throw new Error('Too Many Requests');
+            const data = JSON.parse(responseText);
+            progress.textContent = translations[lang].loading + ' 60%';
+            console.log('Wikidata data received:', data);
+
+            const person = data.results.bindings[0];
+            if (!person) {
+                throw new Error('No person found');
+            }
+
+            const rawImageUrl = person.image.value;
+            const imageUrl = convertCommonsUrl(rawImageUrl);
+            currentPerson = {
+                name: person.personLabel.value,
+                alive: person.death ? 'dead' : 'alive',
+                gender: person.genderLabel.value.toLowerCase().includes('male') ? 'male' : 'female',
+                image: imageUrl,
+                wiki: person.person.value.replace('http://www.wikidata.org/entity/', 'https://en.wikipedia.org/wiki/')
+            };
+            console.log('Person data parsed:', currentPerson);
+
+            progress.textContent = translations[lang].loading + ' 80%';
+            console.log(`Validating image: ${currentPerson.image}`);
+            const isImageValid = await isValidImage(currentPerson.image);
+            if (!isImageValid) {
+                console.warn('Invalid image, retrying...');
+                throw new Error('Invalid image');
+            }
+
+            progress.textContent = '100%';
+            progress.classList.remove('loading');
+            personImage.src = currentPerson.image;
+            console.log('Person successfully loaded:', currentPerson);
+            console.log('Photo displayed at:', currentPerson.image);
+            setCachedPerson(currentPerson);
+            retryCount = 0;
+
+            gtag('event', 'load_person', {
+                source: 'wikidata',
+                success: true,
+                person: currentPerson.name,
+                retries: retryCount
+            });
+            return { success: true };
+        } catch (error) {
+            console.error('Error loading person from Wikidata:', error.message);
+            const errorMessage = error.message.includes('Malformed SPARQL query') ? translations[lang].sparqlError : `${translations[lang].timeout}: ${error.message}`;
+            progress.textContent = errorMessage;
+            progress.classList.add('error');
+            progress.classList.remove('loading', 'mock');
+            if (imageError) {
+                imageError.textContent = errorMessage;
+                imageError.style.display = 'block';
+            }
+            gtag('event', 'load_person_failed', {
+                source: 'wikidata',
+                reason: error.message,
+                retries: retryCount
+            });
+            return { error: error.message };
         }
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${responseText.includes('MalformedQueryException') ? 'Malformed SPARQL query' : responseText}`);
+    })();
+
+    // Handle timeout or error
+    const result = await Promise.race([loadPromise, timeoutPromise]);
+    isLoading = false;
+    console.log('loadNewPerson completed, isLoading reset to false');
+    if (result.error) {
+        if (retryCount <= maxRetries) {
+            setTimeout(() => loadNewPerson(), 3000);
+        } else {
+            loadNewPerson(true); // Force mock data
         }
-        const data = JSON.parse(responseText);
-        progress.textContent = translations[lang].loading + ' 60%';
-        console.log('Wikidata data received:', data);
-
-        const person = data.results.bindings[0];
-        if (!person) {
-            throw new Error('No person found');
-        }
-
-        const rawImageUrl = person.image.value;
-        const imageUrl = convertCommonsUrl(rawImageUrl);
-        currentPerson = {
-            name: person.personLabel.value,
-            alive: person.death ? 'dead' : 'alive',
-            gender: person.genderLabel.value.toLowerCase().includes('male') ? 'male' : 'female',
-            image: imageUrl,
-            wiki: person.person.value.replace('http://www.wikidata.org/entity/', 'https://en.wikipedia.org/wiki/')
-        };
-        console.log('Person data parsed:', currentPerson);
-
-        progress.textContent = translations[lang].loading + ' 80%';
-        console.log(`Validating image: ${currentPerson.image}`);
-        const isImageValid = await isValidImage(currentPerson.image);
-        if (!isImageValid) {
-            console.warn('Invalid image, retrying...');
-            throw new Error('Invalid image');
-        }
-
-        progress.textContent = '100%';
-        progress.classList.remove('loading');
-        personImage.src = currentPerson.image;
-        console.log('Person successfully loaded:', currentPerson);
-        console.log('Photo displayed at:', currentPerson.image);
-        setCachedPerson(currentPerson);
-        retryCount = 0;
-
-        // Логирование в GA4
-        gtag('event', 'load_person', {
-            source: 'wikidata',
-            success: true,
-            person: currentPerson.name,
-            retries: retryCount
-        });
-    } catch (error) {
-        console.error('Error loading person from Wikidata:', error.message);
-        const errorMessage = error.message.includes('Malformed SPARQL query') ? translations[lang].sparqlError : `${translations[lang].timeout}: ${error.message}`;
-        progress.textContent = errorMessage;
-        progress.classList.add('error');
-        progress.classList.remove('loading');
-        if (imageError) imageError.style.display = 'block';
-        gtag('event', 'load_person_failed', {
-            source: 'wikidata',
-            reason: error.message,
-            retries: retryCount
-        });
-        setTimeout(() => {
-            isLoading = false;
-            loadNewPerson(retryCount >= maxRetries);
-        }, 5000);
-    } finally {
-        isLoading = false;
-        console.log('loadNewPerson completed, isLoading reset to false');
     }
 }
 
@@ -455,7 +507,6 @@ checkAnswerBtn.addEventListener('click', () => {
     correctAnswersSpan.textContent = correctAnswers;
     totalQuestionsSpan.textContent = totalQuestions;
 
-    // Send to GA4
     gtag('event', 'check_answer', {
         difficulty,
         is_correct: isCorrect,
