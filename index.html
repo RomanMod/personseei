@@ -102,17 +102,23 @@
     <script>
         // Настройки приложения
         const settings = {
-            preferredLanguages: [], // Предпочтительные языки для меток (пустой массив = любой язык)
-            superRandomPeople: false,
-            RandomPeople: true,
+            superRandomPeople: true, // Если true, используем ORDER BY RAND(), иначе выбор из списка с оффсетом
             dynamicOffset: true,
-            maxOffset: 2000, // Увеличиваем диапазон до 2000
-            maxPeople: 200,  // Увеличиваем выборку до 200 человек
+            maxOffset: 100,
+            maxPeople: 12,
             sessionPeople: 10,
             genderRatio: { male: 50, female: 50 },
             statusRatio: { alive: 50, deceased: 50 },
-            excludeBlackAndWhite: true, // Исключать чёрно-белые фото
-            maxBWSkips: 5 // Максимальное количество пропусков чёрно-белых фото на человека
+            birthYearFilter: 1950, // Фильтр даты рождения для всех
+            excludeBlackAndWhite: false,
+            selectedCountries: 'all', // или 'all'
+            countryMap: {
+                'ua': 'Q212', // Украина
+                'us': 'Q30',  // США
+                'ru': 'Q159', // Россия
+                'de': 'Q183', // Германия
+                'gb': 'Q145'  // Великобритания
+            }
         };
 
         // Статистика
@@ -123,9 +129,6 @@
 
         // Кэш для результатов анализа RGB+HSL
         const rgbHslCache = JSON.parse(localStorage.getItem('rgbHslCache')) || {};
-
-        // Кэш для уже показанных или пропущенных людей в сессии
-        const shownPeople = new Set();
 
         function updateStats(mode, time) {
             stats[mode].count++;
@@ -151,7 +154,7 @@
             let h, s, l = (max + min) / 2;
 
             if (max === min) {
-                h = s = 0;
+                h = s = 0; // Ахроматический
             } else {
                 const d = max - min;
                 s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -167,6 +170,8 @@
 
         // Проверка, является ли изображение чёрно-белым
         async function isBlackAndWhite(imageUrl) {
+            if (!settings.excludeBlackAndWhite) return false;
+
             if (rgbHslCache[imageUrl] !== undefined) {
                 console.log(`Using cached RGB+HSL result for ${imageUrl}: ${rgbHslCache[imageUrl] ? 'black-and-white' : 'color'}`);
                 return rgbHslCache[imageUrl];
@@ -186,16 +191,12 @@
                     let rSum = 0, gSum = 0, bSum = 0;
                     let rSquareSum = 0, gSquareSum = 0, bSquareSum = 0;
                     let saturationSum = 0;
-                    let lightnessSum = 0;
                     let count = 0;
 
                     for (let i = 0; i < imageData.length; i += 4) {
                         const r = imageData[i];
                         const g = imageData[i + 1];
                         const b = imageData[i + 2];
-                        const a = imageData[i + 3];
-                        if (a < 255) continue;
-
                         rSum += r;
                         gSum += g;
                         bSum += b;
@@ -203,16 +204,9 @@
                         gSquareSum += g * g;
                         bSquareSum += b * b;
 
-                        const [, s, l] = rgbToHsl(r, g, b);
+                        const [, s] = rgbToHsl(r, g, b);
                         saturationSum += s;
-                        lightnessSum += l;
                         count++;
-                    }
-
-                    if (count === 0) {
-                        console.warn(`No non-transparent pixels found in ${imageUrl}`);
-                        resolve(false);
-                        return;
                     }
 
                     const rMean = rSum / count;
@@ -222,23 +216,21 @@
                     const gStdDev = Math.sqrt((gSquareSum / count) - (gMean * gMean));
                     const bStdDev = Math.sqrt((bSquareSum / count) - (bMean * bMean));
                     const meanSaturation = saturationSum / count;
-                    const meanLightness = lightnessSum / count;
 
-                    const isBW = (rStdDev < 20 && gStdDev < 20 && bStdDev < 20) || 
-                                 (meanSaturation < 0.2 && meanLightness > 0.1 && meanLightness < 0.9);
+                    const isBW = rStdDev < 20 && gStdDev < 20 && bStdDev < 20 && meanSaturation < 0.2;
                     console.log(`Image ${imageUrl} is ${isBW ? 'black-and-white' : 'color'} ` +
-                                `(R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)}, ` +
-                                `Saturation:${(meanSaturation * 100).toFixed(2)}%, Lightness:${(meanLightness * 100).toFixed(2)}%)`);
-
+                                `(R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)}, Saturation:${(meanSaturation * 100).toFixed(2)}%)`);
+                    
                     rgbHslCache[imageUrl] = isBW;
                     localStorage.setItem('rgbHslCache', JSON.stringify(rgbHslCache));
+                    
                     resolve(isBW);
                 };
                 img.onerror = () => {
                     console.error(`Failed to load image for RGB+HSL analysis: ${imageUrl}`);
                     resolve(false);
                 };
-                img.src = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`;
+                img.src = imageUrl;
             });
         }
 
@@ -262,23 +254,27 @@
             }
         }
 
-        async function loadImageWithProxy(url, element) {
+        async function loadImageWithFallback(url, element) {
             return new Promise((resolve, reject) => {
                 element.classList.remove('loaded');
-                const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
-                console.log(`Loading image via proxy: ${proxyUrl}`);
+                console.log(`Attempting to load image: ${url}`);
                 element.onerror = () => {
-                    console.error(`Proxy image load failed: ${proxyUrl}`);
-                    element.src = 'https://via.placeholder.com/300';
-                    element.classList.add('loaded');
-                    reject(new Error('Proxy image load failed'));
+                    console.warn(`Direct image load failed, trying proxy: ${url}`);
+                    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+                    element.onerror = () => {
+                        console.error(`Proxy image load failed: ${proxyUrl}`);
+                        element.src = 'https://via.placeholder.com/300';
+                        element.classList.add('loaded');
+                        reject(new Error('Both direct and proxy image load failed'));
+                    };
+                    element.src = proxyUrl;
                 };
                 element.onload = () => {
-                    console.log(`Image loaded successfully via proxy: ${url}`);
+                    console.log(`Image loaded successfully: ${url}`);
                     element.classList.add('loaded');
                     resolve();
                 };
-                element.src = proxyUrl;
+                element.src = url;
             });
         }
 
@@ -286,7 +282,7 @@
             const start = performance.now();
             let query;
             let attempts = 0;
-            const maxAttempts = 3;
+            const maxAttempts = 10;
 
             const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
                                 category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
@@ -294,59 +290,49 @@
             const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
                                 category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
                                 'OPTIONAL { ?person wdt:P570 ?deathDate }';
-            const birthYearFilter = category?.status === 'deceased' ? 'FILTER(?birthYear > 1900)' : '';
-
-            let labelSelection = '';
-            if (settings.preferredLanguages.length > 0) {
-                const langFilters = settings.preferredLanguages.map(lang => 
-                    `OPTIONAL { ?person rdfs:label ?personLabel${lang} . FILTER(LANG(?personLabel${lang}) = "${lang}") }`
-                ).join('\n');
-                const coalesceArgs = settings.preferredLanguages.map(lang => `?personLabel${lang}`).join(', ') + ', ?personLabelAny';
-                labelSelection = `
-                    ${langFilters}
-                    OPTIONAL { ?person rdfs:label ?personLabelAny . }
-                    BIND(COALESCE(${coalesceArgs}) AS ?personLabel)
-                `;
-            } else {
-                labelSelection = `
-                    ?person rdfs:label ?personLabel .
-                `;
-            }
+            const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01"^^xsd:dateTime).`;
+            const countryFilter = settings.selectedCountries === 'all' ? '' :
+                                 `FILTER(?country IN (${settings.selectedCountries
+                                     .map(code => `wd:${settings.countryMap[code]}`)
+                                     .filter(id => id)
+                                     .join(', ')})).`;
 
             while (attempts < maxAttempts) {
                 const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
                 if (useRandom && settings.superRandomPeople) {
                     query = `
-                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate (LANG(?personLabel) AS ?labelLang) ?birthYear
+                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
                         WHERE {
                             ?person wdt:P31 wd:Q5;
                                     wdt:P18 ?image;
                                     wdt:P27 ?country;
                                     wdt:P21 ?gender;
-                                    wdt:P569 ?birthDate .
-                            BIND(YEAR(?birthDate) AS ?birthYear)
-                            ${birthYearFilter}.
+                                    wdt:P569 ?birthDate.
                             ${genderFilter}.
                             ${statusFilter}.
-                            ${labelSelection}
+                            ${birthDateFilter}
+                            ${countryFilter}
+                            ?person rdfs:label ?personLabel.
+                            FILTER (LANG(?personLabel) = "en").
                         }
                         ORDER BY RAND()
                         LIMIT 1
                     `;
                 } else {
                     query = `
-                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate (LANG(?personLabel) AS ?labelLang) ?birthYear
+                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
                         WHERE {
                             ?person wdt:P31 wd:Q5;
                                     wdt:P18 ?image;
                                     wdt:P27 ?country;
                                     wdt:P21 ?gender;
-                                    wdt:P569 ?birthDate .
-                            BIND(YEAR(?birthDate) AS ?birthYear)
-                            ${birthYearFilter}.
+                                    wdt:P569 ?birthDate.
                             ${genderFilter}.
                             ${statusFilter}.
-                            ${labelSelection}
+                            ${birthDateFilter}
+                            ${countryFilter}
+                            ?person rdfs:label ?personLabel.
+                            FILTER (LANG(?personLabel) = "en").
                         }
                         OFFSET ${offset}
                         LIMIT ${settings.maxPeople}
@@ -357,7 +343,7 @@
                 const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
 
                 const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 15000);
+                const timeout = setTimeout(() => controller.abort(), 60000);
 
                 try {
                     const response = await fetch(url, {
@@ -381,29 +367,32 @@
                         continue;
                     }
 
-                    const person = useRandom ? list[0] : list[Math.floor(Math.random() * list.length)];
-                    console.log(`Label language: ${person.labelLang?.value || 'unknown'}`);
-                    return person;
+                    if (useRandom) {
+                        return list[0];
+                    } else {
+                        const randomIndex = Math.floor(Math.random() * list.length);
+                        return list[randomIndex];
+                    }
                 } catch (error) {
                     console.error(`Wikidata query failed: ${error.message}`);
                     attempts++;
                     if (attempts === maxAttempts) {
-                        throw new Error('No person found after multiple attempts');
+                        throw new Error(`No person found after ${maxAttempts} attempts`);
                     }
                 }
             }
-            throw new Error('No person found after maximum attempts');
+            throw new Error(`No person found after ${maxAttempts} attempts`);
         }
 
-        function updateUI({ personLabel, gender, deathDate, labelLang }) {
+        function updateUI({ personLabel, gender, deathDate, birthDate }) {
             const progress = document.getElementById('progress');
             const personName = document.getElementById('person-name');
             progress.textContent = 'Фото завантажено!';
             progress.classList.remove('loading', 'error');
             const genderText = gender?.value.split('/').pop() === 'Q6581097' ? 'Чоловік' : 'Жінка';
             const statusText = deathDate ? 'Мерц' : 'Живий';
-            const langText = labelLang?.value ? `Language: ${labelLang.value}` : 'Language: unknown';
-            personName.textContent = `${personLabel.value} (${genderText}, ${statusText}, ${langText})`;
+            const birthDateText = birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : 'Невідомо';
+            personName.textContent = `${personLabel.value} (${genderText}, ${statusText}, Народження: ${birthDateText})`;
         }
 
         function handleError(errorMessage) {
@@ -434,7 +423,6 @@
 
             let attempts = 0;
             const maxAttempts = 3;
-            let bwSkips = 0;
 
             while (attempts < maxAttempts) {
                 try {
@@ -443,6 +431,7 @@
 
                     progress.textContent = 'Завантаження зображення...';
                     const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                    console.log(`Fetching image for file: ${fileName}`);
                     const imageUrl = await getCommonsImageUrl(fileName);
                     if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
 
@@ -450,43 +439,36 @@
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
-                            shownPeople.add(person.person.value); // Добавляем в shownPeople, даже если пропущено
                             progress.textContent = 'Пропущено чёрно-белое фото, завантаження іншого...';
-                            bwSkips++;
-                            if (bwSkips >= settings.maxBWSkips) {
-                                throw new Error('Too many black-and-white skips');
-                            }
                             attempts++;
                             continue;
                         }
                     }
 
-                    await loadImageWithProxy(imageUrl, personImage);
+                    await loadImageWithFallback(imageUrl, personImage);
                     updateUI(person);
                     
                     const totalTime = performance.now() - startTime;
                     updateStats(mode, totalTime);
                     return;
                 } catch (error) {
-                    console.error('Помилка:', error.message);
+                    console.error('Ошибка:', error.message);
                     attempts++;
                     if (attempts === maxAttempts) {
-                        let message = 'Помилка завантаження';
+                        let message = 'Ошибка загрузки';
                         if (error.message.includes('Timeout')) {
-                            message = 'Тайм-аут запиту до Wikidata';
+                            message = 'Тайм-аут запроса к Wikidata';
                         } else if (error.message.includes('HTTP 400')) {
-                            message = 'Некоректний SPARQL-запит';
+                            message = 'Некорректный SPARQL-запрос';
                         } else if (error.message.includes('No person found')) {
-                            message = 'Не знайдено даних про людину';
+                            message = 'Не найдено данных о человеке';
                         } else if (error.message.includes('Invalid image')) {
-                            message = `Не вдалося завантажити зображення: ${error.message}`;
-                        } else if (error.message.includes('Too many black-and-white skips')) {
-                            message = 'Забагато чёрно-белих фото, пропускаємо...';
+                            message = `Не удалось загрузить изображение: ${error.message}`;
                         }
                         handleError(message);
                         const totalTime = performance.now() - startTime;
                         document.getElementById(`time-${mode}`).textContent = 
-                            `Помилка після ${totalTime.toFixed(0)}мс`;
+                            `Ошибка после ${totalTime.toFixed(0)}мс`;
                     }
                 }
             }
@@ -508,19 +490,11 @@
 
             let attempts = 0;
             const maxAttempts = 3;
-            let bwSkips = 0;
 
             while (attempts < maxAttempts) {
-                if (shownPeople.has(person.person.value)) {
-                    console.log(`Skipping already shown person: ${person.personLabel.value}`);
-                    const newPerson = await fetchPersonData(false, category);
-                    person = newPerson;
-                    attempts++;
-                    continue;
-                }
-
                 try {
                     const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                    console.log(`Fetching image for file: ${fileName}`);
                     const imageUrl = await getCommonsImageUrl(fileName);
                     if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
 
@@ -528,12 +502,7 @@
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
-                            shownPeople.add(person.person.value); // Добавляем в shownPeople, даже если пропущено
                             progress.textContent = 'Пропущено чёрно-белое фото, завантаження іншого...';
-                            bwSkips++;
-                            if (bwSkips >= settings.maxBWSkips) {
-                                throw new Error('Too many black-and-white skips');
-                            }
                             const newPerson = await fetchPersonData(false, category);
                             person = newPerson;
                             attempts++;
@@ -541,33 +510,29 @@
                         }
                     }
 
-                    await loadImageWithProxy(imageUrl, personImage);
+                    await loadImageWithFallback(imageUrl, personImage);
                     updateUI(person);
-                    shownPeople.add(person.person.value);
                     
                     const totalTime = performance.now() - startTime;
                     updateStats(mode, totalTime);
                     return;
                 } catch (error) {
-                    console.error('Помилка:', error.message);
+                    console.error('Ошибка:', error.message);
                     attempts++;
                     if (attempts === maxAttempts) {
                         let message = error.message.includes('Invalid image') 
-                            ? `Не вдалося завантажити зображення: ${error.message}`
-                            : error.message.includes('Too many black-and-white skips')
-                            ? 'Забагато чёрно-белих фото, пропускаємо...'
-                            : 'Помилка завантаження';
+                            ? `Не удалось загрузить изображение: ${error.message}`
+                            : 'Ошибка загрузки';
                         handleError(message);
                         const totalTime = performance.now() - startTime;
                         document.getElementById(`time-${mode}`).textContent = 
-                            `Помилка після ${totalTime.toFixed(0)}мс`;
+                            `Ошибка после ${totalTime.toFixed(0)}мс`;
                     }
                 }
             }
         }
 
         async function loadSession() {
-            shownPeople.clear();
             let sessionCount = 0;
             const categories = [
                 { gender: 'male', status: 'alive' },
@@ -576,7 +541,6 @@
                 { gender: 'female', status: 'deceased' }
             ];
             const sessionList = [];
-            const sessionStart = performance.now();
 
             document.getElementById('progress').textContent = 'Завантаження даних для сесії...';
             try {
@@ -598,7 +562,7 @@
                 results.flat().forEach(person => sessionList.push(person));
             } catch (error) {
                 console.error('Session data loading failed:', error);
-                handleError('Не вдалося завантажити дані для сесії');
+                handleError('Не удалось загрузить данные для сессии');
                 return;
             }
 
@@ -609,15 +573,14 @@
                 if (person) {
                     await loadPersonFromData(person, category);
                 } else {
-                    handleError('Не вдалося завантажити людину для цієї категорії');
+                    handleError('Не удалось загрузить человека для этой категории');
                 }
                 sessionCount++;
                 if (sessionCount < settings.sessionPeople) {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
-            const sessionTime = performance.now() - sessionStart;
-            document.getElementById('progress').textContent = `Сесія завершена (${settings.sessionPeople} осіб, час: ${sessionTime.toFixed(0)}мс)`;
+            document.getElementById('progress').textContent = `Сесія завершена (${settings.sessionPeople} осіб)`;
         }
 
         window.onload = () => {
