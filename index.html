@@ -102,12 +102,12 @@
     <script>
         // Настройки приложения
         const settings = {
-            preferredLanguages: [], // Предпочтительные языки для меток (пустой массив = любой язык)
+            preferredLanguages: ['en', 'uk', 'de', 'fr', 'es'], // Предпочтительные языки для меток (пустой массив = любой язык)
             superRandomPeople: false,
             RandomPeople: true,
             dynamicOffset: true,
-            maxOffset: 400,
-            maxPeople: 300,
+            maxOffset: 500, // Увеличиваем диапазон до 1000
+            maxPeople: 100,  // Увеличиваем выборку до 100 человек
             sessionPeople: 10,
             genderRatio: { male: 50, female: 50 },
             statusRatio: { alive: 50, deceased: 50 },
@@ -122,6 +122,9 @@
 
         // Кэш для результатов анализа RGB+HSL
         const rgbHslCache = JSON.parse(localStorage.getItem('rgbHslCache')) || {};
+
+        // Кэш для уже показанных людей в сессии
+        const shownPeople = new Set();
 
         function updateStats(mode, time) {
             stats[mode].count++;
@@ -295,7 +298,6 @@
                                 category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
                                 'OPTIONAL { ?person wdt:P570 ?deathDate }';
 
-            // Подготовка фильтра языков
             let labelSelection = '';
             if (settings.preferredLanguages.length > 0) {
                 const langFilters = settings.preferredLanguages.map(lang => 
@@ -496,6 +498,15 @@
             const maxAttempts = 3;
 
             while (attempts < maxAttempts) {
+                // Проверяем, не был ли человек уже показан
+                if (shownPeople.has(person.person.value)) {
+                    console.log(`Skipping already shown person: ${person.personLabel.value}`);
+                    const newPerson = await fetchPersonData(false, category);
+                    person = newPerson;
+                    attempts++;
+                    continue;
+                }
+
                 try {
                     const fileName = decodeURIComponent(person.image.value.split('/').pop());
                     const imageUrl = await getCommonsImageUrl(fileName);
@@ -515,6 +526,7 @@
 
                     await loadImageWithFallback(imageUrl, personImage);
                     updateUI(person);
+                    shownPeople.add(person.person.value); // Добавляем в показанные
                     
                     const totalTime = performance.now() - startTime;
                     updateStats(mode, totalTime);
@@ -536,6 +548,7 @@
         }
 
         async function loadSession() {
+            shownPeople.clear(); // Очищаем перед новой сессией
             let sessionCount = 0;
             const categories = [
                 { gender: 'male', status: 'alive' },
