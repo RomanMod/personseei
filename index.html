@@ -48,8 +48,12 @@
             color: red;
         }
 
-        #retry-btn {
+        .btn-container {
             margin-top: 20px;
+        }
+
+        .btn-container button {
+            margin: 5px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -62,7 +66,11 @@
     <img id="person-image" src="" alt="Зображення людини">
     <div id="person-name"></div>
     <div id="progress">Завантаження...</div>
-    <button id="retry-btn" onclick="loadPerson()">Інша людина</button>
+
+    <div class="btn-container">
+        <button onclick="loadPerson(false)">🎯 Супер випадково (повільно)</button>
+        <button onclick="loadPersonFast()">⚡ Швидко (менш випадково)</button>
+    </div>
 
     <script>
         async function getCommonsImageUrl(fileName) {
@@ -77,10 +85,8 @@
             return new Promise((resolve, reject) => {
                 element.classList.remove('loaded');
                 element.onerror = () => {
-                    console.warn(`Не вдалося завантажити ${url}, пробую через проксі...`);
                     const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
                     element.onerror = () => {
-                        console.error(`Не вдалося завантажити і через проксі: ${proxyUrl}`);
                         element.src = 'https://via.placeholder.com/300';
                         reject(new Error('Fallback failed'));
                     };
@@ -94,7 +100,7 @@
             });
         }
 
-        async function fetchPersonData(useFallback = false) {
+        async function fetchPersonData(useRandom = true) {
             let query = `
                 SELECT ?person ?personLabel ?image ?country
                 WHERE {
@@ -104,19 +110,15 @@
                     ?person rdfs:label ?personLabel.
                     FILTER (LANG(?personLabel) = "en").
                 }
-                ORDER BY RAND()
-                LIMIT 1
+                ${useRandom ? 'ORDER BY RAND()' : ''}
+                LIMIT ${useRandom ? '1' : '50'}
             `;
-
-            if (useFallback) {
-                query = query.replace('ORDER BY RAND()', '');
-            }
 
             const endpoint = 'https://query.wikidata.org/sparql';
             const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
 
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 10000);
+            const timeout = setTimeout(() => controller.abort(), 15000);
 
             const response = await fetch(url, {
                 method: 'GET',
@@ -124,14 +126,19 @@
                     'Accept': 'application/sparql-results+json',
                     'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)',
                 },
-                signal: controller.signal,
-                cache: 'force-cache',
-                keepalive: true
+                signal: controller.signal
             });
 
             clearTimeout(timeout);
             const data = await response.json();
-            return data.results.bindings[0];
+            const list = data.results.bindings;
+
+            if (useRandom) {
+                return list[0];
+            } else {
+                const randomIndex = Math.floor(Math.random() * list.length);
+                return list[randomIndex];
+            }
         }
 
         function updateUI({ personLabel }) {
@@ -146,32 +153,28 @@
             const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
-            const retryBtn = document.getElementById('retry-btn');
 
             progress.textContent = errorMessage;
             progress.classList.add('error');
             progress.classList.remove('loading');
             personImage.src = 'https://via.placeholder.com/300';
             personName.textContent = 'Тестовий персонаж';
-            retryBtn.style.display = 'block';
         }
 
-        async function loadPerson(useFallback = false) {
+        async function loadPerson(useRandom = true) {
             const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
-            const retryBtn = document.getElementById('retry-btn');
 
             progress.textContent = 'Завантаження...';
             progress.classList.add('loading');
             progress.classList.remove('error');
-            retryBtn.style.display = 'none';
             personImage.src = '';
             personName.textContent = '';
             personImage.classList.remove('loaded');
 
             try {
-                const person = await fetchPersonData(useFallback);
+                const person = await fetchPersonData(useRandom);
                 if (!person) throw new Error('No person found');
 
                 const fileName = decodeURIComponent(person.image.value.split('/').pop());
@@ -195,11 +198,11 @@
                 }
 
                 handleError(message);
-                if (!useFallback) {
-                    console.warn('Спроба з fallback-запитом...');
-                    return await loadPerson(true);
-                }
             }
+        }
+
+        async function loadPersonFast() {
+            return await loadPerson(false);
         }
 
         window.onload = () => {
