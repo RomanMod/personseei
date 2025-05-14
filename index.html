@@ -102,10 +102,11 @@
     <script>
         // Настройки приложения
         const settings = {
+            preferredLanguages: [], // Предпочтительные языки для меток (пустой массив = любой язык)
             superRandomPeople: false,
             RandomPeople: true,
             dynamicOffset: true,
-            maxOffset: 1000,
+            maxOffset: 100,
             maxPeople: 50,
             sessionPeople: 10,
             genderRatio: { male: 50, female: 50 },
@@ -119,8 +120,8 @@
             fast: { count: 0, totalTime: 0, lastTime: 0 }
         };
 
-        // Кэш для результатов анализа RGB
-        const rgbCache = JSON.parse(localStorage.getItem('rgbCache')) || {};
+        // Кэш для результатов анализа RGB+HSL
+        const rgbHslCache = JSON.parse(localStorage.getItem('rgbHslCache')) || {};
 
         function updateStats(mode, time) {
             stats[mode].count++;
@@ -136,12 +137,35 @@
                 `Час виконання: ${time.toFixed(0)}мс`;
         }
 
+        // Конвертация RGB в HSL
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h, s, l];
+        }
+
         // Проверка, является ли изображение чёрно-белым
         async function isBlackAndWhite(imageUrl) {
-            // Проверяем кэш
-            if (rgbCache[imageUrl] !== undefined) {
-                console.log(`Using cached RGB result for ${imageUrl}: ${rgbCache[imageUrl] ? 'black-and-white' : 'color'}`);
-                return rgbCache[imageUrl];
+            if (rgbHslCache[imageUrl] !== undefined) {
+                console.log(`Using cached RGB+HSL result for ${imageUrl}: ${rgbHslCache[imageUrl] ? 'black-and-white' : 'color'}`);
+                return rgbHslCache[imageUrl];
             }
 
             return new Promise((resolve) => {
@@ -157,19 +181,34 @@
                     const imageData = ctx.getImageData(0, 0, 100, 100).data;
                     let rSum = 0, gSum = 0, bSum = 0;
                     let rSquareSum = 0, gSquareSum = 0, bSquareSum = 0;
+                    let saturationSum = 0;
+                    let lightnessSum = 0;
                     let count = 0;
 
                     for (let i = 0; i < imageData.length; i += 4) {
                         const r = imageData[i];
                         const g = imageData[i + 1];
                         const b = imageData[i + 2];
+                        const a = imageData[i + 3];
+                        if (a < 255) continue;
+
                         rSum += r;
                         gSum += g;
                         bSum += b;
                         rSquareSum += r * r;
                         gSquareSum += g * g;
                         bSquareSum += b * b;
+
+                        const [, s, l] = rgbToHsl(r, g, b);
+                        saturationSum += s;
+                        lightnessSum += l;
                         count++;
+                    }
+
+                    if (count === 0) {
+                        console.warn(`No non-transparent pixels found in ${imageUrl}`);
+                        resolve(false);
+                        return;
                     }
 
                     const rMean = rSum / count;
@@ -178,18 +217,21 @@
                     const rStdDev = Math.sqrt((rSquareSum / count) - (rMean * rMean));
                     const gStdDev = Math.sqrt((gSquareSum / count) - (gMean * gMean));
                     const bStdDev = Math.sqrt((bSquareSum / count) - (bMean * bMean));
+                    const meanSaturation = saturationSum / count;
+                    const meanLightness = lightnessSum / count;
 
-                    const isBW = rStdDev < 20 && gStdDev < 20 && bStdDev < 20;
-                    console.log(`Image ${imageUrl} is ${isBW ? 'black-and-white' : 'color'} (R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)})`);
-                    
-                    // Сохраняем в кэш
-                    rgbCache[imageUrl] = isBW;
-                    localStorage.setItem('rgbCache', JSON.stringify(rgbCache));
-                    
+                    const isBW = (rStdDev < 20 && gStdDev < 20 && bStdDev < 20) || 
+                                 (meanSaturation < 0.2 && meanLightness > 0.1 && meanLightness < 0.9);
+                    console.log(`Image ${imageUrl} is ${isBW ? 'black-and-white' : 'color'} ` +
+                                `(R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)}, ` +
+                                `Saturation:${(meanSaturation * 100).toFixed(2)}%, Lightness:${(meanLightness * 100).toFixed(2)}%)`);
+
+                    rgbHslCache[imageUrl] = isBW;
+                    localStorage.setItem('rgbHslCache', JSON.stringify(rgbHslCache));
                     resolve(isBW);
                 };
                 img.onerror = () => {
-                    console.error(`Failed to load image for RGB analysis: ${imageUrl}`);
+                    console.error(`Failed to load image for RGB+HSL analysis: ${imageUrl}`);
                     resolve(false);
                 };
                 img.src = imageUrl;
@@ -253,11 +295,29 @@
                                 category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
                                 'OPTIONAL { ?person wdt:P570 ?deathDate }';
 
+            // Подготовка фильтра языков
+            let labelSelection = '';
+            if (settings.preferredLanguages.length > 0) {
+                const langFilters = settings.preferredLanguages.map(lang => 
+                    `OPTIONAL { ?person rdfs:label ?personLabel${lang} . FILTER(LANG(?personLabel${lang}) = "${lang}") }`
+                ).join('\n');
+                const coalesceArgs = settings.preferredLanguages.map(lang => `?personLabel${lang}`).join(', ') + ', ?personLabelAny';
+                labelSelection = `
+                    ${langFilters}
+                    OPTIONAL { ?person rdfs:label ?personLabelAny . }
+                    BIND(COALESCE(${coalesceArgs}) AS ?personLabel)
+                `;
+            } else {
+                labelSelection = `
+                    ?person rdfs:label ?personLabel .
+                `;
+            }
+
             while (attempts < maxAttempts) {
                 const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
                 if (useRandom && settings.superRandomPeople) {
                     query = `
-                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate
+                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate (LANG(?personLabel) AS ?labelLang)
                         WHERE {
                             ?person wdt:P31 wd:Q5;
                                     wdt:P18 ?image;
@@ -265,15 +325,14 @@
                                     wdt:P21 ?gender.
                             ${genderFilter}.
                             ${statusFilter}.
-                            ?person rdfs:label ?personLabel.
-                            FILTER (LANG(?personLabel) = "en").
+                            ${labelSelection}
                         }
                         ORDER BY RAND()
                         LIMIT 1
                     `;
                 } else {
                     query = `
-                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate
+                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate (LANG(?personLabel) AS ?labelLang)
                         WHERE {
                             ?person wdt:P31 wd:Q5;
                                     wdt:P18 ?image;
@@ -281,8 +340,7 @@
                                     wdt:P21 ?gender.
                             ${genderFilter}.
                             ${statusFilter}.
-                            ?person rdfs:label ?personLabel.
-                            FILTER (LANG(?personLabel) = "en").
+                            ${labelSelection}
                         }
                         OFFSET ${offset}
                         LIMIT ${settings.maxPeople}
@@ -317,12 +375,9 @@
                         continue;
                     }
 
-                    if (useRandom) {
-                        return list[0];
-                    } else {
-                        const randomIndex = Math.floor(Math.random() * list.length);
-                        return list[randomIndex];
-                    }
+                    const person = useRandom ? list[0] : list[Math.floor(Math.random() * list.length)];
+                    console.log(`Label language: ${person.labelLang?.value || 'unknown'}`);
+                    return person;
                 } catch (error) {
                     console.error(`Wikidata query failed: ${error.message}`);
                     attempts++;
@@ -334,14 +389,15 @@
             throw new Error('No person found after maximum attempts');
         }
 
-        function updateUI({ personLabel, gender, deathDate }) {
+        function updateUI({ personLabel, gender, deathDate, labelLang }) {
             const progress = document.getElementById('progress');
             const personName = document.getElementById('person-name');
             progress.textContent = 'Фото завантажено!';
             progress.classList.remove('loading', 'error');
             const genderText = gender?.value.split('/').pop() === 'Q6581097' ? 'Чоловік' : 'Жінка';
             const statusText = deathDate ? 'Мерц' : 'Живий';
-            personName.textContent = `${personLabel.value} (${genderText}, ${statusText})`;
+            const langText = labelLang?.value ? `Language: ${labelLang.value}` : 'Language: unknown';
+            personName.textContent = `${personLabel.value} (${genderText}, ${statusText}, ${langText})`;
         }
 
         function handleError(errorMessage) {
@@ -383,7 +439,6 @@
                     const imageUrl = await getCommonsImageUrl(fileName);
                     if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
 
-                    // Проверка на чёрно-белое фото для всех категорий
                     if (settings.excludeBlackAndWhite) {
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
@@ -446,14 +501,13 @@
                     const imageUrl = await getCommonsImageUrl(fileName);
                     if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
 
-                    // Проверка на чёрно-белое фото для всех категорий
                     if (settings.excludeBlackAndWhite) {
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
                             progress.textContent = 'Пропущено чёрно-белое фото, завантаження іншого...';
                             const newPerson = await fetchPersonData(false, category);
-                            person = newPerson; // Обновляем person для следующей попытки
+                            person = newPerson;
                             attempts++;
                             continue;
                         }
@@ -491,11 +545,10 @@
             ];
             const sessionList = [];
 
-            // Параллельные запросы для всех категорий
             document.getElementById('progress').textContent = 'Завантаження даних для сесії...';
             try {
                 const promises = categories.map(async (category, i) => {
-                    const count = i % 2 === 0 ? 3 : 2; // 3, 2, 3, 2 для 50/50
+                    const count = i % 2 === 0 ? 3 : 2;
                     const results = [];
                     for (let j = 0; j < count; j++) {
                         try {
@@ -516,7 +569,6 @@
                 return;
             }
 
-            // Загружаем по очереди
             for (let i = 0; i < sessionList.length; i++) {
                 const person = sessionList[i];
                 const category = categories[Math.floor((i % 10) / 2.5)];
