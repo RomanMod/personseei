@@ -3,253 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Просте фото з Wikidata</title>
-    <style>
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        h1 {
-            font-size: 24px;
-            color: #4caf50;
-        }
-        #progress {
-            font-size: 20px;
-            color: #333;
-            margin: 20px 0;
-        }
-        #progress.loading::after {
-            content: '';
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            margin-left: 10px;
-            border: 2px solid #333;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-        }
-        #progress.error {
-            color: #ff4444;
-            border: 2px solid #ff4444;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        #person-image {
-            display: block;
-            max-width: 100%;
-            max-height: 300px;
-            width: auto;
-            height: auto;
-            border: 2px solid #999;
-            border-radius: 10px;
-            margin: 0 auto;
-        }
-        #person-name {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-        #retry-btn {
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 10px;
-            display: none;
-        }
-        #retry-btn:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Guess Who - Telegram Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-TQ5F8JW26S');
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>Просте фото з Wikidata</h1>
-        <div id="progress" class="loading">Завантаження...</div>
-        <img id="person-image" alt="Person" crossorigin="anonymous" referrerpolicy="no-referrer">
-        <div id="person-name"></div>
-        <button id="retry-btn" onclick="loadPerson()">Повторити</button>
+        <h1 id="player-name">Loading...</h1>
+        <div class="settings">
+            <select id="theme-select">
+                <option value="night">Ніч</option
+                <option value="day">День</option>
+            </select>
+            <select id="language-select">
+                <option value="uk">Українська</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+                <option value="alien">👾 Alien</option>
+            </select>
+            <select id="difficulty-select">
+                <option value="easier">Попроще</option>
+                <option value="easy">Просто</option>
+            </select>
+        </div>
+        <div class="display">
+            <div id="progress">0%</div>
+            <img id="person-image" src="" alt="Person" style="display: none;">
+            <button id="next-photo">➡️</button>
+        </div>
+        <div class="questions">
+            <div id="alive-question">
+                <label><input type="radio" name="alive" value="alive"> Живий</label>
+                <label><input type="radio" name="alive" value="dead"> Мертвий</label>
+            </div>
+            <div id="gender-question" style="display: none;">
+                <button class="gender-btn" data-gender="male">Чоловік</button>
+                <button class="gender-btn" data-gender="female">Жінка</button>
+            </div>
+            <div id="easier-question">
+                <button class="status-btn" data-status="alive">Живий</button>
+                <button class="status-btn" data-status="dead">Мертвий</button>
+            </div>
+        </div>
+        <button id="check-answer">Перевірити</button>
+        <div id="result" style="display: none;">
+            <p id="person-info"></p>
+            <a id="wiki-link" href="" target="_blank">Вікіпедія</a>
+        </div>
+        <div class="stats">
+            <p>Правильних відповідей: <span id="correct-answers">0</span></p>
+            <p>Загалом питань: <span id="total-questions">0</span></p>
+        </div>
     </div>
-    <script>
-        // Получение прямой ссылки на изображение из Commons
-        async function getCommonsImageUrl(fileName) {
-            try {
-                console.log(`Fetching image URL for: ${fileName}`);
-                const cleanFileName = fileName.replace(/^File:/i, '');
-                const encodedFileName = encodeURIComponent(`File:${cleanFileName}`);
-                const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&titles=${encodedFileName}&prop=imageinfo&iiprop=url&format=json&origin=*`;
-                const response = await fetch(apiUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                        'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
-                    }
-                });
-                console.log(`Commons API status: ${response.status}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                const data = await response.json();
-                const pages = data.query.pages;
-                const pageId = Object.keys(pages)[0];
-                if (pageId === '-1' || !pages[pageId].imageinfo) {
-                    throw new Error('Image not found in Commons');
-                }
-                const imageUrl = pages[pageId].imageinfo[0].url;
-                console.log(`Direct image URL: ${imageUrl}`);
-                return imageUrl;
-            } catch (e) {
-                console.error(`Error fetching Commons image URL: ${e.message}`);
-                return null;
-            }
-        }
-
-        // Загрузка данных о человеке
-        async function loadPerson(useFallback = false) {
-            const progress = document.getElementById('progress');
-            const personImage = document.getElementById('person-image');
-            const personName = document.getElementById('person-name');
-            const retryBtn = document.getElementById('retry-btn');
-
-            progress.textContent = 'Завантаження...';
-            progress.classList.add('loading');
-            progress.classList.remove('error');
-            retryBtn.style.display = 'none';
-            personImage.src = '';
-            personName.textContent = '';
-
-            try {
-                // SPARQL-запрос
-                let query = `
-                    SELECT ?person ?personLabel ?image
-                    WHERE {
-                        ?person wdt:P31 wd:Q5;
-                                wdt:P18 ?image;
-                                wdt:P27 ?country.
-                        ?person rdfs:label ?personLabel.
-                        FILTER (LANG(?personLabel) = "en").
-                    }
-                    ORDER BY RAND()
-                    LIMIT 1
-                `;
-                if (useFallback) {
-                    query = query.replace('ORDER BY RAND()', '');
-                    console.log('Using fallback query:', query);
-                } else {
-                    console.log('Using main query:', query);
-                }
-
-                const endpoint = 'https://query.wikidata.org/sparql';
-                const encodedQuery = encodeURIComponent(query);
-                const url = `${endpoint}?query=${encodedQuery}&format=json&nocache=${Date.now()}`;
-                console.log('Request URL:', url);
-
-                const controller = new AbortController();
-                const timeout = setTimeout(() => {
-                    controller.abort();
-                    console.error('Request timed out');
-                }, 10000);
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/sparql-results+json',
-                        'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)'
-                    },
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeout);
-                console.log(`Response status: ${response.status}`);
-                if (!response.ok) {
-                    if (response.status === 400 && !useFallback) {
-                        console.warn('Bad request, trying fallback query...');
-                        return await loadPerson(true);
-                    }
-                    throw new Error(`HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('Data received:', data);
-                const person = data.results.bindings[0];
-                if (!person) {
-                    throw new Error('No person found');
-                }
-
-                // Получение имени файла из URL
-                const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                let imageUrl = await getCommonsImageUrl(fileName);
-                if (!imageUrl) {
-                    throw new Error('Invalid image URL');
-                }
-
-                // Попытка загрузки изображения
-                personImage.src = imageUrl;
-                personImage.onerror = () => {
-                    console.error(`Failed to load image: ${imageUrl}`);
-                    // Попытка через прокси
-                    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}`;
-                    console.log(`Trying proxy URL: ${proxyUrl}`);
-                    personImage.src = proxyUrl;
-                    personImage.onerror = () => {
-                        console.error(`Proxy image failed: ${proxyUrl}`);
-                        progress.textContent = 'Не вдалося завантажити зображення';
-                        progress.classList.add('error');
-                        progress.classList.remove('loading');
-                        personImage.src = 'https://via.placeholder.com/300';
-                        retryBtn.style.display = 'block';
-                    };
-                };
-                personImage.onload = () => {
-                    progress.textContent = 'Фото завантажено!';
-                    progress.classList.remove('loading', 'error');
-                };
-
-                personName.textContent = person.personLabel.value;
-                console.log('Person data:', person);
-            } catch (error) {
-                console.error('Error:', error.message);
-                let errorMessage = 'Помилка завантаження';
-                if (error.message.includes('Timeout')) {
-                    errorMessage = 'Тайм-аут запиту до Wikidata';
-                } else if (error.message.includes('HTTP 400')) {
-                    errorMessage = 'Некоректний SPARQL-запит';
-                } else if (error.message.includes('No person found')) {
-                    errorMessage = 'Не знайдено даних про людину';
-                } else if (error.message.includes('Invalid image')) {
-                    errorMessage = 'Не вдалося отримати зображення';
-                }
-
-                progress.textContent = errorMessage;
-                progress.classList.add('error');
-                progress.classList.remove('loading');
-                personImage.src = 'https://via.placeholder.com/300';
-                personName.textContent = 'Тестовий персонаж';
-                retryBtn.style.display = 'block';
-
-                if (!useFallback) {
-                    console.warn('Retrying with fallback query...');
-                    return await loadPerson(true);
-                }
-            }
-        }
-
-        // Запуск
-        loadPerson();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
