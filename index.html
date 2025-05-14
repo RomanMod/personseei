@@ -105,7 +105,7 @@
             superRandomPeople: false, // ORDER BY RAND(), высокая нагрузка на Wikidata
             RandomPeople: true, // SAMPLE() или OFFSET для баланса скорости и случайности
             dynamicOffset: true, // Динамический диапазон с OFFSET
-            maxOffset: 100, // Максимальный сдвиг для OFFSET
+            maxOffset: 100000, // Максимальный сдвиг для OFFSET
             maxPeople: 100, // Максимальное количество людей в одном запросе
             sessionPeople: 10, // Количество людей за одну сессию
             genderRatio: { male: 50, female: 50 }, // 50/50 мужчин и женщин
