@@ -168,14 +168,16 @@ async function loadNewPerson(useFallback = false) {
     }
     if (retryCount >= maxRetries) {
         console.error('Max retries reached, stopping load');
-        progress.textContent = 'Помилка: не вдалося завантажити. Спробуйте ще раз.';
+        progress.textContent = 'Помилка: не вдалося завантажити дані. Натисніть "Далі" для повтору.';
         progress.classList.add('error');
+        progress.classList.remove('loading');
         gtag('event', 'load_person_failed', {
             source: 'wikidata',
             reason: 'max_retries',
             retries: retryCount
         });
-        nextPhotoBtn.style.display = 'block'; // Показать кнопку для повторной попытки
+        nextPhotoBtn.style.display = 'block';
+        isLoading = false;
         return;
     }
     isLoading = true;
@@ -197,13 +199,11 @@ async function loadNewPerson(useFallback = false) {
                         wdt:P569 ?birth; # Дата рождения
                         wdt:P18 ?image. # Изображение
                 OPTIONAL { ?person wdt:P570 ?death. } # Дата смерти (если есть)
-                FILTER (regex(str(?image), "\\.(jpg|png)$", "i")) # Только JPG/PNG
                 SERVICE wikibase:label { bd:serviceParam wikibase:language "uk,en". }
-                ${difficulty === 'easy' ? 'OPTIONAL { ?person wdt:P1651 ?youtube. }' : ''}
-            } ORDER BY RAND() LIMIT 1
+                ${difficulty === 'easy' ? 'FILTER EXISTS { ?person wdt:P1651 ?youtube. }' : ''}
+            } ${useFallback ? '' : 'ORDER BY RAND()'} LIMIT 1
         `;
         if (useFallback) {
-            query = query.replace('ORDER BY RAND()', '');
             console.log('Using fallback query:', query);
         } else {
             console.log('Using main query:', query);
@@ -218,7 +218,7 @@ async function loadNewPerson(useFallback = false) {
         const timeout = setTimeout(() => {
             controller.abort();
             console.error('Request timed out');
-        }, 10000);
+        }, 15000);
 
         const response = await fetch(url, {
             method: 'GET',
@@ -232,6 +232,7 @@ async function loadNewPerson(useFallback = false) {
         clearTimeout(timeout);
         console.log(`Wikidata response status: ${response.status}`);
         if (!response.ok) {
+            console.error('Response text:', await response.text());
             if (response.status === 400 && !useFallback) {
                 console.warn('Bad request, trying fallback query...');
                 isLoading = false;
@@ -311,7 +312,7 @@ async function loadNewPerson(useFallback = false) {
         } else if (error.message.includes('No person found')) {
             errorMessage = 'Не знайдено даних про людину';
         } else if (error.message.includes('Invalid image')) {
-            errorMessage = 'Не вдалося отримати зображення';
+            errorMessage = 'Не вдалося отримати зображение';
         }
 
         progress.textContent = errorMessage;
