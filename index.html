@@ -72,10 +72,6 @@
             border-radius: 5px;
             display: inline-block;
         }
-
-        canvas {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -103,21 +99,18 @@
         <div id="stats-fast">Швидкий режим: -</div>
     </div>
 
-    <canvas id="image-canvas"></canvas>
-
     <script>
         // Настройки приложения
         const settings = {
             superRandomPeople: false,
             RandomPeople: true,
             dynamicOffset: true,
-            maxOffset: 200, // Увеличено для большего пула
-            maxPeople: 100, // Увеличено для большего пула
+            maxOffset: 1000,
+            maxPeople: 50,
             sessionPeople: 10,
             genderRatio: { male: 50, female: 50 },
             statusRatio: { alive: 50, deceased: 50 },
-            excludeBlackAndWhite: true, // Фильтр по году
-            colorAnalysis: false // Анализ цвета отключён по умолчанию
+            excludeBlackAndWhite: true // Исключать чёрно-белые фото для всех категорий
         };
 
         // Статистика
@@ -126,8 +119,8 @@
             fast: { count: 0, totalTime: 0, lastTime: 0 }
         };
 
-        // Кэш для категорий
-        const categoryCache = {};
+        // Кэш для результатов анализа RGB
+        const rgbCache = JSON.parse(localStorage.getItem('rgbCache')) || {};
 
         function updateStats(mode, time) {
             stats[mode].count++;
@@ -141,6 +134,66 @@
                 `Запитів: ${stats[mode].count}`;
             document.getElementById(`time-${mode}`).textContent = 
                 `Час виконання: ${time.toFixed(0)}мс`;
+        }
+
+        // Проверка, является ли изображение чёрно-белым
+        async function isBlackAndWhite(imageUrl) {
+            // Проверяем кэш
+            if (rgbCache[imageUrl] !== undefined) {
+                console.log(`Using cached RGB result for ${imageUrl}: ${rgbCache[imageUrl] ? 'black-and-white' : 'color'}`);
+                return rgbCache[imageUrl];
+            }
+
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 100;
+                    canvas.height = 100;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, 100, 100);
+
+                    const imageData = ctx.getImageData(0, 0, 100, 100).data;
+                    let rSum = 0, gSum = 0, bSum = 0;
+                    let rSquareSum = 0, gSquareSum = 0, bSquareSum = 0;
+                    let count = 0;
+
+                    for (let i = 0; i < imageData.length; i += 4) {
+                        const r = imageData[i];
+                        const g = imageData[i + 1];
+                        const b = imageData[i + 2];
+                        rSum += r;
+                        gSum += g;
+                        bSum += b;
+                        rSquareSum += r * r;
+                        gSquareSum += g * g;
+                        bSquareSum += b * b;
+                        count++;
+                    }
+
+                    const rMean = rSum / count;
+                    const gMean = gSum / count;
+                    const bMean = bSum / count;
+                    const rStdDev = Math.sqrt((rSquareSum / count) - (rMean * rMean));
+                    const gStdDev = Math.sqrt((gSquareSum / count) - (gMean * gMean));
+                    const bStdDev = Math.sqrt((bSquareSum / count) - (bMean * bMean));
+
+                    const isBW = rStdDev < 20 && gStdDev < 20 && bStdDev < 20;
+                    console.log(`Image ${imageUrl} is ${isBW ? 'black-and-white' : 'color'} (R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)})`);
+                    
+                    // Сохраняем в кэш
+                    rgbCache[imageUrl] = isBW;
+                    localStorage.setItem('rgbCache', JSON.stringify(rgbCache));
+                    
+                    resolve(isBW);
+                };
+                img.onerror = () => {
+                    console.error(`Failed to load image for RGB analysis: ${imageUrl}`);
+                    resolve(false);
+                };
+                img.src = imageUrl;
+            });
         }
 
         async function getCommonsImageUrl(fileName) {
@@ -187,87 +240,11 @@
             });
         }
 
-        function isBlackAndWhiteImage(fileName) {
-            if (!settings.excludeBlackAndWhite) return false;
-            const yearMatch = fileName.match(/\b(19\d{2}|20\d{2})\b/);
-            if (yearMatch) {
-                const year = parseInt(yearMatch[0], 10);
-                if (year < 1960) { // Смягчено с 1970 до 1960
-                    console.log(`Image excluded as black-and-white (year): ${fileName} (year: ${year})`);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        async function isGrayscaleImage(url) {
-            if (!settings.colorAnalysis) return false;
-            const start = performance.now();
-            try {
-                const img = new Image();
-                img.crossOrigin = 'Anonymous';
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 2000); // Тайм-аут 2 секунды
-
-                await new Promise((resolve, reject) => {
-                    img.onload = () => {
-                        clearTimeout(timeout);
-                        resolve();
-                    };
-                    img.onerror = () => {
-                        clearTimeout(timeout);
-                        reject(new Error('Failed to load image for color analysis'));
-                    };
-                    img.src = url;
-                });
-
-                const canvas = document.getElementById('image-canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-
-                const imageData = ctx.getImageData(0, 0, img.width, img.height).data;
-                let grayscaleCount = 0;
-                const totalPixels = img.width * img.height;
-                const sampleRate = 20; // Проверяем каждый 20-й пиксель
-                const threshold = 20;
-
-                for (let i = 0; i < imageData.length; i += 4 * sampleRate) {
-                    const r = imageData[i];
-                    const g = imageData[i + 1];
-                    const b = imageData[i + 2];
-                    if (Math.max(r, g, b) - Math.min(r, g, b) < threshold) {
-                        grayscaleCount++;
-                    }
-                }
-
-                const grayscaleRatio = grayscaleCount / (totalPixels / sampleRate);
-                console.log(`Color analysis for ${url}: grayscale ratio = ${grayscaleRatio.toFixed(2)} (time: ${(performance.now() - start).toFixed(0)}ms)`);
-
-                if (grayscaleRatio > 0.9) {
-                    console.log(`Image excluded as grayscale: ${url}`);
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                console.error(`Color analysis failed for ${url}:`, error.message);
-                return false; // Не исключаем при ошибке
-            }
-        }
-
         async function fetchPersonData(useRandom = true, category = null) {
-            const cacheKey = category ? `${category.gender}_${category.status}` : 'random';
-            if (categoryCache[cacheKey] && categoryCache[cacheKey].length) {
-                const person = categoryCache[cacheKey].pop();
-                console.log(`Using cached person for ${cacheKey}`);
-                return person;
-            }
-
             const start = performance.now();
             let query;
             let attempts = 0;
-            const maxAttempts = 5; // Увеличено для надёжности
+            const maxAttempts = 3;
 
             const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
                                 category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
@@ -330,7 +307,7 @@
 
                     clearTimeout(timeout);
                     const data = await response.json();
-                    let list = data.results.bindings;
+                    const list = data.results.bindings;
 
                     console.log(`Wikidata query time: ${(performance.now() - start).toFixed(0)}ms (${useRandom ? 'random' : 'fast'})`);
 
@@ -339,44 +316,6 @@
                         attempts++;
                         continue;
                     }
-
-                    // Фильтрация по году
-                    if (settings.excludeBlackAndWhite) {
-                        list = list.filter(item => {
-                            const fileName = decodeURIComponent(item.image.value.split('/').pop());
-                            return !isBlackAndWhiteImage(fileName);
-                        });
-                    }
-
-                    if (!list.length) {
-                        console.warn(`No valid images after year filtering for category ${category?.gender}/${category?.status}, attempt ${attempts + 1}`);
-                        attempts++;
-                        continue;
-                    }
-
-                    // Фильтрация по цвету (только для живых, если включён)
-                    if (settings.colorAnalysis && category?.status !== 'deceased') {
-                        const filteredList = [];
-                        for (const item of list.slice(0, 10)) { // Проверяем только первые 10
-                            const fileName = decodeURIComponent(item.image.value.split('/').pop());
-                            const imageUrl = await getCommonsImageUrl(fileName);
-                            if (imageUrl && !(await isGrayscaleImage(imageUrl))) {
-                                filteredList.push(item);
-                            }
-                        }
-                        list = filteredList;
-                    }
-
-                    if (!list.length) {
-                        console.warn(`No valid images after color filtering for category ${category?.gender}/${category?.status}, attempt ${attempts + 1}`);
-                        attempts++;
-                        continue;
-                    }
-
-                    // Кэшируем оставшиеся записи
-                    if (!categoryCache[cacheKey]) categoryCache[cacheKey] = [];
-                    categoryCache[cacheKey].push(...list.slice(1));
-                    console.log(`Cached ${list.length - 1} persons for ${cacheKey}`);
 
                     if (useRandom) {
                         return list[0];
@@ -414,7 +353,6 @@
             progress.classList.add('error');
             progress.classList.remove('loading');
             personImage.src = 'https://via.placeholder.com/300';
-            personImage.classList.add('loaded'); // Убедимся, что заглушка видна
             personName.textContent = 'Тестовий персонаж';
         }
 
@@ -432,52 +370,60 @@
             personName.textContent = '';
             personImage.classList.remove('loaded');
 
-            try {
-                const person = await fetchPersonData(useRandom, category);
-                if (!person) throw new Error('No person found');
+            let attempts = 0;
+            const maxAttempts = 3;
 
-                progress.textContent = 'Завантаження зображення...';
-                const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                if (isBlackAndWhiteImage(fileName)) {
-                    throw new Error(`Image excluded as black-and-white: ${fileName}`);
+            while (attempts < maxAttempts) {
+                try {
+                    const person = await fetchPersonData(useRandom, category);
+                    if (!person) throw new Error('No person found');
+
+                    progress.textContent = 'Завантаження зображення...';
+                    const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                    const imageUrl = await getCommonsImageUrl(fileName);
+                    if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
+
+                    // Проверка на чёрно-белое фото для всех категорий
+                    if (settings.excludeBlackAndWhite) {
+                        const isBW = await isBlackAndWhite(imageUrl);
+                        if (isBW) {
+                            console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
+                            progress.textContent = 'Пропущено чёрно-белое фото, завантаження іншого...';
+                            attempts++;
+                            continue;
+                        }
+                    }
+
+                    await loadImageWithFallback(imageUrl, personImage);
+                    updateUI(person);
+                    
+                    const totalTime = performance.now() - startTime;
+                    updateStats(mode, totalTime);
+                    return;
+                } catch (error) {
+                    console.error('Помилка:', error.message);
+                    attempts++;
+                    if (attempts === maxAttempts) {
+                        let message = 'Помилка завантаження';
+                        if (error.message.includes('Timeout')) {
+                            message = 'Тайм-аут запиту до Wikidata';
+                        } else if (error.message.includes('HTTP 400')) {
+                            message = 'Некоректний SPARQL-запит';
+                        } else if (error.message.includes('No person found')) {
+                            message = 'Не знайдено даних про людину';
+                        } else if (error.message.includes('Invalid image')) {
+                            message = `Не вдалося завантажити зображення: ${error.message}`;
+                        }
+                        handleError(message);
+                        const totalTime = performance.now() - startTime;
+                        document.getElementById(`time-${mode}`).textContent = 
+                            `Помилка після ${totalTime.toFixed(0)}мс`;
+                    }
                 }
-
-                const imageUrl = await getCommonsImageUrl(fileName);
-                if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
-
-                if (settings.colorAnalysis && category?.status !== 'deceased' && await isGrayscaleImage(imageUrl)) {
-                    throw new Error(`Image excluded as grayscale: ${fileName}`);
-                }
-
-                await loadImageWithFallback(imageUrl, personImage);
-                updateUI(person);
-                
-                const totalTime = performance.now() - startTime;
-                updateStats(mode, totalTime);
-            } catch (error) {
-                console.error('Помилка:', error.message);
-                let message = 'Помилка завантаження';
-
-                if (error.message.includes('Timeout')) {
-                    message = 'Тайм-аут запиту до Wikidata';
-                } else if (error.message.includes('HTTP 400')) {
-                    message = 'Некоректний SPARQL-запит';
-                } else if (error.message.includes('No person found')) {
-                    message = 'Не знайдено даних про людину';
-                } else if (error.message.includes('Invalid image')) {
-                    message = `Не вдалося завантажити зображення: ${error.message}`;
-                } else if (error.message.includes('black-and-white') || error.message.includes('grayscale')) {
-                    message = `Зображення пропущено як чёрно-белое: ${error.message}`;
-                }
-
-                handleError(message);
-                const totalTime = performance.now() - startTime;
-                document.getElementById(`time-${mode}`).textContent = 
-                    `Помилка після ${totalTime.toFixed(0)}мс`;
             }
         }
 
-        async function loadPersonFromData(person) {
+        async function loadPersonFromData(person, category = null) {
             const startTime = performance.now();
             const mode = 'fast';
             const progress = document.getElementById('progress');
@@ -491,35 +437,47 @@
             personName.textContent = '';
             personImage.classList.remove('loaded');
 
-            try {
-                const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                if (isBlackAndWhiteImage(fileName)) {
-                    throw new Error(`Image excluded as black-and-white: ${fileName}`);
+            let attempts = 0;
+            const maxAttempts = 3;
+
+            while (attempts < maxAttempts) {
+                try {
+                    const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                    const imageUrl = await getCommonsImageUrl(fileName);
+                    if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
+
+                    // Проверка на чёрно-белое фото для всех категорий
+                    if (settings.excludeBlackAndWhite) {
+                        const isBW = await isBlackAndWhite(imageUrl);
+                        if (isBW) {
+                            console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
+                            progress.textContent = 'Пропущено чёрно-белое фото, завантаження іншого...';
+                            const newPerson = await fetchPersonData(false, category);
+                            person = newPerson; // Обновляем person для следующей попытки
+                            attempts++;
+                            continue;
+                        }
+                    }
+
+                    await loadImageWithFallback(imageUrl, personImage);
+                    updateUI(person);
+                    
+                    const totalTime = performance.now() - startTime;
+                    updateStats(mode, totalTime);
+                    return;
+                } catch (error) {
+                    console.error('Помилка:', error.message);
+                    attempts++;
+                    if (attempts === maxAttempts) {
+                        let message = error.message.includes('Invalid image') 
+                            ? `Не вдалося завантажити зображення: ${error.message}`
+                            : 'Помилка завантаження';
+                        handleError(message);
+                        const totalTime = performance.now() - startTime;
+                        document.getElementById(`time-${mode}`).textContent = 
+                            `Помилка після ${totalTime.toFixed(0)}мс`;
+                    }
                 }
-
-                const imageUrl = await getCommonsImageUrl(fileName);
-                if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
-
-                if (settings.colorAnalysis && person.deathDate?.value && await isGrayscaleImage(imageUrl)) {
-                    throw new Error(`Image excluded as grayscale: ${fileName}`);
-                }
-
-                await loadImageWithFallback(imageUrl, personImage);
-                updateUI(person);
-                
-                const totalTime = performance.now() - startTime;
-                updateStats(mode, totalTime);
-            } catch (error) {
-                console.error('Помилка:', error.message);
-                let message = error.message.includes('Invalid image') 
-                    ? `Не вдалося завантажити зображення: ${error.message}`
-                    : error.message.includes('black-and-white') || error.message.includes('grayscale') 
-                    ? `Зображення пропущено як чёрно-белое: ${error.message}`
-                    : 'Помилка завантаження';
-                handleError(message);
-                const totalTime = performance.now() - startTime;
-                document.getElementById(`time-${mode}`).textContent = 
-                    `Помилка після ${totalTime.toFixed(0)}мс`;
             }
         }
 
@@ -533,6 +491,7 @@
             ];
             const sessionList = [];
 
+            // Параллельные запросы для всех категорий
             document.getElementById('progress').textContent = 'Завантаження даних для сесії...';
             try {
                 const promises = categories.map(async (category, i) => {
@@ -544,15 +503,7 @@
                             results.push(person);
                         } catch (error) {
                             console.error(`Error in category ${category.gender}/${category.status}:`, error);
-                            // Попробуем другую категорию
-                            const fallbackCategory = categories[(i + 1) % categories.length];
-                            try {
-                                const person = await fetchPersonData(false, fallbackCategory);
-                                results.push(person);
-                            } catch (fallbackError) {
-                                console.error(`Fallback failed for ${fallbackCategory.gender}/${fallbackCategory.status}:`, fallbackError);
-                                results.push(null);
-                            }
+                            results.push(null);
                         }
                     }
                     return results;
@@ -565,10 +516,13 @@
                 return;
             }
 
-            for (const person of sessionList) {
+            // Загружаем по очереди
+            for (let i = 0; i < sessionList.length; i++) {
+                const person = sessionList[i];
+                const category = categories[Math.floor((i % 10) / 2.5)];
                 document.getElementById('progress').textContent = `Завантаження людини ${sessionCount + 1} з ${settings.sessionPeople}...`;
                 if (person) {
-                    await loadPersonFromData(person);
+                    await loadPersonFromData(person, category);
                 } else {
                     handleError('Не вдалося завантажити людину для цієї категорії');
                 }
