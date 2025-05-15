@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="origin">
     <title>Гра: Хто це?</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
@@ -502,8 +501,6 @@
                     resolve();
                 };
                 element.onerror = () => {
-                    element.src = 'https://via.placeholder.com/300';
-                    element.classList.add('visible');
                     log(`Image load failed: ${proxyUrl}`, 'error');
                     reject(new Error(`Image load failed: ${proxyUrl}`));
                 };
@@ -606,6 +603,7 @@
                         updateUI();
                         document.getElementById('info').textContent = i18n[state.language].error;
                         sendGA4Event('load_error', { error: error.message });
+                        return;
                     }
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
