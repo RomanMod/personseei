@@ -4,14 +4,6 @@
     <meta charset="UTF-8">
     <title>Гра: Випадкова людина з Wikidata</title>
     <meta name="referrer" content="origin">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TQ5F8JW26S');
-    </script>
     <style>
         :root {
             --bg-color: #1C2526;
@@ -21,7 +13,6 @@
             --button-text: #E8ECEF;
             --accent-color: #3498DB;
             --progress-color: #3498DB;
-            --display-bg: #2A2F32;
         }
 
         body.day {
@@ -32,7 +23,6 @@
             --button-text: #2C3E50;
             --accent-color: #2980B9;
             --progress-color: #2980B9;
-            --display-bg: #D5D8DC;
         }
 
         body {
@@ -50,11 +40,44 @@
             margin-bottom: 20px;
         }
 
-        .settings {
-            margin-bottom: 20px;
+        #main-display {
             display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        #person-image {
+            display: block;
+            max-width: 100%;
+            max-height: 300px;
+            width: auto;
+            height: auto;
+            border: 2px solid var(--button-bg);
+            border-radius: 10px;
+            margin-right: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+
+        #person-image.loaded {
+            opacity: 1;
+        }
+
+        #person-name {
+            margin-top: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        #progress {
+            margin-top: 20px;
+            font-style: italic;
+            color: var(--progress-color);
+        }
+
+        #progress.error {
+            color: #E74C3C;
         }
 
         .btn-container {
@@ -80,6 +103,21 @@
             background-color: var(--button-hover);
         }
 
+        #next-photo {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #next-photo:hover {
+            background-color: var(--button-hover);
+        }
+
         .time-info {
             margin-top: 5px;
             font-size: 0.9em;
@@ -94,60 +132,11 @@
             display: inline-block;
         }
 
-        #main-display {
-            position: relative;
-            max-width: 600px;
-            margin: 0 auto 20px;
-            background-color: var(--display-bg);
-            border: 2px solid var(--button-bg);
-            border-radius: 10px;
-            padding: 10px;
-            min-height: 320px;
+        .settings {
+            margin-bottom: 20px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        #person-image {
-            max-width: 100%;
-            max-height: 300px;
-            width: auto;
-            height: auto;
-            border-radius: 8px;
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-        }
-
-        #person-image.loaded {
-            opacity: 1;
-        }
-
-        #progress-bar {
-            position: absolute;
-            bottom: 10px;
-            width: 100%;
-            text-align: center;
-            font-style: italic;
-            color: var(--progress-color);
-        }
-
-        #progress-bar.error {
-            color: #E74C3C;
-        }
-
-        #find-another {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-
-        #person-name {
-            margin-top: 15px;
-            font-size: 1.5em;
-            font-weight: bold;
+            gap: 15px;
         }
     </style>
 </head>
@@ -169,10 +158,10 @@
     <h1 id="title">Гра: Випадкова людина з Wikidata</h1>
     <div id="main-display">
         <img id="person-image" src="" alt="Зображення людини">
-        <div id="progress-bar">Завантаження...</div>
-        <button id="find-another" onclick="loadPerson(true)">🔄 Знайти інше фото</button>
+        <button id="next-photo">🔄 Знайти нове фото</button>
     </div>
     <div id="person-name"></div>
+    <div id="progress">Завантаження...</div>
 
     <div class="btn-container">
         <button onclick="loadPerson(true)">🎯 Супер випадково (повільно)</button>
@@ -217,9 +206,11 @@
             fast: { count: 0, totalTime: 0, lastTime: 0 }
         };
 
-        // Кэш
+        // Кэш и состояние
         const rgbHslCache = JSON.parse(localStorage.getItem('rgbHslCache')) || {};
         const wikidataCache = JSON.parse(localStorage.getItem('wikidataCache')) || {};
+        let sessionList = [];
+        let loadedPhotos = 0;
 
         // Переводы
         const translations = {
@@ -235,6 +226,7 @@
                 themeDay: '☀ День',
                 modeOpen: 'Відкритий',
                 modeClosed: 'Закритий',
+                nextPhoto: '🔄 Знайти нове фото',
                 male: 'Чоловік',
                 female: 'Жінка',
                 alive: 'Живий',
@@ -254,11 +246,8 @@
                 loadingSession: 'Завантаження даних для сесії...',
                 sessionError: 'Не вдалося завантажити дані для сесії',
                 personError: 'Не вдалося завантажити людину для цієї категорії',
-                loadingPerson: 'Завантаження людини {n} з {total}...',
                 sessionComplete: 'Сесія завершена ({total} осіб)',
-                errorTime: 'Помилка після {time}мс',
-                findAnother: '🔄 Знайти інше фото',
-                progress: 'Завантаження: {percent}%'
+                errorTime: 'Помилка після {time}мс'
             },
             ru: {
                 title: 'Игра: Случайный человек из Wikidata',
@@ -272,6 +261,7 @@
                 themeDay: '☀ День',
                 modeOpen: 'Открытый',
                 modeClosed: 'Закрытый',
+                nextPhoto: '🔄 Найти новое фото',
                 male: 'Мужчина',
                 female: 'Женщина',
                 alive: 'Жив',
@@ -291,11 +281,8 @@
                 loadingSession: 'Загрузка данных для сессии...',
                 sessionError: 'Не удалось загрузить данные для сессии',
                 personError: 'Не удалось загрузить человека для этой категории',
-                loadingPerson: 'Загрузка человека {n} из {total}...',
                 sessionComplete: 'Сессия завершена ({total} человек)',
-                errorTime: 'Ошибка после {time}мс',
-                findAnother: '🔄 Найти другое фото',
-                progress: 'Загрузка: {percent}%'
+                errorTime: 'Ошибка после {time}мс'
             },
             en: {
                 title: 'Game: Random Person from Wikidata',
@@ -309,6 +296,7 @@
                 themeDay: '☀ Day',
                 modeOpen: 'Open',
                 modeClosed: 'Closed',
+                nextPhoto: '🔄 Find New Photo',
                 male: 'Male',
                 female: 'Female',
                 alive: 'Alive',
@@ -328,11 +316,8 @@
                 loadingSession: 'Loading session data...',
                 sessionError: 'Failed to load session data',
                 personError: 'Failed to load person for this category',
-                loadingPerson: 'Loading person {n} of {total}...',
                 sessionComplete: 'Session completed ({total} persons)',
-                errorTime: 'Error after {time}ms',
-                findAnother: '🔄 Find another photo',
-                progress: 'Loading: {percent}%'
+                errorTime: 'Error after {time}ms'
             },
             alien: {
                 title: '👾 ⊸⍟⊸: ⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟ Wikidata',
@@ -346,6 +331,7 @@
                 themeDay: '☀ ⊸⍟⊸',
                 modeOpen: '⊸⍟⊸',
                 modeClosed: '⊸⍟⊸⊸',
+                nextPhoto: '🔄 ⊸⍟⊸ ⊸⍟⊸',
                 male: '⊸⍟⊸',
                 female: '⊸⍟⊸⊸',
                 alive: '⊸⍟⊸',
@@ -365,11 +351,8 @@
                 loadingSession: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸...',
                 sessionError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
                 personError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
-                loadingPerson: '⊸⍟⊸ ⊸⍟⊸ {n} ⊸⍟ {total}...',
                 sessionComplete: '⊸⍟⊸ ⊸⍟⊸ ({total} ⊸⍟⊸)',
-                errorTime: '⊸⍟⊸ ⊸⍟⊸ {time}⊸⍟⊸',
-                findAnother: '🔄 ⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
-                progress: '⊸⍟⊸: {percent}%'
+                errorTime: '⊸⍟⊸ ⊸⍟⊸ {time}⊸⍟⊸'
             }
         };
 
@@ -385,8 +368,8 @@
         // Логирование инициализации
         console.log('Инициализация стиля Space Gray');
         console.log('Таймаут увеличен до 60 секунд');
-        console.log('Обновлены переводы для режима');
-        console.log('Добавлен главный дисплей и прогресс');
+        console.log('Удалено автоматическое переключение фото');
+        console.log('Добавлена кнопка "Найти новое фото"');
         console.log('Тема: ' + (isNight ? 'ночь' : 'день'));
         console.log('Выбран язык: ' + selectedLanguage);
         console.log('Выбран режим: ' + gameMode);
@@ -395,14 +378,14 @@
         function updateLanguage() {
             const texts = translations[selectedLanguage];
             document.getElementById('title').textContent = texts.title;
+            document.getElementById('progress').textContent = texts.loading;
             document.querySelector('button[onclick="loadPerson(true)"]').textContent = texts.slowButton;
             document.querySelector('button[onclick="loadSession()"]').textContent = texts.fastButton;
             document.querySelector('.stats div:first-child').textContent = texts.stats;
             document.getElementById('stats-slow').textContent = texts.slowStats;
             document.getElementById('stats-fast').textContent = texts.fastStats;
             document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
-            document.getElementById('find-another').textContent = texts.findAnother;
-            document.getElementById('progress-bar').textContent = texts.loading;
+            document.getElementById('next-photo').textContent = texts.nextPhoto;
             updateModeSelect();
         }
 
@@ -437,7 +420,6 @@
         document.getElementById('mode-select').addEventListener('change', (e) => {
             gameMode = e.target.value;
             localStorage.setItem('mode', gameMode);
-            updateModeSelect();
             console.log('Выбран режим: ' + gameMode);
         });
 
@@ -456,38 +438,9 @@
                 `Час виконання: ${time.toFixed(0)}мс`;
         }
 
-        // Прогресс загрузки
-        let progressInterval = null;
-        function startProgress() {
-            let progress = 0;
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.classList.remove('error');
-            console.log('Начало загрузки: 0%');
-            gtag('event', 'load_progress', { percentage: progress });
-            
-            progressInterval = setInterval(() => {
-                progress = Math.min(progress + 10, 90);
-                progressBar.textContent = translations[selectedLanguage].progress.replace('{percent}', progress);
-                console.log(`Прогресс загрузки: ${progress}%`);
-                gtag('event', 'load_progress', { percentage: progress });
-            }, 500);
-        }
-
-        function completeProgress() {
-            clearInterval(progressInterval);
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.textContent = translations[selectedLanguage].loaded;
-            console.log('Завершено: 100%');
-            gtag('event', 'load_progress', { percentage: 100 });
-        }
-
-        function errorProgress(message) {
-            clearInterval(progressInterval);
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.textContent = message;
-            progressBar.classList.add('error');
-            console.log('Ошибка загрузки: ' + message);
-            gtag('event', 'load_progress', { percentage: -1, error: message });
+        // Логирование состояния загрузки
+        function logPhotoStatus() {
+            console.log(`Загружено фото: ${loadedPhotos}, Осталось непросмотренных: ${sessionList.length}`);
         }
 
         function rgbToHsl(r, g, b) {
@@ -738,6 +691,7 @@
         }
 
         function updateUI({ personLabel, gender, deathDate, birthDate }) {
+            const progress = document.getElementById('progress');
             const personName = document.getElementById('person-name');
             const genderText = gender?.value.split('/').pop() === 'Q6581097' ? translations[selectedLanguage].male : translations[selectedLanguage].female;
             const statusText = deathDate ? translations[selectedLanguage].deceased : translations[selectedLanguage].alive;
@@ -745,19 +699,26 @@
             const nameText = `${personLabel.value} (${genderText}, ${statusText}, Народження: ${birthDateText})`;
             
             requestAnimationFrame(() => {
-                completeProgress();
+                progress.textContent = translations[selectedLanguage].loaded;
+                progress.classList.remove('loading', 'error');
                 personName.textContent = nameText;
+                loadedPhotos++;
+                logPhotoStatus();
             });
         }
 
         function handleError(errorMessage) {
+            const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
             requestAnimationFrame(() => {
-                errorProgress(translations[selectedLanguage].error || errorMessage);
+                progress.textContent = translations[selectedLanguage].error || errorMessage;
+                progress.classList.add('error');
+                progress.classList.remove('loading');
                 personImage.src = 'https://via.placeholder.com/300';
                 personName.textContent = translations[selectedLanguage].testPerson;
+                logPhotoStatus();
             });
         }
 
@@ -766,14 +727,17 @@
             const mode = useRandom ? 'slow' : 'fast';
             console.time(`loadPerson-${mode}`);
 
+            const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
             requestAnimationFrame(() => {
+                progress.textContent = translations[selectedLanguage].loadingData;
+                progress.classList.add('loading');
+                progress.classList.remove('error');
                 personImage.src = '';
                 personName.textContent = '';
                 personImage.classList.remove('loaded');
-                startProgress();
             });
 
             let attempts = 0;
@@ -784,6 +748,7 @@
                     const person = await fetchPersonData(useRandom, category);
                     if (!person) throw new Error('No person found');
 
+                    progress.textContent = translations[selectedLanguage].loadingImage;
                     const fileName = decodeURIComponent(person.image.value.split('/').pop());
                     console.log(`Fetching image for file: ${fileName}`);
                     const imageUrl = await getCommonsImageUrl(fileName);
@@ -793,6 +758,7 @@
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
+                            progress.textContent = translations[selectedLanguage].skipBW;
                             attempts++;
                             continue;
                         }
@@ -808,6 +774,7 @@
                         return;
                     } catch (imageError) {
                         console.error(`Image load error: ${imageError.message}`);
+                        progress.textContent = translations[selectedLanguage].imageError;
                         attempts++;
                         continue;
                     }
@@ -840,14 +807,17 @@
             const mode = 'fast';
             console.time(`loadPersonFromData-${mode}`);
 
+            const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
             requestAnimationFrame(() => {
+                progress.textContent = translations[selectedLanguage].loadingImage;
+                progress.classList.add('loading');
+                progress.classList.remove('error');
                 personImage.src = '';
                 personName.textContent = '';
                 personImage.classList.remove('loaded');
-                startProgress();
             });
 
             let attempts = 0;
@@ -864,6 +834,7 @@
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
+                            progress.textContent = translations[selectedLanguage].skipBW;
                             const newPerson = await fetchPersonData(false, category);
                             person = newPerson;
                             attempts++;
@@ -881,6 +852,7 @@
                         return;
                     } catch (imageError) {
                         console.error(`Image load error: ${imageError.message}`);
+                        progress.textContent = translations[selectedLanguage].imageError;
                         attempts++;
                         const newPerson = await fetchPersonData(false, category);
                         person = newPerson;
@@ -906,16 +878,15 @@
         async function loadSession() {
             const startTime = performance.now();
             console.time('loadSession');
-            let sessionCount = 0;
+            sessionList = [];
             const categories = [
                 { gender: 'male', status: 'alive' },
                 { gender: 'male', status: 'deceased' },
                 { gender: 'female', status: 'alive' },
                 { gender: 'female', status: 'deceased' }
             ];
-            const sessionList = [];
 
-            document.getElementById('progress-bar').textContent = translations[selectedLanguage].loadingSession;
+            document.getElementById('progress').textContent = translations[selectedLanguage].loadingSession;
             try {
                 const promises = categories.map(async (category, i) => {
                     const count = i % 2 === 0 ? 3 : 2;
@@ -932,37 +903,46 @@
                     return results;
                 });
                 const results = await Promise.all(promises);
-                results.flat().forEach(person => sessionList.push(person));
+                results.flat().forEach(person => {
+                    if (person) sessionList.push({ person, category: categories[Math.floor(sessionList.length / 2.5)] });
+                });
+
+                console.log(`Загружен новый список: ${sessionList.length} человек`);
+                logPhotoStatus();
+
+                if (sessionList.length > 0) {
+                    const { person, category } = sessionList.shift();
+                    await loadPersonFromData(person, category);
+                } else {
+                    handleError(translations[selectedLanguage].sessionError);
+                }
             } catch (error) {
                 console.error('Session data loading failed:', error);
                 handleError(translations[selectedLanguage].sessionError);
-                console.timeEnd('loadSession');
-                return;
             }
-
-            for (let i = 0; i < sessionList.length; i++) {
-                const person = sessionList[i];
-                const category = categories[Math.floor((i % 10) / 2.5)];
-                document.getElementById('progress-bar').textContent = translations[selectedLanguage].loadingPerson.replace('{n}', sessionCount + 1).replace('{total}', settings.sessionPeople);
-                if (person) {
-                    await loadPersonFromData(person, category);
-                } else {
-                    handleError(translations[selectedLanguage].personError);
-                }
-                sessionCount++;
-                if (sessionCount < settings.sessionPeople) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-            }
-            document.getElementById('progress-bar').textContent = translations[selectedLanguage].sessionComplete.replace('{total}', settings.sessionPeople);
             console.timeEnd('loadSession');
             console.log(`Total session time: ${(performance.now() - startTime).toFixed(0)}ms`);
         }
 
-        // Обработчик кнопки "Найти другое фото"
-        document.getElementById('find-another').addEventListener('click', () => {
-            console.log('Нажата кнопка: Найти другое фото');
-            gtag('event', 'find_another_photo');
+        async function loadNextPerson() {
+            if (sessionList.length === 0) {
+                console.log('Список пуст, загружаем новый');
+                await loadSession();
+                return;
+            }
+
+            const { person, category } = sessionList.shift();
+            if (person) {
+                await loadPersonFromData(person, category);
+            } else {
+                handleError(translations[selectedLanguage].personError);
+            }
+        }
+
+        // Обработчик кнопки "Найти новое фото"
+        document.getElementById('next-photo').addEventListener('click', () => {
+            console.log('Нажата кнопка "Найти новое фото"');
+            loadNextPerson();
         });
 
         window.onload = () => {
