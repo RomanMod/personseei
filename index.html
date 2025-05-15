@@ -13,6 +13,8 @@
             --button-text: #E8ECEF;
             --accent-color: #3498DB;
             --progress-color: #3498DB;
+            --progress-bar-bg: #2C3E50;
+            --progress-bar-fill: #3498DB;
         }
 
         body.day {
@@ -23,6 +25,8 @@
             --button-text: #2C3E50;
             --accent-color: #2980B9;
             --progress-color: #2980B9;
+            --progress-bar-bg: #BDC3C7;
+            --progress-bar-fill: #2980B9;
         }
 
         body {
@@ -41,27 +45,42 @@
         }
 
         #main-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            aspect-ratio: 4 / 3; /* Фиксированное соотношение сторон 4:3 */
+            background-color: var(--progress-bar-bg);
+            border: 2px solid var(--button-bg);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         #person-image {
             display: block;
-            max-width: 100%;
-            max-height: 300px;
-            width: auto;
-            height: auto;
-            border: 2px solid var(--button-bg);
-            border-radius: 10px;
-            margin-right: 20px;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Сохранение пропорций изображения */
             opacity: 0;
             transition: opacity 0.5s ease-in;
         }
 
         #person-image.loaded {
             opacity: 1;
+        }
+
+        #progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 5px;
+            background-color: var(--progress-bar-fill);
+            transition: width 0.3s ease;
+        }
+
+        #progress-bar.hidden {
+            display: none;
         }
 
         #person-name {
@@ -88,7 +107,7 @@
             gap: 10px;
         }
 
-        .btn-container button, select {
+        .btn-container button, select, #next-photo {
             padding: 10px 20px;
             font-size: 16px;
             background-color: var(--button-bg);
@@ -99,23 +118,12 @@
             transition: background-color 0.2s;
         }
 
-        .btn-container button:hover, select:hover {
+        .btn-container button:hover, select:hover, #next-photo:hover {
             background-color: var(--button-hover);
         }
 
         #next-photo {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: var(--button-bg);
-            color: var(--button-text);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        #next-photo:hover {
-            background-color: var(--button-hover);
+            margin-bottom: 10px;
         }
 
         .time-info {
@@ -156,9 +164,10 @@
     </div>
 
     <h1 id="title">Гра: Випадкова людина з Wikidata</h1>
+    <button id="next-photo">🔄 Знайти нове фото</button>
     <div id="main-display">
         <img id="person-image" src="" alt="Зображення людини">
-        <button id="next-photo">🔄 Знайти нове фото</button>
+        <div id="progress-bar"></div>
     </div>
     <div id="person-name"></div>
     <div id="progress">Завантаження...</div>
@@ -366,10 +375,12 @@
         document.getElementById('mode-select').value = gameMode;
 
         // Логирование инициализации
-        console.log('Инициализация стиля Space Gray');
+        console.log('Инициализация стиля Space Gray (Шаг 2)');
         console.log('Таймаут увеличен до 60 секунд');
         console.log('Удалено автоматическое переключение фото');
-        console.log('Добавлена кнопка "Найти новое фото"');
+        console.log('Добавлена кнопка "Найти новое фото" над дисплеем');
+        console.log('Дисплей с фиксированным соотношением сторон 4:3');
+        console.log('Добавлен прогресс-бар в нижней части дисплея');
         console.log('Тема: ' + (isNight ? 'ночь' : 'день'));
         console.log('Выбран язык: ' + selectedLanguage);
         console.log('Выбран режим: ' + gameMode);
@@ -441,6 +452,21 @@
         // Логирование состояния загрузки
         function logPhotoStatus() {
             console.log(`Загружено фото: ${loadedPhotos}, Осталось непросмотренных: ${sessionList.length}`);
+        }
+
+        // Обновление прогресс-бара
+        function updateProgressBar(percentage) {
+            const progressBar = document.getElementById('progress-bar');
+            requestAnimationFrame(() => {
+                progressBar.style.width = `${percentage}%`;
+                console.log(`Прогресс-бар: ${percentage}%`);
+                if (percentage >= 100) {
+                    setTimeout(() => {
+                        progressBar.classList.add('hidden');
+                        console.log('Прогресс-бар скрыт');
+                    }, 500);
+                }
+            });
         }
 
         function rgbToHsl(r, g, b) {
@@ -887,7 +913,12 @@
             ];
 
             document.getElementById('progress').textContent = translations[selectedLanguage].loadingSession;
+            updateProgressBar(0);
+
             try {
+                const totalCategories = categories.reduce((sum, _, i) => sum + (i % 2 === 0 ? 3 : 2), 0);
+                let loadedCategories = 0;
+
                 const promises = categories.map(async (category, i) => {
                     const count = i % 2 === 0 ? 3 : 2;
                     const results = [];
@@ -895,9 +926,13 @@
                         try {
                             const person = await fetchPersonData(false, category);
                             results.push(person);
+                            loadedCategories++;
+                            updateProgressBar((loadedCategories / totalCategories) * 100);
                         } catch (error) {
                             console.error(`Error in category ${category.gender}/${category.status}:`, error);
                             results.push(null);
+                            loadedCategories++;
+                            updateProgressBar((loadedCategories / totalCategories) * 100);
                         }
                     }
                     return results;
@@ -909,6 +944,7 @@
 
                 console.log(`Загружен новый список: ${sessionList.length} человек`);
                 logPhotoStatus();
+                updateProgressBar(100);
 
                 if (sessionList.length > 0) {
                     const { person, category } = sessionList.shift();
@@ -919,6 +955,7 @@
             } catch (error) {
                 console.error('Session data loading failed:', error);
                 handleError(translations[selectedLanguage].sessionError);
+                updateProgressBar(0);
             }
             console.timeEnd('loadSession');
             console.log(`Total session time: ${(performance.now() - startTime).toFixed(0)}ms`);
