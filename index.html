@@ -15,13 +15,14 @@
     </script>
     <style>
         :root {
-            --bg-color: #2c2c2e; /* Space gray */
+            --bg-color: #2c2c2e;
             --text-color: #e0e0e0;
             --button-bg: #3a3a3c;
             --button-hover: #4a4a4c;
             --button-active: #1c1c1e;
-            --highlight-correct: #4caf50; /* Green for dark theme */
+            --highlight-correct: #4caf50;
             --highlight-error: #f44336;
+            --highlight-warning: #ff9800;
             --display-bg: #1c1c1e;
             --link-color: #40c4ff;
         }
@@ -32,8 +33,9 @@
             --button-bg: #d0d0d0;
             --button-hover: #b0b0b0;
             --button-active: #a0a0a0;
-            --highlight-correct: #0288d1; /* Blue for light theme */
+            --highlight-correct: #0288d1;
             --highlight-error: #d32f2f;
+            --highlight-warning: #f57c00;
             --display-bg: #e0e0e0;
             --link-color: #0288d1;
         }
@@ -49,7 +51,7 @@
             align-items: center;
             justify-content: flex-start;
             min-height: 100vh;
-            padding-top: 10vh; /* Shift content up */
+            padding-top: 10vh;
         }
 
         h1 {
@@ -161,6 +163,10 @@
             text-decoration: underline;
         }
 
+        .info.warning {
+            color: var(--highlight-warning);
+        }
+
         .buttons {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -181,6 +187,10 @@
 
         .buttons button.error {
             background-color: var(--highlight-error);
+        }
+
+        .buttons button.warning {
+            border: 2px solid var(--highlight-warning);
         }
 
         .check-btn {
@@ -266,7 +276,8 @@
                 check: "Перевірити", next: "Далі", 'new-photo': "Знайти інше фото",
                 'stats-title': "Статистика:", 'stats-total': "Всього питань: ", 'stats-correct': "Правильних: ", 'stats-incorrect': "Неправильних: ",
                 alive: "Живий", deceased: "Мертвий", male: "Чоловік", female: "Жінка",
-                closed: "Закритий режим", error: "Помилка завантаження даних"
+                closed: "Закритий режим", error: "Помилка завантаження даних",
+                incomplete: "Виберіть усі відповіді!"
             },
             ru: {
                 title: "Игра: Кто это?",
@@ -276,7 +287,8 @@
                 check: "Проверить", next: "Далее", 'new-photo': "Найти другое фото",
                 'stats-title': "Статистика:", 'stats-total': "Всего вопросов: ", 'stats-correct': "Правильных: ", 'stats-incorrect': "Неправильных: ",
                 alive: "Жив", deceased: "Мертв", male: "Мужчина", female: "Женщина",
-                closed: "Закрытый режим", error: "Ошибка загрузки данных"
+                closed: "Закрытый режим", error: "Ошибка загрузки данных",
+                incomplete: "Выберите все ответы!"
             },
             en: {
                 title: "Game: Who is it?",
@@ -286,7 +298,8 @@
                 check: "Check", next: "Next", 'new-photo': "Find another photo",
                 'stats-title': "Statistics:", 'stats-total': "Total questions: ", 'stats-correct': "Correct: ", 'stats-incorrect': "Incorrect: ",
                 alive: "Alive", deceased: "Deceased", male: "Male", female: "Female",
-                closed: "Closed mode", error: "Data loading error"
+                closed: "Closed mode", error: "Data loading error",
+                incomplete: "Select all answers!"
             },
             alien: {
                 title: "⊸⊻⊸: ⊽⊸⊻ ⊽⊸⊸?",
@@ -296,7 +309,8 @@
                 check: "⊸⊻⊸⊻", next: "⊻⊸⊻", 'new-photo': "⊸⊻⊸ ⊻⊸⊻",
                 'stats-title': "⊸⊻⊸⊻:", 'stats-total': "⊻⊸⊻ ⊸⊻⊸: ", 'stats-correct': "⊸⊻⊸: ", 'stats-incorrect': "⊻⊸⊻: ",
                 alive: "⊸⊻⊸", deceased: "⊻⊸⊻", male: "⊸⊻⊸", female: "⊻⊸⊻",
-                closed: "⊸⊻⊸⊻ ⊻⊸⊻", error: "⊸⊻⊸ ⊻⊸⊻"
+                closed: "⊸⊻⊸⊻ ⊻⊸⊻", error: "⊸⊻⊸ ⊻⊸⊻",
+                incomplete: "⊸⊻⊸ ⊻⊸⊻!"
             }
         };
 
@@ -313,7 +327,7 @@
         };
 
         // Cache
-        const cache = JSON.parse(localStorage.getItem('personCache')) || [];
+        let cache = JSON.parse(localStorage.getItem('personCache')) || [];
 
         // Logging
         function log(message, type = 'info') {
@@ -325,6 +339,25 @@
         function sendGA4Event(eventName, params) {
             gtag('event', eventName, params);
             log(`GA4 event sent: ${eventName}`, 'info');
+        }
+
+        // Debounced UI update
+        let uiUpdatePending = false;
+        function updateUI() {
+            if (uiUpdatePending) return;
+            uiUpdatePending = true;
+            requestAnimationFrame(() => {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.dataset.i18n;
+                    el.textContent = i18n[state.language][key] + (key.includes('stats-') ? state.stats[key.split('-')[1]] : '');
+                });
+                document.getElementById('progress').textContent = `${state.progress}%`;
+                document.getElementById('closed-screen').textContent = state.mode === 'closed' && !state.checked ? i18n[state.language].closed : '';
+                renderInfo();
+                renderButtons();
+                updateStats();
+                uiUpdatePending = false;
+            });
         }
 
         // Change theme
@@ -352,19 +385,6 @@
             sendGA4Event('mode_change', { mode: state.mode });
         }
 
-        // Update UI
-        function updateUI() {
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.dataset.i18n;
-                el.textContent = i18n[state.language][key] + (key.includes('stats-') ? state.stats[key.split('-')[1]] : '');
-            });
-            document.getElementById('progress').textContent = `${state.progress}%`;
-            document.getElementById('closed-screen').textContent = state.mode === 'closed' && !state.checked ? i18n[state.language].closed : '';
-            renderInfo();
-            renderButtons();
-            updateStats();
-        }
-
         // Render buttons
         function renderButtons() {
             const buttonsDiv = document.getElementById('answer-buttons');
@@ -386,6 +406,8 @@
                 button.dataset.value = btn.id;
                 if (state.answers[btn.type] === btn.id) {
                     button.classList.add(state.checked && isCorrect(btn.type, btn.id) ? 'correct' : 'error');
+                } else if (!state.checked && !state.answers[btn.type]) {
+                    button.classList.add('warning');
                 }
                 button.onclick = () => selectAnswer(btn.type, btn.id);
                 buttonsDiv.appendChild(button);
@@ -398,6 +420,7 @@
             state.answers[type] = value;
             renderButtons();
             log(`Answer selected: ${type} = ${value}`);
+            updateUI();
         }
 
         // Check answer
@@ -406,6 +429,13 @@
             const requiredAnswers = state.mode === 'closed' ? ['status', 'gender'] : ['status'];
             if (requiredAnswers.some(type => !state.answers[type])) {
                 log('Incomplete answers', 'warn');
+                const infoDiv = document.getElementById('info');
+                infoDiv.textContent = i18n[state.language].incomplete;
+                infoDiv.classList.add('warning');
+                setTimeout(() => {
+                    infoDiv.textContent = '';
+                    infoDiv.classList.remove('warning');
+                }, 2000);
                 return;
             }
 
@@ -517,6 +547,13 @@
 
         // Fetch person data
         async function fetchPersonData() {
+            // Фильтруем кэш от черного списка
+            cache = cache.filter(person => {
+                const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                return !imageBlacklist.includes(fileName);
+            });
+            localStorage.setItem('personCache', JSON.stringify(cache));
+
             if (cache.length > 0) {
                 log('Using cached person');
                 return cache[Math.floor(Math.random() * cache.length)];
@@ -553,7 +590,6 @@
                     headers: { 'Accept': 'application/sparql-results+json' }
                 });
                 state.progress = 30;
-                updateUI();
                 if (!response.ok) {
                     const text = await response.text();
                     log(`Wikidata error: ${response.status} - ${text}`, 'error');
@@ -563,6 +599,11 @@
                 const person = data.results.bindings[0];
                 if (!person) throw new Error('No person found');
                 log(`Person fetched: ${person.personLabel.value}`);
+                const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                if (imageBlacklist.includes(fileName)) {
+                    log(`Skipping blacklisted image: ${fileName}`, 'warn');
+                    throw new Error(`Blacklisted image: ${fileName}`);
+                }
                 cache.push(person);
                 localStorage.setItem('personCache', JSON.stringify(cache.slice(-10)));
                 return person;
@@ -587,10 +628,8 @@
             while (attempts < settings.maxAttempts) {
                 try {
                     state.progress = 10;
-                    updateUI();
                     const person = await fetchPersonData();
                     state.progress = 50;
-                    updateUI();
                     const fileName = decodeURIComponent(person.image.value.split('/').pop());
                     if (imageBlacklist.includes(fileName)) {
                         log(`Skipping blacklisted image: ${fileName}`, 'warn');
@@ -599,7 +638,6 @@
                     const imageUrl = await getCommonsImageUrl(fileName);
                     if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
                     state.progress = 80;
-                    updateUI();
                     await loadImageWithFallback(imageUrl, personImage);
                     state.person = person;
                     state.progress = 100;
@@ -611,9 +649,9 @@
                     log(`Load person attempt ${attempts} failed: ${error.message}`, 'error');
                     if (attempts === settings.maxAttempts) {
                         state.progress = 0;
-                        updateUI();
                         document.getElementById('info').textContent = i18n[state.language].error;
                         sendGA4Event('load_error', { error: error.message });
+                        updateUI();
                         return;
                     }
                     await new Promise(resolve => setTimeout(resolve, 500));
