@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Випадкове фото людини з Wikidata</title>
+    <meta name="referrer" content="origin">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -102,23 +103,24 @@
     <script>
         // Настройки приложения
         const settings = {
-            superRandomPeople: true, // Если true, используем ORDER BY RAND(), иначе выбор из списка с оффсетом
+            superRandomPeople: true,
             dynamicOffset: true,
-            maxOffset: 100,
-            maxPeople: 12,
+            maxOffset: 2000,
+            maxPeople: 300,
             sessionPeople: 10,
             genderRatio: { male: 50, female: 50 },
             statusRatio: { alive: 50, deceased: 50 },
-            birthYearFilter: 1970, // Фильтр даты рождения для всех
+            birthYearFilter: 1950,
             excludeBlackAndWhite: false,
-            selectedCountries: 'all', // или 'all'
+            selectedCountries: ['ua', 'us'],
             countryMap: {
-                'ua': 'Q212', // Украина
-                'us': 'Q30',  // США
-                'ru': 'Q159', // Россия
-                'de': 'Q183', // Германия
-                'gb': 'Q145'  // Великобритания
-            }
+                'ua': 'Q212',
+                'us': 'Q30',
+                'ru': 'Q159',
+                'de': 'Q183',
+                'gb': 'Q145'
+            },
+            strictCountryFilter: false // Если true, гражданство обязательно
         };
 
         // Статистика
@@ -127,8 +129,9 @@
             fast: { count: 0, totalTime: 0, lastTime: 0 }
         };
 
-        // Кэш для результатов анализа RGB+HSL
+        // Кэш для результатов анализа RGB+HSL и данных Wikidata
         const rgbHslCache = JSON.parse(localStorage.getItem('rgbHslCache')) || {};
+        const wikidataCache = JSON.parse(localStorage.getItem('wikidataCache')) || {};
 
         function updateStats(mode, time) {
             stats[mode].count++;
@@ -144,7 +147,6 @@
                 `Час виконання: ${time.toFixed(0)}мс`;
         }
 
-        // Конвертация RGB в HSL
         function rgbToHsl(r, g, b) {
             r /= 255;
             g /= 255;
@@ -154,7 +156,7 @@
             let h, s, l = (max + min) / 2;
 
             if (max === min) {
-                h = s = 0; // Ахроматический
+                h = s = 0;
             } else {
                 const d = max - min;
                 s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -168,7 +170,6 @@
             return [h, s, l];
         }
 
-        // Проверка, является ли изображение чёрно-белым
         async function isBlackAndWhite(imageUrl) {
             if (!settings.excludeBlackAndWhite) return false;
 
@@ -257,24 +258,29 @@
         async function loadImageWithFallback(url, element) {
             return new Promise((resolve, reject) => {
                 element.classList.remove('loaded');
-                console.log(`Attempting to load image: ${url}`);
-                element.onerror = () => {
-                    console.warn(`Direct image load failed, trying proxy: ${url}`);
-                    const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
-                    element.onerror = () => {
-                        console.error(`Proxy image load failed: ${proxyUrl}`);
-                        element.src = 'https://via.placeholder.com/300';
-                        element.classList.add('loaded');
-                        reject(new Error('Both direct and proxy image load failed'));
-                    };
-                    element.src = proxyUrl;
+                const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+                console.log(`Attempting to load image via proxy: ${proxyUrl}`);
+                
+                const cleanup = () => {
+                    element.onload = null;
+                    element.onerror = null;
                 };
+
                 element.onload = () => {
-                    console.log(`Image loaded successfully: ${url}`);
+                    console.log(`Image loaded successfully via proxy: ${proxyUrl}`);
                     element.classList.add('loaded');
+                    cleanup();
                     resolve();
                 };
-                element.src = url;
+                element.onerror = () => {
+                    console.error(`Proxy image load failed: ${proxyUrl}`);
+                    element.src = 'https://via.placeholder.com/300';
+                    element.classList.add('loaded');
+                    cleanup();
+                    reject(new Error(`Proxy image load failed: ${proxyUrl}`));
+                };
+                
+                element.src = proxyUrl;
             });
         }
 
@@ -282,7 +288,13 @@
             const start = performance.now();
             let query;
             let attempts = 0;
-            const maxAttempts = 10;
+            const maxAttempts = 5;
+
+            const cacheKey = `${useRandom}-${category?.gender || 'any'}-${category?.status || 'any'}`;
+            if (wikidataCache[cacheKey] && wikidataCache[cacheKey].length > 0) {
+                console.log(`Using cached data for ${cacheKey}`);
+                return wikidataCache[cacheKey][Math.floor(Math.random() * wikidataCache[cacheKey].length)];
+            }
 
             const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
                                 category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
@@ -305,18 +317,18 @@
                         WHERE {
                             ?person wdt:P31 wd:Q5;
                                     wdt:P18 ?image;
-                                    wdt:P27 ?country;
                                     wdt:P21 ?gender;
                                     wdt:P569 ?birthDate.
+                            ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
                             ${genderFilter}.
                             ${statusFilter}.
                             ${birthDateFilter}
-                            ${countryFilter}
+                            ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
                             ?person rdfs:label ?personLabel.
                             FILTER (LANG(?personLabel) = "en").
                         }
                         ORDER BY RAND()
-                        LIMIT 1
+                        LIMIT 10
                     `;
                 } else {
                     query = `
@@ -324,13 +336,13 @@
                         WHERE {
                             ?person wdt:P31 wd:Q5;
                                     wdt:P18 ?image;
-                                    wdt:P27 ?country;
                                     wdt:P21 ?gender;
                                     wdt:P569 ?birthDate.
+                            ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
                             ${genderFilter}.
                             ${statusFilter}.
                             ${birthDateFilter}
-                            ${countryFilter}
+                            ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
                             ?person rdfs:label ?personLabel.
                             FILTER (LANG(?personLabel) = "en").
                         }
@@ -343,13 +355,13 @@
                 const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
 
                 const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 60000);
+                const timeout = setTimeout(() => controller.abort(), 45000);
 
                 try {
                     const response = await fetch(url, {
                         method: 'GET',
                         headers: {
-                            'Accept': 'application/sparql-results+json',
+                            'Accept': 'application/spar solem-results+json',
                             'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)',
                         },
                         signal: controller.signal
@@ -362,17 +374,16 @@
                     console.log(`Wikidata query time: ${(performance.now() - start).toFixed(0)}ms (${useRandom ? 'random' : 'fast'})`);
 
                     if (!list.length) {
-                        console.warn(`No results for category ${category?.gender}/${category?.status}, attempt ${attempts + 1}`);
+                        console.warn(`No results for category ${category?.gender || 'any'}/${category?.status || 'any'}, attempt ${attempts + 1}`);
                         attempts++;
                         continue;
                     }
 
-                    if (useRandom) {
-                        return list[0];
-                    } else {
-                        const randomIndex = Math.floor(Math.random() * list.length);
-                        return list[randomIndex];
-                    }
+                    // Кэшируем результаты (ограничиваем до 100 записей)
+                    wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100);
+                    localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
+
+                    return list[Math.floor(Math.random() * list.length)];
                 } catch (error) {
                     console.error(`Wikidata query failed: ${error.message}`);
                     attempts++;
@@ -387,12 +398,16 @@
         function updateUI({ personLabel, gender, deathDate, birthDate }) {
             const progress = document.getElementById('progress');
             const personName = document.getElementById('person-name');
-            progress.textContent = 'Фото завантажено!';
-            progress.classList.remove('loading', 'error');
             const genderText = gender?.value.split('/').pop() === 'Q6581097' ? 'Чоловік' : 'Жінка';
             const statusText = deathDate ? 'Мерц' : 'Живий';
             const birthDateText = birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : 'Невідомо';
-            personName.textContent = `${personLabel.value} (${genderText}, ${statusText}, Народження: ${birthDateText})`;
+            const nameText = `${personLabel.value} (${genderText}, ${statusText}, Народження: ${birthDateText})`;
+            
+            requestAnimationFrame(() => {
+                progress.textContent = 'Фото завантажено!';
+                progress.classList.remove('loading', 'error');
+                personName.textContent = nameText;
+            });
         }
 
         function handleError(errorMessage) {
@@ -400,29 +415,35 @@
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
-            progress.textContent = errorMessage;
-            progress.classList.add('error');
-            progress.classList.remove('loading');
-            personImage.src = 'https://via.placeholder.com/300';
-            personName.textContent = 'Тестовий персонаж';
+            requestAnimationFrame(() => {
+                progress.textContent = errorMessage;
+                progress.classList.add('error');
+                progress.classList.remove('loading');
+                personImage.src = 'https://via.placeholder.com/300';
+                personName.textContent = 'Тестовий персонаж';
+            });
         }
 
         async function loadPerson(useRandom = true, category = null) {
             const startTime = performance.now();
             const mode = useRandom ? 'slow' : 'fast';
+            console.time(`loadPerson-${mode}`);
+
             const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
-            progress.textContent = 'Завантаження даних...';
-            progress.classList.add('loading');
-            progress.classList.remove('error');
-            personImage.src = '';
-            personName.textContent = '';
-            personImage.classList.remove('loaded');
+            requestAnimationFrame(() => {
+                progress.textContent = 'Завантаження даних...';
+                progress.classList.add('loading');
+                progress.classList.remove('error');
+                personImage.src = '';
+                personName.textContent = '';
+                personImage.classList.remove('loaded');
+            });
 
             let attempts = 0;
-            const maxAttempts = 3;
+            const maxAttempts = 5;
 
             while (attempts < maxAttempts) {
                 try {
@@ -445,12 +466,20 @@
                         }
                     }
 
-                    await loadImageWithFallback(imageUrl, personImage);
-                    updateUI(person);
-                    
-                    const totalTime = performance.now() - startTime;
-                    updateStats(mode, totalTime);
-                    return;
+                    try {
+                        await loadImageWithFallback(imageUrl, personImage);
+                        updateUI(person);
+                        
+                        const totalTime = performance.now() - startTime;
+                        updateStats(mode, totalTime);
+                        console.timeEnd(`loadPerson-${mode}`);
+                        return;
+                    } catch (imageError) {
+                        console.error(`Image load error: ${imageError.message}`);
+                        progress.textContent = 'Не вдалося завантажити зображення, пробуємо іншого...';
+                        attempts++;
+                        continue;
+                    }
                 } catch (error) {
                     console.error('Ошибка:', error.message);
                     attempts++;
@@ -469,6 +498,7 @@
                         const totalTime = performance.now() - startTime;
                         document.getElementById(`time-${mode}`).textContent = 
                             `Ошибка после ${totalTime.toFixed(0)}мс`;
+                        console.timeEnd(`loadPerson-${mode}`);
                     }
                 }
             }
@@ -477,19 +507,23 @@
         async function loadPersonFromData(person, category = null) {
             const startTime = performance.now();
             const mode = 'fast';
+            console.time(`loadPersonFromData-${mode}`);
+
             const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
-            progress.textContent = 'Завантаження зображення...';
-            progress.classList.add('loading');
-            progress.classList.remove('error');
-            personImage.src = '';
-            personName.textContent = '';
-            personImage.classList.remove('loaded');
+            requestAnimationFrame(() => {
+                progress.textContent = 'Завантаження зображення...';
+                progress.classList.add('loading');
+                progress.classList.remove('error');
+                personImage.src = '';
+                personName.textContent = '';
+                personImage.classList.remove('loaded');
+            });
 
             let attempts = 0;
-            const maxAttempts = 3;
+            const maxAttempts = 5;
 
             while (attempts < maxAttempts) {
                 try {
@@ -510,12 +544,22 @@
                         }
                     }
 
-                    await loadImageWithFallback(imageUrl, personImage);
-                    updateUI(person);
-                    
-                    const totalTime = performance.now() - startTime;
-                    updateStats(mode, totalTime);
-                    return;
+                    try {
+                        await loadImageWithFallback(imageUrl, personImage);
+                        updateUI(person);
+                        
+                        const totalTime = performance.now() - startTime;
+                        updateStats(mode, totalTime);
+                        console.timeEnd(`loadPersonFromData-${mode}`);
+                        return;
+                    } catch (imageError) {
+                        console.error(`Image load error: ${imageError.message}`);
+                        progress.textContent = 'Не вдалося завантажити зображення, пробуємо іншого...';
+                        attempts++;
+                        const newPerson = await fetchPersonData(false, category);
+                        person = newPerson;
+                        continue;
+                    }
                 } catch (error) {
                     console.error('Ошибка:', error.message);
                     attempts++;
@@ -527,12 +571,15 @@
                         const totalTime = performance.now() - startTime;
                         document.getElementById(`time-${mode}`).textContent = 
                             `Ошибка после ${totalTime.toFixed(0)}мс`;
+                        console.timeEnd(`loadPersonFromData-${mode}`);
                     }
                 }
             }
         }
 
         async function loadSession() {
+            const startTime = performance.now();
+            console.time('loadSession');
             let sessionCount = 0;
             const categories = [
                 { gender: 'male', status: 'alive' },
@@ -563,6 +610,7 @@
             } catch (error) {
                 console.error('Session data loading failed:', error);
                 handleError('Не удалось загрузить данные для сессии');
+                console.timeEnd('loadSession');
                 return;
             }
 
@@ -581,6 +629,8 @@
                 }
             }
             document.getElementById('progress').textContent = `Сесія завершена (${settings.sessionPeople} осіб)`;
+            console.timeEnd('loadSession');
+            console.log(`Total session time: ${(performance.now() - startTime).toFixed(0)}ms`);
         }
 
         window.onload = () => {
