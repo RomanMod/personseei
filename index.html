@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="origin">
     <title>Гра: Хто це?</title>
+    <!-- Подавление favicon -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
@@ -360,6 +362,11 @@
             });
         }
 
+        // Async delay
+        async function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
         // Change theme
         function changeTheme() {
             state.theme = document.getElementById('theme').value;
@@ -556,7 +563,13 @@
 
             if (cache.length > 0) {
                 log('Using cached person');
-                return cache[Math.floor(Math.random() * cache.length)];
+                const person = cache[Math.floor(Math.random() * cache.length)];
+                const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                if (imageBlacklist.includes(fileName)) {
+                    log(`Skipping blacklisted image from cache: ${fileName}`, 'warn');
+                    throw new Error(`Blacklisted image: ${fileName}`);
+                }
+                return person;
             }
             const maxOffset = 1000;
             const offset = Math.floor(Math.random() * maxOffset);
@@ -654,13 +667,20 @@
                         updateUI();
                         return;
                     }
-                    await new Promise(resolve => setTimeout(resolve, 500));
+                    await delay(200); // Уменьшено до 200 мс
                 }
             }
         }
 
         // Initialization
         window.onload = () => {
+            // Очистка кэша от черного списка при старте
+            cache = cache.filter(person => {
+                const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                return !imageBlacklist.includes(fileName);
+            });
+            localStorage.setItem('personCache', JSON.stringify(cache));
+
             document.getElementById('check-btn').onclick = checkAnswer;
             document.getElementById('next-btn').onclick = () => {
                 resetAnswers();
