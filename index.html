@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="referrer" content="origin">
     <title>Гра: Хто це?</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
     <script>
@@ -229,7 +230,8 @@
                 check: "Перевірити",
                 'stats-title': "Статистика:", 'stats-total': "Всього питань: ", 'stats-correct': "Правильних: ", 'stats-incorrect': "Неправильних: ",
                 alive: "Живий", deceased: "Мертвий", male: "Чоловік", female: "Жінка",
-                closed: "Закритий режим"
+                closed: "Закритий режим",
+                error: "Помилка завантаження даних"
             },
             ru: {
                 title: "Игра: Кто это?",
@@ -239,7 +241,8 @@
                 check: "Проверить",
                 'stats-title': "Статистика:", 'stats-total': "Всего вопросов: ", 'stats-correct': "Правильных: ", 'stats-incorrect': "Неправильных: ",
                 alive: "Жив", deceased: "Мертв", male: "Мужчина", female: "Женщина",
-                closed: "Закрытый режим"
+                closed: "Закрытый режим",
+                error: "Ошибка загрузки данных"
             },
             en: {
                 title: "Game: Who is it?",
@@ -249,7 +252,8 @@
                 check: "Check",
                 'stats-title': "Statistics:", 'stats-total': "Total questions: ", 'stats-correct': "Correct: ", 'stats-incorrect': "Incorrect: ",
                 alive: "Alive", deceased: "Deceased", male: "Male", female: "Female",
-                closed: "Closed mode"
+                closed: "Closed mode",
+                error: "Data loading error"
             },
             alien: {
                 title: "⊸⊻⊸: ⊽⊸⊻ ⊽⊸⊸?",
@@ -259,7 +263,8 @@
                 check: "⊸⊻⊸⊻",
                 'stats-title': "⊸⊻⊸⊻:", 'stats-total': "⊻⊸⊻ ⊸⊻⊸: ", 'stats-correct': "⊸⊻⊸: ", 'stats-incorrect': "⊻⊸⊻: ",
                 alive: "⊸⊻⊸", deceased: "⊻⊸⊻", male: "⊸⊻⊸", female: "⊻⊸⊻",
-                closed: "⊸⊻⊸⊻ ⊻⊸⊻"
+                closed: "⊸⊻⊸⊻ ⊻⊸⊻",
+                error: "⊸⊻⊸ ⊻⊸⊻"
             }
         };
 
@@ -274,6 +279,9 @@
             progress: 0,
             checked: false
         };
+
+        // Кэш
+        const cache = JSON.parse(localStorage.getItem('personCache')) || [];
 
         // Логирование
         function log(message, type = 'info') {
@@ -477,12 +485,16 @@
 
         // Получение данных о человеке
         async function fetchPersonData() {
+            if (cache.length > 0) {
+                log('Using cached person');
+                return cache[Math.floor(Math.random() * cache.length)];
+            }
+            const maxOffset = 1000;
+            const offset = Math.floor(Math.random() * maxOffset);
             const genderFilter = 'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
             const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01"^^xsd:dateTime).`;
             const countryFilter = settings.selectedCountries === 'all' ? '' :
-                `FILTER(?country IN (${settings.selectedCountries
-                    .map(code => `wd:${settings.countryMap[code]}`)
-                    .join(', ')})).`;
+                `FILTER(?country IN (${settings.selectedCountries.map(code => `wd:${settings.countryMap[code]}`).join(', ')})).`;
             const query = `
                 SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate ?country
                 WHERE {
@@ -498,10 +510,10 @@
                     ?person rdfs:label ?personLabel.
                     FILTER (LANG(?personLabel) = "en").
                 }
-                ORDER BY RAND()
+                OFFSET ${offset}
                 LIMIT 1
             `;
-            const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
+            const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}&format=json`;
             try {
                 state.progress = 10;
                 updateUI();
@@ -510,10 +522,17 @@
                 });
                 state.progress = 30;
                 updateUI();
+                if (!response.ok) {
+                    const text = await response.text();
+                    log(`Wikidata error: ${response.status} - ${text}`, 'error');
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                }
                 const data = await response.json();
                 const person = data.results.bindings[0];
                 if (!person) throw new Error('No person found');
                 log(`Person fetched: ${person.personLabel.value}`);
+                cache.push(person);
+                localStorage.setItem('personCache', JSON.stringify(cache.slice(-10)));
                 return person;
             } catch (error) {
                 log(`Wikidata query failed: ${error.message}`, 'error');
@@ -557,9 +576,10 @@
                     if (attempts === settings.maxAttempts) {
                         state.progress = 0;
                         updateUI();
-                        document.getElementById('info').textContent = i18n[state.language].error || 'Помилка';
+                        document.getElementById('info').textContent = i18n[state.language].error;
                         sendGA4Event('load_error', { error: error.message });
                     }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
         }
