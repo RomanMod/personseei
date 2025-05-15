@@ -6,7 +6,7 @@
     <meta name="referrer" content="origin">
     <style>
         :root {
-            --bg-color: #1C2526; /* Space Gray темный фон */
+            --bg-color: #1C2526;
             --text-color: #E8ECEF;
             --button-bg: #2C3E50;
             --button-hover: #34495E;
@@ -15,7 +15,6 @@
             --progress-color: #3498DB;
         }
 
-        /* Стиль для дневной темы */
         body.day {
             --bg-color: #ECF0F1;
             --text-color: #2C3E50;
@@ -197,7 +196,31 @@
                 slowStats: 'Повільний режим: -',
                 fastStats: 'Швидкий режим: -',
                 themeNight: '🌙 Ніч',
-                themeDay: '☀ День'
+                themeDay: '☀ День',
+                modeOpen: 'Відкритий',
+                modeClosed: 'Закритий',
+                male: 'Чоловік',
+                female: 'Жінка',
+                alive: 'Живий',
+                deceased: 'Мерц',
+                unknown: 'Невідомо',
+                loaded: 'Фото завантажено!',
+                error: 'Помилка завантаження',
+                timeout: 'Тайм-аут запиту до Wikidata',
+                badRequest: 'Некоректний SPARQL-запит',
+                noPerson: 'Не знайдено даних про людину',
+                invalidImage: 'Не вдалося завантажити зображення',
+                loadingData: 'Завантаження даних...',
+                loadingImage: 'Завантаження зображення...',
+                skipBW: 'Пропущено чорно-біле фото, завантаження іншого...',
+                imageError: 'Не вдалося завантажити зображення, пробуємо іншого...',
+                testPerson: 'Тестовий персонаж',
+                loadingSession: 'Завантаження даних для сесії...',
+                sessionError: 'Не вдалося завантажити дані для сесії',
+                personError: 'Не вдалося завантажити людину для цієї категорії',
+                loadingPerson: 'Завантаження людини {n} з {total}...',
+                sessionComplete: 'Сесія завершена ({total} осіб)',
+                errorTime: 'Помилка після {time}мс'
             },
             ru: {
                 title: 'Игра: Случайный человек из Wikidata',
@@ -208,7 +231,31 @@
                 slowStats: 'Медленный режим: -',
                 fastStats: 'Быстрый режим: -',
                 themeNight: '🌙 Ночь',
-                themeDay: '☀ День'
+                themeDay: '☀ День',
+                modeOpen: 'Открытый',
+                modeClosed: 'Закрытый',
+                male: 'Мужчина',
+                female: 'Женщина',
+                alive: 'Жив',
+                deceased: 'Мертв',
+                unknown: 'Неизвестно',
+                loaded: 'Фото загружено!',
+                error: 'Ошибка загрузки',
+                timeout: 'Тайм-аут запроса к Wikidata',
+                badRequest: 'Некорректный SPARQL-запрос',
+                noPerson: 'Не найдено данных о человеке',
+                invalidImage: 'Не удалось загрузить изображение',
+                loadingData: 'Загрузка данных...',
+                loadingImage: 'Загрузка изображения...',
+                skipBW: 'Пропущено черно-белое фото, загрузка другого...',
+                imageError: 'Не удалось загрузить изображение, пробуем другого...',
+                testPerson: 'Тестовый персонаж',
+                loadingSession: 'Загрузка данных для сессии...',
+                sessionError: 'Не удалось загрузить данные для сессии',
+                personError: 'Не удалось загрузить человека для этой категории',
+                loadingPerson: 'Загрузка человека {n} из {total}...',
+                sessionComplete: 'Сессия завершена ({total} человек)',
+                errorTime: 'Ошибка после {time}мс'
             },
             en: {
                 title: 'Game: Random Person from Wikidata',
@@ -219,7 +266,31 @@
                 slowStats: 'Slow Mode: -',
                 fastStats: 'Fast Mode: -',
                 themeNight: '🌙 Night',
-                themeDay: '☀ Day'
+                themeDay: '☀ Day',
+                modeOpen: 'Open',
+                modeClosed: 'Closed',
+                male: 'Male',
+                female: 'Female',
+                alive: 'Alive',
+                deceased: 'Deceased',
+                unknown: 'Unknown',
+                loaded: 'Photo loaded!',
+                error: 'Loading error',
+                timeout: 'Timeout on Wikidata request',
+                badRequest: 'Invalid SPARQL query',
+                noPerson: 'No person data found',
+                invalidImage: 'Failed to load image',
+                loadingData: 'Loading data...',
+                loadingImage: 'Loading image...',
+                skipBW: 'Skipped black-and-white photo, loading another...',
+                imageError: 'Failed to load image, trying another...',
+                testPerson: 'Test Person',
+                loadingSession: 'Loading session data...',
+                sessionError: 'Failed to load session data',
+                personError: 'Failed to load person for this category',
+                loadingPerson: 'Loading person {n} of {total}...',
+                sessionComplete: 'Session completed ({total} persons)',
+                errorTime: 'Error after {time}ms'
             },
             alien: {
                 title: '👾 ⊸⍟⊸: ⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟ Wikidata',
@@ -230,7 +301,31 @@
                 slowStats: '⊸⍟⊸ ⊸⍟⊸: -',
                 fastStats: '⊸⍟⊸ ⊸⍟⊸: -',
                 themeNight: '🌙 ⊸⍟⊸',
-                themeDay: '☀ ⊸⍟⊸'
+                themeDay: '☀ ⊸⍟⊸',
+                modeOpen: '⊸⍟⊸',
+                modeClosed: '⊸⍟⊸⊸',
+                male: '⊸⍟⊸',
+                female: '⊸⍟⊸⊸',
+                alive: '⊸⍟⊸',
+                deceased: '⊸⍟⊸⊸',
+                unknown: '⊸⍟⊸⊸⊸',
+                loaded: '⊸⍟⊸ ⊸⍟⊸!',
+                error: '⊸⍟⊸ ⊸⍟⊸',
+                timeout: '⊸⍟⊸ ⊸⍟ Wikidata',
+                badRequest: '⊸⍟⊸ SPARQL ⊸⍟⊸',
+                noPerson: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
+                invalidImage: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
+                loadingData: '⊸⍟⊸ ⊸⍟⊸...',
+                loadingImage: '⊸⍟⊸ ⊸⍟⊸...',
+                skipBW: '⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟⊸, ⊸⍟⊸ ⊸⍟⊸...',
+                imageError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸, ⊸⍟⊸ ⊸⍟⊸...',
+                testPerson: '⊸⍟⊸ ⊸⍟⊸',
+                loadingSession: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸...',
+                sessionError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
+                personError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
+                loadingPerson: '⊸⍟⊸ ⊸⍟⊸ {n} ⊸⍟ {total}...',
+                sessionComplete: '⊸⍟⊸ ⊸⍟⊸ ({total} ⊸⍟⊸)',
+                errorTime: '⊸⍟⊸ ⊸⍟⊸ {time}⊸⍟⊸'
             }
         };
 
@@ -245,6 +340,8 @@
 
         // Логирование инициализации
         console.log('Инициализация стиля Space Gray');
+        console.log('Таймаут увеличен до 60 секунд');
+        console.log('Обновлены переводы для режима');
         console.log('Тема: ' + (isNight ? 'ночь' : 'день'));
         console.log('Выбран язык: ' + selectedLanguage);
         console.log('Выбран режим: ' + gameMode);
@@ -260,6 +357,17 @@
             document.getElementById('stats-slow').textContent = texts.slowStats;
             document.getElementById('stats-fast').textContent = texts.fastStats;
             document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
+            updateModeSelect();
+        }
+
+        // Обновление текста режима
+        function updateModeSelect() {
+            const modeSelect = document.getElementById('mode-select');
+            modeSelect.innerHTML = `
+                <option value="open">${translations[selectedLanguage].modeOpen}</option>
+                <option value="closed">${translations[selectedLanguage].modeClosed}</option>
+            `;
+            modeSelect.value = gameMode;
         }
 
         // Переключение темы
@@ -283,6 +391,7 @@
         document.getElementById('mode-select').addEventListener('change', (e) => {
             gameMode = e.target.value;
             localStorage.setItem('mode', gameMode);
+            updateModeSelect();
             console.log('Выбран режим: ' + gameMode);
         });
 
@@ -301,7 +410,6 @@
                 `Час виконання: ${time.toFixed(0)}мс`;
         }
 
-        // Функции из исходного кода (без изменений)
         function rgbToHsl(r, g, b) {
             r /= 255;
             g /= 255;
@@ -510,7 +618,7 @@
                 const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
 
                 const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 45000);
+                const timeout = setTimeout(() => controller.abort(), 60000);
 
                 try {
                     const response = await fetch(url, {
@@ -552,13 +660,13 @@
         function updateUI({ personLabel, gender, deathDate, birthDate }) {
             const progress = document.getElementById('progress');
             const personName = document.getElementById('person-name');
-            const genderText = gender?.value.split('/').pop() === 'Q6581097' ? translations[selectedLanguage].male || 'Чоловік' : translations[selectedLanguage].female || 'Жінка';
-            const statusText = deathDate ? translations[selectedLanguage].deceased || 'Мерц' : translations[selectedLanguage].alive || 'Живий';
-            const birthDateText = birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : translations[selectedLanguage].unknown || 'Невідомо';
+            const genderText = gender?.value.split('/').pop() === 'Q6581097' ? translations[selectedLanguage].male : translations[selectedLanguage].female;
+            const statusText = deathDate ? translations[selectedLanguage].deceased : translations[selectedLanguage].alive;
+            const birthDateText = birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : translations[selectedLanguage].unknown;
             const nameText = `${personLabel.value} (${genderText}, ${statusText}, Народження: ${birthDateText})`;
             
             requestAnimationFrame(() => {
-                progress.textContent = translations[selectedLanguage].loaded || 'Фото завантажено!';
+                progress.textContent = translations[selectedLanguage].loaded;
                 progress.classList.remove('loading', 'error');
                 personName.textContent = nameText;
             });
@@ -574,7 +682,7 @@
                 progress.classList.add('error');
                 progress.classList.remove('loading');
                 personImage.src = 'https://via.placeholder.com/300';
-                personName.textContent = translations[selectedLanguage].testPerson || 'Тестовий персонаж';
+                personName.textContent = translations[selectedLanguage].testPerson;
             });
         }
 
@@ -588,7 +696,7 @@
             const personName = document.getElementById('person-name');
 
             requestAnimationFrame(() => {
-                progress.textContent = translations[selectedLanguage].loadingData || 'Завантаження даних...';
+                progress.textContent = translations[selectedLanguage].loadingData;
                 progress.classList.add('loading');
                 progress.classList.remove('error');
                 personImage.src = '';
@@ -604,7 +712,7 @@
                     const person = await fetchPersonData(useRandom, category);
                     if (!person) throw new Error('No person found');
 
-                    progress.textContent = translations[selectedLanguage].loadingImage || 'Завантаження зображення...';
+                    progress.textContent = translations[selectedLanguage].loadingImage;
                     const fileName = decodeURIComponent(person.image.value.split('/').pop());
                     console.log(`Fetching image for file: ${fileName}`);
                     const imageUrl = await getCommonsImageUrl(fileName);
@@ -614,7 +722,7 @@
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
-                            progress.textContent = translations[selectedLanguage].skipBW || 'Пропущено чёрно-белое фото, завантаження іншого...';
+                            progress.textContent = translations[selectedLanguage].skipBW;
                             attempts++;
                             continue;
                         }
@@ -630,7 +738,7 @@
                         return;
                     } catch (imageError) {
                         console.error(`Image load error: ${imageError.message}`);
-                        progress.textContent = translations[selectedLanguage].imageError || 'Не вдалося завантажити зображення, пробуємо іншого...';
+                        progress.textContent = translations[selectedLanguage].imageError;
                         attempts++;
                         continue;
                     }
@@ -638,20 +746,20 @@
                     console.error('Ошибка:', error.message);
                     attempts++;
                     if (attempts === maxAttempts) {
-                        let message = translations[selectedLanguage].error || 'Ошибка загрузки';
+                        let message = translations[selectedLanguage].error;
                         if (error.message.includes('Timeout')) {
-                            message = translations[selectedLanguage].timeout || 'Тайм-аут запроса к Wikidata';
+                            message = translations[selectedLanguage].timeout;
                         } else if (error.message.includes('HTTP 400')) {
-                            message = translations[selectedLanguage].badRequest || 'Некорректный SPARQL-запрос';
+                            message = translations[selectedLanguage].badRequest;
                         } else if (error.message.includes('No person found')) {
-                            message = translations[selectedLanguage].noPerson || 'Не найдено данных о человеке';
+                            message = translations[selectedLanguage].noPerson;
                         } else if (error.message.includes('Invalid image')) {
-                            message = translations[selectedLanguage].invalidImage || `Не удалось загрузить изображение: ${error.message}`;
+                            message = translations[selectedLanguage].invalidImage;
                         }
                         handleError(message);
                         const totalTime = performance.now() - startTime;
                         document.getElementById(`time-${mode}`).textContent = 
-                            translations[selectedLanguage].errorTime || `Ошибка после ${totalTime.toFixed(0)}мс`;
+                            translations[selectedLanguage].errorTime.replace('{time}', totalTime.toFixed(0));
                         console.timeEnd(`loadPerson-${mode}`);
                     }
                 }
@@ -668,7 +776,7 @@
             const personName = document.getElementById('person-name');
 
             requestAnimationFrame(() => {
-                progress.textContent = translations[selectedLanguage].loadingImage || 'Завантаження зображення...';
+                progress.textContent = translations[selectedLanguage].loadingImage;
                 progress.classList.add('loading');
                 progress.classList.remove('error');
                 personImage.src = '';
@@ -690,7 +798,7 @@
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
-                            progress.textContent = translations[selectedLanguage].skipBW || 'Пропущено чёрно-белое фото, завантаження іншого...';
+                            progress.textContent = translations[selectedLanguage].skipBW;
                             const newPerson = await fetchPersonData(false, category);
                             person = newPerson;
                             attempts++;
@@ -708,7 +816,7 @@
                         return;
                     } catch (imageError) {
                         console.error(`Image load error: ${imageError.message}`);
-                        progress.textContent = translations[selectedLanguage].imageError || 'Не вдалося завантажити зображення, пробуємо іншого...';
+                        progress.textContent = translations[selectedLanguage].imageError;
                         attempts++;
                         const newPerson = await fetchPersonData(false, category);
                         person = newPerson;
@@ -719,12 +827,12 @@
                     attempts++;
                     if (attempts === maxAttempts) {
                         let message = error.message.includes('Invalid image') 
-                            ? translations[selectedLanguage].invalidImage || `Не удалось загрузить изображение: ${error.message}`
-                            : translations[selectedLanguage].error || 'Ошибка загрузки';
+                            ? translations[selectedLanguage].invalidImage
+                            : translations[selectedLanguage].error;
                         handleError(message);
                         const totalTime = performance.now() - startTime;
                         document.getElementById(`time-${mode}`).textContent = 
-                            translations[selectedLanguage].errorTime || `Ошибка после ${totalTime.toFixed(0)}мс`;
+                            translations[selectedLanguage].errorTime.replace('{time}', totalTime.toFixed(0));
                         console.timeEnd(`loadPersonFromData-${mode}`);
                     }
                 }
@@ -743,7 +851,7 @@
             ];
             const sessionList = [];
 
-            document.getElementById('progress').textContent = translations[selectedLanguage].loadingSession || 'Завантаження даних для сесії...';
+            document.getElementById('progress').textContent = translations[selectedLanguage].loadingSession;
             try {
                 const promises = categories.map(async (category, i) => {
                     const count = i % 2 === 0 ? 3 : 2;
@@ -763,7 +871,7 @@
                 results.flat().forEach(person => sessionList.push(person));
             } catch (error) {
                 console.error('Session data loading failed:', error);
-                handleError(translations[selectedLanguage].sessionError || 'Не удалось загрузить данные для сессии');
+                handleError(translations[selectedLanguage].sessionError);
                 console.timeEnd('loadSession');
                 return;
             }
@@ -771,18 +879,18 @@
             for (let i = 0; i < sessionList.length; i++) {
                 const person = sessionList[i];
                 const category = categories[Math.floor((i % 10) / 2.5)];
-                document.getElementById('progress').textContent = translations[selectedLanguage].loadingPerson?.replace('{n}', sessionCount + 1).replace('{total}', settings.sessionPeople) || `Завантаження людини ${sessionCount + 1} з ${settings.sessionPeople}...`;
+                document.getElementById('progress').textContent = translations[selectedLanguage].loadingPerson.replace('{n}', sessionCount + 1).replace('{total}', settings.sessionPeople);
                 if (person) {
                     await loadPersonFromData(person, category);
                 } else {
-                    handleError(translations[selectedLanguage].personError || 'Не удалось загрузить человека для этой категории');
+                    handleError(translations[selectedLanguage].personError);
                 }
                 sessionCount++;
                 if (sessionCount < settings.sessionPeople) {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
-            document.getElementById('progress').textContent = translations[selectedLanguage].sessionComplete?.replace('{total}', settings.sessionPeople) || `Сесія завершена (${settings.sessionPeople} осіб)`;
+            document.getElementById('progress').textContent = translations[selectedLanguage].sessionComplete.replace('{total}', settings.sessionPeople);
             console.timeEnd('loadSession');
             console.log(`Total session time: ${(performance.now() - startTime).toFixed(0)}ms`);
         }
