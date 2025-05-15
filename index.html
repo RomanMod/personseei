@@ -112,7 +112,7 @@
             statusRatio: { alive: 50, deceased: 50 },
             birthYearFilter: 1950,
             excludeBlackAndWhite: false,
-            selectedCountries: ['ua', 'us'],
+            selectedCountries: 'all',
             countryMap: {
                 'ua': 'Q212',
                 'us': 'Q30',
@@ -355,7 +355,7 @@
                 const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
 
                 const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 45000);
+                const timeout = setTimeout(() => controller.abort(), 64000);
 
                 try {
                     const response = await fetch(url, {
