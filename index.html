@@ -2,58 +2,38 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Гра: Випадкова людина з Wikidata</title>
     <meta name="referrer" content="origin">
-    <title>Гра: Хто це?</title>
-    <!-- Подавление favicon -->
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TQ5F8JW26S"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-TQ5F8JW26S');
-    </script>
     <style>
         :root {
-            --bg-color: #2c2c2e;
-            --text-color: #e0e0e0;
-            --button-bg: #3a3a3c;
-            --button-hover: #4a4a4c;
-            --button-active: #1c1c1e;
-            --highlight-correct: #4caf50;
-            --highlight-error: #f44336;
-            --highlight-warning: #ff9800;
-            --display-bg: #1c1c1e;
-            --link-color: #40c4ff;
+            --bg-color: #1C2526; /* Space Gray темный фон */
+            --text-color: #E8ECEF;
+            --button-bg: #2C3E50;
+            --button-hover: #34495E;
+            --button-text: #E8ECEF;
+            --accent-color: #3498DB;
+            --progress-color: #3498DB;
         }
 
-        [data-theme="light"] {
-            --bg-color: #f9f9f9;
-            --text-color: #333;
-            --button-bg: #d0d0d0;
-            --button-hover: #b0b0b0;
-            --button-active: #a0a0a0;
-            --highlight-correct: #0288d1;
-            --highlight-error: #d32f2f;
-            --highlight-warning: #f57c00;
-            --display-bg: #e0e0e0;
-            --link-color: #0288d1;
+        /* Стиль для дневной темы */
+        body.day {
+            --bg-color: #ECF0F1;
+            --text-color: #2C3E50;
+            --button-bg: #BDC3C7;
+            --button-hover: #95A5A6;
+            --button-text: #2C3E50;
+            --accent-color: #2980B9;
+            --progress-color: #2980B9;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            text-align: center;
+            padding: 40px;
             margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            padding-top: 10vh;
+            transition: all 0.3s ease;
         }
 
         h1 {
@@ -61,676 +41,755 @@
             margin-bottom: 20px;
         }
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        select, button {
-            background-color: var(--button-bg);
-            color: var(--text-color);
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background-color 0.2s;
-        }
-
-        select:hover, button:hover {
-            background-color: var(--button-hover);
-        }
-
-        select:active, button:active {
-            background-color: var(--button-active);
-        }
-
-        .display-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .display {
-            width: 300px;
-            height: 300px;
-            background-color: var(--display-bg);
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .display img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            display: none;
-        }
-
-        .display img.visible {
+        #person-image {
             display: block;
+            max-width: 100%;
+            max-height: 300px;
+            width: auto;
+            height: auto;
+            border: 2px solid var(--button-bg);
+            border-radius: 10px;
+            margin: 0 auto;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
         }
 
-        .display .progress {
+        #person-image.loaded {
+            opacity: 1;
+        }
+
+        #person-name {
+            margin-top: 15px;
             font-size: 1.5em;
             font-weight: bold;
         }
 
-        .display .closed-screen {
-            background-color: var(--display-bg);
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2em;
+        #progress {
+            margin-top: 20px;
+            font-style: italic;
+            color: var(--progress-color);
         }
 
-        .new-photo-btn {
-            background-color: var(--button-bg);
-            color: var(--text-color);
-            border: none;
+        #progress.error {
+            color: #E74C3C;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-container button, select {
             padding: 10px 20px;
-            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 1em;
             transition: background-color 0.2s;
         }
 
-        .new-photo-btn:hover {
+        .btn-container button:hover, select:hover {
             background-color: var(--button-hover);
         }
 
-        .new-photo-btn:active {
-            background-color: var(--button-active);
-        }
-
-        .info {
-            text-align: center;
-            margin-bottom: 20px;
-            min-height: 60px;
-        }
-
-        .info a {
-            color: var(--link-color);
-            text-decoration: none;
-        }
-
-        .info a:hover {
-            text-decoration: underline;
-        }
-
-        .info.warning {
-            color: var(--highlight-warning);
-        }
-
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-            max-width: 400px;
-        }
-
-        .buttons button {
-            padding: 20px;
-            font-size: 1.5em;
-            border-radius: 10px;
-        }
-
-        .buttons button.correct {
-            background-color: var(--highlight-correct);
-        }
-
-        .buttons button.error {
-            background-color: var(--highlight-error);
-        }
-
-        .buttons button.warning {
-            border: 2px solid var(--highlight-warning);
-        }
-
-        .check-btn {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            border-radius: 10px;
-            margin: 10px 0;
+        .time-info {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: var(--text-color);
         }
 
         .stats {
             margin-top: 20px;
-            padding: 15px;
+            padding: 10px;
             background-color: var(--button-bg);
-            border-radius: 10px;
-            text-align: left;
+            border-radius: 5px;
+            display: inline-block;
         }
 
-        .alien {
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
+        .settings {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
         }
     </style>
 </head>
-<body data-theme="dark">
-    <h1 data-i18n="title">Гра: Хто це?</h1>
-    <div class="controls">
-        <select id="theme" onchange="changeTheme()">
-            <option value="dark" data-i18n="theme-dark">Ніч</option>
-            <option value="light" data-i18n="theme-light">День</option>
+<body class="night">
+    <div class="settings">
+        <button id="theme-toggle">🌙 Ніч</button>
+        <select id="language-select">
+            <option value="uk" selected>Українська</option>
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+            <option value="alien">👽 Інопланетна</option>
         </select>
-        <select id="language" onchange="changeLanguage()">
-            <option value="uk" data-i18n="lang-uk">Українська</option>
-            <option value="ru" data-i18n="lang-ru">Русский</option>
-            <option value="en" data-i18n="lang-en">English</option>
-            <option value="alien" data-i18n="lang-alien">👽 Іннопланетний</option>
-        </select>
-        <select id="mode" onchange="changeMode()">
-            <option value="open" data-i18n="mode-open">Відкритий</option>
-            <option value="closed" data-i18n="mode-closed">Закритий</option>
+        <select id="mode-select">
+            <option value="open">Відкритий</option>
+            <option value="closed">Закритий</option>
         </select>
     </div>
-    <div class="display-container">
-        <div class="display">
-            <img id="person-image" alt="Person">
-            <div id="closed-screen" class="closed-screen"></div>
-            <div id="progress" class="progress">0%</div>
-        </div>
-        <button id="new-photo-btn" class="new-photo-btn" data-i18n="new-photo">Знайти інше фото</button>
+
+    <h1 id="title">Гра: Випадкова людина з Wikidata</h1>
+    <img id="person-image" src="" alt="Зображення людини">
+    <div id="person-name"></div>
+    <div id="progress">Завантаження...</div>
+
+    <div class="btn-container">
+        <button onclick="loadPerson(true)">🎯 Супер випадково (повільно)</button>
+        <div id="time-slow" class="time-info"></div>
+        
+        <button onclick="loadSession()">⚡ Сесія (збалансована випадковість)</button>
+        <div id="time-fast" class="time-info"></div>
     </div>
-    <div id="info" class="info"></div>
-    <div class="buttons" id="answer-buttons"></div>
-    <button id="check-btn" class="check-btn" data-i18n="check">Перевірити</button>
-    <button id="next-btn" class="check-btn" data-i18n="next" style="display: none;">Далі</button>
+
     <div class="stats">
-        <div data-i18n="stats-title">Статистика:</div>
-        <div id="stats-total" data-i18n="stats-total">Всього питань: 0</div>
-        <div id="stats-correct" data-i18n="stats-correct">Правильних: 0</div>
-        <div id="stats-incorrect" data-i18n="stats-incorrect">Неправильних: 0</div>
+        <div>Статистика завантаження:</div>
+        <div id="stats-slow">Повільний режим: -</div>
+        <div id="stats-fast">Швидкий режим: -</div>
     </div>
 
     <script>
-        // Черный список проблемных изображений
-        const imageBlacklist = [
-            'Lithuanian_swimming_squad_at_2012_Olympic_Games.jpg'
-        ];
-
-        // Settings
+        // Настройки приложения
         const settings = {
-            maxAttempts: 5,
+            superRandomPeople: true,
+            dynamicOffset: true,
+            maxOffset: 2000,
+            maxPeople: 300,
+            sessionPeople: 10,
+            genderRatio: { male: 50, female: 50 },
+            statusRatio: { alive: 50, deceased: 50 },
             birthYearFilter: 1950,
-            countryMap: { 'ua': 'Q212', 'us': 'Q30' },
+            excludeBlackAndWhite: false,
             selectedCountries: ['ua', 'us'],
+            countryMap: {
+                'ua': 'Q212',
+                'us': 'Q30',
+                'ru': 'Q159',
+                'de': 'Q183',
+                'gb': 'Q145'
+            },
             strictCountryFilter: false
         };
 
-        // Localization
-        const i18n = {
+        // Статистика
+        const stats = {
+            slow: { count: 0, totalTime: 0, lastTime: 0 },
+            fast: { count: 0, totalTime: 0, lastTime: 0 }
+        };
+
+        // Кэш
+        const rgbHslCache = JSON.parse(localStorage.getItem('rgbHslCache')) || {};
+        const wikidataCache = JSON.parse(localStorage.getItem('wikidataCache')) || {};
+
+        // Переводы
+        const translations = {
             uk: {
-                title: "Гра: Хто це?",
-                'theme-dark': "Ніч", 'theme-light': "День",
-                'lang-uk': "Українська", 'lang-ru': "Русский", 'lang-en': "English", 'lang-alien': "👽 Іннопланетний",
-                'mode-open': "Відкритий", 'mode-closed': "Закритий",
-                check: "Перевірити", next: "Далі", 'new-photo': "Знайти інше фото",
-                'stats-title': "Статистика:", 'stats-total': "Всього питань: ", 'stats-correct': "Правильних: ", 'stats-incorrect': "Неправильних: ",
-                alive: "Живий", deceased: "Мертвий", male: "Чоловік", female: "Жінка",
-                closed: "Закритий режим", error: "Помилка завантаження даних",
-                incomplete: "Виберіть усі відповіді!"
+                title: 'Гра: Випадкова людина з Wikidata',
+                loading: 'Завантаження...',
+                slowButton: '🎯 Супер випадково (повільно)',
+                fastButton: '⚡ Сесія (збалансована випадковість)',
+                stats: 'Статистика завантаження:',
+                slowStats: 'Повільний режим: -',
+                fastStats: 'Швидкий режим: -',
+                themeNight: '🌙 Ніч',
+                themeDay: '☀ День'
             },
             ru: {
-                title: "Игра: Кто это?",
-                'theme-dark': "Ночь", 'theme-light': "День",
-                'lang-uk': "Украинский", 'lang-ru': "Русский", 'lang-en': "Английский", 'lang-alien': "👽 Инопланетный",
-                'mode-open': "Открытый", 'mode-closed': "Закрытый",
-                check: "Проверить", next: "Далее", 'new-photo': "Найти другое фото",
-                'stats-title': "Статистика:", 'stats-total': "Всего вопросов: ", 'stats-correct': "Правильных: ", 'stats-incorrect': "Неправильных: ",
-                alive: "Жив", deceased: "Мертв", male: "Мужчина", female: "Женщина",
-                closed: "Закрытый режим", error: "Ошибка загрузки данных",
-                incomplete: "Выберите все ответы!"
+                title: 'Игра: Случайный человек из Wikidata',
+                loading: 'Загрузка...',
+                slowButton: '🎯 Супер случайно (медленно)',
+                fastButton: '⚡ Сессия (сбалансированная случайность)',
+                stats: 'Статистика загрузки:',
+                slowStats: 'Медленный режим: -',
+                fastStats: 'Быстрый режим: -',
+                themeNight: '🌙 Ночь',
+                themeDay: '☀ День'
             },
             en: {
-                title: "Game: Who is it?",
-                'theme-dark': "Night", 'theme-light': "Day",
-                'lang-uk': "Ukrainian", 'lang-ru': "Russian", 'lang-en': "English", 'lang-alien': "👽 Alien",
-                'mode-open': "Open", 'mode-closed': "Closed",
-                check: "Check", next: "Next", 'new-photo': "Find another photo",
-                'stats-title': "Statistics:", 'stats-total': "Total questions: ", 'stats-correct': "Correct: ", 'stats-incorrect': "Incorrect: ",
-                alive: "Alive", deceased: "Deceased", male: "Male", female: "Female",
-                closed: "Closed mode", error: "Data loading error",
-                incomplete: "Select all answers!"
+                title: 'Game: Random Person from Wikidata',
+                loading: 'Loading...',
+                slowButton: '🎯 Super Random (slow)',
+                fastButton: '⚡ Session (balanced randomness)',
+                stats: 'Loading Statistics:',
+                slowStats: 'Slow Mode: -',
+                fastStats: 'Fast Mode: -',
+                themeNight: '🌙 Night',
+                themeDay: '☀ Day'
             },
             alien: {
-                title: "⊸⊻⊸: ⊽⊸⊻ ⊽⊸⊸?",
-                'theme-dark': "⊸⊻⊸", 'theme-light': "⊻⊸⊻",
-                'lang-uk': "⊻⊸⊸", 'lang-ru': "⊸⊻⊸", 'lang-en': "⊸⊸⊻", 'lang-alien': "👽 ⊸⊻⊻",
-                'mode-open': "⊻⊸⊸⊻", 'mode-closed': "⊸⊻⊸⊻",
-                check: "⊸⊻⊸⊻", next: "⊻⊸⊻", 'new-photo': "⊸⊻⊸ ⊻⊸⊻",
-                'stats-title': "⊸⊻⊸⊻:", 'stats-total': "⊻⊸⊻ ⊸⊻⊸: ", 'stats-correct': "⊸⊻⊸: ", 'stats-incorrect': "⊻⊸⊻: ",
-                alive: "⊸⊻⊸", deceased: "⊻⊸⊻", male: "⊸⊻⊸", female: "⊻⊸⊻",
-                closed: "⊸⊻⊸⊻ ⊻⊸⊻", error: "⊸⊻⊸ ⊻⊸⊻",
-                incomplete: "⊸⊻⊸ ⊻⊸⊻!"
+                title: '👾 ⊸⍟⊸: ⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟ Wikidata',
+                loading: '⊸⍟⊸...',
+                slowButton: '🎯 ⊸⍟⊸ ⊸⍟⊸ (⊸⍟⊸)',
+                fastButton: '⚡ ⊸⍟⊸ (⊸⍟⊸ ⊸⍟⊸)',
+                stats: '⊸⍟⊸ ⊸⍟⊸:',
+                slowStats: '⊸⍟⊸ ⊸⍟⊸: -',
+                fastStats: '⊸⍟⊸ ⊸⍟⊸: -',
+                themeNight: '🌙 ⊸⍟⊸',
+                themeDay: '☀ ⊸⍟⊸'
             }
         };
 
-        // Game state
-        const state = {
-            theme: 'dark',
-            language: 'uk',
-            mode: 'open',
-            person: null,
-            answers: { status: null, gender: null },
-            stats: { total: 0, correct: 0, incorrect: 0 },
-            progress: 0,
-            checked: false
-        };
+        // Инициализация настроек
+        let isNight = localStorage.getItem('theme') !== 'day';
+        let selectedLanguage = localStorage.getItem('language') || 'uk';
+        let gameMode = localStorage.getItem('mode') || 'open';
 
-        // Cache
-        let cache = JSON.parse(localStorage.getItem('personCache')) || [];
+        document.body.classList.toggle('day', !isNight);
+        document.getElementById('language-select').value = selectedLanguage;
+        document.getElementById('mode-select').value = gameMode;
 
-        // Logging
-        function log(message, type = 'info') {
-            const types = { info: 'log', error: 'error', warn: 'warn' };
-            console[types[type]](`[Game] ${new Date().toISOString()} - ${message}`);
+        // Логирование инициализации
+        console.log('Инициализация стиля Space Gray');
+        console.log('Тема: ' + (isNight ? 'ночь' : 'день'));
+        console.log('Выбран язык: ' + selectedLanguage);
+        console.log('Выбран режим: ' + gameMode);
+
+        // Обновление интерфейса по языку
+        function updateLanguage() {
+            const texts = translations[selectedLanguage];
+            document.getElementById('title').textContent = texts.title;
+            document.getElementById('progress').textContent = texts.loading;
+            document.querySelector('button[onclick="loadPerson(true)"]').textContent = texts.slowButton;
+            document.querySelector('button[onclick="loadSession()"]').textContent = texts.fastButton;
+            document.querySelector('.stats div:first-child').textContent = texts.stats;
+            document.getElementById('stats-slow').textContent = texts.slowStats;
+            document.getElementById('stats-fast').textContent = texts.fastStats;
+            document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
         }
 
-        // GA4 events
-        function sendGA4Event(eventName, params) {
-            gtag('event', eventName, params);
-            log(`GA4 event sent: ${eventName}`, 'info');
+        // Переключение темы
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            isNight = !isNight;
+            document.body.classList.toggle('day', !isNight);
+            localStorage.setItem('theme', isNight ? 'night' : 'day');
+            updateLanguage();
+            console.log('Тема изменена на: ' + (isNight ? 'ночь' : 'день'));
+        });
+
+        // Смена языка
+        document.getElementById('language-select').addEventListener('change', (e) => {
+            selectedLanguage = e.target.value;
+            localStorage.setItem('language', selectedLanguage);
+            updateLanguage();
+            console.log('Выбран язык: ' + selectedLanguage);
+        });
+
+        // Смена режима
+        document.getElementById('mode-select').addEventListener('change', (e) => {
+            gameMode = e.target.value;
+            localStorage.setItem('mode', gameMode);
+            console.log('Выбран режим: ' + gameMode);
+        });
+
+        // Обновление статистики
+        function updateStats(mode, time) {
+            stats[mode].count++;
+            stats[mode].totalTime += time;
+            stats[mode].lastTime = time;
+            const avgTime = stats[mode].totalTime / stats[mode].count;
+            document.getElementById(`stats-${mode}`).textContent = 
+                `${mode === 'slow' ? translations[selectedLanguage].slowStats.split(':')[0] : translations[selectedLanguage].fastStats.split(':')[0]}: ` +
+                `Останнє: ${time.toFixed(0)}мс, ` +
+                `Середнє: ${avgTime.toFixed(0)}мс, ` +
+                `Запитів: ${stats[mode].count}`;
+            document.getElementById(`time-${mode}`).textContent = 
+                `Час виконання: ${time.toFixed(0)}мс`;
         }
 
-        // Debounced UI update
-        let uiUpdatePending = false;
-        function updateUI() {
-            if (uiUpdatePending) return;
-            uiUpdatePending = true;
-            requestAnimationFrame(() => {
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    const key = el.dataset.i18n;
-                    el.textContent = i18n[state.language][key] + (key.includes('stats-') ? state.stats[key.split('-')[1]] : '');
-                });
-                document.getElementById('progress').textContent = `${state.progress}%`;
-                document.getElementById('closed-screen').textContent = state.mode === 'closed' && !state.checked ? i18n[state.language].closed : '';
-                renderInfo();
-                renderButtons();
-                updateStats();
-                uiUpdatePending = false;
-            });
-        }
+        // Функции из исходного кода (без изменений)
+        function rgbToHsl(r, g, b) {
+            r /= 255;
+            g /= 255;
+            b /= 255;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
 
-        // Idle callback with setTimeout fallback
-        function idleCallback(task, timeout = 100) {
-            return new Promise(resolve => {
-                if ('requestIdleCallback' in window) {
-                    requestIdleCallback(() => {
-                        task();
-                        resolve();
-                    }, { timeout });
-                } else {
-                    setTimeout(() => {
-                        task();
-                        resolve();
-                    }, timeout);
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
                 }
+                h /= 6;
+            }
+            return [h, s, l];
+        }
+
+        async function isBlackAndWhite(imageUrl) {
+            if (!settings.excludeBlackAndWhite) return false;
+
+            if (rgbHslCache[imageUrl] !== undefined) {
+                console.log(`Using cached RGB+HSL result for ${imageUrl}: ${rgbHslCache[imageUrl] ? 'black-and-white' : 'color'}`);
+                return rgbHslCache[imageUrl];
+            }
+
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 100;
+                    canvas.height = 100;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, 100, 100);
+
+                    const imageData = ctx.getImageData(0, 0, 100, 100).data;
+                    let rSum = 0, gSum = 0, bSum = 0;
+                    let rSquareSum = 0, gSquareSum = 0, bSquareSum = 0;
+                    let saturationSum = 0;
+                    let count = 0;
+
+                    for (let i = 0; i < imageData.length; i += 4) {
+                        const r = imageData[i];
+                        const g = imageData[i + 1];
+                        const b = imageData[i + 2];
+                        rSum += r;
+                        gSum += g;
+                        bSum += b;
+                        rSquareSum += r * r;
+                        gSquareSum += g * g;
+                        bSquareSum += b * b;
+
+                        const [, s] = rgbToHsl(r, g, b);
+                        saturationSum += s;
+                        count++;
+                    }
+
+                    const rMean = rSum / count;
+                    const gMean = gSum / count;
+                    const bMean = bSum / count;
+                    const rStdDev = Math.sqrt((rSquareSum / count) - (rMean * rMean));
+                    const gStdDev = Math.sqrt((gSquareSum / count) - (gMean * gMean));
+                    const bStdDev = Math.sqrt((bSquareSum / count) - (bMean * bMean));
+                    const meanSaturation = saturationSum / count;
+
+                    const isBW = rStdDev < 20 && gStdDev < 20 && bStdDev < 20 && meanSaturation < 0.2;
+                    console.log(`Image ${imageUrl} is ${isBW ? 'black-and-white' : 'color'} ` +
+                                `(R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)}, Saturation:${(meanSaturation * 100).toFixed(2)}%)`);
+                    
+                    rgbHslCache[imageUrl] = isBW;
+                    localStorage.setItem('rgbHslCache', JSON.stringify(rgbHslCache));
+                    
+                    resolve(isBW);
+                };
+                img.onerror = () => {
+                    console.error(`Failed to load image for RGB+HSL analysis: ${imageUrl}`);
+                    resolve(false);
+                };
+                img.src = imageUrl;
             });
         }
 
-        // Change theme
-        function changeTheme() {
-            state.theme = document.getElementById('theme').value;
-            document.body.dataset.theme = state.theme;
-            sendGA4Event('theme_change', { theme: state.theme });
-            updateUI();
-        }
-
-        // Change language
-        function changeLanguage() {
-            state.language = document.getElementById('language').value;
-            document.body.classList.toggle('alien', state.language === 'alien');
-            updateUI();
-            sendGA4Event('language_change', { language: state.language });
-        }
-
-        // Change mode
-        function changeMode() {
-            state.mode = document.getElementById('mode').value;
-            resetAnswers();
-            renderButtons();
-            updateUI();
-            sendGA4Event('mode_change', { mode: state.mode });
-        }
-
-        // Render buttons
-        function renderButtons() {
-            const buttonsDiv = document.getElementById('answer-buttons');
-            buttonsDiv.innerHTML = '';
-            const buttons = state.mode === 'closed' ? [
-                { id: 'alive', text: 'alive', type: 'status' },
-                { id: 'deceased', text: 'deceased', type: 'status' },
-                { id: 'male', text: 'male', type: 'gender' },
-                { id: 'female', text: 'female', type: 'gender' }
-            ] : [
-                { id: 'alive', text: 'alive', type: 'status' },
-                { id: 'deceased', text: 'deceased', type: 'status' }
-            ];
-
-            buttons.forEach(btn => {
-                const button = document.createElement('button');
-                button.textContent = i18n[state.language][btn.text];
-                button.dataset.type = btn.type;
-                button.dataset.value = btn.id;
-                if (state.answers[btn.type] === btn.id) {
-                    button.classList.add(state.checked && isCorrect(btn.type, btn.id) ? 'correct' : 'error');
-                } else if (!state.checked && !state.answers[btn.type]) {
-                    button.classList.add('warning');
-                }
-                button.onclick = () => selectAnswer(btn.type, btn.id);
-                buttonsDiv.appendChild(button);
-            });
-        }
-
-        // Select answer
-        function selectAnswer(type, value) {
-            if (state.checked) return;
-            state.answers[type] = value;
-            renderButtons();
-            log(`Answer selected: ${type} = ${value}`);
-            updateUI();
-        }
-
-        // Check answer
-        function checkAnswer() {
-            if (state.checked || !state.person) return;
-            const requiredAnswers = state.mode === 'closed' ? ['status', 'gender'] : ['status'];
-            if (requiredAnswers.some(type => !state.answers[type])) {
-                log('Incomplete answers', 'warn');
-                const infoDiv = document.getElementById('info');
-                infoDiv.textContent = i18n[state.language].incomplete;
-                infoDiv.classList.add('warning');
-                setTimeout(() => {
-                    infoDiv.textContent = '';
-                    infoDiv.classList.remove('warning');
-                }, 2000);
-                return;
-            }
-
-            state.checked = true;
-            state.stats.total++;
-            let correct = true;
-
-            requiredAnswers.forEach(type => {
-                if (!isCorrect(type, state.answers[type])) {
-                    correct = false;
-                    state.stats.incorrect++;
-                } else {
-                    state.stats.correct++;
-                }
-            });
-
-            sendGA4Event('answer_check', {
-                mode: state.mode,
-                correct: correct,
-                status_answer: state.answers.status,
-                gender_answer: state.answers.gender || null
-            });
-
-            document.getElementById('check-btn').style.display = 'none';
-            document.getElementById('next-btn').style.display = 'block';
-            updateUI();
-        }
-
-        // Check correctness
-        function isCorrect(type, value) {
-            if (!state.person) return false;
-            if (type === 'status') {
-                return (value === 'alive' && !state.person.deathDate) ||
-                       (value === 'deceased' && state.person.deathDate);
-            }
-            if (type === 'gender') {
-                return (value === 'male' && state.person.gender?.value.includes('Q6581097')) ||
-                       (value === 'female' && state.person.gender?.value.includes('Q6581072'));
-            }
-            return false;
-        }
-
-        // Reset answers
-        function resetAnswers() {
-            state.answers = { status: null, gender: null };
-            state.checked = false;
-            document.getElementById('check-btn').style.display = 'block';
-            document.getElementById('next-btn').style.display = 'none';
-            renderButtons();
-        }
-
-        // Render info
-        function renderInfo() {
-            const infoDiv = document.getElementById('info');
-            if (!state.person || !state.checked) {
-                infoDiv.innerHTML = '';
-                return;
-            }
-            const { personLabel, birthDate, deathDate, person } = state.person;
-            const birthDateText = birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : '???';
-            const statusText = i18n[state.language][deathDate ? 'deceased' : 'alive'];
-            const genderText = i18n[state.language][state.person.gender?.value.includes('Q6581097') ? 'male' : 'female'];
-            const wikidataLink = `<a href="${person.value}" target="_blank">${personLabel.value}</a>`;
-            infoDiv.innerHTML = `${wikidataLink} (${genderText}, ${statusText}, ${birthDateText})`;
-        }
-
-        // Update stats
-        function updateStats() {
-            document.getElementById('stats-total').textContent = `${i18n[state.language]['stats-total']}${state.stats.total}`;
-            document.getElementById('stats-correct').textContent = `${i18n[state.language]['stats-correct']}${state.stats.correct}`;
-            document.getElementById('stats-incorrect').textContent = `${i18n[state.language]['stats-incorrect']}${state.stats.incorrect}`;
-        }
-
-        // Get Commons image URL
         async function getCommonsImageUrl(fileName) {
-            if (imageBlacklist.includes(fileName)) {
-                log(`Blocked image in getCommonsImageUrl: ${fileName}`, 'warn');
-                return null;
-            }
+            const start = performance.now();
             try {
                 const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(fileName)}&prop=imageinfo&iiprop=url&format=json&origin=*`);
                 if (!response.ok) throw new Error(`Commons API error: ${response.status}`);
                 const data = await response.json();
                 const pages = data.query.pages;
                 const page = pages[Object.keys(pages)[0]];
-                if (!page.imageinfo) throw new Error(`No imageinfo for file: ${fileName}`);
+                console.log(`Commons API time: ${(performance.now() - start).toFixed(0)}ms`);
+                if (!page.imageinfo) {
+                    console.error(`No imageinfo for file: ${fileName}`);
+                    return null;
+                }
                 return page.imageinfo[0].url;
             } catch (error) {
-                log(`Failed to fetch Commons image for ${fileName}: ${error.message}`, 'error');
+                console.error(`Failed to fetch Commons image for ${fileName}:`, error.message);
                 return null;
             }
         }
 
-        // Load image with fallback
         async function loadImageWithFallback(url, element) {
             return new Promise((resolve, reject) => {
+                element.classList.remove('loaded');
                 const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
-                log(`Loading image via proxy: ${proxyUrl}`);
-                const img = new Image();
-                img.onload = () => {
-                    element.src = proxyUrl;
-                    element.classList.add('visible');
-                    log(`Image loaded: ${proxyUrl}`);
+                console.log(`Attempting to load image via proxy: ${proxyUrl}`);
+                
+                const cleanup = () => {
+                    element.onload = null;
+                    element.onerror = null;
+                };
+
+                element.onload = () => {
+                    console.log(`Image loaded successfully via proxy: ${proxyUrl}`);
+                    element.classList.add('loaded');
+                    cleanup();
                     resolve();
                 };
-                img.onerror = () => {
-                    log(`Image load failed: ${proxyUrl}`, 'error');
-                    reject(new Error(`Image load failed: ${proxyUrl}`));
+                element.onerror = () => {
+                    console.error(`Proxy image load failed: ${proxyUrl}`);
+                    element.src = 'https://via.placeholder.com/300';
+                    element.classList.add('loaded');
+                    cleanup();
+                    reject(new Error(`Proxy image load failed: ${proxyUrl}`));
                 };
-                img.src = proxyUrl;
+                
+                element.src = proxyUrl;
             });
         }
 
-        // Fetch person data
-        async function fetchPersonData() {
-            // Логируем содержимое кэша
-            log(`Cache size: ${cache.length}, contents: ${JSON.stringify(cache.map(p => decodeURIComponent(p.image.value.split('/').pop())))}`, 'info');
+        async function fetchPersonData(useRandom = true, category = null) {
+            const start = performance.now();
+            let query;
+            let attempts = 0;
+            const maxAttempts = 5;
 
-            // Фильтруем кэш от черного списка
-            cache = cache.filter(person => {
-                const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                const isBlacklisted = imageBlacklist.includes(fileName);
-                if (isBlacklisted) {
-                    log(`Removing blacklisted image from cache: ${fileName}`, 'warn');
-                }
-                return !isBlacklisted;
-            });
-            localStorage.setItem('personCache', JSON.stringify(cache));
-
-            if (cache.length > 0) {
-                log('Using cached person');
-                const person = cache[Math.floor(Math.random() * cache.length)];
-                const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                if (imageBlacklist.includes(fileName)) {
-                    log(`Blocked cached image: ${fileName}`, 'warn');
-                    throw new Error(`Blacklisted image: ${fileName}`);
-                }
-                return person;
+            const cacheKey = `${useRandom}-${category?.gender || 'any'}-${category?.status || 'any'}`;
+            if (wikidataCache[cacheKey] && wikidataCache[cacheKey].length > 0) {
+                console.log(`Using cached data for ${cacheKey}`);
+                return wikidataCache[cacheKey][Math.floor(Math.random() * wikidataCache[cacheKey].length)];
             }
 
-            const maxOffset = 1000;
-            const offset = Math.floor(Math.random() * maxOffset);
-            const genderFilter = 'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
+            const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
+                                category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
+                                'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
+            const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
+                                category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
+                                'OPTIONAL { ?person wdt:P570 ?deathDate }';
             const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01"^^xsd:dateTime).`;
             const countryFilter = settings.selectedCountries === 'all' ? '' :
-                `FILTER(?country IN (${settings.selectedCountries.map(code => `wd:${settings.countryMap[code]}`).join(', ')})).`;
-            const query = `
-                SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate ?country
-                WHERE {
-                    ?person wdt:P31 wd:Q5;
-                            wdt:P18 ?image;
-                            wdt:P21 ?gender;
-                            wdt:P569 ?birthDate.
-                    ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
-                    ${genderFilter}.
-                    OPTIONAL { ?person wdt:P570 ?deathDate }.
-                    ${birthDateFilter}
-                    ${settings.strictCountryFilter ? countryFilter : ''}
-                    ?person rdfs:label ?personLabel.
-                    FILTER (LANG(?personLabel) = "en").
+                                 `FILTER(?country IN (${settings.selectedCountries
+                                     .map(code => `wd:${settings.countryMap[code]}`)
+                                     .filter(id => id)
+                                     .join(', ')})).`;
+
+            while (attempts < maxAttempts) {
+                const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
+                if (useRandom && settings.superRandomPeople) {
+                    query = `
+                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
+                        WHERE {
+                            ?person wdt:P31 wd:Q5;
+                                    wdt:P18 ?image;
+                                    wdt:P21 ?gender;
+                                    wdt:P569 ?birthDate.
+                            ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
+                            ${genderFilter}.
+                            ${statusFilter}.
+                            ${birthDateFilter}
+                            ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
+                            ?person rdfs:label ?personLabel.
+                            FILTER (LANG(?personLabel) = "en").
+                        }
+                        ORDER BY RAND()
+                        LIMIT 10
+                    `;
+                } else {
+                    query = `
+                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
+                        WHERE {
+                            ?person wdt:P31 wd:Q5;
+                                    wdt:P18 ?image;
+                                    wdt:P21 ?gender;
+                                    wdt:P569 ?birthDate.
+                            ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
+                            ${genderFilter}.
+                            ${statusFilter}.
+                            ${birthDateFilter}
+                            ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
+                            ?person rdfs:label ?personLabel.
+                            FILTER (LANG(?personLabel) = "en").
+                        }
+                        OFFSET ${offset}
+                        LIMIT ${settings.maxPeople}
+                    `;
                 }
-                OFFSET ${offset}
-                LIMIT 1
-            `;
-            const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(query)}&format=json`;
-            try {
-                state.progress = 10;
-                updateUI();
-                const response = await fetch(url, {
-                    headers: { 'Accept': 'application/sparql-results+json' }
-                });
-                state.progress = 30;
-                if (!response.ok) {
-                    const text = await response.text();
-                    log(`Wikidata error: ${response.status} - ${text}`, 'error');
-                    throw new Error(`HTTP ${response.status}: ${text}`);
+
+                const endpoint = 'https://query.wikidata.org/sparql';
+                const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
+
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 45000);
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/sparql-results+json',
+                            'User-Agent': 'SimplePhotoApp/1.0 (https://romanmod.github.io/personseei/; krv.mod@gmail.com)',
+                        },
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeout);
+                    const data = await response.json();
+                    const list = data.results.bindings;
+
+                    console.log(`Wikidata query time: ${(performance.now() - start).toFixed(0)}ms (${useRandom ? 'random' : 'fast'})`);
+
+                    if (!list.length) {
+                        console.warn(`No results for category ${category?.gender || 'any'}/${category?.status || 'any'}, attempt ${attempts + 1}`);
+                        attempts++;
+                        continue;
+                    }
+
+                    wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100);
+                    localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
+
+                    return list[Math.floor(Math.random() * list.length)];
+                } catch (error) {
+                    console.error(`Wikidata query failed: ${error.message}`);
+                    attempts++;
+                    if (attempts === maxAttempts) {
+                        throw new Error(`No person found after ${maxAttempts} attempts`);
+                    }
                 }
-                const data = await response.json();
-                const person = data.results.bindings[0];
-                if (!person) throw new Error('No person found');
-                log(`Person fetched: ${person.personLabel.value}`);
-                const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                if (imageBlacklist.includes(fileName)) {
-                    log(`Blocked fetched image: ${fileName}`, 'warn');
-                    throw new Error(`Blacklisted image: ${fileName}`);
-                }
-                cache.push(person);
-                localStorage.setItem('personCache', JSON.stringify(cache.slice(-10)));
-                return person;
-            } catch (error) {
-                log(`Wikidata query failed: ${error.message}`, 'error');
-                throw error;
             }
+            throw new Error(`No person found after ${maxAttempts} attempts`);
         }
 
-        // Load person
-        async function loadPerson() {
-            state.person = null;
-            state.checked = false;
-            resetAnswers();
+        function updateUI({ personLabel, gender, deathDate, birthDate }) {
+            const progress = document.getElementById('progress');
+            const personName = document.getElementById('person-name');
+            const genderText = gender?.value.split('/').pop() === 'Q6581097' ? translations[selectedLanguage].male || 'Чоловік' : translations[selectedLanguage].female || 'Жінка';
+            const statusText = deathDate ? translations[selectedLanguage].deceased || 'Мерц' : translations[selectedLanguage].alive || 'Живий';
+            const birthDateText = birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : translations[selectedLanguage].unknown || 'Невідомо';
+            const nameText = `${personLabel.value} (${genderText}, ${statusText}, Народження: ${birthDateText})`;
+            
+            requestAnimationFrame(() => {
+                progress.textContent = translations[selectedLanguage].loaded || 'Фото завантажено!';
+                progress.classList.remove('loading', 'error');
+                personName.textContent = nameText;
+            });
+        }
+
+        function handleError(errorMessage) {
+            const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
-            personImage.classList.remove('visible');
-            personImage.src = '';
-            state.progress = 0;
-            updateUI();
+            const personName = document.getElementById('person-name');
+
+            requestAnimationFrame(() => {
+                progress.textContent = translations[selectedLanguage].error || errorMessage;
+                progress.classList.add('error');
+                progress.classList.remove('loading');
+                personImage.src = 'https://via.placeholder.com/300';
+                personName.textContent = translations[selectedLanguage].testPerson || 'Тестовий персонаж';
+            });
+        }
+
+        async function loadPerson(useRandom = true, category = null) {
+            const startTime = performance.now();
+            const mode = useRandom ? 'slow' : 'fast';
+            console.time(`loadPerson-${mode}`);
+
+            const progress = document.getElementById('progress');
+            const personImage = document.getElementById('person-image');
+            const personName = document.getElementById('person-name');
+
+            requestAnimationFrame(() => {
+                progress.textContent = translations[selectedLanguage].loadingData || 'Завантаження даних...';
+                progress.classList.add('loading');
+                progress.classList.remove('error');
+                personImage.src = '';
+                personName.textContent = '';
+                personImage.classList.remove('loaded');
+            });
 
             let attempts = 0;
-            while (attempts < settings.maxAttempts) {
+            const maxAttempts = 5;
+
+            while (attempts < maxAttempts) {
                 try {
-                    state.progress = 10;
-                    const person = await fetchPersonData();
-                    state.progress = 50;
+                    const person = await fetchPersonData(useRandom, category);
+                    if (!person) throw new Error('No person found');
+
+                    progress.textContent = translations[selectedLanguage].loadingImage || 'Завантаження зображення...';
                     const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                    if (imageBlacklist.includes(fileName)) {
-                        log(`Blocked image in loadPerson: ${fileName}`, 'warn');
-                        throw new Error(`Blacklisted image: ${fileName}`);
-                    }
+                    console.log(`Fetching image for file: ${fileName}`);
                     const imageUrl = await getCommonsImageUrl(fileName);
                     if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
-                    state.progress = 80;
-                    await loadImageWithFallback(imageUrl, personImage);
-                    state.person = person;
-                    state.progress = 100;
-                    updateUI();
-                    sendGA4Event('person_loaded', { person: person.personLabel.value });
-                    break;
-                } catch (error) {
-                    attempts++;
-                    log(`Load person attempt ${attempts} failed: ${error.message}`, 'error');
-                    if (attempts === settings.maxAttempts) {
-                        state.progress = 0;
-                        document.getElementById('info').textContent = i18n[state.language].error;
-                        sendGA4Event('load_error', { error: error.message });
-                        updateUI();
-                        return;
+
+                    if (settings.excludeBlackAndWhite) {
+                        const isBW = await isBlackAndWhite(imageUrl);
+                        if (isBW) {
+                            console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
+                            progress.textContent = translations[selectedLanguage].skipBW || 'Пропущено чёрно-белое фото, завантаження іншого...';
+                            attempts++;
+                            continue;
+                        }
                     }
-                    await idleCallback(() => {}, 100); // Используем requestIdleCallback с fallback
+
+                    try {
+                        await loadImageWithFallback(imageUrl, personImage);
+                        updateUI(person);
+                        
+                        const totalTime = performance.now() - startTime;
+                        updateStats(mode, totalTime);
+                        console.timeEnd(`loadPerson-${mode}`);
+                        return;
+                    } catch (imageError) {
+                        console.error(`Image load error: ${imageError.message}`);
+                        progress.textContent = translations[selectedLanguage].imageError || 'Не вдалося завантажити зображення, пробуємо іншого...';
+                        attempts++;
+                        continue;
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error.message);
+                    attempts++;
+                    if (attempts === maxAttempts) {
+                        let message = translations[selectedLanguage].error || 'Ошибка загрузки';
+                        if (error.message.includes('Timeout')) {
+                            message = translations[selectedLanguage].timeout || 'Тайм-аут запроса к Wikidata';
+                        } else if (error.message.includes('HTTP 400')) {
+                            message = translations[selectedLanguage].badRequest || 'Некорректный SPARQL-запрос';
+                        } else if (error.message.includes('No person found')) {
+                            message = translations[selectedLanguage].noPerson || 'Не найдено данных о человеке';
+                        } else if (error.message.includes('Invalid image')) {
+                            message = translations[selectedLanguage].invalidImage || `Не удалось загрузить изображение: ${error.message}`;
+                        }
+                        handleError(message);
+                        const totalTime = performance.now() - startTime;
+                        document.getElementById(`time-${mode}`).textContent = 
+                            translations[selectedLanguage].errorTime || `Ошибка после ${totalTime.toFixed(0)}мс`;
+                        console.timeEnd(`loadPerson-${mode}`);
+                    }
                 }
             }
         }
 
-        // Initialization
-        window.onload = () => {
-            // Очистка кэша от черного списка при старте
-            const initialCacheSize = cache.length;
-            cache = cache.filter(person => {
-                const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                const isBlacklisted = imageBlacklist.includes(fileName);
-                if (isBlacklisted) {
-                    log(`Removing blacklisted image from initial cache: ${fileName}`, 'warn');
-                }
-                return !isBlacklisted;
-            });
-            if (cache.length !== initialCacheSize) {
-                log(`Cache cleaned, removed ${initialCacheSize - cache.length} blacklisted images`, 'info');
-            }
-            localStorage.setItem('personCache', JSON.stringify(cache));
+        async function loadPersonFromData(person, category = null) {
+            const startTime = performance.now();
+            const mode = 'fast';
+            console.time(`loadPersonFromData-${mode}`);
 
-            document.getElementById('check-btn').onclick = checkAnswer;
-            document.getElementById('next-btn').onclick = () => {
-                resetAnswers();
-                loadPerson();
-                document.getElementById('check-btn').style.display = 'block';
-                document.getElementById('next-btn').style.display = 'none';
-                sendGA4Event('next_person', { action: 'next_clicked' });
-                log('Next person clicked');
-            };
-            document.getElementById('new-photo-btn').onclick = () => {
-                resetAnswers();
-                loadPerson();
-                sendGA4Event('new_photo', { action: 'find_another_photo' });
-                log('Find another photo clicked');
-            };
-            loadPerson();
-            updateUI();
-            sendGA4Event('game_start', { language: state.language, mode: state.mode, theme: state.theme });
+            const progress = document.getElementById('progress');
+            const personImage = document.getElementById('person-image');
+            const personName = document.getElementById('person-name');
+
+            requestAnimationFrame(() => {
+                progress.textContent = translations[selectedLanguage].loadingImage || 'Завантаження зображення...';
+                progress.classList.add('loading');
+                progress.classList.remove('error');
+                personImage.src = '';
+                personName.textContent = '';
+                personImage.classList.remove('loaded');
+            });
+
+            let attempts = 0;
+            const maxAttempts = 5;
+
+            while (attempts < maxAttempts) {
+                try {
+                    const fileName = decodeURIComponent(person.image.value.split('/').pop());
+                    console.log(`Fetching image for file: ${fileName}`);
+                    const imageUrl = await getCommonsImageUrl(fileName);
+                    if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
+
+                    if (settings.excludeBlackAndWhite) {
+                        const isBW = await isBlackAndWhite(imageUrl);
+                        if (isBW) {
+                            console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
+                            progress.textContent = translations[selectedLanguage].skipBW || 'Пропущено чёрно-белое фото, завантаження іншого...';
+                            const newPerson = await fetchPersonData(false, category);
+                            person = newPerson;
+                            attempts++;
+                            continue;
+                        }
+                    }
+
+                    try {
+                        await loadImageWithFallback(imageUrl, personImage);
+                        updateUI(person);
+                        
+                        const totalTime = performance.now() - startTime;
+                        updateStats(mode, totalTime);
+                        console.timeEnd(`loadPersonFromData-${mode}`);
+                        return;
+                    } catch (imageError) {
+                        console.error(`Image load error: ${imageError.message}`);
+                        progress.textContent = translations[selectedLanguage].imageError || 'Не вдалося завантажити зображення, пробуємо іншого...';
+                        attempts++;
+                        const newPerson = await fetchPersonData(false, category);
+                        person = newPerson;
+                        continue;
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error.message);
+                    attempts++;
+                    if (attempts === maxAttempts) {
+                        let message = error.message.includes('Invalid image') 
+                            ? translations[selectedLanguage].invalidImage || `Не удалось загрузить изображение: ${error.message}`
+                            : translations[selectedLanguage].error || 'Ошибка загрузки';
+                        handleError(message);
+                        const totalTime = performance.now() - startTime;
+                        document.getElementById(`time-${mode}`).textContent = 
+                            translations[selectedLanguage].errorTime || `Ошибка после ${totalTime.toFixed(0)}мс`;
+                        console.timeEnd(`loadPersonFromData-${mode}`);
+                    }
+                }
+            }
+        }
+
+        async function loadSession() {
+            const startTime = performance.now();
+            console.time('loadSession');
+            let sessionCount = 0;
+            const categories = [
+                { gender: 'male', status: 'alive' },
+                { gender: 'male', status: 'deceased' },
+                { gender: 'female', status: 'alive' },
+                { gender: 'female', status: 'deceased' }
+            ];
+            const sessionList = [];
+
+            document.getElementById('progress').textContent = translations[selectedLanguage].loadingSession || 'Завантаження даних для сесії...';
+            try {
+                const promises = categories.map(async (category, i) => {
+                    const count = i % 2 === 0 ? 3 : 2;
+                    const results = [];
+                    for (let j = 0; j < count; j++) {
+                        try {
+                            const person = await fetchPersonData(false, category);
+                            results.push(person);
+                        } catch (error) {
+                            console.error(`Error in category ${category.gender}/${category.status}:`, error);
+                            results.push(null);
+                        }
+                    }
+                    return results;
+                });
+                const results = await Promise.all(promises);
+                results.flat().forEach(person => sessionList.push(person));
+            } catch (error) {
+                console.error('Session data loading failed:', error);
+                handleError(translations[selectedLanguage].sessionError || 'Не удалось загрузить данные для сессии');
+                console.timeEnd('loadSession');
+                return;
+            }
+
+            for (let i = 0; i < sessionList.length; i++) {
+                const person = sessionList[i];
+                const category = categories[Math.floor((i % 10) / 2.5)];
+                document.getElementById('progress').textContent = translations[selectedLanguage].loadingPerson?.replace('{n}', sessionCount + 1).replace('{total}', settings.sessionPeople) || `Завантаження людини ${sessionCount + 1} з ${settings.sessionPeople}...`;
+                if (person) {
+                    await loadPersonFromData(person, category);
+                } else {
+                    handleError(translations[selectedLanguage].personError || 'Не удалось загрузить человека для этой категории');
+                }
+                sessionCount++;
+                if (sessionCount < settings.sessionPeople) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+            document.getElementById('progress').textContent = translations[selectedLanguage].sessionComplete?.replace('{total}', settings.sessionPeople) || `Сесія завершена (${settings.sessionPeople} осіб)`;
+            console.timeEnd('loadSession');
+            console.log(`Total session time: ${(performance.now() - startTime).toFixed(0)}ms`);
+        }
+
+        window.onload = () => {
+            updateLanguage();
+            loadSession();
         };
     </script>
 </body>
