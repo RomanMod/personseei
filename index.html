@@ -13,7 +13,7 @@
             <option value="uk" selected>Українська</option>
             <option value="ru">Русский</option>
             <option value="en">English</option>
-            <option value="alien">👽 Інопланетна</option>
+            <option value="alien">👽</option>
         </select>
         <select id="mode-select">
             <option value="open">Відкритий</option>
@@ -28,26 +28,29 @@
         <div id="overlay" class="overlay hidden"></div>
         <div id="progress-bar"></div>
     </div>
-    <div id="person-name"></div>
     <div id="person-info" style="display: none;">
         <div id="person-details"></div>
         <a id="wiki-link" href="#" target="_blank">Страница Википедии</a>
     </div>
     <div class="gender-buttons">
-        <button id="male-btn">Мужчина</button>
-        <button id="female-btn">Женщина</button>
+        <button id="male-btn"></button>
+        <button id="female-btn"></button>
     </div>
     <div class="status-buttons">
-        <button id="alive-btn">Жив</button>
-        <button id="dead-btn">Мертв</button>
+        <button id="alive-btn"></button>
+        <button id="dead-btn"></button>
     </div>
-    <button id="check-btn">Проверить</button>
-    <button id="next-person" style="display: none;">Следующее фото</button>
+    <div class="check-button">
+        <button id="check-btn" disabled>Проверить</button>
+    </div>
+    <div class="next-person-container">
+        <button id="next-person" style="display: none;">Следующее фото</button>
+    </div>
     <div id="game-stats">
-        <div>Просмотренные: <span id="stats-total">0</span></div>
-        <div>Успешные: <span id="stats-success">0</span></div>
-        <div>Неуспешные: <span id="stats-failure">0</span></div>
-        <div>Процент успешных: <span id="stats-success-rate">0%</span></div>
+        <div><span id="stats-total-label">Просмотренные</span>: <span id="stats-total">0</span></div>
+        <div><span id="stats-success-label">Успешные</span>: <span id="stats-success">0</span></div>
+        <div><span id="stats-failure-label">Неуспешные</span>: <span id="stats-failure">0</span></div>
+        <div><span id="stats-success-rate-label">Процент успешных</span>: <span id="stats-success-rate">0%</span></div>
     </div>
     <div id="progress"></div>
 
