@@ -12,7 +12,6 @@
             --button-hover: #34495E;
             --button-text: #E8ECEF;
             --accent-color: #3498DB;
-            --progress-color: #3498DB;
             --progress-bar-bg: #2C3E50;
             --progress-bar-fill: #3498DB;
         }
@@ -24,7 +23,6 @@
             --button-hover: #95A5A6;
             --button-text: #2C3E50;
             --accent-color: #2980B9;
-            --progress-color: #2980B9;
             --progress-bar-bg: #BDC3C7;
             --progress-bar-fill: #2980B9;
         }
@@ -49,7 +47,7 @@
             width: 100%;
             max-width: 400px;
             margin: 0 auto 20px;
-            aspect-ratio: 4 / 3; /* Фиксированное соотношение сторон 4:3 */
+            aspect-ratio: 4 / 3;
             background-color: var(--progress-bar-bg);
             border: 2px solid var(--button-bg);
             border-radius: 10px;
@@ -60,7 +58,7 @@
             display: block;
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Сохранение пропорций изображения */
+            object-fit: contain;
             opacity: 0;
             transition: opacity 0.5s ease-in;
         }
@@ -89,25 +87,30 @@
             font-weight: bold;
         }
 
-        #progress {
-            margin-top: 20px;
-            font-style: italic;
-            color: var(--progress-color);
+        #next-photo {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 10px;
         }
 
-        #progress.error {
-            color: #E74C3C;
+        #next-photo:hover {
+            background-color: var(--button-hover);
         }
 
-        .btn-container {
-            margin-top: 20px;
+        .settings {
+            margin-bottom: 20px;
             display: flex;
-            flex-wrap: wrap;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .btn-container button, select, #next-photo {
+        .settings button, select {
             padding: 10px 20px;
             font-size: 16px;
             background-color: var(--button-bg);
@@ -118,33 +121,13 @@
             transition: background-color 0.2s;
         }
 
-        .btn-container button:hover, select:hover, #next-photo:hover {
+        .settings button:hover, select:hover {
             background-color: var(--button-hover);
         }
 
-        #next-photo {
-            margin-bottom: 10px;
-        }
-
-        .time-info {
-            margin-top: 5px;
-            font-size: 0.9em;
-            color: var(--text-color);
-        }
-
-        .stats {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: var(--button-bg);
-            border-radius: 5px;
-            display: inline-block;
-        }
-
-        .settings {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
+        /* Скрытие старых элементов */
+        #progress, .btn-container, .stats {
+            display: none;
         }
     </style>
 </head>
@@ -170,12 +153,11 @@
         <div id="progress-bar"></div>
     </div>
     <div id="person-name"></div>
-    <div id="progress">Завантаження...</div>
+    <div id="progress"></div>
 
     <div class="btn-container">
         <button onclick="loadPerson(true)">🎯 Супер випадково (повільно)</button>
         <div id="time-slow" class="time-info"></div>
-        
         <button onclick="loadSession()">⚡ Сесія (збалансована випадковість)</button>
         <div id="time-fast" class="time-info"></div>
     </div>
@@ -209,12 +191,6 @@
             strictCountryFilter: false
         };
 
-        // Статистика
-        const stats = {
-            slow: { count: 0, totalTime: 0, lastTime: 0 },
-            fast: { count: 0, totalTime: 0, lastTime: 0 }
-        };
-
         // Кэш и состояние
         const rgbHslCache = JSON.parse(localStorage.getItem('rgbHslCache')) || {};
         const wikidataCache = JSON.parse(localStorage.getItem('wikidataCache')) || {};
@@ -225,12 +201,6 @@
         const translations = {
             uk: {
                 title: 'Гра: Випадкова людина з Wikidata',
-                loading: 'Завантаження...',
-                slowButton: '🎯 Супер випадково (повільно)',
-                fastButton: '⚡ Сесія (збалансована випадковість)',
-                stats: 'Статистика завантаження:',
-                slowStats: 'Повільний режим: -',
-                fastStats: 'Швидкий режим: -',
                 themeNight: '🌙 Ніч',
                 themeDay: '☀ День',
                 modeOpen: 'Відкритий',
@@ -241,31 +211,10 @@
                 alive: 'Живий',
                 deceased: 'Мерц',
                 unknown: 'Невідомо',
-                loaded: 'Фото завантажено!',
-                error: 'Помилка завантаження',
-                timeout: 'Тайм-аут запиту до Wikidata',
-                badRequest: 'Некоректний SPARQL-запит',
-                noPerson: 'Не знайдено даних про людину',
-                invalidImage: 'Не вдалося завантажити зображення',
-                loadingData: 'Завантаження даних...',
-                loadingImage: 'Завантаження зображення...',
-                skipBW: 'Пропущено чорно-біле фото, завантаження іншого...',
-                imageError: 'Не вдалося завантажити зображення, пробуємо іншого...',
-                testPerson: 'Тестовий персонаж',
-                loadingSession: 'Завантаження даних для сесії...',
-                sessionError: 'Не вдалося завантажити дані для сесії',
-                personError: 'Не вдалося завантажити людину для цієї категорії',
-                sessionComplete: 'Сесія завершена ({total} осіб)',
-                errorTime: 'Помилка після {time}мс'
+                testPerson: 'Тестовий персонаж'
             },
             ru: {
                 title: 'Игра: Случайный человек из Wikidata',
-                loading: 'Загрузка...',
-                slowButton: '🎯 Супер случайно (медленно)',
-                fastButton: '⚡ Сессия (сбалансированная случайность)',
-                stats: 'Статистика загрузки:',
-                slowStats: 'Медленный режим: -',
-                fastStats: 'Быстрый режим: -',
                 themeNight: '🌙 Ночь',
                 themeDay: '☀ День',
                 modeOpen: 'Открытый',
@@ -276,31 +225,10 @@
                 alive: 'Жив',
                 deceased: 'Мертв',
                 unknown: 'Неизвестно',
-                loaded: 'Фото загружено!',
-                error: 'Ошибка загрузки',
-                timeout: 'Тайм-аут запроса к Wikidata',
-                badRequest: 'Некорректный SPARQL-запрос',
-                noPerson: 'Не найдено данных о человеке',
-                invalidImage: 'Не удалось загрузить изображение',
-                loadingData: 'Загрузка данных...',
-                loadingImage: 'Загрузка изображения...',
-                skipBW: 'Пропущено черно-белое фото, загрузка другого...',
-                imageError: 'Не удалось загрузить изображение, пробуем другого...',
-                testPerson: 'Тестовый персонаж',
-                loadingSession: 'Загрузка данных для сессии...',
-                sessionError: 'Не удалось загрузить данные для сессии',
-                personError: 'Не удалось загрузить человека для этой категории',
-                sessionComplete: 'Сессия завершена ({total} человек)',
-                errorTime: 'Ошибка после {time}мс'
+                testPerson: 'Тестовый персонаж'
             },
             en: {
                 title: 'Game: Random Person from Wikidata',
-                loading: 'Loading...',
-                slowButton: '🎯 Super Random (slow)',
-                fastButton: '⚡ Session (balanced randomness)',
-                stats: 'Loading Statistics:',
-                slowStats: 'Slow Mode: -',
-                fastStats: 'Fast Mode: -',
                 themeNight: '🌙 Night',
                 themeDay: '☀ Day',
                 modeOpen: 'Open',
@@ -311,31 +239,10 @@
                 alive: 'Alive',
                 deceased: 'Deceased',
                 unknown: 'Unknown',
-                loaded: 'Photo loaded!',
-                error: 'Loading error',
-                timeout: 'Timeout on Wikidata request',
-                badRequest: 'Invalid SPARQL query',
-                noPerson: 'No person data found',
-                invalidImage: 'Failed to load image',
-                loadingData: 'Loading data...',
-                loadingImage: 'Loading image...',
-                skipBW: 'Skipped black-and-white photo, loading another...',
-                imageError: 'Failed to load image, trying another...',
-                testPerson: 'Test Person',
-                loadingSession: 'Loading session data...',
-                sessionError: 'Failed to load session data',
-                personError: 'Failed to load person for this category',
-                sessionComplete: 'Session completed ({total} persons)',
-                errorTime: 'Error after {time}ms'
+                testPerson: 'Test Person'
             },
             alien: {
                 title: '👾 ⊸⍟⊸: ⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟ Wikidata',
-                loading: '⊸⍟⊸...',
-                slowButton: '🎯 ⊸⍟⊸ ⊸⍟⊸ (⊸⍟⊸)',
-                fastButton: '⚡ ⊸⍟⊸ (⊸⍟⊸ ⊸⍟⊸)',
-                stats: '⊸⍟⊸ ⊸⍟⊸:',
-                slowStats: '⊸⍟⊸ ⊸⍟⊸: -',
-                fastStats: '⊸⍟⊸ ⊸⍟⊸: -',
                 themeNight: '🌙 ⊸⍟⊸',
                 themeDay: '☀ ⊸⍟⊸',
                 modeOpen: '⊸⍟⊸',
@@ -346,22 +253,7 @@
                 alive: '⊸⍟⊸',
                 deceased: '⊸⍟⊸⊸',
                 unknown: '⊸⍟⊸⊸⊸',
-                loaded: '⊸⍟⊸ ⊸⍟⊸!',
-                error: '⊸⍟⊸ ⊸⍟⊸',
-                timeout: '⊸⍟⊸ ⊸⍟ Wikidata',
-                badRequest: '⊸⍟⊸ SPARQL ⊸⍟⊸',
-                noPerson: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
-                invalidImage: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
-                loadingData: '⊸⍟⊸ ⊸⍟⊸...',
-                loadingImage: '⊸⍟⊸ ⊸⍟⊸...',
-                skipBW: '⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟⊸, ⊸⍟⊸ ⊸⍟⊸...',
-                imageError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸, ⊸⍟⊸ ⊸⍟⊸...',
-                testPerson: '⊸⍟⊸ ⊸⍟⊸',
-                loadingSession: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸...',
-                sessionError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
-                personError: '⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸ ⊸⍟⊸',
-                sessionComplete: '⊸⍟⊸ ⊸⍟⊸ ({total} ⊸⍟⊸)',
-                errorTime: '⊸⍟⊸ ⊸⍟⊸ {time}⊸⍟⊸'
+                testPerson: '⊸⍟⊸ ⊸⍟⊸'
             }
         };
 
@@ -375,12 +267,11 @@
         document.getElementById('mode-select').value = gameMode;
 
         // Логирование инициализации
-        console.log('Инициализация стиля Space Gray (Шаг 2)');
-        console.log('Таймаут увеличен до 60 секунд');
-        console.log('Удалено автоматическое переключение фото');
-        console.log('Добавлена кнопка "Найти новое фото" над дисплеем');
+        console.log('Инициализация стиля Space Gray (Шаг 3)');
+        console.log('Скрыты старые элементы интерфейса (кнопки, статистика, сообщения)');
         console.log('Дисплей с фиксированным соотношением сторон 4:3');
-        console.log('Добавлен прогресс-бар в нижней части дисплея');
+        console.log('Прогресс-бар в нижней части дисплея');
+        console.log('Кнопка "Найти новое фото" над дисплеем');
         console.log('Тема: ' + (isNight ? 'ночь' : 'день'));
         console.log('Выбран язык: ' + selectedLanguage);
         console.log('Выбран режим: ' + gameMode);
@@ -389,12 +280,6 @@
         function updateLanguage() {
             const texts = translations[selectedLanguage];
             document.getElementById('title').textContent = texts.title;
-            document.getElementById('progress').textContent = texts.loading;
-            document.querySelector('button[onclick="loadPerson(true)"]').textContent = texts.slowButton;
-            document.querySelector('button[onclick="loadSession()"]').textContent = texts.fastButton;
-            document.querySelector('.stats div:first-child').textContent = texts.stats;
-            document.getElementById('stats-slow').textContent = texts.slowStats;
-            document.getElementById('stats-fast').textContent = texts.fastStats;
             document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
             document.getElementById('next-photo').textContent = texts.nextPhoto;
             updateModeSelect();
@@ -433,21 +318,6 @@
             localStorage.setItem('mode', gameMode);
             console.log('Выбран режим: ' + gameMode);
         });
-
-        // Обновление статистики
-        function updateStats(mode, time) {
-            stats[mode].count++;
-            stats[mode].totalTime += time;
-            stats[mode].lastTime = time;
-            const avgTime = stats[mode].totalTime / stats[mode].count;
-            document.getElementById(`stats-${mode}`).textContent = 
-                `${mode === 'slow' ? translations[selectedLanguage].slowStats.split(':')[0] : translations[selectedLanguage].fastStats.split(':')[0]}: ` +
-                `Останнє: ${time.toFixed(0)}мс, ` +
-                `Середнє: ${avgTime.toFixed(0)}мс, ` +
-                `Запитів: ${stats[mode].count}`;
-            document.getElementById(`time-${mode}`).textContent = 
-                `Час виконання: ${time.toFixed(0)}мс`;
-        }
 
         // Логирование состояния загрузки
         function logPhotoStatus() {
@@ -606,7 +476,7 @@
             });
         }
 
-        async function fetchPersonData(useRandom = true, category = null) {
+        async function fetchPersonData(useRandom = false, category = null) {
             const start = performance.now();
             let query;
             let attempts = 0;
@@ -633,45 +503,24 @@
 
             while (attempts < maxAttempts) {
                 const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
-                if (useRandom && settings.superRandomPeople) {
-                    query = `
-                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
-                        WHERE {
-                            ?person wdt:P31 wd:Q5;
-                                    wdt:P18 ?image;
-                                    wdt:P21 ?gender;
-                                    wdt:P569 ?birthDate.
-                            ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
-                            ${genderFilter}.
-                            ${statusFilter}.
-                            ${birthDateFilter}
-                            ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
-                            ?person rdfs:label ?personLabel.
-                            FILTER (LANG(?personLabel) = "en").
-                        }
-                        ORDER BY RAND()
-                        LIMIT 10
-                    `;
-                } else {
-                    query = `
-                        SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
-                        WHERE {
-                            ?person wdt:P31 wd:Q5;
-                                    wdt:P18 ?image;
-                                    wdt:P21 ?gender;
-                                    wdt:P569 ?birthDate.
-                            ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
-                            ${genderFilter}.
-                            ${statusFilter}.
-                            ${birthDateFilter}
-                            ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
-                            ?person rdfs:label ?personLabel.
-                            FILTER (LANG(?personLabel) = "en").
-                        }
-                        OFFSET ${offset}
-                        LIMIT ${settings.maxPeople}
-                    `;
-                }
+                query = `
+                    SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
+                    WHERE {
+                        ?person wdt:P31 wd:Q5;
+                                wdt:P18 ?image;
+                                wdt:P21 ?gender;
+                                wdt:P569 ?birthDate.
+                        ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
+                        ${genderFilter}.
+                        ${statusFilter}.
+                        ${birthDateFilter}
+                        ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
+                        ?person rdfs:label ?personLabel.
+                        FILTER (LANG(?personLabel) = "en").
+                    }
+                    OFFSET ${offset}
+                    LIMIT ${settings.maxPeople}
+                `;
 
                 const endpoint = 'https://query.wikidata.org/sparql';
                 const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
@@ -693,7 +542,7 @@
                     const data = await response.json();
                     const list = data.results.bindings;
 
-                    console.log(`Wikidata query time: ${(performance.now() - start).toFixed(0)}ms (${useRandom ? 'random' : 'fast'})`);
+                    console.log(`Wikidata query time: ${(performance.now() - start).toFixed(0)}ms`);
 
                     if (!list.length) {
                         console.warn(`No results for category ${category?.gender || 'any'}/${category?.status || 'any'}, attempt ${attempts + 1}`);
@@ -717,7 +566,6 @@
         }
 
         function updateUI({ personLabel, gender, deathDate, birthDate }) {
-            const progress = document.getElementById('progress');
             const personName = document.getElementById('person-name');
             const genderText = gender?.value.split('/').pop() === 'Q6581097' ? translations[selectedLanguage].male : translations[selectedLanguage].female;
             const statusText = deathDate ? translations[selectedLanguage].deceased : translations[selectedLanguage].alive;
@@ -725,122 +573,28 @@
             const nameText = `${personLabel.value} (${genderText}, ${statusText}, Народження: ${birthDateText})`;
             
             requestAnimationFrame(() => {
-                progress.textContent = translations[selectedLanguage].loaded;
-                progress.classList.remove('loading', 'error');
                 personName.textContent = nameText;
                 loadedPhotos++;
                 logPhotoStatus();
             });
         }
 
-        function handleError(errorMessage) {
-            const progress = document.getElementById('progress');
+        function handleError() {
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
             requestAnimationFrame(() => {
-                progress.textContent = translations[selectedLanguage].error || errorMessage;
-                progress.classList.add('error');
-                progress.classList.remove('loading');
                 personImage.src = 'https://via.placeholder.com/300';
                 personName.textContent = translations[selectedLanguage].testPerson;
                 logPhotoStatus();
             });
         }
 
-        async function loadPerson(useRandom = true, category = null) {
-            const startTime = performance.now();
-            const mode = useRandom ? 'slow' : 'fast';
-            console.time(`loadPerson-${mode}`);
-
-            const progress = document.getElementById('progress');
-            const personImage = document.getElementById('person-image');
-            const personName = document.getElementById('person-name');
-
-            requestAnimationFrame(() => {
-                progress.textContent = translations[selectedLanguage].loadingData;
-                progress.classList.add('loading');
-                progress.classList.remove('error');
-                personImage.src = '';
-                personName.textContent = '';
-                personImage.classList.remove('loaded');
-            });
-
-            let attempts = 0;
-            const maxAttempts = 5;
-
-            while (attempts < maxAttempts) {
-                try {
-                    const person = await fetchPersonData(useRandom, category);
-                    if (!person) throw new Error('No person found');
-
-                    progress.textContent = translations[selectedLanguage].loadingImage;
-                    const fileName = decodeURIComponent(person.image.value.split('/').pop());
-                    console.log(`Fetching image for file: ${fileName}`);
-                    const imageUrl = await getCommonsImageUrl(fileName);
-                    if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
-
-                    if (settings.excludeBlackAndWhite) {
-                        const isBW = await isBlackAndWhite(imageUrl);
-                        if (isBW) {
-                            console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
-                            progress.textContent = translations[selectedLanguage].skipBW;
-                            attempts++;
-                            continue;
-                        }
-                    }
-
-                    try {
-                        await loadImageWithFallback(imageUrl, personImage);
-                        updateUI(person);
-                        
-                        const totalTime = performance.now() - startTime;
-                        updateStats(mode, totalTime);
-                        console.timeEnd(`loadPerson-${mode}`);
-                        return;
-                    } catch (imageError) {
-                        console.error(`Image load error: ${imageError.message}`);
-                        progress.textContent = translations[selectedLanguage].imageError;
-                        attempts++;
-                        continue;
-                    }
-                } catch (error) {
-                    console.error('Ошибка:', error.message);
-                    attempts++;
-                    if (attempts === maxAttempts) {
-                        let message = translations[selectedLanguage].error;
-                        if (error.message.includes('Timeout')) {
-                            message = translations[selectedLanguage].timeout;
-                        } else if (error.message.includes('HTTP 400')) {
-                            message = translations[selectedLanguage].badRequest;
-                        } else if (error.message.includes('No person found')) {
-                            message = translations[selectedLanguage].noPerson;
-                        } else if (error.message.includes('Invalid image')) {
-                            message = translations[selectedLanguage].invalidImage;
-                        }
-                        handleError(message);
-                        const totalTime = performance.now() - startTime;
-                        document.getElementById(`time-${mode}`).textContent = 
-                            translations[selectedLanguage].errorTime.replace('{time}', totalTime.toFixed(0));
-                        console.timeEnd(`loadPerson-${mode}`);
-                    }
-                }
-            }
-        }
-
         async function loadPersonFromData(person, category = null) {
-            const startTime = performance.now();
-            const mode = 'fast';
-            console.time(`loadPersonFromData-${mode}`);
-
-            const progress = document.getElementById('progress');
             const personImage = document.getElementById('person-image');
             const personName = document.getElementById('person-name');
 
             requestAnimationFrame(() => {
-                progress.textContent = translations[selectedLanguage].loadingImage;
-                progress.classList.add('loading');
-                progress.classList.remove('error');
                 personImage.src = '';
                 personName.textContent = '';
                 personImage.classList.remove('loaded');
@@ -860,7 +614,6 @@
                         const isBW = await isBlackAndWhite(imageUrl);
                         if (isBW) {
                             console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
-                            progress.textContent = translations[selectedLanguage].skipBW;
                             const newPerson = await fetchPersonData(false, category);
                             person = newPerson;
                             attempts++;
@@ -871,14 +624,9 @@
                     try {
                         await loadImageWithFallback(imageUrl, personImage);
                         updateUI(person);
-                        
-                        const totalTime = performance.now() - startTime;
-                        updateStats(mode, totalTime);
-                        console.timeEnd(`loadPersonFromData-${mode}`);
                         return;
                     } catch (imageError) {
                         console.error(`Image load error: ${imageError.message}`);
-                        progress.textContent = translations[selectedLanguage].imageError;
                         attempts++;
                         const newPerson = await fetchPersonData(false, category);
                         person = newPerson;
@@ -888,14 +636,7 @@
                     console.error('Ошибка:', error.message);
                     attempts++;
                     if (attempts === maxAttempts) {
-                        let message = error.message.includes('Invalid image') 
-                            ? translations[selectedLanguage].invalidImage
-                            : translations[selectedLanguage].error;
-                        handleError(message);
-                        const totalTime = performance.now() - startTime;
-                        document.getElementById(`time-${mode}`).textContent = 
-                            translations[selectedLanguage].errorTime.replace('{time}', totalTime.toFixed(0));
-                        console.timeEnd(`loadPersonFromData-${mode}`);
+                        handleError();
                     }
                 }
             }
@@ -912,7 +653,6 @@
                 { gender: 'female', status: 'deceased' }
             ];
 
-            document.getElementById('progress').textContent = translations[selectedLanguage].loadingSession;
             updateProgressBar(0);
 
             try {
@@ -950,11 +690,11 @@
                     const { person, category } = sessionList.shift();
                     await loadPersonFromData(person, category);
                 } else {
-                    handleError(translations[selectedLanguage].sessionError);
+                    handleError();
                 }
             } catch (error) {
                 console.error('Session data loading failed:', error);
-                handleError(translations[selectedLanguage].sessionError);
+                handleError();
                 updateProgressBar(0);
             }
             console.timeEnd('loadSession');
@@ -972,7 +712,7 @@
             if (person) {
                 await loadPersonFromData(person, category);
             } else {
-                handleError(translations[selectedLanguage].personError);
+                handleError();
             }
         }
 
