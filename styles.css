@@ -106,23 +106,30 @@ h1 {
     background-color: var(--button-hover);
 }
 
+/* Стили для верхних кнопок */
 .settings {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
-    gap: 15px;
+    gap: 15px; /* Расстояние между кнопками (#theme-toggle, #language-select, #mode-select) */
+    /* Настройка: измените gap (например, 10px или 20px) для регулировки расстояния */
 }
 
 .settings button {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 10px 20px; /* Внутренние отступы кнопки #theme-toggle */
+    font-size: 16px; /* Размер шрифта */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
-    min-width: 120px; /* Унифицированный размер */
+    min-width: 140px; /* Одинаковая ширина с .custom-select */
+    /* Настройка:
+       - min-width: подберите 130px или 150px для изменения ширины
+       - padding: попробуйте 8px 16px или 12px 24px
+       - font-size: измените на 14px или 18px для текста
+    */
 }
 
 .settings button:hover {
@@ -131,24 +138,33 @@ h1 {
 
 .custom-select {
     position: relative;
-    min-width: 120px; /* Унифицированный размер */
+    min-width: 140px; /* Одинаковая ширина с .settings button */
+    /* Настройка: измените min-width (например, 130px или 150px), держите синхронно с .settings button */
 }
 
 .selected-option {
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 10px 20px; /* Синхронизировано с .settings button */
+    font-size: 16px; /* Синхронизировано с .settings button */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: 1px solid var(--button-bg);
     border-radius: 5px;
     cursor: pointer;
     text-align: left;
+    text-overflow: ellipsis; /* Обрезка длинного текста (например, "Українська") */
+    white-space: nowrap; /* Запрет переноса текста */
+    overflow: hidden; /* Скрытие текста за границами */
+    /* Настройка:
+       - padding: синхронизируйте с .settings button (например, 8px 16px)
+       - font-size: синхронизируйте с .settings button (например, 14px или 18px)
+    */
 }
 
 .selected-option:hover {
     background-color: var(--button-hover);
 }
 
+/* Стили для выпадающего меню */
 .options {
     position: absolute;
     top: 100%;
@@ -157,16 +173,25 @@ h1 {
     background-color: var(--button-bg);
     border: 1px solid var(--button-bg);
     border-radius: 5px;
-    margin-top: 5px;
+    margin-top: 5px; /* Отступ сверху от .selected-option */
     z-index: 100;
     list-style: none;
     padding: 0;
+    /* Настройка:
+       - margin-top: измените на 3px или 8px для регулировки расстояния
+       - min-width: добавьте, например, min-width: 140px, если хотите фиксированную ширину меню
+    */
 }
 
 .options li {
-    padding: 10px 20px;
+    padding: 10px 20px; /* Синхронизировано с .selected-option */
     color: var(--button-text);
     cursor: pointer;
+    white-space: nowrap; /* Запрет переноса текста в меню */
+    /* Настройка:
+       - padding: подберите 8px 16px или 12px 24px для размера пунктов
+       - font-size: добавьте, например, font-size: 14px, для настройки текста
+    */
 }
 
 .options li:hover {
@@ -296,11 +321,34 @@ h1 {
     display: none;
 }
 
-/* Медиа-запрос для телефонов */
+/* Медиа-запрос для телефонов (Telegram Mini App) */
 @media (max-width: 600px) {
-    .settings button, .custom-select .selected-option {
-        padding: 8px 16px;
-        font-size: 14px;
-        min-width: 100px;
+    .settings button {
+        padding: 8px 12px; /* Компактные отступы */
+        font-size: 13px; /* Меньший шрифт */
+        min-width: 110px; /* Одинаковая ширина для телефонов */
+        /* Настройка:
+           - min-width: подберите 100px или 120px для компактности/простора
+           - padding: попробуйте 6px 10px или 10px 14px
+           - font-size: измените на 12px или 14px
+        */
+    }
+    .custom-select .selected-option {
+        padding: 8px 12px; /* Синхронизировано с .settings button */
+        font-size: 13px; /* Синхронизировано с .settings button */
+        min-width: 110px; /* Одинаковая ширина с .settings button */
+        /* Настройка:
+           - min-width: держите таким же, как в .settings button (например, 100px или 120px)
+           - padding: синхронизируйте с .settings button
+           - font-size: синхронизируйте с .settings button
+        */
+    }
+    .options li {
+        padding: 8px 12px; /* Компактные отступы для пунктов меню */
+        font-size: 13px; /* Меньший шрифт для меню */
+        /* Настройка:
+           - padding: подберите 6px 10px или 10px 14px
+           - font-size: попробуйте 12px или 14px
+        */
     }
 }
