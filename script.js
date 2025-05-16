@@ -28,6 +28,10 @@ let loadedPhotos = 0;
 let currentPerson = null;
 let userGenderGuess = null;
 let userStatusGuess = null;
+let totalGuesses = parseInt(localStorage.getItem('totalGuesses')) || 0;
+let successfulGuesses = parseInt(localStorage.getItem('successfulGuesses')) || 0;
+let failedGuesses = parseInt(localStorage.getItem('failedGuesses')) || 0;
+let hasChecked = false; // Флаг для предотвращения повторных проверок
 
 // Переводы
 const translations = {
@@ -554,6 +558,7 @@ async function loadSession() {
         updateProgressBar(100);
 
         if (sessionList.length > 0) {
+            hasChecked = false; // Сброс флага
             const { person, category } = sessionList.shift();
             await loadPersonFromData(person, category);
         } else {
@@ -577,6 +582,7 @@ async function loadNextPerson() {
 
     userGenderGuess = null;
     userStatusGuess = null;
+    hasChecked = false; // Сброс флага
     const { person, category } = sessionList.shift();
     if (person) {
         await loadPersonFromData(person, category);
@@ -617,7 +623,10 @@ document.getElementById('dead-btn').addEventListener('click', () => {
 
 // Обработчик кнопки "Проверить"
 document.getElementById('check-btn').addEventListener('click', () => {
-    if (!currentPerson || (gameMode === 'closed' && (!userGenderGuess || !userStatusGuess))) return;
+    if (!currentPerson || (gameMode === 'closed' && (!userGenderGuess || !userStatusGuess)) || hasChecked) return;
+    
+    hasChecked = true; // Помечаем, что проверка выполнена
+    totalGuesses++;
     
     const isGenderCorrect = gameMode === 'closed' ? 
         userGenderGuess === (currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female') : true;
@@ -636,9 +645,24 @@ document.getElementById('check-btn').addEventListener('click', () => {
         }
         if (isGenderCorrect && isStatusCorrect) {
             personInfo.classList.add('correct');
+            successfulGuesses++;
+        } else {
+            failedGuesses++;
         }
         document.getElementById('next-person').style.display = 'block';
         document.getElementById('person-name').textContent = currentPerson.personLabel.value;
+        
+        // Обновление статистики
+        document.getElementById('stats-total').textContent = totalGuesses;
+        document.getElementById('stats-success').textContent = successfulGuesses;
+        document.getElementById('stats-failure').textContent = failedGuesses;
+        const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+        document.getElementById('stats-success-rate').textContent = `${successRate}%`;
+        
+        // Сохранение статистики
+        localStorage.setItem('totalGuesses', totalGuesses);
+        localStorage.setItem('successfulGuesses', successfulGuesses);
+        localStorage.setItem('failedGuesses', failedGuesses);
     });
     console.log(`Проверка: Пол ${isGenderCorrect ? 'верно' : 'неверно'}, Статус ${isStatusCorrect ? 'верно' : 'неверно'}`);
 });
@@ -655,4 +679,10 @@ window.onload = () => {
     updateLanguage();
     updateModeVisibility();
     loadSession();
+    // Инициализация статистики
+    document.getElementById('stats-total').textContent = totalGuesses;
+    document.getElementById('stats-success').textContent = successfulGuesses;
+    document.getElementById('stats-failure').textContent = failedGuesses;
+    const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+    document.getElementById('stats-success-rate').textContent = `${successRate}%`;
 };
