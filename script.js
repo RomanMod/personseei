@@ -42,12 +42,17 @@ const translations = {
         modeOpen: 'Відкритий',
         modeClosed: 'Закритий',
         nextPhoto: '🔄 Знайти нове фото',
+        unknown: 'Невідомо',
+        testPerson: 'Тестовий персонаж',
+        statsTotal: 'Просмотренные',
+        statsSuccess: 'Успешные',
+        statsFailure: 'Неуспешные',
+        statsSuccessRate: 'Процент успешных',
+        checkBtn: 'Проверить',
         male: 'Чоловік',
         female: 'Жінка',
         alive: 'Живий',
-        deceased: 'Мерц',
-        unknown: 'Невідомо',
-        testPerson: 'Тестовий персонаж'
+        deceased: 'Мерц'
     },
     ru: {
         title: 'Игра: Случайный человек из Wikidata',
@@ -56,12 +61,17 @@ const translations = {
         modeOpen: 'Открытый',
         modeClosed: 'Закрытый',
         nextPhoto: '🔄 Найти новое фото',
+        unknown: 'Неизвестно',
+        testPerson: 'Тестовый персонаж',
+        statsTotal: 'Просмотренные',
+        statsSuccess: 'Успешные',
+        statsFailure: 'Неуспешные',
+        statsSuccessRate: 'Процент успешных',
+        checkBtn: 'Проверить',
         male: 'Мужчина',
         female: 'Женщина',
         alive: 'Жив',
-        deceased: 'Мертв',
-        unknown: 'Неизвестно',
-        testPerson: 'Тестовый персонаж'
+        deceased: 'Мертв'
     },
     en: {
         title: 'Game: Random Person from Wikidata',
@@ -70,12 +80,17 @@ const translations = {
         modeOpen: 'Open',
         modeClosed: 'Closed',
         nextPhoto: '🔄 Find New Photo',
+        unknown: 'Unknown',
+        testPerson: 'Test Person',
+        statsTotal: 'Viewed',
+        statsSuccess: 'Successful',
+        statsFailure: 'Unsuccessful',
+        statsSuccessRate: 'Success Rate',
+        checkBtn: 'Check',
         male: 'Male',
         female: 'Female',
         alive: 'Alive',
-        deceased: 'Deceased',
-        unknown: 'Unknown',
-        testPerson: 'Test Person'
+        deceased: 'Deceased'
     },
     alien: {
         title: '👾 ⊸⍟⊸: ⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟ Wikidata',
@@ -84,12 +99,17 @@ const translations = {
         modeOpen: '⊸⍟⊸',
         modeClosed: '⊸⍟⊸⊸',
         nextPhoto: '🔄 ⊸⍟⊸ ⊸⍟⊸',
+        unknown: '⊸⍟⊸⊸⊸',
+        testPerson: '⊸⍟⊸ ⊸⍟⊸',
+        statsTotal: '⊸⍟⊸',
+        statsSuccess: '⊸⍟⊸⊸',
+        statsFailure: '⊸⍟⊸⊸⊸',
+        statsSuccessRate: '⊸⍟⊸⊸⊸⊸',
+        checkBtn: '⊸⍟⊸',
         male: '⊸⍟⊸',
         female: '⊸⍟⊸⊸',
         alive: '⊸⍟⊸',
-        deceased: '⊸⍟⊸⊸',
-        unknown: '⊸⍟⊸⊸⊸',
-        testPerson: '⊸⍟⊸ ⊸⍟⊸'
+        deceased: '⊸⍟⊸⊸'
     }
 };
 
@@ -118,11 +138,19 @@ function updateLanguage() {
     document.getElementById('title').textContent = texts.title;
     document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
     document.getElementById('next-photo').textContent = texts.nextPhoto;
+    document.getElementById('check-btn').textContent = texts.checkBtn;
+    document.getElementById('stats-total-label').textContent = texts.statsTotal;
+    document.getElementById('stats-success-label').textContent = texts.statsSuccess;
+    document.getElementById('stats-failure-label').textContent = texts.statsFailure;
+    document.getElementById('stats-success-rate-label').textContent = texts.statsSuccessRate;
     document.getElementById('male-btn').textContent = texts.male;
     document.getElementById('female-btn').textContent = texts.female;
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
     updateModeSelect();
+    if (currentPerson) {
+        updateUI(currentPerson); // Перевод данных о человеке, если они отображены
+    }
 }
 
 // Обновление текста режима
@@ -157,6 +185,7 @@ document.getElementById('mode-select').addEventListener('change', (e) => {
     gameMode = e.target.value;
     localStorage.setItem('mode', gameMode);
     updateModeVisibility();
+    updateCheckButtonState();
     console.log('Выбран режим: ' + gameMode);
 });
 
@@ -177,6 +206,16 @@ function updateModeVisibility() {
             if (personImage.src) personImage.classList.add('loaded');
         }
     });
+}
+
+// Управление состоянием кнопки "Проверить"
+function updateCheckButtonState() {
+    const checkBtn = document.getElementById('check-btn');
+    if (gameMode === 'closed') {
+        checkBtn.disabled = !userGenderGuess || !userStatusGuess;
+    } else {
+        checkBtn.disabled = !userStatusGuess;
+    }
 }
 
 // Логирование состояния загрузки
@@ -430,14 +469,14 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
     const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
     const wikiLink = document.getElementById('wiki-link');
+    const texts = translations[selectedLanguage];
     
     requestAnimationFrame(() => {
         personInfo.style.display = 'none';
         personInfo.classList.remove('correct');
-        personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? translations[selectedLanguage].male : translations[selectedLanguage].female}, ${deathDate ? translations[selectedLanguage].deceased : translations[selectedLanguage].alive}, Народження: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : translations[selectedLanguage].unknown}${deathDate ? `, Смерть: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
+        personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${deathDate ? texts.deceased : texts.alive}, Народження: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${deathDate ? `, Смерть: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
         wikiLink.href = person.value;
         document.getElementById('next-person').style.display = 'none';
-        document.getElementById('person-name').textContent = '';
         updateModeVisibility();
         loadedPhotos++;
         logPhotoStatus();
@@ -446,12 +485,10 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
 
 function handleError() {
     const personImage = document.getElementById('person-image');
-    const personName = document.getElementById('person-name');
     const overlay = document.getElementById('overlay');
 
     requestAnimationFrame(() => {
         personImage.src = 'https://via.placeholder.com/300';
-        personName.textContent = translations[selectedLanguage].testPerson;
         if (gameMode === 'closed') {
             overlay.classList.remove('hidden');
         } else {
@@ -463,11 +500,9 @@ function handleError() {
 
 async function loadPersonFromData(person, category = null) {
     const personImage = document.getElementById('person-image');
-    const personName = document.getElementById('person-name');
 
     requestAnimationFrame(() => {
         personImage.src = '';
-        personName.textContent = '';
         personImage.classList.remove('loaded');
     });
 
@@ -484,7 +519,7 @@ async function loadPersonFromData(person, category = null) {
             if (settings.excludeBlackAndWhite) {
                 const isBW = await isBlackAndWhite(imageUrl);
                 if (isBW) {
-                    console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
+                    console.warniou(`Skipping black-and-white image for ${person.personLabel.value}`);
                     const newPerson = await fetchPersonData(false, category);
                     person = newPerson;
                     attempts++;
@@ -589,6 +624,7 @@ async function loadNextPerson() {
     } else {
         handleError();
     }
+    document.getElementById('check-btn').disabled = true;
 }
 
 // Обработчик кнопки "Найти новое фото"
@@ -596,34 +632,50 @@ document.getElementById('next-photo').addEventListener('click', () => {
     console.log('Нажата кнопка "Найти новое фото"');
     userGenderGuess = null;
     userStatusGuess = null;
+    document.getElementById('male-btn').classList.remove('active');
+    document.getElementById('female-btn').classList.remove('active');
+    document.getElementById('alive-btn').classList.remove('active');
+    document.getElementById('dead-btn').classList.remove('active');
     loadNextPerson();
 });
 
 // Обработчики кнопок "Мужчина" и "Женщина"
 document.getElementById('male-btn').addEventListener('click', () => {
     userGenderGuess = 'male';
+    document.getElementById('male-btn').classList.add('active');
+    document.getElementById('female-btn').classList.remove('active');
+    updateCheckButtonState();
     console.log('Пользователь выбрал: Мужчина');
 });
 
 document.getElementById('female-btn').addEventListener('click', () => {
     userGenderGuess = 'female';
+    document.getElementById('female-btn').classList.add('active');
+    document.getElementById('male-btn').classList.remove('active');
+    updateCheckButtonState();
     console.log('Пользователь выбрал: Женщина');
 });
 
 // Обработчики кнопок "Жив" и "Мертв"
 document.getElementById('alive-btn').addEventListener('click', () => {
     userStatusGuess = 'alive';
+    document.getElementById('alive-btn').classList.add('active');
+    document.getElementById('dead-btn').classList.remove('active');
+    updateCheckButtonState();
     console.log('Пользователь выбрал: Жив');
 });
 
 document.getElementById('dead-btn').addEventListener('click', () => {
     userStatusGuess = 'dead';
+    document.getElementById('dead-btn').classList.add('active');
+    document.getElementById('alive-btn').classList.remove('active');
+    updateCheckButtonState();
     console.log('Пользователь выбрал: Мертв');
 });
 
 // Обработчик кнопки "Проверить"
 document.getElementById('check-btn').addEventListener('click', () => {
-    if (!currentPerson || (gameMode === 'closed' && (!userGenderGuess || !userStatusGuess)) || hasChecked) return;
+    if (!currentPerson || hasChecked) return;
     
     hasChecked = true; // Помечаем, что проверка выполнена
     totalGuesses++;
@@ -650,7 +702,13 @@ document.getElementById('check-btn').addEventListener('click', () => {
             failedGuesses++;
         }
         document.getElementById('next-person').style.display = 'block';
-        document.getElementById('person-name').textContent = currentPerson.personLabel.value;
+        
+        // Сброс подсветки кнопок
+        document.getElementById('male-btn').classList.remove('active');
+        document.getElementById('female-btn').classList.remove('active');
+        document.getElementById('alive-btn').classList.remove('active');
+        document.getElementById('dead-btn').classList.remove('active');
+        document.getElementById('check-btn').disabled = true;
         
         // Обновление статистики
         document.getElementById('stats-total').textContent = totalGuesses;
@@ -672,6 +730,10 @@ document.getElementById('next-person').addEventListener('click', () => {
     console.log('Нажата кнопка "Следующее фото"');
     userGenderGuess = null;
     userStatusGuess = null;
+    document.getElementById('male-btn').classList.remove('active');
+    document.getElementById('female-btn').classList.remove('active');
+    document.getElementById('alive-btn').classList.remove('active');
+    document.getElementById('dead-btn').classList.remove('active');
     loadNextPerson();
 });
 
