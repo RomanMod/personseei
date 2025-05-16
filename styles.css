@@ -90,12 +90,6 @@ h1 {
     display: none;
 }
 
-#person-name {
-    margin-top: 15px;
-    font-size: 1.5em;
-    font-weight: bold;
-}
-
 #next-photo {
     padding: 10px 20px;
     font-size: 16px;
@@ -142,8 +136,8 @@ h1 {
 }
 
 .gender-buttons button, .status-buttons button {
-    padding: 15px 30px;
-    font-size: 18px;
+    padding: 15px 40px;
+    font-size: 20px;
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
@@ -156,16 +150,47 @@ h1 {
     background-color: var(--button-hover);
 }
 
+.gender-buttons button.active, .status-buttons button.active {
+    background-color: var(--accent-color);
+}
+
+.check-button {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+#check-btn {
+    padding: 15px 40px;
+    font-size: 20px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+#check-btn:hover {
+    background-color: var(--button-hover);
+}
+
+#check-btn:disabled {
+    background-color: var(--button-bg);
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 #person-info {
     background-color: var(--button-bg);
     padding: 10px;
-    border-radius: 5px;
+    border-radius:  licenc5px;
     margin: 10px 0;
     transition: background-color 0.3s ease;
 }
 
 #person-info.correct {
-    background-color: #2ECC71;
+    background-color: #27AE60;
 }
 
 #wiki-link {
@@ -175,7 +200,13 @@ h1 {
     display: inline-block;
 }
 
-#check-btn, #next-person {
+.next-person-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+#next-person {
     padding: 10px 20px;
     font-size: 16px;
     background-color: var(--button-bg);
@@ -184,10 +215,9 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
-    margin: 10px;
 }
 
-#check-btn:hover, #next-person:hover {
+#next-person:hover {
     background-color: var(--button-hover);
 }
 
