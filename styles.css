@@ -60,6 +60,22 @@ h1 {
     opacity: 1;
 }
 
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    z-index: 10;
+    transition: opacity 0.5s ease;
+}
+
+#overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
 #progress-bar {
     position: absolute;
     bottom: 0;
@@ -118,11 +134,26 @@ h1 {
     background-color: var(--button-hover);
 }
 
-.status-buttons {
+.gender-buttons, .status-buttons {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin: 10px 0;
+}
+
+.gender-buttons button, .status-buttons button {
+    padding: 15px 30px;
+    font-size: 18px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.gender-buttons button:hover, .status-buttons button:hover {
+    background-color: var(--button-hover);
 }
 
 #person-info {
@@ -157,21 +188,6 @@ h1 {
 }
 
 #check-btn:hover, #next-person:hover {
-    background-color: var(--button-hover);
-}
-
-#alive-btn, #dead-btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: var(--button-bg);
-    color: var(--button-text);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-#alive-btn:hover, #dead-btn:hover {
     background-color: var(--button-hover);
 }
 
