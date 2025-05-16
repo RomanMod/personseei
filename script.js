@@ -670,6 +670,11 @@ async function loadNextPerson() {
         handleError();
     }
     document.getElementById('check-btn').disabled = true;
+    // Включение кнопок ответа
+    document.getElementById('male-btn').disabled = false;
+    document.getElementById('female-btn').disabled = false;
+    document.getElementById('alive-btn').disabled = false;
+    document.getElementById('dead-btn').disabled = false;
 }
 
 // Обработчик кнопки "Найти новое фото"
@@ -747,6 +752,12 @@ document.getElementById('check-btn').addEventListener('click', () => {
             failedGuesses++;
         }
         document.getElementById('next-person').style.display = 'block';
+        
+        // Отключение кнопок ответа
+        document.getElementById('male-btn').disabled = true;
+        document.getElementById('female-btn').disabled = true;
+        document.getElementById('alive-btn').disabled = true;
+        document.getElementById('dead-btn').disabled = true;
         
         document.getElementById('male-btn').classList.remove('active');
         document.getElementById('female-btn').classList.remove('active');
