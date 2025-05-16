@@ -1,131 +1,181 @@
 :root {
-    --bg-color: #1c2526;
-    --text-color: #e0e0e0;
-    --button-bg: #2e3b3e;
-    --button-text: #e0e0e0;
-    --highlight: #4caf50;
-    --border-color: #4b5e61;
+    --bg-color: #1C2526;
+    --text-color: #E8ECEF;
+    --button-bg: #2C3E50;
+    --button-hover: #34495E;
+    --button-text: #E8ECEF;
+    --accent-color: #3498DB;
+    --progress-bar-bg: #2C3E50;
+    --progress-bar-fill: #3498DB;
 }
 
 body.day {
-    --bg-color: #f5f5f5;
-    --text-color: #333;
-    --button-bg: #d3d3d3;
-    --button-text: #333;
-    --border-color: #999;
+    --bg-color: #ECF0F1;
+    --text-color: #2C3E50;
+    --button-bg: #BDC3C7;
+    --button-hover: #95A5A6;
+    --button-text: #2C3E50;
+    --accent-color: #2980B9;
+    --progress-bar-bg: #BDC3C7;
+    --progress-bar-fill: #2980B9;
 }
 
 body {
+    font-family: Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
-    font-size: 16px;
-    border: 2px solid var(--border-color); /* Для отладки темы */
-    transition: all 0.3s ease; /* Плавное переключение темы */
-}
-
-.container {
-    max-width: 600px;
-    margin: 0 auto;
     text-align: center;
+    padding: 40px;
+    margin: 0;
+    transition: all 0.3s ease;
 }
 
 h1 {
-    font-size: 24px;
+    font-size: 2em;
     margin-bottom: 20px;
 }
 
-.settings {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
-}
-
-select {
-    background-color: var(--button-bg);
-    color: var(--button-text);
-    border: 1px solid var(--border-color);
-    padding: 8px;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.display {
+#main-display {
     position: relative;
-    margin: 20px 0;
-    border: 2px solid var(--border-color);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 20px;
+    aspect-ratio: 4 / 3;
+    background-color: var(--progress-bar-bg);
+    border: 2px solid var(--button-bg);
     border-radius: 10px;
-    height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
 }
 
-#progress {
-    font-size: 24px;
-    color: var(--text-color);
-    font-weight: bold;
-    background: rgba(0, 0, 0, 0.5); /* Для лучшей видимости */
-    padding: 10px;
-    border-radius: 5px;
+#person-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
 }
 
-#person-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
+#person-image.loaded {
+    opacity: 1;
+}
+
+#progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 5px;
+    background-color: var(--progress-bar-fill);
+    transition: width 0.3s ease;
+}
+
+#progress-bar.hidden {
+    display: none;
+}
+
+#person-name {
+    margin-top: 15px;
+    font-size: 1.5em;
+    font-weight: bold;
 }
 
 #next-photo {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: var(--button-bg);
-    color: var(--button-text);
-    border: none;
-    padding: 10px;
-    font-size: 20px;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-.questions {
-    margin: 20px 0;
-}
-
-.questions label {
-    margin: 0 10px;
-}
-
-.gender-btn, .status-btn, #check-answer {
-    background-color: var(--button-bg);
-    color: var(--button-text);
-    border: none;
     padding: 10px 20px;
-    margin: 5px;
     font-size: 16px;
-    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 10px;
 }
 
-.correct {
-    background-color: var(--highlight) !important;
+#next-photo:hover {
+    background-color: var(--button-hover);
 }
 
-#result {
-    margin: 20px 0;
+.settings {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }
 
-.stats {
-    margin-top: 20px;
-    font-size: 14px;
+.settings button, select {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
-a {
-    color: var(--highlight);
+.settings button:hover, select:hover {
+    background-color: var(--button-hover);
+}
+
+.status-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+#person-info {
+    background-color: var(--button-bg);
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    transition: background-color 0.3s ease;
+}
+
+#person-info.correct {
+    background-color: #2ECC71;
+}
+
+#wiki-link {
+    color: var(--accent-color);
     text-decoration: none;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+#check-btn, #next-person {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin: 10px;
+}
+
+#check-btn:hover, #next-person:hover {
+    background-color: var(--button-hover);
+}
+
+#alive-btn, #dead-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#alive-btn:hover, #dead-btn:hover {
+    background-color: var(--button-hover);
+}
+
+/* Скрытие старых элементов */
+#progress, .btn-container, .stats {
+    display: none;
 }
