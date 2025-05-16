@@ -9,16 +9,22 @@
 <body class="night">
     <div class="settings">
         <button id="theme-toggle">🌙 Ніч</button>
-        <select id="language-select">
-            <option value="uk" selected>Українська</option>
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-            <option value="alien">👽 ⊸⍟⊸</option>
-        </select>
-        <select id="mode-select">
-            <option value="open">Відкритий</option>
-            <option value="closed">Закритий</option>
-        </select>
+        <div class="custom-select" id="language-select">
+            <div class="selected-option">Українська</div>
+            <ul class="options" style="display: none;">
+                <li data-value="uk">Українська</li>
+                <li data-value="ru">Русский</li>
+                <li data-value="en">English</li>
+                <li data-value="alien">👽 ⊸⍟⊸</li>
+            </ul>
+        </div>
+        <div class="custom-select" id="mode-select">
+            <div class="selected-option">Відкритий</div>
+            <ul class="options" style="display: none;">
+                <li data-value="open">Відкритий</li>
+                <li data-value="closed">Закритий</li>
+            </ul>
+        </div>
     </div>
 
     <h1 id="title">Гра: Випадкова людина з Wikidata</h1>
