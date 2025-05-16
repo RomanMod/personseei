@@ -26,7 +26,8 @@ const wikidataCache = JSON.parse(localStorage.getItem('wikidataCache')) || {};
 let sessionList = [];
 let loadedPhotos = 0;
 let currentPerson = null;
-let userGuess = null;
+let userGenderGuess = null;
+let userStatusGuess = null;
 
 // Переводы
 const translations = {
@@ -113,6 +114,8 @@ function updateLanguage() {
     document.getElementById('title').textContent = texts.title;
     document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
     document.getElementById('next-photo').textContent = texts.nextPhoto;
+    document.getElementById('male-btn').textContent = texts.male;
+    document.getElementById('female-btn').textContent = texts.female;
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
     updateModeSelect();
@@ -149,8 +152,28 @@ document.getElementById('language-select').addEventListener('change', (e) => {
 document.getElementById('mode-select').addEventListener('change', (e) => {
     gameMode = e.target.value;
     localStorage.setItem('mode', gameMode);
+    updateModeVisibility();
     console.log('Выбран режим: ' + gameMode);
 });
+
+// Обновление видимости элементов в зависимости от режима
+function updateModeVisibility() {
+    const overlay = document.getElementById('overlay');
+    const genderButtons = document.querySelector('.gender-buttons');
+    const personImage = document.getElementById('person-image');
+    
+    requestAnimationFrame(() => {
+        if (gameMode === 'closed') {
+            overlay.classList.remove('hidden');
+            genderButtons.style.display = 'flex';
+            personImage.classList.remove('loaded');
+        } else {
+            overlay.classList.add('hidden');
+            genderButtons.style.display = 'none';
+            if (personImage.src) personImage.classList.add('loaded');
+        }
+    });
+}
 
 // Логирование состояния загрузки
 function logPhotoStatus() {
@@ -411,6 +434,7 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
         wikiLink.href = person.value;
         document.getElementById('next-person').style.display = 'none';
         document.getElementById('person-name').textContent = '';
+        updateModeVisibility();
         loadedPhotos++;
         logPhotoStatus();
     });
@@ -419,10 +443,16 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
 function handleError() {
     const personImage = document.getElementById('person-image');
     const personName = document.getElementById('person-name');
+    const overlay = document.getElementById('overlay');
 
     requestAnimationFrame(() => {
         personImage.src = 'https://via.placeholder.com/300';
         personName.textContent = translations[selectedLanguage].testPerson;
+        if (gameMode === 'closed') {
+            overlay.classList.remove('hidden');
+        } else {
+            overlay.classList.add('hidden');
+        }
         logPhotoStatus();
     });
 }
@@ -545,6 +575,8 @@ async function loadNextPerson() {
         return;
     }
 
+    userGenderGuess = null;
+    userStatusGuess = null;
     const { person, category } = sessionList.shift();
     if (person) {
         await loadPersonFromData(person, category);
@@ -556,48 +588,71 @@ async function loadNextPerson() {
 // Обработчик кнопки "Найти новое фото"
 document.getElementById('next-photo').addEventListener('click', () => {
     console.log('Нажата кнопка "Найти новое фото"');
-    userGuess = null;
+    userGenderGuess = null;
+    userStatusGuess = null;
     loadNextPerson();
+});
+
+// Обработчики кнопок "Мужчина" и "Женщина"
+document.getElementById('male-btn').addEventListener('click', () => {
+    userGenderGuess = 'male';
+    console.log('Пользователь выбрал: Мужчина');
+});
+
+document.getElementById('female-btn').addEventListener('click', () => {
+    userGenderGuess = 'female';
+    console.log('Пользователь выбрал: Женщина');
 });
 
 // Обработчики кнопок "Жив" и "Мертв"
 document.getElementById('alive-btn').addEventListener('click', () => {
-    userGuess = 'alive';
+    userStatusGuess = 'alive';
     console.log('Пользователь выбрал: Жив');
 });
 
 document.getElementById('dead-btn').addEventListener('click', () => {
-    userGuess = 'dead';
+    userStatusGuess = 'dead';
     console.log('Пользователь выбрал: Мертв');
 });
 
 // Обработчик кнопки "Проверить"
 document.getElementById('check-btn').addEventListener('click', () => {
-    if (!currentPerson || !userGuess) return;
+    if (!currentPerson || (gameMode === 'closed' && (!userGenderGuess || !userStatusGuess))) return;
     
-    const isCorrect = (userGuess === 'alive' && !currentPerson.deathDate) || 
-                     (userGuess === 'dead' && currentPerson.deathDate);
+    const isGenderCorrect = gameMode === 'closed' ? 
+        userGenderGuess === (currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female') : true;
+    const isStatusCorrect = (userStatusGuess === 'alive' && !currentPerson.deathDate) || 
+                           (userStatusGuess === 'dead' && currentPerson.deathDate);
     
     const personInfo = document.getElementById('person-info');
+    const personImage = document.getElementById('person-image');
+    const overlay = document.getElementById('overlay');
+    
     requestAnimationFrame(() => {
         personInfo.style.display = 'block';
-        if (isCorrect) {
+        if (gameMode === 'closed') {
+            overlay.classList.add('hidden');
+            personImage.classList.add('loaded');
+        }
+        if (isGenderCorrect && isStatusCorrect) {
             personInfo.classList.add('correct');
         }
         document.getElementById('next-person').style.display = 'block';
         document.getElementById('person-name').textContent = currentPerson.personLabel.value;
     });
-    console.log(`Проверка: ${isCorrect ? 'Верно' : 'Неверно'}`);
+    console.log(`Проверка: Пол ${isGenderCorrect ? 'верно' : 'неверно'}, Статус ${isStatusCorrect ? 'верно' : 'неверно'}`);
 });
 
 // Обработчик кнопки "Следующее фото"
 document.getElementById('next-person').addEventListener('click', () => {
     console.log('Нажата кнопка "Следующее фото"');
-    userGuess = null;
+    userGenderGuess = null;
+    userStatusGuess = null;
     loadNextPerson();
 });
 
 window.onload = () => {
     updateLanguage();
+    updateModeVisibility();
     loadSession();
 };
