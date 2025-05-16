@@ -113,25 +113,63 @@ h1 {
     gap: 15px;
 }
 
-.settings button, .settings select {
+.settings button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: var(--button-bg) !important; /* Приоритет для Telegram */
+    background-color: var(--button-bg);
     color: var(--button-text);
-    border: 1px solid var(--button-bg);
+    border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.settings select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
+.settings button:hover {
+    background-color: var(--button-hover);
 }
 
-.settings button:hover, .settings select:hover {
-    background-color: var(--button-hover) !important;
+.custom-select {
+    position: relative;
+    width: 150px;
+}
+
+.selected-option {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--button-bg);
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.selected-option:hover {
+    background-color: var(--button-hover);
+}
+
+.options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--button-bg);
+    border: 1px solid var(--button-bg);
+    border-radius: 5px;
+    margin-top: 5px;
+    z-index: 100;
+    list-style: none;
+    padding: 0;
+}
+
+.options li {
+    padding: 10px 20px;
+    color: var(--button-text);
+    cursor: pointer;
+}
+
+.options li:hover {
+    background-color: var(--button-hover);
 }
 
 .gender-buttons, .status-buttons {
