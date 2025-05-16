@@ -113,7 +113,7 @@ h1 {
     gap: 15px;
 }
 
-.settings button, select {
+.settings button, .settings select {
     padding: 10px 20px;
     font-size: 16px;
     background-color: var(--button-bg);
@@ -124,7 +124,15 @@ h1 {
     transition: background-color 0.2s;
 }
 
-.settings button:hover, select:hover {
+.settings select {
+    border: 1px solid var(--button-bg); /* Явная граница для Telegram */
+    appearance: none; /* Убираем стандартный стиль */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--button-bg); /* Явный фон */
+}
+
+.settings button:hover, .settings select:hover {
     background-color: var(--button-hover);
 }
 
@@ -184,13 +192,13 @@ h1 {
 #person-info {
     background-color: var(--button-bg);
     padding: 10px;
-    border-radius:  licenc5px;
+    border-radius: 5px;
     margin: 10px 0;
-    transition: background-color 0.3s ease;
+    transition: border 0.3s ease;
 }
 
 #person-info.correct {
-    background-color: #27AE60;
+    border: 3px solid #4ACB82; /* Рамка вместо заливки */
 }
 
 #wiki-link {
@@ -202,7 +210,7 @@ h1 {
 
 .next-person-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center; /* Центрирование кнопки */
     margin-bottom: 10px;
 }
 
