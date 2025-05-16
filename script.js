@@ -31,7 +31,7 @@ let userStatusGuess = null;
 let totalGuesses = parseInt(localStorage.getItem('totalGuesses')) || 0;
 let successfulGuesses = parseInt(localStorage.getItem('successfulGuesses')) || 0;
 let failedGuesses = parseInt(localStorage.getItem('failedGuesses')) || 0;
-let hasChecked = false; // Флаг для предотвращения повторных проверок
+let hasChecked = false;
 
 // Переводы
 const translations = {
@@ -42,6 +42,7 @@ const translations = {
         modeOpen: 'Відкритий',
         modeClosed: 'Закритий',
         nextPhoto: '🔄 Знайти нове фото',
+        nextPerson: 'Наступне фото',
         unknown: 'Невідомо',
         testPerson: 'Тестовий персонаж',
         statsTotal: 'Просмотренные',
@@ -61,6 +62,7 @@ const translations = {
         modeOpen: 'Открытый',
         modeClosed: 'Закрытый',
         nextPhoto: '🔄 Найти новое фото',
+        nextPerson: 'Следующее фото',
         unknown: 'Неизвестно',
         testPerson: 'Тестовый персонаж',
         statsTotal: 'Просмотренные',
@@ -80,6 +82,7 @@ const translations = {
         modeOpen: 'Open',
         modeClosed: 'Closed',
         nextPhoto: '🔄 Find New Photo',
+        nextPerson: 'Next Photo',
         unknown: 'Unknown',
         testPerson: 'Test Person',
         statsTotal: 'Viewed',
@@ -99,6 +102,7 @@ const translations = {
         modeOpen: '⊸⍟⊸',
         modeClosed: '⊸⍟⊸⊸',
         nextPhoto: '🔄 ⊸⍟⊸ ⊸⍟⊸',
+        nextPerson: '⊸⍟⊸ ⊸⍟⊸',
         unknown: '⊸⍟⊸⊸⊸',
         testPerson: '⊸⍟⊸ ⊸⍟⊸',
         statsTotal: '⊸⍟⊸',
@@ -138,6 +142,7 @@ function updateLanguage() {
     document.getElementById('title').textContent = texts.title;
     document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
     document.getElementById('next-photo').textContent = texts.nextPhoto;
+    document.getElementById('next-person').textContent = texts.nextPerson;
     document.getElementById('check-btn').textContent = texts.checkBtn;
     document.getElementById('stats-total-label').textContent = texts.statsTotal;
     document.getElementById('stats-success-label').textContent = texts.statsSuccess;
@@ -149,7 +154,7 @@ function updateLanguage() {
     document.getElementById('dead-btn').textContent = texts.deceased;
     updateModeSelect();
     if (currentPerson) {
-        updateUI(currentPerson); // Перевод данных о человеке, если они отображены
+        updateUI(currentPerson);
     }
 }
 
@@ -519,7 +524,7 @@ async function loadPersonFromData(person, category = null) {
             if (settings.excludeBlackAndWhite) {
                 const isBW = await isBlackAndWhite(imageUrl);
                 if (isBW) {
-                    console.warniou(`Skipping black-and-white image for ${person.personLabel.value}`);
+                    console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
                     const newPerson = await fetchPersonData(false, category);
                     person = newPerson;
                     attempts++;
@@ -593,7 +598,7 @@ async function loadSession() {
         updateProgressBar(100);
 
         if (sessionList.length > 0) {
-            hasChecked = false; // Сброс флага
+            hasChecked = false;
             const { person, category } = sessionList.shift();
             await loadPersonFromData(person, category);
         } else {
@@ -617,7 +622,7 @@ async function loadNextPerson() {
 
     userGenderGuess = null;
     userStatusGuess = null;
-    hasChecked = false; // Сброс флага
+    hasChecked = false;
     const { person, category } = sessionList.shift();
     if (person) {
         await loadPersonFromData(person, category);
@@ -677,7 +682,7 @@ document.getElementById('dead-btn').addEventListener('click', () => {
 document.getElementById('check-btn').addEventListener('click', () => {
     if (!currentPerson || hasChecked) return;
     
-    hasChecked = true; // Помечаем, что проверка выполнена
+    hasChecked = true;
     totalGuesses++;
     
     const isGenderCorrect = gameMode === 'closed' ? 
@@ -703,21 +708,18 @@ document.getElementById('check-btn').addEventListener('click', () => {
         }
         document.getElementById('next-person').style.display = 'block';
         
-        // Сброс подсветки кнопок
         document.getElementById('male-btn').classList.remove('active');
         document.getElementById('female-btn').classList.remove('active');
         document.getElementById('alive-btn').classList.remove('active');
         document.getElementById('dead-btn').classList.remove('active');
         document.getElementById('check-btn').disabled = true;
         
-        // Обновление статистики
         document.getElementById('stats-total').textContent = totalGuesses;
         document.getElementById('stats-success').textContent = successfulGuesses;
         document.getElementById('stats-failure').textContent = failedGuesses;
         const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
         document.getElementById('stats-success-rate').textContent = `${successRate}%`;
         
-        // Сохранение статистики
         localStorage.setItem('totalGuesses', totalGuesses);
         localStorage.setItem('successfulGuesses', successfulGuesses);
         localStorage.setItem('failedGuesses', failedGuesses);
@@ -741,7 +743,6 @@ window.onload = () => {
     updateLanguage();
     updateModeVisibility();
     loadSession();
-    // Инициализация статистики
     document.getElementById('stats-total').textContent = totalGuesses;
     document.getElementById('stats-success').textContent = successfulGuesses;
     document.getElementById('stats-failure').textContent = failedGuesses;
