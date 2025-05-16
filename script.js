@@ -53,7 +53,9 @@ const translations = {
         male: 'Чоловік',
         female: 'Жінка',
         alive: 'Живий',
-        deceased: 'Мерц'
+        deceased: 'Мерц',
+        birth: 'Народження',
+        death: 'Смерть'
     },
     ru: {
         title: 'Игра: Случайный человек из Wikidata',
@@ -73,7 +75,9 @@ const translations = {
         male: 'Мужчина',
         female: 'Женщина',
         alive: 'Жив',
-        deceased: 'Мертв'
+        deceased: 'Мертв',
+        birth: 'Рождение',
+        death: 'Смерть'
     },
     en: {
         title: 'Game: Random Person from Wikidata',
@@ -93,7 +97,9 @@ const translations = {
         male: 'Male',
         female: 'Female',
         alive: 'Alive',
-        deceased: 'Deceased'
+        deceased: 'Deceased',
+        birth: 'Birth',
+        death: 'Death'
     },
     alien: {
         title: '👾 ⊸⍟⊸: ⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟ Wikidata',
@@ -113,7 +119,9 @@ const translations = {
         male: '⊸⍟⊸',
         female: '⊸⍟⊸⊸',
         alive: '⊸⍟⊸',
-        deceased: '⊸⍟⊸⊸'
+        deceased: '⊸⍟⊸⊸',
+        birth: '⊸⍟⊸',
+        death: '⊸⍟⊸⊸'
     }
 };
 
@@ -123,8 +131,8 @@ let selectedLanguage = localStorage.getItem('language') || 'uk';
 let gameMode = localStorage.getItem('mode') || 'open';
 
 document.body.classList.toggle('day', !isNight);
-document.getElementById('language-select').value = selectedLanguage;
-document.getElementById('mode-select').value = gameMode;
+document.querySelector('#language-select .selected-option').textContent = selectedLanguage === 'uk' ? 'Українська' : selectedLanguage === 'ru' ? 'Русский' : selectedLanguage === 'en' ? 'English' : '👽 ⊸⍟⊸';
+document.querySelector('#mode-select .selected-option').textContent = translations[selectedLanguage][`mode${gameMode.charAt(0).toUpperCase() + gameMode.slice(1)}`];
 
 // Логирование инициализации
 console.log('Инициализация стиля Space Gray (Шаг 3)');
@@ -153,6 +161,7 @@ function updateLanguage() {
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
     updateModeSelect();
+    updateLanguageSelect();
     if (currentPerson) {
         updateUI(currentPerson);
     }
@@ -160,13 +169,61 @@ function updateLanguage() {
 
 // Обновление текста режима
 function updateModeSelect() {
-    const modeSelect = document.getElementById('mode-select');
-    modeSelect.innerHTML = `
-        <option value="open">${translations[selectedLanguage].modeOpen}</option>
-        <option value="closed">${translations[selectedLanguage].modeClosed}</option>
+    const modeSelectOptions = document.querySelector('#mode-select .options');
+    modeSelectOptions.innerHTML = `
+        <li data-value="open">${translations[selectedLanguage].modeOpen}</li>
+        <li data-value="closed">${translations[selectedLanguage].modeClosed}</li>
     `;
-    modeSelect.value = gameMode;
+    document.querySelector('#mode-select .selected-option').textContent = translations[selectedLanguage][`mode${gameMode.charAt(0).toUpperCase() + gameMode.slice(1)}`];
 }
+
+// Обновление текста языка
+function updateLanguageSelect() {
+    const languageSelectOptions = document.querySelector('#language-select .options');
+    languageSelectOptions.innerHTML = `
+        <li data-value="uk">Українська</li>
+        <li data-value="ru">Русский</li>
+        <li data-value="en">English</li>
+        <li data-value="alien">👽 ⊸⍟⊸</li>
+    `;
+    document.querySelector('#language-select .selected-option').textContent = selectedLanguage === 'uk' ? 'Українська' : selectedLanguage === 'ru' ? 'Русский' : selectedLanguage === 'en' ? 'English' : '👽 ⊸⍟⊸';
+}
+
+// Кастомные выпадающие списки
+document.querySelectorAll('.custom-select').forEach(select => {
+    const selectedOption = select.querySelector('.selected-option');
+    const options = select.querySelector('.options');
+
+    selectedOption.addEventListener('click', () => {
+        options.style.display = options.style.display === 'none' ? 'block' : 'none';
+    });
+
+    options.addEventListener('click', (e) => {
+        if (e.target.tagName === 'LI') {
+            const value = e.target.getAttribute('data-value');
+            if (select.id === 'language-select') {
+                selectedLanguage = value;
+                localStorage.setItem('language', selectedLanguage);
+                updateLanguage();
+            } else if (select.id === 'mode-select') {
+                gameMode = value;
+                localStorage.setItem('mode', gameMode);
+                updateModeVisibility();
+                updateCheckButtonState();
+                updateModeSelect();
+            }
+            selectedOption.textContent = e.target.textContent;
+            options.style.display = 'none';
+        }
+    });
+
+    // Закрытие при клике вне
+    document.addEventListener('click', (e) => {
+        if (!select.contains(e.target)) {
+            options.style.display = 'none';
+        }
+    });
+});
 
 // Переключение темы
 document.getElementById('theme-toggle').addEventListener('click', () => {
@@ -175,23 +232,6 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     localStorage.setItem('theme', isNight ? 'night' : 'day');
     updateLanguage();
     console.log('Тема изменена на: ' + (isNight ? 'ночь' : 'день'));
-});
-
-// Смена языка
-document.getElementById('language-select').addEventListener('change', (e) => {
-    selectedLanguage = e.target.value;
-    localStorage.setItem('language', selectedLanguage);
-    updateLanguage();
-    console.log('Выбран язык: ' + selectedLanguage);
-});
-
-// Смена режима
-document.getElementById('mode-select').addEventListener('change', (e) => {
-    gameMode = e.target.value;
-    localStorage.setItem('mode', gameMode);
-    updateModeVisibility();
-    updateCheckButtonState();
-    console.log('Выбран режим: ' + gameMode);
 });
 
 // Обновление видимости элементов в зависимости от режима
@@ -479,7 +519,7 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
     requestAnimationFrame(() => {
         personInfo.style.display = 'none';
         personInfo.classList.remove('correct');
-        personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${deathDate ? texts.deceased : texts.alive}, Народження: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${deathDate ? `, Смерть: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
+        personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${deathDate ? texts.deceased : texts.alive}, ${texts.birth}: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${deathDate ? `, ${texts.death}: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
         wikiLink.href = person.value;
         document.getElementById('next-person').style.display = 'none';
         updateModeVisibility();
@@ -741,6 +781,8 @@ document.getElementById('next-person').addEventListener('click', () => {
 
 window.onload = () => {
     updateLanguage();
+    updateLanguageSelect();
+    updateModeSelect();
     updateModeVisibility();
     loadSession();
     document.getElementById('stats-total').textContent = totalGuesses;
