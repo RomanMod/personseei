@@ -405,7 +405,7 @@ async function isBlackAndWhite(imageUrl) {
             console.error(`Failed to load image for RGB+HSL analysis: ${imageUrl}`);
             resolve(false);
         };
-        img.src = büyüklük;
+        img.src = imageUrl;
     });
 }
 
@@ -476,9 +476,7 @@ async function fetchPersonData(useRandom = false, category = null) {
     const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
                         category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
                         'OPTIONAL { ?person wdt:P570 ?deathDate }';
-    const birthDateFilter = `FILTER(?birthDate >= "${settings
-
-.birthYearFilter}-01-01"^^xsd:dateTime).`;
+    const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01"^^xsd:dateTime).`;
     const countryFilter = settings.selectedCountries === 'all' ? '' :
                          `FILTER(?country IN (${settings.selectedCountries
                              .map(code => `wd:${settings.countryMap[code]}`)
@@ -553,48 +551,6 @@ async function fetchPersonData(useRandom = false, category = null) {
     throw new Error(`No person found after ${maxAttempts} attempts`);
 }
 
-function updateUI({ personLabel, gender, deathDate, birthDate, person, sitelink }) {
-    currentPerson = { personLabel, gender, deathDate, birthDate, person, sitelink };
-    const personInfo = document.getElementById('person-info');
-    const personDetails = document.getElementById('person-details');
-    const wikiLink = document.getElementById('wiki-link');
-    const texts = translations[selectedLanguage];
-    
-    requestAnimationFrame(() => {
-        personInfo.style.display = 'none';
-        personInfo.classList.remove('correct', 'incorrect');
-        personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${deathDate ? texts.deceased : texts.alive}, ${texts.birth}: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${deathDate ? `, ${texts.death}: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
-        wikiLink.href = sitelink?.value || `https://${selectedLanguage}.wikipedia.org/w/index.php?search=${encodeURIComponent(personLabel.value)}`;
-        wikiLink.style.pointerEvents = sitelink ? 'auto' : 'auto';
-        wikiLink.style.opacity = sitelink ? '1' : '0.8';
-        console.log(`Wiki link set to: ${wikiLink.href}`);
-        document.getElementById('next-person').style.display = 'none';
-        updateModeVisibility();
-        loadedPhotos++;
-        logPhotoStatus();
-    });
-}
-
-function handleError() {
-    const personImage = document.getElementById('person-image');
-    const overlay = document.getElementById('overlay');
-    const progressPercentage = document.getElementById('progress-percentage');
-
-    requestAnimationFrame(() => {
-        personImage.src = 'https://via.placeholder.com/300';
-        if (gameMode === 'closed') {
-            overlay.classList.remove('hidden');
-        } else {
-            overlay.classList.add('hidden');
-        }
-        progressPercentage.textContent = translations[selectedLanguage].error || 'Помилка';
-        setTimeout(() => {
-            progressPercentage.classList.add('hidden');
-        }, 2000);
-        logPhotoStatus();
-    });
-}
-
 async function loadPersonFromData(person, category = null) {
     const personImage = document.getElementById('person-image');
     const progressPercentage = document.getElementById('progress-percentage');
@@ -653,6 +609,48 @@ async function loadPersonFromData(person, category = null) {
             }
         }
     }
+}
+
+function updateUI({ personLabel, gender, deathDate, birthDate, person, sitelink }) {
+    currentPerson = { personLabel, gender, deathDate, birthDate, person, sitelink };
+    const personInfo = document.getElementById('person-info');
+    const personDetails = document.getElementById('person-details');
+    const wikiLink = document.getElementById('wiki-link');
+    const texts = translations[selectedLanguage];
+    
+    requestAnimationFrame(() => {
+        personInfo.style.display = 'none';
+        personInfo.classList.remove('correct', 'incorrect');
+        personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${deathDate ? texts.deceased : texts.alive}, ${texts.birth}: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${deathDate ? `, ${texts.death}: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
+        wikiLink.href = sitelink?.value || `https://${selectedLanguage}.wikipedia.org/w/index.php?search=${encodeURIComponent(personLabel.value)}`;
+        wikiLink.style.pointerEvents = sitelink ? 'auto' : 'auto';
+        wikiLink.style.opacity = sitelink ? '1' : '0.8';
+        console.log(`Wiki link set to: ${wikiLink.href}`);
+        document.getElementById('next-person').style.display = 'none';
+        updateModeVisibility();
+        loadedPhotos++;
+        logPhotoStatus();
+    });
+}
+
+function handleError() {
+    const personImage = document.getElementById('person-image');
+    const overlay = document.getElementById('overlay');
+    const progressPercentage = document.getElementById('progress-percentage');
+
+    requestAnimationFrame(() => {
+        personImage.src = 'https://via.placeholder.com/300';
+        if (gameMode === 'closed') {
+            overlay.classList.remove('hidden');
+        } else {
+            overlay.classList.add('hidden');
+        }
+        progressPercentage.textContent = translations[selectedLanguage].error || 'Помилка';
+        setTimeout(() => {
+            progressPercentage.classList.add('hidden');
+        }, 2000);
+        logPhotoStatus();
+    });
 }
 
 async function loadSession() {
