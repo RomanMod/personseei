@@ -38,7 +38,6 @@ const maxAttempts = 10;
 // Переводы
 const translations = {
     uk: {
-        title: 'Гра: Випадкова людина з Wikidata',
         themeNight: '🌙 Ніч',
         themeDay: '☀ День',
         modeOpen: 'Відкритий',
@@ -61,7 +60,6 @@ const translations = {
         attempts: 'Спроби'
     },
     ru: {
-        title: 'Игра: Случайный человек из Wikidata',
         themeNight: '🌙 Ночь',
         themeDay: '☀ День',
         modeOpen: 'Открытый',
@@ -84,7 +82,6 @@ const translations = {
         attempts: 'Попытки'
     },
     en: {
-        title: 'Game: Random Person from Wikidata',
         themeNight: '🌙 Night',
         themeDay: '☀ Day',
         modeOpen: 'Open',
@@ -107,7 +104,6 @@ const translations = {
         attempts: 'Attempts'
     },
     alien: {
-        title: '👾 ⊸⍟⊸: ⊸⍟⊸ ⊸⍟⊸⊸ ⊸⍟ Wikidata',
         themeNight: '🌙 ⊸⍟⊸',
         themeDay: '☀ ⊸⍟⊸',
         modeOpen: '⊸⍟⊸',
@@ -153,7 +149,6 @@ console.log('Выбран режим: ' + gameMode);
 // Обновление интерфейса по языку
 function updateLanguage() {
     const texts = translations[selectedLanguage];
-    document.getElementById('title').textContent = texts.title;
     document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
     document.getElementById('next-photo').textContent = texts.nextPhoto;
     document.getElementById('next-person').textContent = texts.nextPerson;
@@ -486,7 +481,7 @@ async function fetchPersonData(useRandom = false, category = null) {
     while (attempts < maxAttempts) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         query = `
-            SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate ?sitelink
+            SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
             WHERE {
                 ?person wdt:P31 wd:Q5;
                         wdt:P18 ?image;
@@ -499,10 +494,6 @@ async function fetchPersonData(useRandom = false, category = null) {
                 ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
                 ?person rdfs:label ?personLabel.
                 FILTER (LANG(?personLabel) = "en").
-                OPTIONAL {
-                    ?sitelink schema:about ?person;
-                              schema:isPartOf <https://${selectedLanguage}.wikipedia.org/> .
-                }
             }
             OFFSET ${offset}
             LIMIT ${settings.maxPeople}
@@ -589,7 +580,7 @@ async function loadPersonFromData(person, category = null) {
                 await loadImageWithFallback(imageUrl, personImage);
                 await progressPromise;
                 updateProgressBar(100, true);
-                updateUI({ ...person, person, sitelink: person.sitelink });
+                updateUI({ ...person, person });
                 return;
             } catch (imageError) {
                 console.error(`Image load error: ${imageError.message}`);
@@ -611,21 +602,16 @@ async function loadPersonFromData(person, category = null) {
     }
 }
 
-function updateUI({ personLabel, gender, deathDate, birthDate, person, sitelink }) {
-    currentPerson = { personLabel, gender, deathDate, birthDate, person, sitelink };
+function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
+    currentPerson = { personLabel, gender, deathDate, birthDate, person };
     const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
-    const wikiLink = document.getElementById('wiki-link');
     const texts = translations[selectedLanguage];
     
     requestAnimationFrame(() => {
         personInfo.style.display = 'none';
         personInfo.classList.remove('correct', 'incorrect');
         personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${deathDate ? texts.deceased : texts.alive}, ${texts.birth}: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${deathDate ? `, ${texts.death}: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
-        wikiLink.href = sitelink?.value || `https://${selectedLanguage}.wikipedia.org/w/index.php?search=${encodeURIComponent(personLabel.value)}`;
-        wikiLink.style.pointerEvents = sitelink ? 'auto' : 'auto';
-        wikiLink.style.opacity = sitelink ? '1' : '0.8';
-        console.log(`Wiki link set to: ${wikiLink.href}`);
         document.getElementById('next-person').style.display = 'none';
         updateModeVisibility();
         loadedPhotos++;
