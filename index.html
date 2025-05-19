@@ -8,7 +8,7 @@
 </head>
 <body class="night">
     <div class="settings">
-        <button id="theme-toggle">🌙 Ніч</button>
+        <button id="theme-toggle" aria-label="Перемкнути тему">🌙 Ніч</button>
         <div class="custom-select" id="language-select">
             <div class="selected-option">Українська</div>
             <ul class="options" style="display: none;">
@@ -30,33 +30,37 @@
     <h1 id="title">Гра: Випадкова людина з Wikidata</h1>
     <button id="next-photo">🔄 Знайти нове фото</button>
     <div id="main-display">
-        <img id="person-image" src="" alt="Зображення людини">
+        <img id="person-image" src="placeholder.jpg" alt="Зображення людини">
         <div id="overlay" class="overlay hidden"></div>
         <div id="progress-bar"></div>
+        <span id="progress-percentage" class="hidden" aria-live="polite">0%</span>
     </div>
     <div id="person-info" style="display: none;">
         <div id="person-details"></div>
-        <a id="wiki-link" href="#" target="_blank">Страница Википедии</a>
+        <a id="wiki-link" href="#" target="_blank">Сторінка Вікіпедії</a>
     </div>
     <div class="gender-buttons">
-        <button id="male-btn"></button>
-        <button id="female-btn"></button>
+        <button id="male-btn" aria-label="Вгадати чоловіка">Чоловік</button>
+        <button id="female-btn" aria-label="Вгадати жінку">Жінка</button>
     </div>
     <div class="status-buttons">
-        <button id="alive-btn"></button>
-        <button id="dead-btn"></button>
+        <button id="alive-btn" aria-label="Вгадати живого">Живий</button>
+        <button id="dead-btn" aria-label="Вгадати померлого">Померлий</button>
     </div>
     <div class="check-button">
-        <button id="check-btn" disabled>Проверить</button>
+        <button id="check-btn" disabled>Перевірити</button>
     </div>
     <div class="next-person-container">
-        <button id="next-person" style="display: none;">Следующее фото</button>
+        <button id="next-person" style="display: none;">Наступне фото</button>
     </div>
     <div id="game-stats">
-        <div><span id="stats-total-label">Просмотренные</span>: <span id="stats-total">0</span></div>
-        <div><span id="stats-success-label">Успешные</span>: <span id="stats-success">0</span></div>
-        <div><span id="stats-failure-label">Неуспешные</span>: <span id="stats-failure">0</span></div>
-        <div><span id="stats-success-rate-label">Процент успешных</span>: <span id="stats-success-rate">0%</span></div>
+        <div class="new-game-container">
+            <button id="new-game" style="display: none;">Нова гра</button>
+        </div>
+        <div><span id="stats-attempts-label">Спроби</span>: <span id="stats-attempts">0/10</span></div>
+        <div><span id="stats-success-label">Успішні</span>: <span id="stats-success">0</span></div>
+        <div><span id="stats-failure-label">Невдалі</span>: <span id="stats-failure">0</span></div>
+        <div><span id="stats-success-rate-label">Відсоток успішних</span>: <span id="stats-success-rate">0%</span></div>
     </div>
     <div id="progress"></div>
 
