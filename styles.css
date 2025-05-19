@@ -168,8 +168,6 @@ h1 {
     background-color: var(--button-bg);
     color: var(--button-text);
     border: 1px solid var(--button-bg);
-ttä
-
     border-radius: 5px;
     cursor: pointer;
     text-align: left;
@@ -280,13 +278,6 @@ ttä
 
 #person-info.incorrect {
     border: 2px solid red;
-}
-
-#wiki-link {
-    color: var(--accent-color);
-    text-decoration: none;
-    margin-top: 10px;
-    display: inline-block;
 }
 
 .next-person-container {
