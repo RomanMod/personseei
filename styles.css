@@ -27,7 +27,7 @@ body {
     text-align: center;
     padding: 40px;
     margin: 0;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1 {
@@ -90,6 +90,34 @@ h1 {
     display: none;
 }
 
+#progress-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--text-color);
+    z-index: 15;
+    transition: opacity 0.3s ease;
+    animation: fadeIn 0.3s ease;
+}
+
+#progress-percentage.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#person-image.loaded + #progress-percentage {
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 #next-photo {
     padding: 10px 20px;
     font-size: 16px;
@@ -106,30 +134,23 @@ h1 {
     background-color: var(--button-hover);
 }
 
-/* Стили для верхних кнопок */
 .settings {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
-    gap: 15px; /* Расстояние между кнопками (#theme-toggle, #language-select, #mode-select) */
-    /* Настройка: измените gap (например, 10px или 20px) для регулировки расстояния */
+    gap: 15px;
 }
 
 .settings button {
-    padding: 10px 20px; /* Внутренние отступы кнопки #theme-toggle */
-    font-size: 16px; /* Размер шрифта */
+    padding: 10px 20px;
+    font-size: 16px;
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
-    min-width: 140px; /* Одинаковая ширина с .custom-select */
-    /* Настройка:
-       - min-width: подберите 130px или 150px для изменения ширины
-       - padding: попробуйте 8px 16px или 12px 24px
-       - font-size: измените на 14px или 18px для текста
-    */
+    min-width: 140px;
 }
 
 .settings button:hover {
@@ -138,33 +159,27 @@ h1 {
 
 .custom-select {
     position: relative;
-    min-width: 140px; /* Одинаковая ширина с .settings button */
-    /* Настройка: измените min-width (например, 130px или 150px), держите синхронно с .settings button */
+    min-width: 140px;
 }
 
 .selected-option {
-    padding: 10px 20px; /* Синхронизировано с .settings button */
-    font-size: 16px; /* Синхронизировано с .settings button */
+    padding: 10px 20px;
+    font-size: 16px;
     background-color: var(--button-bg);
     color: var(--button-text);
     border: 1px solid var(--button-bg);
     border-radius: 5px;
     cursor: pointer;
     text-align: left;
-    text-overflow: ellipsis; /* Обрезка длинного текста (например, "Українська") */
-    white-space: nowrap; /* Запрет переноса текста */
-    overflow: hidden; /* Скрытие текста за границами */
-    /* Настройка:
-       - padding: синхронизируйте с .settings button (например, 8px 16px)
-       - font-size: синхронизируйте с .settings button (например, 14px или 18px)
-    */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .selected-option:hover {
     background-color: var(--button-hover);
 }
 
-/* Стили для выпадающего меню */
 .options {
     position: absolute;
     top: 100%;
@@ -173,25 +188,17 @@ h1 {
     background-color: var(--button-bg);
     border: 1px solid var(--button-bg);
     border-radius: 5px;
-    margin-top: 5px; /* Отступ сверху от .selected-option */
+    margin-top: 5px;
     z-index: 100;
     list-style: none;
     padding: 0;
-    /* Настройка:
-       - margin-top: измените на 3px или 8px для регулировки расстояния
-       - min-width: добавьте, например, min-width: 140px, если хотите фиксированную ширину меню
-    */
 }
 
 .options li {
-    padding: 10px 20px; /* Синхронизировано с .selected-option */
+    padding: 10px 20px;
     color: var(--button-text);
     cursor: pointer;
-    white-space: nowrap; /* Запрет переноса текста в меню */
-    /* Настройка:
-       - padding: подберите 8px 16px или 12px 24px для размера пунктов
-       - font-size: добавьте, например, font-size: 14px, для настройки текста
-    */
+    white-space: nowrap;
 }
 
 .options li:hover {
@@ -266,7 +273,11 @@ h1 {
 }
 
 #person-info.correct {
-    border: 3px solid #4ACB82;
+    border: 2px solid green;
+}
+
+#person-info.incorrect {
+    border: 2px solid red;
 }
 
 #wiki-link {
@@ -316,39 +327,92 @@ h1 {
     color: var(--accent-color);
 }
 
-/* Скрытие старых элементов */
-#progress, .btn-container, .stats {
-    display: none;
+.btn-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
 }
 
-/* Медиа-запрос для телефонов (Telegram Mini App) */
+.btn-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-container button:hover {
+    background-color: var(--button-hover);
+}
+
+.time-info {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.stats {
+    margin-top: 20px;
+    font-size: 1em;
+    background-color: var(--button-bg);
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.new-game-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+#new-game {
+    padding: 15px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: var(--accent-color);
+    color: var(--button-text);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#new-game:hover {
+    background-color: var(--button-hover);
+    transform: scale(1.05);
+}
+
+@media (max-width: 900px) {
+    #main-display {
+        max-width: 350px;
+    }
+}
+
 @media (max-width: 600px) {
     .settings button {
-        padding: 8px 12px; /* Компактные отступы */
-        font-size: 13px; /* Меньший шрифт */
-        min-width: 110px; /* Одинаковая ширина для телефонов */
-        /* Настройка:
-           - min-width: подберите 100px или 120px для компактности/простора
-           - padding: попробуйте 6px 10px или 10px 14px
-           - font-size: измените на 12px или 14px
-        */
+        padding: 8px 12px;
+        font-size: 13px;
+        min-width: 110px;
     }
     .custom-select .selected-option {
-        padding: 8px 12px; /* Синхронизировано с .settings button */
-        font-size: 13px; /* Синхронизировано с .settings button */
-        min-width: 110px; /* Одинаковая ширина с .settings button */
-        /* Настройка:
-           - min-width: держите таким же, как в .settings button (например, 100px или 120px)
-           - padding: синхронизируйте с .settings button
-           - font-size: синхронизируйте с .settings button
-        */
+        padding: 8px 12px;
+        font-size: 13px;
+        min-width: 110px;
     }
     .options li {
-        padding: 8px 12px; /* Компактные отступы для пунктов меню */
-        font-size: 13px; /* Меньший шрифт для меню */
-        /* Настройка:
-           - padding: подберите 6px 10px или 10px 14px
-           - font-size: попробуйте 12px или 14px
-        */
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    #progress-percentage {
+        font-size: 1.5em;
+    }
+    #new-game {
+        padding: 12px 30px;
+        font-size: 16px;
     }
 }
