@@ -697,7 +697,6 @@ async function loadSession() {
                 document.getElementById('check-btn').style.display = 'inline-block';
                 document.getElementById('check-btn').disabled = true;
                 document.getElementById('next-person').style.display = 'none';
-                document.getElementById('new-game').style.display = 'none';
                 document.getElementById('next-photo').disabled = false;
             });
         } else {
@@ -738,7 +737,6 @@ async function loadNextPerson() {
         document.getElementById('dead-btn').style.display = 'inline-block';
         document.getElementById('check-btn').style.display = 'inline-block';
         document.getElementById('next-person').style.display = 'none';
-        document.getElementById('new-game').style.display = 'none';
         document.getElementById('next-photo').disabled = false;
     });
 }
@@ -757,8 +755,6 @@ function startNewGame() {
     document.getElementById('stats-success').textContent = '0';
     document.getElementById('stats-failure').textContent = '0';
     document.getElementById('stats-success-rate').textContent = '0%';
-
-    document.getElementById('new-game').style.display = 'none';
 
     userGenderGuess = null;
     userStatusGuess = null;
@@ -891,7 +887,6 @@ document.getElementById('check-btn').addEventListener('click', () => {
         localStorage.setItem('failedGuesses', failedGuesses);
 
         if (currentAttempts >= maxAttempts) {
-            document.getElementById('new-game').style.display = 'block';
             document.getElementById('next-photo').disabled = true;
             document.getElementById('next-person').style.display = 'none';
             document.getElementById('check-btn').style.display = 'none';
@@ -929,8 +924,8 @@ window.onload = () => {
     document.getElementById('stats-failure').textContent = failedGuesses;
     const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
     document.getElementById('stats-success-rate').textContent = `${successRate}%`;
+    document.getElementById('new-game').style.display = 'block';
     if (currentAttempts >= maxAttempts) {
-        document.getElementById('new-game').style.display = 'block';
         document.getElementById('next-photo').disabled = true;
         document.getElementById('next-person').style.display = 'none';
         document.getElementById('check-btn').style.display = 'none';
