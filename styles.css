@@ -331,7 +331,7 @@ h1 {
     padding: 15px 40px;
     font-size: 20px;
     font-weight: bold;
-    background-color: var(--accent-color);
+    background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
     border-radius: 8px;
@@ -344,6 +344,8 @@ h1 {
     background-color: var(--button-hover);
     transform: scale(1.05);
 }
+
+
 
 @media (max-width: 900px) {
     #main-display {
