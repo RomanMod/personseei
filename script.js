@@ -42,6 +42,8 @@ const translations = {
         themeDay: '☀ День',
         modeOpen: 'Відкритий',
         modeClosed: 'Закритий',
+        debugModeOn: 'Отладка: УВІМК',
+        debugModeOff: 'Отладка: ВИМК',
         nextPhoto: '🔄 Знайти нове фото',
         nextPerson: 'Наступне фото',
         unknown: 'Невідомо',
@@ -57,13 +59,16 @@ const translations = {
         birth: 'Народження',
         death: 'Смерть',
         newGame: 'Нова гра',
-        attempts: 'Спроби'
+        attempts: 'Спроби',
+        error: 'Помилка завантаження'
     },
     ru: {
         themeNight: '🌙 Ночь',
         themeDay: '☀ День',
         modeOpen: 'Открытый',
         modeClosed: 'Закрытый',
+        debugModeOn: 'Отладка: ВКЛ',
+        debugModeOff: 'Отладка: ВЫКЛ',
         nextPhoto: '🔄 Найти новое фото',
         nextPerson: 'Следующее фото',
         unknown: 'Неизвестно',
@@ -79,13 +84,16 @@ const translations = {
         birth: 'Рождение',
         death: 'Смерть',
         newGame: 'Новая игра',
-        attempts: 'Попытки'
+        attempts: 'Попытки',
+        error: 'Ошибка загрузки'
     },
     en: {
         themeNight: '🌙 Night',
         themeDay: '☀ Day',
         modeOpen: 'Open',
         modeClosed: 'Closed',
+        debugModeOn: 'Debug: ON',
+        debugModeOff: 'Debug: OFF',
         nextPhoto: '🔄 Find New Photo',
         nextPerson: 'Next Photo',
         unknown: 'Unknown',
@@ -101,13 +109,16 @@ const translations = {
         birth: 'Birth',
         death: 'Death',
         newGame: 'New Game',
-        attempts: 'Attempts'
+        attempts: 'Attempts',
+        error: 'Loading Error'
     },
     alien: {
         themeNight: '🌙 ⊸⍟⊸',
         themeDay: '☀ ⊸⍟⊸',
         modeOpen: '⊸⍟⊸',
         modeClosed: '⊸⍟⊸⊸',
+        debugModeOn: '⊸⍟⊸: УВІМК',
+        debugModeOff: '⊸⍟⊸: ВИМК',
         nextPhoto: '🔄 ⊸⍟⊸ ⊸⍟⊸',
         nextPerson: '⊸⍟⊸ ⊸⍟⊸',
         unknown: '⊸⍟⊸⊸⊸',
@@ -123,7 +134,8 @@ const translations = {
         birth: '⊸⍟⊸',
         death: '⊸⍟⊸⊸',
         newGame: '⊸⍟⊸ ⊸⍟⊸',
-        attempts: '⊸⍟⊸⊸'
+        attempts: '⊸⍟⊸⊸',
+        error: '⊸⍟⊸⊸⊸⊸'
     }
 };
 
@@ -131,6 +143,8 @@ const translations = {
 let isNight = localStorage.getItem('theme') !== 'day';
 let selectedLanguage = localStorage.getItem('language') || 'uk';
 let gameMode = localStorage.getItem('mode') || 'open';
+// НОВОЕ: Инициализация состояния debug_mode из localStorage
+let isDebugModeEnabled = localStorage.getItem('debugMode') === 'true';
 
 document.body.classList.toggle('day', !isNight);
 document.querySelector('#language-select .selected-option').textContent = selectedLanguage === 'uk' ? 'Українська' : selectedLanguage === 'ru' ? 'Русский' : selectedLanguage === 'en' ? 'English' : '👽 ⊸⍟⊸';
@@ -145,6 +159,7 @@ console.log('Кнопка "Найти новое фото" над дисплее
 console.log('Тема: ' + (isNight ? 'ночь' : 'день'));
 console.log('Выбран язык: ' + selectedLanguage);
 console.log('Выбран режим: ' + gameMode);
+console.log('Режим отладки GA4: ' + (isDebugModeEnabled ? 'Включен' : 'Выключен'));
 
 // Обновление интерфейса по языку
 function updateLanguage() {
@@ -162,6 +177,8 @@ function updateLanguage() {
     document.getElementById('female-btn').textContent = texts.female;
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
+    // НОВОЕ: Обновление текста для кнопки отладки
+    document.getElementById('debug-mode-toggle').textContent = isDebugModeEnabled ? texts.debugModeOn : texts.debugModeOff;
     updateModeSelect();
     updateLanguageSelect();
     if (currentPerson) {
@@ -203,19 +220,37 @@ document.querySelectorAll('.custom-select').forEach(select => {
     options.addEventListener('click', (e) => {
         if (e.target.tagName === 'LI') {
             const value = e.target.getAttribute('data-value');
+            let settingName = '';
+            let oldValue = '';
+
             if (select.id === 'language-select') {
+                oldValue = selectedLanguage; // Сохраняем старое значение перед изменением
                 selectedLanguage = value;
                 localStorage.setItem('language', selectedLanguage);
                 updateLanguage();
+                settingName = 'language';
             } else if (select.id === 'mode-select') {
+                oldValue = gameMode; // Сохраняем старое значение
                 gameMode = value;
                 localStorage.setItem('mode', gameMode);
                 updateModeVisibility();
                 updateCheckButtonState();
                 updateModeSelect();
+                settingName = 'game_mode';
             }
             selectedOption.textContent = e.target.textContent;
             options.style.display = 'none';
+
+            // --- Добавляем отслеживание GA4: settings_changed ---
+            if (typeof gtag === 'function' && settingName) { // Проверяем, что настройка действительно изменилась
+                gtag('event', 'settings_changed', {
+                    'setting_name': settingName,
+                    'old_value': oldValue,
+                    'new_value': value
+                });
+                console.log(`[GA4] Event: settings_changed, name: ${settingName}, old: ${oldValue}, new: ${value}`);
+            }
+            // ---------------------------------------------------
         }
     });
 
@@ -229,19 +264,54 @@ document.querySelectorAll('.custom-select').forEach(select => {
 
 // Переключение темы
 document.getElementById('theme-toggle').addEventListener('click', () => {
+    const oldValue = isNight ? 'night' : 'day'; // Сохраняем старое значение
     isNight = !isNight;
+    const newValue = isNight ? 'night' : 'day'; // Получаем новое значение
     document.body.classList.toggle('day', !isNight);
     localStorage.setItem('theme', isNight ? 'night' : 'day');
     updateLanguage();
     console.log('Тема изменена на: ' + (isNight ? 'ночь' : 'день'));
+
+    // --- Добавляем отслеживание GA4: settings_changed для темы ---
+    if (typeof gtag === 'function') {
+        gtag('event', 'settings_changed', {
+            'setting_name': 'theme',
+            'old_value': oldValue,
+            'new_value': newValue
+        });
+        console.log(`[GA4] Event: settings_changed, name: theme, old: ${oldValue}, new: ${newValue}`);
+    }
+    // ----------------------------------------------------------
 });
+
+// НОВОЕ: Переключение режима отладки GA4
+document.getElementById('debug-mode-toggle').addEventListener('click', () => {
+    const oldValue = isDebugModeEnabled;
+    isDebugModeEnabled = !isDebugModeEnabled;
+    localStorage.setItem('debugMode', isDebugModeEnabled);
+    updateLanguage(); // Обновит текст кнопки
+    console.log('Режим отладки GA4 переключен на: ' + (isDebugModeEnabled ? 'Включен' : 'Выключен'));
+
+    // Отправляем команду config для обновления debug_mode
+    if (typeof gtag === 'function') {
+        gtag('config', 'G-489110668', { 'debug_mode': isDebugModeEnabled });
+        console.log(`[GA4] gtag('config', 'G-489110668', { 'debug_mode': ${isDebugModeEnabled} })`);
+        // Отслеживание изменения настройки debug_mode
+        gtag('event', 'settings_changed', {
+            'setting_name': 'debug_mode',
+            'old_value': oldValue,
+            'new_value': isDebugModeEnabled
+        });
+    }
+});
+
 
 // Обновление видимости элементов в зависимости от режима
 function updateModeVisibility() {
     const overlay = document.getElementById('overlay');
     const genderButtons = document.querySelector('.gender-buttons');
     const personImage = document.getElementById('person-image');
-    
+
     requestAnimationFrame(() => {
         if (gameMode === 'closed') {
             overlay.classList.remove('hidden');
@@ -274,16 +344,16 @@ function logPhotoStatus() {
 function updateProgressBar(percentage, isImageLoading = false) {
     const progressBar = document.getElementById('progress-bar');
     const progressPercentage = document.getElementById('progress-percentage');
-    
+
     requestAnimationFrame(() => {
         progressBar.classList.remove('hidden');
         progressBar.style.width = `${percentage}%`;
-        
+
         if (isImageLoading) {
             progressPercentage.classList.remove('hidden');
             progressPercentage.textContent = `${Math.round(percentage)}%`;
         }
-        
+
         console.log(`Прогрес-бар (${isImageLoading ? 'изображение' : 'сессия'}): ${percentage}%`);
         if (percentage >= 100) {
             setTimeout(() => {
@@ -390,10 +460,10 @@ async function isBlackAndWhite(imageUrl) {
             const isBW = rStdDev < 20 && gStdDev < 20 && bStdDev < 20 && meanSaturation < 0.2;
             console.log(`Image ${imageUrl} is ${isBW ? 'black-and-white' : 'color'} ` +
                         `(R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)}, Saturation:${(meanSaturation * 100).toFixed(2)}%)`);
-            
+
             rgbHslCache[imageUrl] = isBW;
             localStorage.setItem('rgbHslCache', JSON.stringify(rgbHslCache));
-            
+
             resolve(isBW);
         };
         img.onerror = () => {
@@ -429,7 +499,7 @@ async function loadImageWithFallback(url, element) {
         element.classList.remove('loaded');
         const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
         console.log(`Attempting to load image via proxy: ${proxyUrl}`);
-        
+
         const cleanup = () => {
             element.onload = null;
             element.onerror = null;
@@ -448,7 +518,7 @@ async function loadImageWithFallback(url, element) {
             cleanup();
             reject(new Error(`Proxy image load failed: ${proxyUrl}`));
         };
-        
+
         element.src = proxyUrl;
     });
 }
@@ -466,11 +536,11 @@ async function fetchPersonData(useRandom = false, category = null) {
     }
 
     const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
-                        category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
-                        'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
+                         category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
+                         'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
     const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
-                        category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
-                        'OPTIONAL { ?person wdt:P570 ?deathDate }';
+                         category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
+                         'OPTIONAL { ?person wdt:P570 ?deathDate }';
     const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01"^^xsd:dateTime).`;
     const countryFilter = settings.selectedCountries === 'all' ? '' :
                          `FILTER(?country IN (${settings.selectedCountries
@@ -561,7 +631,7 @@ async function loadPersonFromData(person, category = null) {
     while (attempts < maxAttempts) {
         try {
             const fileName = decodeURIComponent(person.image.value.split('/').pop());
-            console.log(`Fetching image for file: ${fileName}`);
+            console.log(`Workspaceing image for file: ${fileName}`);
             const imageUrl = await getCommonsImageUrl(fileName);
             if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
 
@@ -607,7 +677,7 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
     const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
-    
+
     requestAnimationFrame(() => {
         personInfo.style.display = 'none';
         personInfo.classList.remove('correct', 'incorrect');
@@ -631,7 +701,7 @@ function handleError() {
         } else {
             overlay.classList.add('hidden');
         }
-        progressPercentage.textContent = translations[selectedLanguage].error || 'Помилка';
+        progressPercentage.textContent = translations[selectedLanguage].error;
         setTimeout(() => {
             progressPercentage.classList.add('hidden');
         }, 2000);
@@ -687,6 +757,15 @@ async function loadSession() {
             hasChecked = false;
             const { person, category } = sessionList.shift();
             await loadPersonFromData(person, category);
+            // --- Вызов GA4 event 'next_photo_loaded' здесь (первая загрузка после сессии) ---
+            if (typeof gtag === 'function') {
+                gtag('event', 'next_photo_loaded', {
+                    'photos_in_session_remaining': sessionList.length
+                });
+                console.log(`[GA4] Event: next_photo_loaded (initial session load), remaining: ${sessionList.length}`);
+            }
+            // ----------------------------------------------------------------------------------
+
             requestAnimationFrame(() => {
                 document.getElementById('male-btn').disabled = false;
                 document.getElementById('female-btn').disabled = false;
@@ -724,11 +803,23 @@ async function loadNextPerson() {
     const { person, category } = sessionList.shift();
     if (person) {
         await loadPersonFromData(person, category);
+        // --- Добавляем отслеживание GA4: next_photo_loaded ---
+        if (typeof gtag === 'function') {
+            gtag('event', 'next_photo_loaded', {
+                'photos_in_session_remaining': sessionList.length
+            });
+            console.log(`[GA4] Event: next_photo_loaded, remaining: ${sessionList.length}`);
+        }
+        // ---------------------------------------------------
     } else {
         handleError();
     }
     requestAnimationFrame(() => {
         document.getElementById('check-btn').disabled = true;
+        document.getElementById('male-btn').classList.remove('active'); // Сбрасываем активное состояние
+        document.getElementById('female-btn').classList.remove('active'); // Сбрасываем активное состояние
+        document.getElementById('alive-btn').classList.remove('active'); // Сбрасываем активное состояние
+        document.getElementById('dead-btn').classList.remove('active'); // Сбрасываем активное состояние
         document.getElementById('male-btn').disabled = false;
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false;
@@ -750,6 +841,16 @@ function startNewGame() {
     localStorage.setItem('totalGuesses', totalGuesses);
     localStorage.setItem('successfulGuesses', successfulGuesses);
     localStorage.setItem('failedGuesses', failedGuesses);
+
+    // --- Добавляем отслеживание GA4: new_game_started ---
+    if (typeof gtag === 'function') {
+        gtag('event', 'new_game_started', {
+            'game_mode': gameMode,
+            'language': selectedLanguage
+        });
+        console.log(`[GA4] Event: new_game_started, mode: ${gameMode}, language: ${selectedLanguage}`);
+    }
+    // ---------------------------------------------------
 
     document.getElementById('stats-attempts').textContent = `0/${maxAttempts}`;
     document.getElementById('stats-success').textContent = '0';
@@ -818,118 +919,106 @@ document.getElementById('alive-btn').addEventListener('click', () => {
     document.getElementById('alive-btn').classList.add('active');
     document.getElementById('dead-btn').classList.remove('active');
     updateCheckButtonState();
-    console.log('Пользователь выбрал: Жив');
+    console.log('Пользователь выбрал: Живой');
 });
 
 document.getElementById('dead-btn').addEventListener('click', () => {
-    userStatusGuess = 'dead';
+    userStatusGuess = 'deceased';
     document.getElementById('dead-btn').classList.add('active');
     document.getElementById('alive-btn').classList.remove('active');
     updateCheckButtonState();
-    console.log('Пользователь выбрал: Мертв');
+    console.log('Пользователь выбрал: Померлий');
 });
 
 document.getElementById('check-btn').addEventListener('click', () => {
-    if (!currentPerson || hasChecked) return;
-    
+    if (hasChecked) return;
     hasChecked = true;
-    currentAttempts++;
-    totalGuesses++;
-    
-    const isGenderCorrect = gameMode === 'closed' ? 
-        userGenderGuess === (currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female') : true;
-    const isStatusCorrect = (userStatusGuess === 'alive' && !currentPerson.deathDate) || 
-                           (userStatusGuess === 'dead' && currentPerson.deathDate);
-    
+
     const personInfo = document.getElementById('person-info');
-    const personImage = document.getElementById('person-image');
-    const overlay = document.getElementById('overlay');
-    
-    requestAnimationFrame(() => {
-        personInfo.style.display = 'block';
-        if (gameMode === 'closed') {
-            overlay.classList.add('hidden');
-            personImage.classList.add('loaded');
-        }
-        if (isGenderCorrect && isStatusCorrect) {
-            personInfo.classList.add('correct');
-            successfulGuesses++;
-        } else {
-            personInfo.classList.add('incorrect');
-            failedGuesses++;
-        }
-        document.getElementById('next-person').style.display = 'block';
-        
+    const actualGender = currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female';
+    const actualStatus = currentPerson.deathDate ? 'deceased' : 'alive';
+
+    const isGenderCorrect = userGenderGuess === actualGender;
+    const isStatusCorrect = userStatusGuess === actualStatus;
+    const isOverallCorrect = isGenderCorrect && isStatusCorrect;
+
+    // --- Добавляем отслеживание GA4: guess_attempt ---
+    if (typeof gtag === 'function') {
+        gtag('event', 'guess_attempt', {
+            'guessed_gender_correct': isGenderCorrect,
+            'guessed_status_correct': isStatusCorrect,
+            'is_correct_overall': isOverallCorrect,
+            'attempts_count': currentAttempts + 1 // Отправляем текущую попытку ДО увеличения счетчика
+        });
+        console.log(`[GA4] Event: guess_attempt, gender_correct: ${isGenderCorrect}, status_correct: ${isStatusCorrect}, overall_correct: ${isOverallCorrect}, attempts: ${currentAttempts + 1}`);
+    }
+    // -----------------------------------------------
+
+    if (isOverallCorrect) {
+        successfulGuesses++;
+        personInfo.classList.add('correct');
+        console.log('Вірно!');
+    } else {
+        failedGuesses++;
+        personInfo.classList.add('incorrect');
+        console.log('Невірно!');
+    }
+
+    totalGuesses++;
+    currentAttempts++;
+
+    localStorage.setItem('totalGuesses', totalGuesses);
+    localStorage.setItem('successfulGuesses', successfulGuesses);
+    localStorage.setItem('failedGuesses', failedGuesses);
+    localStorage.setItem('currentAttempts', currentAttempts);
+
+
+    document.getElementById('person-info').style.display = 'block';
+    document.getElementById('person-info').classList.remove('correct', 'incorrect');
+    document.getElementById('person-info').classList.add(isOverallCorrect ? 'correct' : 'incorrect');
+
+    document.getElementById('next-person').style.display = 'block';
+    document.getElementById('male-btn').disabled = true;
+    document.getElementById('female-btn').disabled = true;
+    document.getElementById('alive-btn').disabled = true;
+    document.getElementById('dead-btn').disabled = true;
+    document.getElementById('check-btn').disabled = true;
+    document.getElementById('next-photo').disabled = true;
+
+
+    updateStatsDisplay();
+
+    if (currentAttempts >= maxAttempts) {
+        document.getElementById('next-person').style.display = 'none';
+        document.getElementById('new-game').style.display = 'inline-block';
+        document.getElementById('next-photo').disabled = true; // Отключаем кнопку "Найти новое фото" в конце игры
         document.getElementById('alive-btn').style.display = 'none';
         document.getElementById('dead-btn').style.display = 'none';
         document.getElementById('check-btn').style.display = 'none';
-        
-        document.getElementById('male-btn').disabled = true;
-        document.getElementById('female-btn').disabled = true;
-        document.getElementById('alive-btn').disabled = true;
-        document.getElementById('dead-btn').disabled = true;
-        
-        document.getElementById('male-btn').classList.remove('active');
-        document.getElementById('female-btn').classList.remove('active');
-        document.getElementById('alive-btn').classList.remove('active');
-        document.getElementById('dead-btn').classList.remove('active');
-        document.getElementById('check-btn').disabled = true;
-        
-        document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
-        document.getElementById('stats-success').textContent = successfulGuesses;
-        document.getElementById('stats-failure').textContent = failedGuesses;
-        const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
-        document.getElementById('stats-success-rate').textContent = `${successRate}%`;
-        
-        localStorage.setItem('currentAttempts', currentAttempts);
-        localStorage.setItem('totalGuesses', totalGuesses);
-        localStorage.setItem('successfulGuesses', successfulGuesses);
-        localStorage.setItem('failedGuesses', failedGuesses);
-
-        if (currentAttempts >= maxAttempts) {
-            document.getElementById('next-photo').disabled = true;
-            document.getElementById('next-person').style.display = 'none';
-            document.getElementById('check-btn').style.display = 'none';
-            document.getElementById('alive-btn').style.display = 'none';
-            document.getElementById('dead-btn').style.display = 'none';
-        }
-    });
-    console.log(`Проверка: Пол ${isGenderCorrect ? 'верно' : 'неверно'}, Статус ${isStatusCorrect ? 'верно' : 'неверно'}`);
+        document.getElementById('person-info').style.display = 'none';
+        console.log('Игровая сессия завершена.');
+    } else {
+        document.getElementById('new-game').style.display = 'none';
+    }
 });
 
-document.getElementById('next-person').addEventListener('click', () => {
-    console.log('Нажата кнопка "Следующее фото"');
-    userGenderGuess = null;
-    userStatusGuess = null;
-    document.getElementById('male-btn').classList.remove('active');
-    document.getElementById('female-btn').classList.remove('active');
-    document.getElementById('alive-btn').classList.remove('active');
-    document.getElementById('dead-btn').classList.remove('active');
-    loadNextPerson();
-});
+document.getElementById('next-person').addEventListener('click', loadNextPerson);
+document.getElementById('new-game').addEventListener('click', startNewGame);
 
-document.getElementById('new-game').addEventListener('click', () => {
-    console.log('Нажата кнопка "Новая игра"');
-    startNewGame();
-});
 
-window.onload = () => {
-    updateLanguage();
-    updateLanguageSelect();
-    updateModeSelect();
-    updateModeVisibility();
-    loadSession();
+function updateStatsDisplay() {
     document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
     document.getElementById('stats-success').textContent = successfulGuesses;
     document.getElementById('stats-failure').textContent = failedGuesses;
-    const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+    const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(0) : 0;
     document.getElementById('stats-success-rate').textContent = `${successRate}%`;
-    document.getElementById('new-game').style.display = 'block';
-    if (currentAttempts >= maxAttempts) {
-        document.getElementById('next-photo').disabled = true;
-        document.getElementById('next-person').style.display = 'none';
-        document.getElementById('check-btn').style.display = 'none';
-        document.getElementById('alive-btn').style.display = 'none';
-        document.getElementById('dead-btn').style.display = 'none';
-    }
-};
+}
+
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+    updateLanguage();
+    updateStatsDisplay();
+    updateModeVisibility(); // Применяем режим при загрузке страницы
+    updateCheckButtonState(); // Устанавливаем правильное состояние кнопки проверки
+    loadSession(); // Загружаем первую сессию при старте
+});
