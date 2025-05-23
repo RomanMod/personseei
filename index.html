@@ -5,7 +5,20 @@
     <title>Гра: Випадкова людина з Wikidata</title>
     <meta name="referrer" content="origin">
     <link rel="stylesheet" href="styles.css">
-</head>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-489110668"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Важно: Настраиваем gtag config здесь, чтобы он был доступен
+      // и мог быть изменен переключателем debug_mode
+      gtag('config', 'G-489110668', {
+          'debug_mode': localStorage.getItem('debugMode') === 'true' // Читаем из localStorage
+      });
+    </script>
+    </head>
 <body class="night">
     <div class="settings">
         <button id="theme-toggle" aria-label="Перемкнути тему">🌙 Ніч</button>
@@ -25,6 +38,7 @@
                 <li data-value="closed">Закритий</li>
             </ul>
         </div>
+        <button id="debug-mode-toggle" aria-label="Перемкнути режим відладки">Отладка: ВИМК</button>
     </div>
 
     <button id="next-photo">🔄 Знайти нове фото</button>
