@@ -42,8 +42,6 @@ const translations = {
         themeDay: '☀ День',
         modeOpen: 'Відкритий',
         modeClosed: 'Закритий',
-        debugModeOn: 'Отладка: УВІМК',
-        debugModeOff: 'Отладка: ВИМК',
         nextPhoto: '🔄 Знайти нове фото',
         nextPerson: 'Наступне фото',
         unknown: 'Невідомо',
@@ -59,16 +57,13 @@ const translations = {
         birth: 'Народження',
         death: 'Смерть',
         newGame: 'Нова гра',
-        attempts: 'Спроби',
-        error: 'Помилка завантаження'
+        attempts: 'Спроби'
     },
     ru: {
         themeNight: '🌙 Ночь',
         themeDay: '☀ День',
         modeOpen: 'Открытый',
         modeClosed: 'Закрытый',
-        debugModeOn: 'Отладка: ВКЛ',
-        debugModeOff: 'Отладка: ВЫКЛ',
         nextPhoto: '🔄 Найти новое фото',
         nextPerson: 'Следующее фото',
         unknown: 'Неизвестно',
@@ -84,16 +79,13 @@ const translations = {
         birth: 'Рождение',
         death: 'Смерть',
         newGame: 'Новая игра',
-        attempts: 'Попытки',
-        error: 'Ошибка загрузки'
+        attempts: 'Попытки'
     },
     en: {
         themeNight: '🌙 Night',
         themeDay: '☀ Day',
         modeOpen: 'Open',
         modeClosed: 'Closed',
-        debugModeOn: 'Debug: ON',
-        debugModeOff: 'Debug: OFF',
         nextPhoto: '🔄 Find New Photo',
         nextPerson: 'Next Photo',
         unknown: 'Unknown',
@@ -109,16 +101,13 @@ const translations = {
         birth: 'Birth',
         death: 'Death',
         newGame: 'New Game',
-        attempts: 'Attempts',
-        error: 'Loading Error'
+        attempts: 'Attempts'
     },
     alien: {
         themeNight: '🌙 ⊸⍟⊸',
         themeDay: '☀ ⊸⍟⊸',
         modeOpen: '⊸⍟⊸',
         modeClosed: '⊸⍟⊸⊸',
-        debugModeOn: '⊸⍟⊸: УВІМК',
-        debugModeOff: '⊸⍟⊸: ВИМК',
         nextPhoto: '🔄 ⊸⍟⊸ ⊸⍟⊸',
         nextPerson: '⊸⍟⊸ ⊸⍟⊸',
         unknown: '⊸⍟⊸⊸⊸',
@@ -134,8 +123,7 @@ const translations = {
         birth: '⊸⍟⊸',
         death: '⊸⍟⊸⊸',
         newGame: '⊸⍟⊸ ⊸⍟⊸',
-        attempts: '⊸⍟⊸⊸',
-        error: '⊸⍟⊸⊸⊸⊸'
+        attempts: '⊸⍟⊸⊸'
     }
 };
 
@@ -143,8 +131,6 @@ const translations = {
 let isNight = localStorage.getItem('theme') !== 'day';
 let selectedLanguage = localStorage.getItem('language') || 'uk';
 let gameMode = localStorage.getItem('mode') || 'open';
-// НОВОЕ: Инициализация состояния debug_mode из localStorage
-let isDebugModeEnabled = localStorage.getItem('debugMode') === 'true';
 
 document.body.classList.toggle('day', !isNight);
 document.querySelector('#language-select .selected-option').textContent = selectedLanguage === 'uk' ? 'Українська' : selectedLanguage === 'ru' ? 'Русский' : selectedLanguage === 'en' ? 'English' : '👽 ⊸⍟⊸';
@@ -159,7 +145,6 @@ console.log('Кнопка "Найти новое фото" над дисплее
 console.log('Тема: ' + (isNight ? 'ночь' : 'день'));
 console.log('Выбран язык: ' + selectedLanguage);
 console.log('Выбран режим: ' + gameMode);
-console.log('Режим отладки GA4: ' + (isDebugModeEnabled ? 'Включен' : 'Выключен'));
 
 // Обновление интерфейса по языку
 function updateLanguage() {
@@ -177,8 +162,6 @@ function updateLanguage() {
     document.getElementById('female-btn').textContent = texts.female;
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
-    // НОВОЕ: Обновление текста для кнопки отладки
-    document.getElementById('debug-mode-toggle').textContent = isDebugModeEnabled ? texts.debugModeOn : texts.debugModeOff;
     updateModeSelect();
     updateLanguageSelect();
     if (currentPerson) {
@@ -284,34 +267,12 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     // ----------------------------------------------------------
 });
 
-// НОВОЕ: Переключение режима отладки GA4
-document.getElementById('debug-mode-toggle').addEventListener('click', () => {
-    const oldValue = isDebugModeEnabled;
-    isDebugModeEnabled = !isDebugModeEnabled;
-    localStorage.setItem('debugMode', isDebugModeEnabled);
-    updateLanguage(); // Обновит текст кнопки
-    console.log('Режим отладки GA4 переключен на: ' + (isDebugModeEnabled ? 'Включен' : 'Выключен'));
-
-    // Отправляем команду config для обновления debug_mode
-    if (typeof gtag === 'function') {
-        gtag('config', 'G-489110668', { 'debug_mode': isDebugModeEnabled });
-        console.log(`[GA4] gtag('config', 'G-489110668', { 'debug_mode': ${isDebugModeEnabled} })`);
-        // Отслеживание изменения настройки debug_mode
-        gtag('event', 'settings_changed', {
-            'setting_name': 'debug_mode',
-            'old_value': oldValue,
-            'new_value': isDebugModeEnabled
-        });
-    }
-});
-
-
 // Обновление видимости элементов в зависимости от режима
 function updateModeVisibility() {
     const overlay = document.getElementById('overlay');
     const genderButtons = document.querySelector('.gender-buttons');
     const personImage = document.getElementById('person-image');
-
+    
     requestAnimationFrame(() => {
         if (gameMode === 'closed') {
             overlay.classList.remove('hidden');
@@ -344,16 +305,16 @@ function logPhotoStatus() {
 function updateProgressBar(percentage, isImageLoading = false) {
     const progressBar = document.getElementById('progress-bar');
     const progressPercentage = document.getElementById('progress-percentage');
-
+    
     requestAnimationFrame(() => {
         progressBar.classList.remove('hidden');
         progressBar.style.width = `${percentage}%`;
-
+        
         if (isImageLoading) {
             progressPercentage.classList.remove('hidden');
             progressPercentage.textContent = `${Math.round(percentage)}%`;
         }
-
+        
         console.log(`Прогрес-бар (${isImageLoading ? 'изображение' : 'сессия'}): ${percentage}%`);
         if (percentage >= 100) {
             setTimeout(() => {
@@ -460,10 +421,10 @@ async function isBlackAndWhite(imageUrl) {
             const isBW = rStdDev < 20 && gStdDev < 20 && bStdDev < 20 && meanSaturation < 0.2;
             console.log(`Image ${imageUrl} is ${isBW ? 'black-and-white' : 'color'} ` +
                         `(R:${rStdDev.toFixed(2)}, G:${gStdDev.toFixed(2)}, B:${bStdDev.toFixed(2)}, Saturation:${(meanSaturation * 100).toFixed(2)}%)`);
-
+            
             rgbHslCache[imageUrl] = isBW;
             localStorage.setItem('rgbHslCache', JSON.stringify(rgbHslCache));
-
+            
             resolve(isBW);
         };
         img.onerror = () => {
@@ -499,7 +460,7 @@ async function loadImageWithFallback(url, element) {
         element.classList.remove('loaded');
         const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
         console.log(`Attempting to load image via proxy: ${proxyUrl}`);
-
+        
         const cleanup = () => {
             element.onload = null;
             element.onerror = null;
@@ -518,7 +479,7 @@ async function loadImageWithFallback(url, element) {
             cleanup();
             reject(new Error(`Proxy image load failed: ${proxyUrl}`));
         };
-
+        
         element.src = proxyUrl;
     });
 }
@@ -677,7 +638,7 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
     const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
-
+    
     requestAnimationFrame(() => {
         personInfo.style.display = 'none';
         personInfo.classList.remove('correct', 'incorrect');
@@ -701,7 +662,7 @@ function handleError() {
         } else {
             overlay.classList.add('hidden');
         }
-        progressPercentage.textContent = translations[selectedLanguage].error;
+        progressPercentage.textContent = translations[selectedLanguage].error || 'Помилка';
         setTimeout(() => {
             progressPercentage.classList.add('hidden');
         }, 2000);
