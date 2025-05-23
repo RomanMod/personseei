@@ -14,8 +14,8 @@
 
       // Важно: Настраиваем gtag config здесь, чтобы он был доступен
       // и мог быть изменен переключателем debug_mode
-      gtag('config', 'G-489110668', {
-          'debug_mode': localStorage.getItem('debugMode') === 'true' // Читаем из localStorage
+      gtag('config', 'G-489110668', { 'debug_mode': true });
+      //gtag('config', 'G-489110668', {'debug_mode': localStorage.getItem('debugMode') === 'true' // Читаем из localStorage
       });
     </script>
     </head>
