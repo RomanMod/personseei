@@ -57,7 +57,8 @@ const translations = {
         birth: 'Народження',
         death: 'Смерть',
         newGame: 'Нова гра',
-        attempts: 'Спроби'
+        attempts: 'Спроби',
+        error: 'Помилка'
     },
     ru: {
         themeNight: '🌙 Ночь',
@@ -79,7 +80,8 @@ const translations = {
         birth: 'Рождение',
         death: 'Смерть',
         newGame: 'Новая игра',
-        attempts: 'Попытки'
+        attempts: 'Попытки',
+        error: 'Ошибка'
     },
     en: {
         themeNight: '🌙 Night',
@@ -101,7 +103,8 @@ const translations = {
         birth: 'Birth',
         death: 'Death',
         newGame: 'New Game',
-        attempts: 'Attempts'
+        attempts: 'Attempts',
+        error: 'Error'
     },
     alien: {
         themeNight: '🌙 ⊸⍟⊸',
@@ -123,7 +126,8 @@ const translations = {
         birth: '⊸⍟⊸',
         death: '⊸⍟⊸⊸',
         newGame: '⊸⍟⊸ ⊸⍟⊸',
-        attempts: '⊸⍟⊸⊸'
+        attempts: '⊸⍟⊸⊸',
+        error: '⊸⍟⊸⊸!'
     }
 };
 
@@ -131,6 +135,17 @@ const translations = {
 let isNight = localStorage.getItem('theme') !== 'day';
 let selectedLanguage = localStorage.getItem('language') || 'uk';
 let gameMode = localStorage.getItem('mode') || 'open';
+
+// Google Analytics 4 Event Sender
+function sendGAEvent(eventName, eventParams = {}) {
+    if (typeof gtag === 'function') {
+        gtag('event', eventName, eventParams);
+        console.log(`GA Event: ${eventName}`, eventParams);
+    } else {
+        console.warn(`gtag is not defined. GA Event not sent: ${eventName}`, eventParams);
+    }
+}
+
 
 document.body.classList.toggle('day', !isNight);
 document.querySelector('#language-select .selected-option').textContent = selectedLanguage === 'uk' ? 'Українська' : selectedLanguage === 'ru' ? 'Русский' : selectedLanguage === 'en' ? 'English' : '👽 ⊸⍟⊸';
@@ -165,7 +180,7 @@ function updateLanguage() {
     updateModeSelect();
     updateLanguageSelect();
     if (currentPerson) {
-        updateUI(currentPerson);
+        updateUI(currentPerson); // Make sure this is using person object not just personLabel
     }
 }
 
@@ -204,12 +219,20 @@ document.querySelectorAll('.custom-select').forEach(select => {
         if (e.target.tagName === 'LI') {
             const value = e.target.getAttribute('data-value');
             if (select.id === 'language-select') {
+                const oldLanguage = selectedLanguage;
                 selectedLanguage = value;
                 localStorage.setItem('language', selectedLanguage);
+                if (oldLanguage !== selectedLanguage) {
+                    sendGAEvent('language_changed', { new_language: selectedLanguage });
+                }
                 updateLanguage();
             } else if (select.id === 'mode-select') {
+                const oldMode = gameMode;
                 gameMode = value;
                 localStorage.setItem('mode', gameMode);
+                if (oldMode !== gameMode) {
+                    sendGAEvent('game_mode_changed', { new_game_mode: gameMode });
+                }
                 updateModeVisibility();
                 updateCheckButtonState();
                 updateModeSelect();
@@ -219,7 +242,6 @@ document.querySelectorAll('.custom-select').forEach(select => {
         }
     });
 
-    // Закрытие при клике вне
     document.addEventListener('click', (e) => {
         if (!select.contains(e.target)) {
             options.style.display = 'none';
@@ -232,6 +254,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
     isNight = !isNight;
     document.body.classList.toggle('day', !isNight);
     localStorage.setItem('theme', isNight ? 'night' : 'day');
+    sendGAEvent('theme_changed', { new_theme: isNight ? 'night' : 'day' });
     updateLanguage();
     console.log('Тема изменена на: ' + (isNight ? 'ночь' : 'день'));
 });
@@ -250,7 +273,9 @@ function updateModeVisibility() {
         } else {
             overlay.classList.add('hidden');
             genderButtons.style.display = 'none';
-            if (personImage.src) personImage.classList.add('loaded');
+            if (personImage.src && personImage.src !== 'placeholder.jpg' && personImage.src !== 'https://via.placeholder.com/300') {
+                 personImage.classList.add('loaded');
+            }
         }
     });
 }
@@ -288,7 +313,7 @@ function updateProgressBar(percentage, isImageLoading = false) {
         if (percentage >= 100) {
             setTimeout(() => {
                 progressBar.classList.add('hidden');
-                progressPercentage.classList.add('hidden');
+                if (isImageLoading) progressPercentage.classList.add('hidden'); // Only hide percentage if it was for image loading
                 console.log('Прогрес-бар і відсоток приховані');
             }, 500);
         }
@@ -304,12 +329,12 @@ function simulateImageProgress(duration = 2000) {
 
         const update = () => {
             const elapsed = performance.now() - startTime;
-            progress = Math.min((elapsed / duration) * 90, 90);
+            progress = Math.min((elapsed / duration) * 90, 90); // Cap at 90% until final load
             updateProgressBar(progress, true);
             if (progress < 90) {
                 setTimeout(update, interval);
             } else {
-                resolve();
+                resolve(); // Resolve when simulation reaches 90%
             }
         };
         update();
@@ -374,8 +399,8 @@ async function isBlackAndWhite(imageUrl) {
                 gSquareSum += g * g;
                 bSquareSum += b * b;
 
-                const [, s] = rgbToHsl(r, g, b);
-                saturationSum += s;
+                const [, sVal] = rgbToHsl(r, g, b);
+                saturationSum += sVal;
                 count++;
             }
 
@@ -444,7 +469,7 @@ async function loadImageWithFallback(url, element) {
         element.onerror = () => {
             console.error(`Proxy image load failed: ${proxyUrl}`);
             element.src = 'https://via.placeholder.com/300';
-            element.classList.add('loaded');
+            element.classList.add('loaded'); // Still mark as loaded to unblock UI
             cleanup();
             reject(new Error(`Proxy image load failed: ${proxyUrl}`));
         };
@@ -457,7 +482,7 @@ async function fetchPersonData(useRandom = false, category = null) {
     const start = performance.now();
     let query;
     let attempts = 0;
-    const maxAttempts = 5;
+    const maxQueryAttempts = 5; // Renamed for clarity
 
     const cacheKey = `${useRandom}-${category?.gender || 'any'}-${category?.status || 'any'}`;
     if (wikidataCache[cacheKey] && wikidataCache[cacheKey].length > 0) {
@@ -471,14 +496,14 @@ async function fetchPersonData(useRandom = false, category = null) {
     const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
                         category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
                         'OPTIONAL { ?person wdt:P570 ?deathDate }';
-    const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01"^^xsd:dateTime).`;
+    const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01T00:00:00Z"^^xsd:dateTime).`; // Ensure correct dateTime format
     const countryFilter = settings.selectedCountries === 'all' ? '' :
                          `FILTER(?country IN (${settings.selectedCountries
                              .map(code => `wd:${settings.countryMap[code]}`)
                              .filter(id => id)
                              .join(', ')})).`;
 
-    while (attempts < maxAttempts) {
+    while (attempts < maxQueryAttempts) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         query = `
             SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
@@ -488,8 +513,8 @@ async function fetchPersonData(useRandom = false, category = null) {
                         wdt:P21 ?gender;
                         wdt:P569 ?birthDate.
                 ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
-                ${genderFilter}.
-                ${statusFilter}.
+                ${genderFilter}
+                ${statusFilter}
                 ${birthDateFilter}
                 ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
                 ?person rdfs:label ?personLabel.
@@ -527,83 +552,122 @@ async function fetchPersonData(useRandom = false, category = null) {
                 continue;
             }
 
-            wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100);
+            wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100); // Keep cache size manageable
             localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
 
             return list[Math.floor(Math.random() * list.length)];
         } catch (error) {
             console.error(`Wikidata query failed: ${error.message}`);
             attempts++;
-            if (attempts === maxAttempts) {
-                throw new Error(`No person found after ${maxAttempts} attempts`);
+            if (attempts === maxQueryAttempts) {
+                throw new Error(`No person found after ${maxQueryAttempts} query attempts`);
             }
         }
     }
-    throw new Error(`No person found after ${maxAttempts} attempts`);
+    throw new Error(`No person found after ${maxQueryAttempts} query attempts`);
 }
 
-async function loadPersonFromData(person, category = null) {
+async function loadPersonFromData(personData, category = null) { // Renamed person to personData to avoid conflict with currentPerson
     const personImage = document.getElementById('person-image');
     const progressPercentage = document.getElementById('progress-percentage');
 
     requestAnimationFrame(() => {
-        personImage.src = '';
+        personImage.src = ''; // Clear previous image
         personImage.classList.remove('loaded');
         progressPercentage.classList.remove('hidden');
         progressPercentage.textContent = '0%';
+        document.getElementById('progress-bar').style.width = '0%'; // Reset progress bar
+        document.getElementById('progress-bar').classList.remove('hidden');
     });
 
     const progressPromise = simulateImageProgress(2000);
+    let currentPersonCandidate = personData; // Use a mutable variable for retries
 
     let attempts = 0;
-    const maxAttempts = 5;
+    const maxImageLoadAttempts = 3; // Max attempts to load an image for *different* persons if one fails B&W or load
 
-    while (attempts < maxAttempts) {
+    while (attempts < maxImageLoadAttempts) {
         try {
-            const fileName = decodeURIComponent(person.image.value.split('/').pop());
+            if (!currentPersonCandidate || !currentPersonCandidate.image || !currentPersonCandidate.image.value) {
+                 console.warn(`Invalid person data or image for attempt ${attempts + 1}, fetching new person.`);
+                 currentPersonCandidate = await fetchPersonData(true, category); // Fetch a completely new random person
+                 attempts++;
+                 continue;
+            }
+
+            const fileName = decodeURIComponent(currentPersonCandidate.image.value.split('/').pop());
             console.log(`Fetching image for file: ${fileName}`);
             const imageUrl = await getCommonsImageUrl(fileName);
-            if (!imageUrl) throw new Error(`Invalid image: ${fileName}`);
+            if (!imageUrl) {
+                 console.warn(`No Commons URL for ${fileName}, fetching new person.`);
+                 currentPersonCandidate = await fetchPersonData(true, category);
+                 attempts++;
+                 continue;
+            }
 
             if (settings.excludeBlackAndWhite) {
                 const isBW = await isBlackAndWhite(imageUrl);
                 if (isBW) {
-                    console.warn(`Skipping black-and-white image for ${person.personLabel.value}`);
-                    const newPerson = await fetchPersonData(false, category);
-                    person = newPerson;
+                    console.warn(`Skipping black-and-white image for ${currentPersonCandidate.personLabel.value}, fetching new person.`);
+                    currentPersonCandidate = await fetchPersonData(true, category);
                     attempts++;
                     continue;
                 }
             }
+            // At this point, progressPromise is for the *first* image attempt.
+            // If we retry, we don't want to wait for the old promise.
+            // However, simulateImageProgress updates global UI, so it's tricky.
+            // For simplicity, we let the initial progress simulation run its course.
+            // Ideally, progress simulation should be cancellable or tied to the current image.
 
-            try {
-                await loadImageWithFallback(imageUrl, personImage);
-                await progressPromise;
-                updateProgressBar(100, true);
-                updateUI({ ...person, person });
-                return;
-            } catch (imageError) {
-                console.error(`Image load error: ${imageError.message}`);
-                attempts++;
-                const newPerson = await fetchPersonData(false, category);
-                person = newPerson;
-                continue;
-            }
-        } catch (error) {
-            console.error('Ошибка:', error.message);
+            await loadImageWithFallback(imageUrl, personImage); // This can throw
+            await progressPromise; // Wait for the initial simulation to complete
+            updateProgressBar(100, true); // Ensure it hits 100%
+            
+            // Successfully loaded an image
+            currentPerson = { // Set the global currentPerson here
+                personLabel: currentPersonCandidate.personLabel,
+                gender: currentPersonCandidate.gender,
+                deathDate: currentPersonCandidate.deathDate,
+                birthDate: currentPersonCandidate.birthDate,
+                person: currentPersonCandidate.person // Keep the full person object if needed elsewhere
+            };
+            updateUI(currentPerson); // Pass the now confirmed currentPerson
+            sendGAEvent('photo_loaded', {
+                person_id: currentPerson.person.value.split('/').pop(),
+                person_name: currentPerson.personLabel.value,
+                language: selectedLanguage,
+                game_mode: gameMode
+            });
+            return; // Exit after successful load
+
+        } catch (error) { // Catches errors from getCommonsImageUrl, isBlackAndWhite, loadImageWithFallback
+            console.error(`Error processing person/image (attempt ${attempts + 1}/${maxImageLoadAttempts}): ${error.message}`);
             attempts++;
-            if (attempts === maxAttempts) {
-                await progressPromise;
-                updateProgressBar(100, true);
-                handleError();
+            if (attempts < maxImageLoadAttempts) {
+                 console.log("Fetching a new person due to error.");
+                 currentPersonCandidate = await fetchPersonData(true, category); // Fetch a new person for the next attempt
+                 // Reset visual progress for the new attempt
+                 requestAnimationFrame(() => {
+                    personImage.src = '';
+                    personImage.classList.remove('loaded');
+                    progressPercentage.textContent = '0%';
+                    document.getElementById('progress-bar').style.width = '0%';
+                 });
+            } else {
+                console.error(`Max image load attempts reached for this slot.`);
+                await progressPromise; // Ensure initial simulation completes
+                updateProgressBar(100, true); // Visually complete progress
+                handleError(); // Show general error
                 return;
             }
         }
     }
 }
 
-function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
-    currentPerson = { personLabel, gender, deathDate, birthDate, person };
+
+function updateUI(personToDisplay) { // Changed param name for clarity
+    // currentPerson is already set by loadPersonFromData before calling updateUI
     const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
@@ -611,9 +675,15 @@ function updateUI({ personLabel, gender, deathDate, birthDate, person }) {
     requestAnimationFrame(() => {
         personInfo.style.display = 'none';
         personInfo.classList.remove('correct', 'incorrect');
-        personDetails.textContent = `${personLabel.value}, ${gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${deathDate ? texts.deceased : texts.alive}, ${texts.birth}: ${birthDate ? new Date(birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${deathDate ? `, ${texts.death}: ${new Date(deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
+        
+        if (personToDisplay && personToDisplay.personLabel && personToDisplay.gender) {
+             personDetails.textContent = `${personToDisplay.personLabel.value}, ${personToDisplay.gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female}, ${personToDisplay.deathDate ? texts.deceased : texts.alive}, ${texts.birth}: ${personToDisplay.birthDate ? new Date(personToDisplay.birthDate.value).toLocaleDateString('uk-UA') : texts.unknown}${personToDisplay.deathDate ? `, ${texts.death}: ${new Date(personToDisplay.deathDate.value).toLocaleDateString('uk-UA')}` : ''}`;
+        } else {
+            personDetails.textContent = texts.unknown; // Fallback for missing data
+        }
+
         document.getElementById('next-person').style.display = 'none';
-        updateModeVisibility();
+        updateModeVisibility(); // This will correctly show/hide overlay and image
         loadedPhotos++;
         logPhotoStatus();
     });
@@ -625,13 +695,17 @@ function handleError() {
     const progressPercentage = document.getElementById('progress-percentage');
 
     requestAnimationFrame(() => {
-        personImage.src = 'https://via.placeholder.com/300';
+        personImage.src = 'https://via.placeholder.com/300'; // Placeholder for error
+        personImage.classList.add('loaded'); // Ensure placeholder is visible
+        
         if (gameMode === 'closed') {
-            overlay.classList.remove('hidden');
+            overlay.classList.remove('hidden'); // Keep overlay if closed mode for consistency
         } else {
             overlay.classList.add('hidden');
         }
-        progressPercentage.textContent = translations[selectedLanguage].error || 'Помилка';
+        progressPercentage.classList.remove('hidden');
+        progressPercentage.textContent = translations[selectedLanguage].error || 'Error';
+        
         setTimeout(() => {
             progressPercentage.classList.add('hidden');
         }, 2000);
@@ -650,43 +724,46 @@ async function loadSession() {
         { gender: 'female', status: 'deceased' }
     ];
 
-    updateProgressBar(0);
+    updateProgressBar(0, false); // Progress for session loading, not image
 
     try {
-        const totalCategories = categories.reduce((sum, _, i) => sum + (i % 2 === 0 ? 3 : 2), 0);
-        let loadedCategories = 0;
+        // Simplified: aim for settings.sessionPeople, fetch one by one for better category distribution if needed
+        // For now, fetch enough to fill sessionPeople, distributing among categories
+        const peoplePerCategory = Math.ceil(settings.sessionPeople / categories.length);
+        let fetchedCount = 0;
 
-        const promises = categories.map(async (category, i) => {
-            const count = i % 2 === 0 ? 3 : 2;
-            const results = [];
-            for (let j = 0; j < count; j++) {
-                try {
-                    const person = await fetchPersonData(false, category);
-                    results.push(person);
-                    loadedCategories++;
-                    updateProgressBar((loadedCategories / totalCategories) * 100);
-                } catch (error) {
-                    console.error(`Error in category ${category.gender}/${category.status}:`, error);
-                    results.push(null);
-                    loadedCategories++;
-                    updateProgressBar((loadedCategories / totalCategories) * 100);
-                }
+        const promises = [];
+        for (const category of categories) {
+            for (let j = 0; j < peoplePerCategory && sessionList.length < settings.sessionPeople; j++) {
+                promises.push(
+                    fetchPersonData(false, category).then(person => {
+                        if (person) {
+                            sessionList.push({ person, category }); // Store original category for potential retry logic
+                        }
+                        fetchedCount++;
+                        updateProgressBar((fetchedCount / (peoplePerCategory * categories.length)) * 100, false);
+                        return person;
+                    }).catch(error => {
+                        console.error(`Error fetching for category ${category.gender}/${category.status}:`, error);
+                        fetchedCount++;
+                        updateProgressBar((fetchedCount / (peoplePerCategory * categories.length)) * 100, false);
+                        return null; // Allow Promise.all to complete
+                    })
+                );
             }
-            return results;
-        });
-        const results = await Promise.all(promises);
-        results.flat().forEach(person => {
-            if (person) sessionList.push({ person, category: categories[Math.floor(sessionList.length / 2.5)] });
-        });
+        }
+        
+        await Promise.all(promises);
+        sessionList = sessionList.filter(p => p !== null).slice(0, settings.sessionPeople); // Ensure not null and cap at sessionPeople
 
         console.log(`Загружен новый список: ${sessionList.length} человек`);
         logPhotoStatus();
-        updateProgressBar(100);
+        updateProgressBar(100, false);
 
         if (sessionList.length > 0) {
             hasChecked = false;
             const { person, category } = sessionList.shift();
-            await loadPersonFromData(person, category);
+            await loadPersonFromData(person, category); // Pass the fetched person data and its original category
             requestAnimationFrame(() => {
                 document.getElementById('male-btn').disabled = false;
                 document.getElementById('female-btn').disabled = false;
@@ -695,9 +772,10 @@ async function loadSession() {
                 document.getElementById('alive-btn').style.display = 'inline-block';
                 document.getElementById('dead-btn').style.display = 'inline-block';
                 document.getElementById('check-btn').style.display = 'inline-block';
-                document.getElementById('check-btn').disabled = true;
+                document.getElementById('check-btn').disabled = true; // Should be re-enabled by guess
                 document.getElementById('next-person').style.display = 'none';
                 document.getElementById('next-photo').disabled = false;
+                updateCheckButtonState(); // Initial state
             });
         } else {
             handleError();
@@ -705,13 +783,19 @@ async function loadSession() {
     } catch (error) {
         console.error('Session data loading failed:', error);
         handleError();
-        updateProgressBar(0);
+        updateProgressBar(0, false); // Reset session progress on major failure
     }
     console.timeEnd('loadSession');
     console.log(`Total session time: ${(performance.now() - startTime).toFixed(0)}ms`);
 }
 
-async function loadNextPerson() {
+async function loadNextPerson(triggerButton = 'unknown') {
+    sendGAEvent('next_photo_requested', {
+        trigger_button: triggerButton,
+        language: selectedLanguage,
+        game_mode: gameMode
+    });
+
     if (sessionList.length === 0) {
         console.log('Список пуст, загружаем новый');
         await loadSession();
@@ -721,14 +805,22 @@ async function loadNextPerson() {
     userGenderGuess = null;
     userStatusGuess = null;
     hasChecked = false;
+    document.getElementById('male-btn').classList.remove('active');
+    document.getElementById('female-btn').classList.remove('active');
+    document.getElementById('alive-btn').classList.remove('active');
+    document.getElementById('dead-btn').classList.remove('active');
+
     const { person, category } = sessionList.shift();
     if (person) {
         await loadPersonFromData(person, category);
     } else {
-        handleError();
+        // If a null was somehow in sessionList, or person fetch failed earlier
+        console.warn("Encountered null person in session list, trying next or reloading session.");
+        await loadNextPerson(triggerButton); // Try the next one, or it will reload session
+        return;
     }
     requestAnimationFrame(() => {
-        document.getElementById('check-btn').disabled = true;
+        updateCheckButtonState(); // Reset check button based on new state
         document.getElementById('male-btn').disabled = false;
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false;
@@ -737,19 +829,27 @@ async function loadNextPerson() {
         document.getElementById('dead-btn').style.display = 'inline-block';
         document.getElementById('check-btn').style.display = 'inline-block';
         document.getElementById('next-person').style.display = 'none';
-        document.getElementById('next-photo').disabled = false;
+        document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; // Disable if game over
+         document.getElementById('person-info').style.display = 'none'; // Hide previous info
+         document.getElementById('person-info').classList.remove('correct', 'incorrect');
+
     });
 }
 
 function startNewGame() {
     currentAttempts = 0;
-    totalGuesses = 0;
+    totalGuesses = 0; // Reset for the new game session
     successfulGuesses = 0;
     failedGuesses = 0;
+    // Keep global stats in localStorage, but reset session stats
     localStorage.setItem('currentAttempts', currentAttempts);
-    localStorage.setItem('totalGuesses', totalGuesses);
-    localStorage.setItem('successfulGuesses', successfulGuesses);
-    localStorage.setItem('failedGuesses', failedGuesses);
+    // Optionally reset global stats or have separate global/session stats
+    // For now, we are resetting the displayed stats which are session-based
+
+    sendGAEvent('new_game_started', {
+        language: selectedLanguage,
+        game_mode: gameMode
+    });
 
     document.getElementById('stats-attempts').textContent = `0/${maxAttempts}`;
     document.getElementById('stats-success').textContent = '0';
@@ -767,34 +867,23 @@ function startNewGame() {
     document.getElementById('female-btn').disabled = false;
     document.getElementById('alive-btn').disabled = false;
     document.getElementById('dead-btn').disabled = false;
-    document.getElementById('check-btn').disabled = true;
+    updateCheckButtonState(); // Will disable if no guesses
     document.getElementById('person-info').style.display = 'none';
     document.getElementById('next-person').style.display = 'none';
-    document.getElementById('next-photo').disabled = false;
-    document.getElementById('next-person').disabled = false;
-
+    document.getElementById('next-photo').disabled = false; // Re-enable for new game
+    
     document.getElementById('alive-btn').style.display = 'inline-block';
     document.getElementById('dead-btn').style.display = 'inline-block';
     document.getElementById('check-btn').style.display = 'inline-block';
 
-    if (sessionList.length > 0) {
-        loadNextPerson();
-    } else {
-        loadSession();
-    }
+    loadSession(); // Start loading a fresh session
 
     console.log('Новая игра начата');
 }
 
 document.getElementById('next-photo').addEventListener('click', () => {
     console.log('Нажата кнопка "Найти новое фото"');
-    userGenderGuess = null;
-    userStatusGuess = null;
-    document.getElementById('male-btn').classList.remove('active');
-    document.getElementById('female-btn').classList.remove('active');
-    document.getElementById('alive-btn').classList.remove('active');
-    document.getElementById('dead-btn').classList.remove('active');
-    loadNextPerson();
+    loadNextPerson('find_new');
 });
 
 document.getElementById('male-btn').addEventListener('click', () => {
@@ -834,64 +923,87 @@ document.getElementById('check-btn').addEventListener('click', () => {
     
     hasChecked = true;
     currentAttempts++;
-    totalGuesses++;
+    totalGuesses++; // This is session total guesses
     
-    const isGenderCorrect = gameMode === 'closed' ? 
-        userGenderGuess === (currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female') : true;
-    const isStatusCorrect = (userStatusGuess === 'alive' && !currentPerson.deathDate) || 
-                           (userStatusGuess === 'dead' && currentPerson.deathDate);
+    const actualGender = currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female';
+    const actualStatus = currentPerson.deathDate ? 'dead' : 'alive';
+
+    const isGenderCorrect = gameMode === 'closed' ? userGenderGuess === actualGender : true;
+    const isStatusCorrect = userStatusGuess === actualStatus;
+    const isOverallCorrect = isGenderCorrect && isStatusCorrect;
     
     const personInfo = document.getElementById('person-info');
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
+
+    sendGAEvent('guess_made', {
+        person_id: currentPerson.person.value.split('/').pop(),
+        game_mode: gameMode,
+        guessed_gender: gameMode === 'closed' ? userGenderGuess : undefined,
+        actual_gender: actualGender,
+        guessed_status: userStatusGuess,
+        actual_status: actualStatus,
+        is_gender_correct: gameMode === 'closed' ? isGenderCorrect : undefined,
+        is_status_correct: isStatusCorrect,
+        is_overall_correct: isOverallCorrect,
+        attempt_number: currentAttempts,
+        language: selectedLanguage
+    });
     
     requestAnimationFrame(() => {
         personInfo.style.display = 'block';
         if (gameMode === 'closed') {
-            overlay.classList.add('hidden');
+            overlay.classList.add('hidden'); // Show image after guess in closed mode
             personImage.classList.add('loaded');
         }
-        if (isGenderCorrect && isStatusCorrect) {
+        if (isOverallCorrect) {
             personInfo.classList.add('correct');
+            personInfo.classList.remove('incorrect');
             successfulGuesses++;
         } else {
             personInfo.classList.add('incorrect');
+            personInfo.classList.remove('correct');
             failedGuesses++;
         }
         document.getElementById('next-person').style.display = 'block';
         
+        // Hide guess-related buttons, show only next person
         document.getElementById('alive-btn').style.display = 'none';
         document.getElementById('dead-btn').style.display = 'none';
         document.getElementById('check-btn').style.display = 'none';
+        if (gameMode === 'closed') {
+            document.querySelector('.gender-buttons').style.display = 'none';
+        }
         
+        // Disable buttons that were active for guessing
         document.getElementById('male-btn').disabled = true;
         document.getElementById('female-btn').disabled = true;
-        document.getElementById('alive-btn').disabled = true;
-        document.getElementById('dead-btn').disabled = true;
-        
-        document.getElementById('male-btn').classList.remove('active');
-        document.getElementById('female-btn').classList.remove('active');
-        document.getElementById('alive-btn').classList.remove('active');
-        document.getElementById('dead-btn').classList.remove('active');
-        document.getElementById('check-btn').disabled = true;
-        
+        // No need to disable alive/dead/check as they are hidden
+
+        // Update stats
         document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
         document.getElementById('stats-success').textContent = successfulGuesses;
         document.getElementById('stats-failure').textContent = failedGuesses;
         const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
         document.getElementById('stats-success-rate').textContent = `${successRate}%`;
         
+        // Save session stats to localStorage (or could be global if desired)
         localStorage.setItem('currentAttempts', currentAttempts);
-        localStorage.setItem('totalGuesses', totalGuesses);
+        localStorage.setItem('totalGuesses', totalGuesses); // Persist session total
         localStorage.setItem('successfulGuesses', successfulGuesses);
         localStorage.setItem('failedGuesses', failedGuesses);
 
         if (currentAttempts >= maxAttempts) {
             document.getElementById('next-photo').disabled = true;
-            document.getElementById('next-person').style.display = 'none';
-            document.getElementById('check-btn').style.display = 'none';
-            document.getElementById('alive-btn').style.display = 'none';
-            document.getElementById('dead-btn').style.display = 'none';
+            document.getElementById('next-person').style.display = 'none'; // No more next people
+            sendGAEvent('game_over', {
+                total_attempts: maxAttempts,
+                successful_guesses: successfulGuesses,
+                failed_guesses: failedGuesses,
+                success_rate: `${successRate}%`,
+                language: selectedLanguage,
+                game_mode: gameMode
+            });
         }
     });
     console.log(`Проверка: Пол ${isGenderCorrect ? 'верно' : 'неверно'}, Статус ${isStatusCorrect ? 'верно' : 'неверно'}`);
@@ -899,37 +1011,75 @@ document.getElementById('check-btn').addEventListener('click', () => {
 
 document.getElementById('next-person').addEventListener('click', () => {
     console.log('Нажата кнопка "Следующее фото"');
-    userGenderGuess = null;
-    userStatusGuess = null;
-    document.getElementById('male-btn').classList.remove('active');
-    document.getElementById('female-btn').classList.remove('active');
-    document.getElementById('alive-btn').classList.remove('active');
-    document.getElementById('dead-btn').classList.remove('active');
-    loadNextPerson();
+     requestAnimationFrame(() => { // Ensure UI updates before loading next
+        if (gameMode === 'closed') {
+             document.querySelector('.gender-buttons').style.display = 'flex'; // Re-show gender buttons
+        }
+        document.getElementById('male-btn').disabled = false;
+        document.getElementById('female-btn').disabled = false;
+    });
+    loadNextPerson('next_after_check');
 });
 
 document.getElementById('new-game').addEventListener('click', () => {
     console.log('Нажата кнопка "Новая игра"');
+    if (gameMode === 'closed') {
+        document.querySelector('.gender-buttons').style.display = 'flex'; // Ensure gender buttons are visible for new game in closed mode
+    }
     startNewGame();
 });
 
 window.onload = () => {
+    // Retrieve session stats from localStorage or default to 0
+    currentAttempts = parseInt(localStorage.getItem('currentAttempts')) || 0;
+    totalGuesses = parseInt(localStorage.getItem('totalGuesses')) || 0;
+    successfulGuesses = parseInt(localStorage.getItem('successfulGuesses')) || 0;
+    failedGuesses = parseInt(localStorage.getItem('failedGuesses')) || 0;
+
+
     updateLanguage();
     updateLanguageSelect();
     updateModeSelect();
-    updateModeVisibility();
-    loadSession();
-    document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
-    document.getElementById('stats-success').textContent = successfulGuesses;
-    document.getElementById('stats-failure').textContent = failedGuesses;
-    const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
-    document.getElementById('stats-success-rate').textContent = `${successRate}%`;
-    document.getElementById('new-game').style.display = 'block';
+    updateModeVisibility(); // Initial setup of visibility based on mode
+    
     if (currentAttempts >= maxAttempts) {
+        // Game was over, show stats, disable further play until new game
+        document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
+        document.getElementById('stats-success').textContent = successfulGuesses;
+        document.getElementById('stats-failure').textContent = failedGuesses;
+        const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+        document.getElementById('stats-success-rate').textContent = `${successRate}%`;
+        
         document.getElementById('next-photo').disabled = true;
         document.getElementById('next-person').style.display = 'none';
         document.getElementById('check-btn').style.display = 'none';
         document.getElementById('alive-btn').style.display = 'none';
         document.getElementById('dead-btn').style.display = 'none';
+        if (gameMode === 'closed') {
+            document.querySelector('.gender-buttons').style.display = 'none';
+        }
+        // Display last person's info if available (optional, could be cleared)
+        // For now, don't load a new session, just wait for "New Game"
+         console.log("Game was previously over. Press 'New Game' to start.");
+    } else {
+        // Game is not over, or it's a fresh start
+        document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
+        document.getElementById('stats-success').textContent = successfulGuesses;
+        document.getElementById('stats-failure').textContent = failedGuesses;
+        const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+        document.getElementById('stats-success-rate').textContent = `${successRate}%`;
+        
+        // If there are attempts left but no current session data, or to resume
+        // a game, we'd typically load a session.
+        // For simplicity, if there are attempts left but no active person,
+        // it implies a refresh or returning to a game in progress.
+        // We'll start a new session to ensure fresh data.
+        // A more complex resume logic would be needed to restore exact person.
+        if (!currentPerson) { // If no person is loaded (e.g. after refresh)
+             loadSession();
+        }
     }
+
+    document.getElementById('new-game').style.display = 'block';
+    updateCheckButtonState(); // Set initial state of check button
 };
