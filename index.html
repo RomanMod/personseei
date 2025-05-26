@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -16,7 +17,7 @@
     </script>
     <!-- End Google Analytics -->
 
-    <link rel="stylesheet" href="styles.css"> <!-- Изменено с index.css на styles.css -->
+    <link rel="stylesheet" href="index.css">
 </head>
 <body class="night">
     <div class="settings">
@@ -44,7 +45,25 @@
         <img id="person-image" src="placeholder.jpg" alt="Зображення людини">
         <div id="overlay" class="overlay hidden"></div>
         <div id="progress-bar"></div>
-        <span id="progress-percentage" class="hidden" aria-live="polite">0%</span>
+        <div id="circular-progress-container" class="hidden" aria-label="Loading progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <svg id="circular-progress-svg" viewBox="0 0 36 36">
+                <path class="circular-progress-bg"
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path id="circular-progress-bar" class="circular-progress-bar"
+                    stroke-dasharray="100, 100" 
+                    d="M18 2.0845
+                      a 15.9155 15.9155 0 0 1 0 31.831
+                      a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <text id="circular-progress-text" x="18" y="20.35" class="circular-progress-text">0%</text>
+            </svg>
+        </div>
+    </div>
+    <div id="new-game-over-location" class="new-game-container" style="display: none; margin-top: 20px; margin-bottom: 20px;">
+        <!-- The #new-game button will be moved here when game is over -->
     </div>
     <div id="person-info" style="display: none;">
         <div id="person-details"></div>
@@ -68,13 +87,15 @@
         <div><span id="stats-success-label">Успішні</span>: <span id="stats-success">0</span></div>
         <div><span id="stats-failure-label">Невдалі</span>: <span id="stats-failure">0</span></div>
         <div><span id="stats-success-rate-label">Відсоток успішних</span>: <span id="stats-success-rate">0%</span></div>
+        <div><span id="stats-time-last-attempt-label">Час між спробами</span>: <span id="stats-time-last-attempt">--</span></div>
+        <div><span id="stats-guess-history-label">Історія спроб</span>: <span id="stats-guess-history">--</span></div>
     </div>
-    <div class="new-game-container">
+    <div class="new-game-container" id="new-game-initial-location">
         <button id="new-game">Нова гра</button>
     </div>
     <div id="progress"></div>
 
-    <script src="script.js"></script> <!-- Изменено с index.js на script.js -->
+    <script src="index.js"></script>
 </body>
 </html><link rel="stylesheet" href="index.css">
 <script src="index.tsx" type="module"></script>
