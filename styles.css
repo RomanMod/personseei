@@ -1,3 +1,4 @@
+
 :root {
     --bg-color: #1C2526;
     --text-color: #E8ECEF;
@@ -7,6 +8,9 @@
     --accent-color: #3498DB;
     --progress-bar-bg: #2C3E50;
     --progress-bar-fill: #3498DB;
+    --circular-progress-bg-color: #4a6074; /* Slightly lighter than button-bg */
+    --circular-progress-bar-color: var(--accent-color);
+    --circular-progress-text-color: var(--text-color);
 }
 
 body.day {
@@ -18,6 +22,9 @@ body.day {
     --accent-color: #2980B9;
     --progress-bar-bg: #BDC3C7;
     --progress-bar-fill: #2980B9;
+    --circular-progress-bg-color: #d2d8db; /* Slightly lighter than day button-bg */
+    --circular-progress-bar-color: var(--accent-color);
+    --circular-progress-text-color: var(--text-color);
 }
 
 body {
@@ -76,7 +83,7 @@ h1 {
     pointer-events: none;
 }
 
-#progress-bar {
+#progress-bar { /* Horizontal bar for session loading */
     position: absolute;
     bottom: 0;
     left: 0;
@@ -84,34 +91,67 @@ h1 {
     height: 5px;
     background-color: var(--progress-bar-fill);
     transition: width 0.3s ease;
+    z-index: 20; /* Ensure it's above the image, below circular progress if they overlap vertically */
 }
 
 #progress-bar.hidden {
     display: none;
 }
 
-#progress-percentage {
+/* Circular Progress Styles */
+#circular-progress-container {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 2em;
-    font-weight: bold;
-    color: var(--text-color);
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
     z-index: 15;
     transition: opacity 0.3s ease;
     animation: fadeIn 0.3s ease;
 }
 
-#progress-percentage.hidden {
+#circular-progress-container.hidden {
     opacity: 0;
     pointer-events: none;
 }
 
-#person-image.loaded + #progress-percentage {
+#circular-progress-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg); /* Start from the top */
+}
+
+.circular-progress-bg {
+    fill: none;
+    stroke: var(--circular-progress-bg-color);
+    stroke-width: 3.5; /* Adjust thickness */
+}
+
+.circular-progress-bar {
+    fill: none;
+    stroke: var(--circular-progress-bar-color);
+    stroke-width: 3.5; /* Adjust thickness */
+    stroke-linecap: round; /* Rounded ends */
+    transition: stroke-dashoffset 0.2s ease-out;
+}
+
+.circular-progress-text {
+    font-family: Arial, sans-serif;
+    font-size: 0.8em; /* Relative to SVG size or fixed, e.g., 12px */
+    font-weight: bold;
+    fill: var(--circular-progress-text-color);
+    text-anchor: middle;
+    dominant-baseline: middle;
+    transform: rotate(90deg); /* Counter-rotate text */
+    transform-origin: 18px 18px; /* Center of the viewBox */
+}
+
+#person-image.loaded + #circular-progress-container { /* Hide when image is loaded */
     opacity: 0;
     pointer-events: none;
 }
+
 
 @keyframes fadeIn {
     from { opacity: 0; }
@@ -368,8 +408,12 @@ h1 {
         padding: 8px 12px;
         font-size: 13px;
     }
-    #progress-percentage {
-        font-size: 1.5em;
+    #circular-progress-container {
+        width: 60px;
+        height: 60px;
+    }
+    .circular-progress-text {
+        font-size: 0.7em;
     }
     #new-game {
         padding: 12px 30px;
