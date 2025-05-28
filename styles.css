@@ -1,5 +1,4 @@
 
-
 :root {
     --bg-color: #1C2526;
     --text-color: #E8ECEF;
@@ -12,6 +11,7 @@
     --circular-progress-bg-color: #4a6074; /* Slightly lighter than button-bg */
     --circular-progress-bar-color: var(--accent-color);
     --circular-progress-text-color: var(--text-color);
+    font-size: 18px; /* Централізоване налаштування базового розміру шрифту */
 }
 
 body.day {
@@ -36,10 +36,11 @@ body {
     padding: 40px;
     margin: 0;
     transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 1rem; /* Базовий шрифт тепер 18px */
 }
 
 h1 {
-    font-size: 2em;
+    font-size: 1.5rem; /* ~27px */
     margin-bottom: 20px;
 }
 
@@ -139,7 +140,7 @@ h1 {
 
 .circular-progress-text {
     font-family: Arial, sans-serif;
-    font-size: 0.8em; /* Relative to SVG size or fixed, e.g., 12px */
+    font-size: 0.7rem; /* ~12.6px */
     font-weight: bold;
     fill: var(--circular-progress-text-color);
     text-anchor: middle;
@@ -162,7 +163,7 @@ h1 {
 
 #next-photo {
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 1rem; /* 18px */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
@@ -185,7 +186,7 @@ h1 {
 
 .settings button {
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 1rem; /* 18px */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
@@ -206,7 +207,7 @@ h1 {
 
 .selected-option {
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 1rem; /* 18px */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: 1px solid var(--button-bg);
@@ -241,6 +242,7 @@ h1 {
     color: var(--button-text);
     cursor: pointer;
     white-space: nowrap;
+    font-size: 1rem; /* 18px, успадковується, але можна явно */
 }
 
 .options li:hover {
@@ -256,7 +258,7 @@ h1 {
 
 .gender-buttons button, .status-buttons button {
     padding: 15px 40px;
-    font-size: 20px;
+    font-size: 1rem; /* 18px (було 20px) */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
@@ -287,7 +289,7 @@ h1 {
 
 #check-btn {
     padding: 15px 40px;
-    font-size: 20px;
+    font-size: 1rem; /* 18px (було 20px) */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
@@ -312,6 +314,7 @@ h1 {
     border-radius: 5px;
     margin: 10px 0;
     transition: border 0.3s ease;
+    font-size: 1rem; /* 18px */
 }
 
 #person-info.correct {
@@ -330,7 +333,7 @@ h1 {
 
 #next-person {
     padding: 10px 20px;
-    font-size: 16px;
+    font-size: 1rem; /* 18px (було 16px) */
     background-color: var(--button-bg);
     color: var(--button-text);
     border: none;
@@ -345,7 +348,7 @@ h1 {
 
 #game-stats {
     margin-top: 20px;
-    font-size: 1.1em;
+    font-size: 1rem; /* ~18px (було 1.1em, що було ~16.5px якщо body 15px) */
     background-color: var(--button-bg);
     padding: 15px;
     border-radius: 5px;
@@ -371,7 +374,7 @@ h1 {
 
 #new-game {
     padding: 15px 40px;
-    font-size: 20px;
+    font-size: 1rem; /* 18px (було 20px) */
     font-weight: bold;
     background-color: var(--button-bg);
     color: var(--button-text);
@@ -398,27 +401,27 @@ h1 {
 @media (max-width: 600px) {
     .settings button {
         padding: 8px 12px;
-        font-size: 13px;
+        font-size: 0.8rem; /* ~14.4px (було 13px) */
         min-width: 110px;
     }
     .custom-select .selected-option {
         padding: 8px 12px;
-        font-size: 13px;
+        font-size: 0.8rem; /* ~14.4px */
         min-width: 110px;
     }
     .options li {
         padding: 8px 12px;
-        font-size: 13px;
+        font-size: 0.8rem; /* ~14.4px */
     }
     #circular-progress-container {
         width: 60px;
         height: 60px;
     }
     .circular-progress-text {
-        font-size: 0.7em;
+        font-size: 0.6rem; /* ~10.8px (було 0.7em)*/
     }
     #new-game {
         padding: 12px 30px;
-        font-size: 16px;
+        font-size: 0.9rem; /* ~16.2px (було 16px) */
     }
 }
