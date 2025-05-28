@@ -18,7 +18,7 @@
     <!-- End Google Analytics -->
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body class="night">
     <div class="settings">
@@ -83,7 +83,9 @@
     <div class="next-person-container">
         <button id="next-person" style="display: none;">Наступне фото</button>
     </div>
+    
     <div id="game-stats">
+        <div><span id="stats-player-info"></span></div> 
         <div><span id="stats-attempts-label">Спроби</span>: <span id="stats-attempts">0/10</span></div>
         <div><span id="stats-success-label">Успішні</span>: <span id="stats-success">0</span></div>
         <div><span id="stats-failure-label">Невдалі</span>: <span id="stats-failure">0</span></div>
@@ -98,6 +100,5 @@
 
     <script src="script.js"></script>
 </body>
-</html>
-<link rel="stylesheet" href="styles.css">
+</html><link rel="stylesheet" href="styles.css">
 <script src="index.tsx" type="module"></script>
