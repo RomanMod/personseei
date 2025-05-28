@@ -79,7 +79,9 @@ const translations = {
         secondsAgo: 'сек.',
         justNow: 'щойно',
         firstAttempt: 'перша спроба',
-        guessHistory: 'Крок' // Updated
+        guessHistory: 'Крок',
+        imageDisplayAlt: 'Зображення людини',
+        errorLoadingImage: 'Помилка завантаження зображення'
     },
     ru: {
         themeNight: '🌙 Ночь',
@@ -109,7 +111,9 @@ const translations = {
         secondsAgo: 'сек.',
         justNow: 'только что',
         firstAttempt: 'первая попытка',
-        guessHistory: 'Шаг' // Updated
+        guessHistory: 'Шаг',
+        imageDisplayAlt: 'Изображение человека',
+        errorLoadingImage: 'Ошибка загрузки изображения'
     },
     en: {
         themeNight: '🌙 Night',
@@ -139,7 +143,9 @@ const translations = {
         secondsAgo: 'sec',
         justNow: 'just now',
         firstAttempt: 'first attempt',
-        guessHistory: 'Step' // Updated
+        guessHistory: 'Step',
+        imageDisplayAlt: 'Image of person',
+        errorLoadingImage: 'Error loading image'
     },
     alien: {
         themeNight: '🌙 ⊸⍟⊸',
@@ -169,7 +175,9 @@ const translations = {
         secondsAgo: '⊸⍟!',
         justNow: '⊸⍟⍟',
         firstAttempt: '⊸⍟ ⊸⍟',
-        guessHistory: '⊸⍀⍟' // Updated (shortened for "step")
+        guessHistory: '⊸⍀⍟',
+        imageDisplayAlt: '⊸⍉⋉⏁ ⍜⎎ ⌿⟒⍀⌇⍜⋏', // Alien for "Image of person"
+        errorLoadingImage: '⊸⍟⊸ ⌰⍜⏃⎅ ⟒⍀⍀⍜⍀' // Alien for "Error loading image"
     }
 };
 
@@ -310,26 +318,18 @@ function updateLanguage() {
     document.getElementById('stats-failure-label').textContent = texts.statsFailure;
     document.getElementById('stats-success-rate-label').textContent = texts.statsSuccessRate;
     document.getElementById('stats-time-last-attempt-label').textContent = texts.timeSinceLastAttempt;
-    document.getElementById('stats-guess-history-label').textContent = texts.guessHistory; // This updates the "Крок" / "Шаг" / "Step" label
+    document.getElementById('stats-guess-history-label').textContent = texts.guessHistory;
     document.getElementById('male-btn').textContent = texts.male;
     document.getElementById('female-btn').textContent = texts.female;
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
     document.title = selectedLanguage === 'uk' ? 'Гра: Випадкова людина з Wikidata' : selectedLanguage === 'ru' ? 'Игра: Случайный человек из Wikidata' : 'Game: Random Person from Wikidata';
 
-
-    const personImage = document.getElementById('person-image');
-    if (personImage.alt !== (translations[selectedLanguage].testPerson || 'Test Person')) { // Avoid changing if it's the test person alt
-        personImage.alt = translations[selectedLanguage].unknown || 'Unknown image';
-    }
-
+    // Update UI elements related to the current person, including image alt text
+    updateUI(currentPerson);
 
     updateModeSelect();
     updateLanguageSelect();
-    if (currentPerson) {
-        console.log('[LANGUAGE_UPDATE] Current person exists, updating UI for current person.');
-        updateUI(currentPerson);
-    }
     updateTimeBetweenAttemptsDisplay();
     updateGuessHistoryDisplay(); 
     console.log('[LANGUAGE_UPDATE] Language update complete.');
@@ -764,15 +764,19 @@ async function fetchPersonData(useRandom = false, category = null) {
 
             return list[Math.floor(Math.random() * list.length)];
         } catch (error) {
-            clearTimeout(timeoutId); // Crucial to clear timeout here as well
-            
+            clearTimeout(timeoutId);
             const isTimeoutAbort = error.name === 'AbortError';
 
             if (isTimeoutAbort) {
-                // This console.warn for timeout event is now done inside setTimeout
-                // console.warn(`[WIKIDATA_QUERY_ABORT] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} aborted (likely timeout). Message: ${error.message}`);
+                // Timeout/AbortError specific logging is primarily handled by the setTimeout warning itself.
+                // The final error thrown will also indicate a timeout.
             } else {
-                console.error(`[WIKIDATA_QUERY_ERROR] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed. Error: ${error.message}`);
+                // For non-AbortErrors during an attempt
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    console.warn(`[WIKIDATA_QUERY_WARN] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed with fetch issue. Retrying. Error: ${error.message}`);
+                } else {
+                    console.error(`[WIKIDATA_QUERY_ERROR] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed. Retrying. Error: ${error.message}`);
+                }
             }
 
             // We throw if it's a timeout (AbortError) OR if we've exhausted all retries for other errors.
@@ -916,12 +920,12 @@ function updateUI(personToDisplay) {
              const birthText = personToDisplay.birthDate ? new Date(personToDisplay.birthDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU') : texts.unknown; // Alien might not have locale
              const deathText = personToDisplay.deathDate ? `, ${texts.death}: ${new Date(personToDisplay.deathDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU')}` : '';
              personDetails.textContent = `${personToDisplay.personLabel.value}, ${genderText}, ${statusText}, ${texts.birth}: ${birthText}${deathText}`;
-             personImage.alt = personToDisplay.personLabel.value; // Set alt text to person's name for accessibility
-             console.log(`[UI_UPDATE] Person details set: ${personDetails.textContent}. Image alt set to: ${personImage.alt}`);
+             personImage.alt = personToDisplay.personLabel.value;
+             // console.log(`[UI_UPDATE] Person details set: ${personDetails.textContent}. Image alt set to: ${personImage.alt}`);
         } else {
             personDetails.textContent = texts.unknown;
-            personImage.alt = texts.unknown; // Set alt text to "Unknown"
-            console.log(`[UI_UPDATE] Person details set to unknown. Image alt set to: ${personImage.alt}`);
+            personImage.alt = texts.imageDisplayAlt || 'Image of person'; // Use generic alt if no person data
+            // console.log(`[UI_UPDATE] Person details set to unknown. Image alt set to: ${personImage.alt}`);
         }
 
         // Visibility of "Next Photo" button (after guess)
@@ -934,7 +938,9 @@ function updateUI(personToDisplay) {
         }
         
         updateModeVisibility(); // Ensures overlay is correct for mode
-        loadedPhotos++;
+        if (personToDisplay) { // Only increment if there was an attempt to load a person
+             loadedPhotos++;
+        }
         logPhotoStatus();
     });
 }
@@ -944,13 +950,12 @@ function handleError() {
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
-    // const circularProgressText = document.getElementById('circular-progress-text'); // Text removed
     const texts = translations[selectedLanguage];
 
 
     requestAnimationFrame(() => {
         personImage.src = 'https://via.placeholder.com/300'; // Fallback placeholder
-        personImage.alt = texts.error || 'Error loading image'; // Set alt text for error
+        personImage.alt = texts.errorLoadingImage || 'Error loading image'; // Set alt text for error
         personImage.classList.add('loaded'); // Show the placeholder
         
         if (gameMode === 'closed') {
@@ -959,18 +964,28 @@ function handleError() {
             overlay.classList.add('hidden'); // Hide overlay if open mode
         }
         
-        circularProgressContainer.classList.remove('hidden');
-        // circularProgressText.textContent = texts.error || 'Error!'; // Text removed
-        // Optionally, set the circular bar to a "full error" state or hide it too
-        // document.getElementById('circular-progress-bar').style.strokeDashoffset = 0; // Example: fill it
+        circularProgressContainer.classList.remove('hidden'); // Keep circular progress visible to indicate an issue
         
         currentAttemptStartTime = null; // Clear attempt start time on error
         localStorage.removeItem('currentAttemptStartTime');
         console.log('[STATE_CHANGE] currentAttemptStartTime cleared due to error. Removed from localStorage.');
 
+        // Hide circular progress after a bit, but the error state (placeholder image) remains
         setTimeout(() => {
             circularProgressContainer.classList.add('hidden');
-        }, 2000);
+        }, 2000); 
+
+        // Attempt to load a new photo automatically after 3 seconds if game is not over
+        if (currentAttempts < maxAttempts) {
+            console.log('[HANDLE_ERROR_RETRY] Scheduling automatic attempt to load new photo in 3 seconds.');
+            setTimeout(() => {
+                console.log('[HANDLE_ERROR_RETRY] Retrying to load next person due to previous error.');
+                loadNextPerson('error_fallback');
+            }, 3000);
+        } else {
+            console.log('[HANDLE_ERROR] Game is over, no automatic retry for new photo.');
+        }
+
         logPhotoStatus();
     });
 }
@@ -1046,10 +1061,12 @@ async function loadSession() {
         } else {
             console.error('[LOAD_SESSION_FAILURE] Session list is empty after fetching. Handling error.');
             handleError();
+            updateUI(null); // Ensure UI reflects no person state, including alt text
         }
     } catch (error) {
         console.error('[LOAD_SESSION_CRITICAL_ERROR] Overall session data loading failed:', error);
         handleError();
+        updateUI(null); // Ensure UI reflects no person state
         updateProgressBar(0, false); // Reset progress on critical failure (horizontal)
     }
     console.timeEnd('[LOAD_SESSION_TIMING]');
@@ -1119,7 +1136,9 @@ function startNewGame() {
     failedGuesses = 0;
     attemptTimestamps = [];
     guessResultsHistory = []; 
-    console.log('[GAME_FLOW] Game statistics reset.');
+    currentPerson = null; // Reset current person for a new game
+    loadedPhotos = 0; // Reset loaded photos counter
+    console.log('[GAME_FLOW] Game statistics and current person reset.');
 
     const timestampSeconds = Math.floor(Date.now() / 1000);
     const randomNumber = Math.floor(Math.random() * 10000);
@@ -1153,7 +1172,8 @@ function startNewGame() {
     document.getElementById('stats-success-rate').textContent = '0%';
     updateTimeBetweenAttemptsDisplay(); 
     updateGuessHistoryDisplay(); 
-    console.log('[GAME_FLOW_UI] Statistics display reset.');
+    updateUI(null); // Ensure UI (including alt text) is reset for a new game
+    console.log('[GAME_FLOW_UI] Statistics display and general UI reset.');
 
     updateNewGameButtonPosition(); 
 
@@ -1433,7 +1453,7 @@ window.onload = () => {
         updateNewGameButtonPosition(); 
     } else {
         console.log("[WINDOW_ONLOAD] Resuming existing game state.");
-        updateLanguage(); // Call this first to set up all translations
+        updateLanguage(); // Call this first to set up all translations and UI for currentPerson (even if null)
         updateModeVisibility();
         
         // Restore general game state (already done by global variable initialization from localStorage)
@@ -1478,42 +1498,24 @@ window.onload = () => {
             }
 
             // Attempt to restore current person view if app was refreshed mid-game
-            const storedCurrentPerson = localStorage.getItem('currentPerson'); // Assuming you might save/restore this
-            if (storedCurrentPerson) {
-                try {
-                    currentPerson = JSON.parse(storedCurrentPerson);
-                    console.log("[WINDOW_ONLOAD_RESUME] Restored currentPerson from localStorage:", currentPerson.personLabel.value);
-                    updateUI(currentPerson); // Re-render current person details
-
-                    // Minimal image restoration logic (complex to do fully without image URL in currentPerson)
-                    const personImage = document.getElementById('person-image');
-                    if ((personImage.src.includes('placeholder') || !personImage.src) && currentPerson.image?.value) { // Assuming image URL might be stored
-                         console.warn("[WINDOW_ONLOAD_RESUME_WARN] Resuming with person data but image src is placeholder. Attempting to reload image.");
-                         // Construct a simplified personData-like object if necessary or directly use stored URL
-                         const fileName = decodeURIComponent(currentPerson.image.value.split('/').pop());
-                         getCommonsImageUrl(fileName).then(imageUrl => {
-                             if(imageUrl) loadImageWithFallback(imageUrl, personImage);
-                         });
-                    }
-
-
-                } catch (e) {
-                    console.error("[WINDOW_ONLOAD_RESUME_ERROR] Failed to parse stored currentPerson from localStorage. Loading new session.", e);
-                    currentPerson = null; // Ensure it's null if parse failed
-                    localStorage.removeItem('currentPerson');
-                    loadSession(); // Load a fresh session if currentPerson state is corrupt
-                }
-            } else if (currentAttempts > 0 && !currentPerson) { 
-                // Game was in progress (attempts > 0), but no currentPerson state found (e.g. refresh without person persistence)
-                console.log("[WINDOW_ONLOAD_RESUME] Game in progress, but no currentPerson data. Loading new session to continue.");
+            // currentPerson is already potentially restored by updateLanguage calling updateUI(currentPerson)
+            // if it was persisted in a way that `currentPerson` variable got populated from localStorage.
+            // However, explicit `localStorage.getItem('currentPerson')` is not used here.
+            // The current logic relies on `currentPerson` being in-memory from previous session or null.
+            // If `currentPerson` is null at this point (e.g. after a refresh without session persistence for `currentPerson` object),
+            // and game is in progress, we need to load a new session or person.
+            if (currentAttempts > 0 && !currentPerson) { 
+                console.log("[WINDOW_ONLOAD_RESUME] Game in progress (attempts > 0), but no currentPerson data. Loading new session to continue.");
                 loadSession(); 
             } else if (currentAttempts === 0 && !currentPerson) {
                 // Game was at 0 attempts (likely just started or reset), and no person loaded yet
+                // updateLanguage() -> updateUI(null) would have set generic alt.
+                // loadSession() will be called to get the first person.
                 console.log("[WINDOW_ONLOAD_RESUME] Game at 0 attempts, no currentPerson. Loading initial session.");
                 loadSession();
-            } else if (currentPerson) { // currentPerson might have been set if localStorage had it and it was parsed
-                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson already exists (likely from previous state). Updating UI.", currentPerson.personLabel.value);
-                 updateUI(currentPerson); // updateUI should handle alt text correctly based on currentPerson
+            } else if (currentPerson) {
+                 // currentPerson already exists and updateUI has been called by updateLanguage.
+                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson already exists and UI updated by updateLanguage(). Current person:", currentPerson.personLabel.value);
             }
         }
         updateCheckButtonState();
