@@ -53,6 +53,7 @@ let gameOverNewGameContainer = null;
 // Состояние для предварительной загрузки
 let preloadedPersonContainer = null; // { data: { person: personBinding, category: categoryObj }, imageElement: HTMLImageElement, commonsUrl: string, proxyUrl: string }
 let isCurrentlyPreloading = false; // Флаг для предотвращения одновременных предварительных загрузок
+let buttonVisibilityTimeoutId = null;
 
 
 // Переводы
@@ -354,7 +355,7 @@ function updateLanguage() {
     document.title = selectedLanguage === 'uk' ? 'Гра: Випадкова людина з Wikidata' : selectedLanguage === 'ru' ? 'Игра: Случайный человек из Wikidata' : 'Game: Random Person from Wikidata';
 
     // Update UI elements related to the current person, including image alt text
-    updateUI(currentPerson);
+    updateUI(currentPerson); // This will update text content of #person-info if it's visible
     updateTelegramUserInfoDisplay(); // Update player name display
 
     updateModeSelect();
@@ -450,31 +451,74 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 
 // Обновление видимости элементов в зависимости от режима
 function updateModeVisibility() {
-    console.log(`[UI_UPDATE] updateModeVisibility called. Current mode: ${gameMode}`);
-    const overlay = document.getElementById('overlay');
+    if (buttonVisibilityTimeoutId) {
+        clearTimeout(buttonVisibilityTimeoutId);
+        buttonVisibilityTimeoutId = null;
+        console.log('[UI_TIMEOUT_CANCELLED] Existing button visibility timeout cancelled.');
+    }
+
+    const statusButtons = document.querySelector('.status-buttons');
     const genderButtons = document.querySelector('.gender-buttons');
+    const checkBtnElement = document.getElementById('check-btn');
     const personImage = document.getElementById('person-image');
-    
-    requestAnimationFrame(() => {
-        if (gameMode === 'closed') {
-            overlay.classList.remove('hidden');
-            genderButtons.style.display = 'flex';
-            personImage.classList.remove('loaded'); // Ensure image is hidden by overlay if mode changes to closed
-            console.log('[UI_UPDATE] Mode CLOSED: Overlay shown, gender buttons shown, person image potentially hidden by overlay.');
-        } else {
-            overlay.classList.add('hidden');
-            genderButtons.style.display = 'none';
-            if (personImage.src && personImage.src !== 'placeholder.jpg' && personImage.src !== 'https://via.placeholder.com/300') {
-                 personImage.classList.add('loaded'); // Make sure image is visible if it's loaded
+    const overlay = document.getElementById('overlay');
+
+    // Hide buttons immediately
+    statusButtons.style.display = 'none';
+    genderButtons.style.display = 'none';
+    if (checkBtnElement) checkBtnElement.style.display = 'none';
+    console.log('[UI_UPDATE_MODE] Status, Gender, and Check buttons initially hidden.');
+
+    const imageIsReady = personImage.classList.contains('loaded');
+    const gameIsActive = currentAttempts < maxAttempts;
+    const canMakeGuess = !hasChecked;
+
+    console.log(`[UI_UPDATE_MODE] updateModeVisibility: imageIsReady=${imageIsReady}, gameIsActive=${gameIsActive}, canMakeGuess=${canMakeGuess}, mode=${gameMode}`);
+
+    if (imageIsReady && gameIsActive && canMakeGuess) {
+        console.log('[UI_UPDATE_MODE] Conditions met for showing buttons, starting 3s timeout.');
+        buttonVisibilityTimeoutId = setTimeout(() => {
+            console.log('[UI_TIMEOUT_ELAPSED] 3s timeout elapsed. Showing buttons.');
+            statusButtons.style.display = 'flex';
+            if (checkBtnElement) {
+                checkBtnElement.style.display = 'inline-block';
+                updateCheckButtonState(); // Update state after making it visible
+                 console.log('[UI_UPDATE_MODE_TIMEOUT] Check button shown and state updated.');
             }
-            console.log('[UI_UPDATE] Mode OPEN: Overlay hidden, gender buttons hidden, person image potentially shown.');
+
+            if (gameMode === 'closed') {
+                genderButtons.style.display = 'flex';
+                 console.log('[UI_UPDATE_MODE_TIMEOUT] Closed mode: Gender and Status buttons shown.');
+            } else {
+                genderButtons.style.display = 'none'; // Explicitly hide if open mode
+                console.log('[UI_UPDATE_MODE_TIMEOUT] Open mode: Status buttons shown, Gender buttons hidden.');
+            }
+            buttonVisibilityTimeoutId = null;
+        }, 3000);
+    } else {
+         console.log('[UI_UPDATE_MODE] Conditions NOT met for showing buttons with delay, or timeout was cleared.');
+    }
+
+    // Manage overlay visibility
+    if (gameMode === 'closed') {
+        if (hasChecked) { // After check, reveal photo
+            overlay.classList.add('hidden');
+            console.log('[UI_UPDATE_MODE_OVERLAY] Closed mode, checked: Overlay hidden.');
+        } else { // Before check, cover photo
+            overlay.classList.remove('hidden');
+            console.log('[UI_UPDATE_MODE_OVERLAY] Closed mode, not checked: Overlay shown.');
         }
-    });
+    } else { // Open mode
+        overlay.classList.add('hidden');
+        console.log('[UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden.');
+    }
 }
+
 
 // Управление состоянием кнопки "Проверить"
 function updateCheckButtonState() {
     const checkBtn = document.getElementById('check-btn');
+    if (!checkBtn) return; // Guard clause if button not found
     let disabled;
     if (gameMode === 'closed') {
         disabled = !userGenderGuess || !userStatusGuess;
@@ -704,15 +748,17 @@ async function loadImageWithFallback(url, element) {
         };
 
         element.onload = () => {
+            element.style.opacity = ''; // Clear forced opacity
+            element.classList.add('loaded'); // Image content is ready
             console.log(`[IMAGE_LOAD_PROXY_SUCCESS] Image loaded successfully via proxy: ${proxyUrl}`);
-            element.classList.add('loaded');
             cleanup();
             resolve();
         };
         element.onerror = () => {
             console.error(`[IMAGE_LOAD_PROXY_ERROR] Proxy image load failed: ${proxyUrl}. Falling back to placeholder.`);
+            element.style.opacity = ''; // Clear forced opacity even on error
             element.src = 'https://via.placeholder.com/300'; // Fallback placeholder
-            element.classList.add('loaded'); 
+            element.classList.add('loaded'); // Show placeholder
             cleanup();
             reject(new Error(`Proxy image load failed for ${url}`));
         };
@@ -935,16 +981,45 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     console.log(`[LOAD_PERSON] loadPersonFromData called for person: ${personLabelForLogs}`);
     
     const personImage = document.getElementById('person-image');
+    const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
 
+    // Temporarily disable transitions for instant effect
+    personImage.classList.add('no-transition');
+    overlay.classList.add('no-transition');
+
+    // Synchronously set initial visual state
+    personImage.classList.remove('loaded'); 
+    if (gameMode === 'closed') {
+        overlay.classList.remove('hidden'); 
+        personImage.style.opacity = '0';    
+        console.log('[LOAD_PERSON_SETUP] Closed Mode: Overlay ON, Image Opacity 0 (transitions disabled)');
+    } else { // Open mode
+        overlay.classList.add('hidden');    
+        personImage.style.opacity = '';     
+        console.log('[LOAD_PERSON_SETUP] Open Mode: Overlay OFF, Image Opacity by class (transitions disabled)');
+    }
+    
+    // Prepare UI for loading (clear src, show progress) in next animation frame
     requestAnimationFrame(() => {
-        personImage.src = ''; 
-        personImage.classList.remove('loaded');
+        personImage.src = ''; // Clear the actual image content
+        // If closed mode, re-assert image is hidden after src clear
+        if (gameMode === 'closed') {
+            personImage.style.opacity = '0'; 
+        }
         circularProgressContainer.classList.remove('hidden');
         circularProgressContainer.setAttribute('aria-valuenow', '0');
         document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
-        console.log('[LOAD_PERSON_UI] UI prepared for new person image loading.');
+        console.log('[LOAD_PERSON_UI_PREP] Image src cleared, progress UI active.');
+
+        // Re-enable transitions after a brief moment (in next rAF call)
+        requestAnimationFrame(() => {
+            personImage.classList.remove('no-transition');
+            overlay.classList.remove('no-transition');
+            console.log('[LOAD_PERSON_SETUP] Transitions re-enabled.');
+        });
     });
+
 
     let currentPersonCandidate = personDataToDisplay; // This is a personBinding
     let successfullyLoadedImage = false;
@@ -975,7 +1050,9 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
             
             await new Promise((resolvePreloadAssign) => {
                 personImage.onload = () => {
-                    personImage.classList.add('loaded');
+                    personImage.style.opacity = ''; // Clear forced opacity
+                    personImage.classList.add('loaded'); // Makes it visible IF NOT OVERLAYED
+                    
                     console.log(`[LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: ${preloadedProxyUrl}`);
                     successfullyLoadedImage = true;
                     imageLoadPathDetail = "preload_assigned_successfully";
@@ -983,6 +1060,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                     resolvePreloadAssign();
                 };
                 personImage.onerror = () => { 
+                    personImage.style.opacity = ''; // Clear forced opacity even on error
                     console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
                     preloadedPersonContainer = null; // Invalidate the preload as its image part failed to assign
                     imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
@@ -1055,7 +1133,13 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                      currentPersonCandidate = await fetchPersonData(true, category); 
                      requestAnimationFrame(() => { // Reset UI for next attempt in loop
                         personImage.src = '';
-                        personImage.classList.remove('loaded');
+                        if (gameMode === 'closed') {
+                            personImage.classList.remove('loaded');
+                            personImage.style.opacity = '0';
+                        } else {
+                            personImage.classList.remove('loaded');
+                            personImage.style.opacity = '';
+                        }
                         circularProgressContainer.classList.remove('hidden');
                         document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
                      });
@@ -1072,7 +1156,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
 
     if (!successfullyLoadedImage) {
         console.error(`[LOAD_PERSON_CRITICAL_IMAGE_FAIL] Could not load image for slot (intended for ${personLabelForLogs}) after all attempts. Path: ${imageLoadPathDetail}. Handling error.`);
-        handleError(); 
+        handleError(); // This will call updateUI(null) and updateModeVisibility
         startPreloadNextAvailablePerson(); 
         return;
     }
@@ -1084,7 +1168,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         !currentPersonCandidate.birthDate || !currentPersonCandidate.birthDate.value ||
         !currentPersonCandidate.person || !currentPersonCandidate.person.value) {
         console.error("[LOAD_PERSON_CRITICAL] Final currentPersonCandidate is invalid before assigning to currentPerson. Handling error. Candidate:", currentPersonCandidate);
-        handleError();
+        handleError(); // This will call updateUI(null) and updateModeVisibility
         startPreloadNextAvailablePerson();
         return;
     }
@@ -1097,7 +1181,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         person: currentPersonCandidate.person 
     };
     console.log(`[LOAD_PERSON_SUCCESS] Successfully loaded person: ${currentPerson.personLabel.value} (Path: ${imageLoadPathDetail})`);
-    updateUI(currentPerson);
+    updateUI(currentPerson); // This will call updateModeVisibility to set final correct state
     
     currentAttemptStartTime = Date.now(); 
     localStorage.setItem('currentAttemptStartTime', currentAttemptStartTime.toString());
@@ -1128,14 +1212,12 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
 
 function updateUI(personToDisplay) { // personToDisplay is the currentPerson object
     console.log('[UI_UPDATE] updateUI called for person:', personToDisplay && personToDisplay.personLabel && personToDisplay.personLabel.value ? personToDisplay.personLabel.value : 'No person');
-    const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
     const personImage = document.getElementById('person-image');
     
     requestAnimationFrame(() => {
-        personInfo.style.display = 'none';
-        personInfo.classList.remove('correct', 'incorrect');
+        // person-info display style and correct/incorrect classes are managed by check-btn, loadNextPerson, startNewGame, handleError
         
         if (personToDisplay && personToDisplay.personLabel && personToDisplay.personLabel.value && personToDisplay.gender && personToDisplay.gender.value) {
              const genderText = personToDisplay.gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female;
@@ -1172,6 +1254,8 @@ function handleError() {
     const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
     const texts = translations[selectedLanguage];
+    const personInfo = document.getElementById('person-info');
+
 
     preloadedPersonContainer = null;
     isCurrentlyPreloading = false; 
@@ -1181,8 +1265,13 @@ function handleError() {
     requestAnimationFrame(() => {
         personImage.src = 'https://via.placeholder.com/300'; 
         personImage.alt = texts.errorLoadingImage || 'Error loading image'; 
-        personImage.classList.add('loaded'); 
+        personImage.classList.add('loaded'); // Show the placeholder
+        personImage.style.opacity = ''; // Ensure placeholder is visible if direct style was applied
         
+        personInfo.style.display = 'none'; 
+        personInfo.classList.remove('correct', 'incorrect');
+        updateUI(null); // This will populate with "Unknown" and trigger updateModeVisibility
+
         if (gameMode === 'closed') {
             overlay.classList.remove('hidden'); 
         } else {
@@ -1289,10 +1378,7 @@ async function loadSession() {
                 document.getElementById('female-btn').disabled = false;
                 document.getElementById('alive-btn').disabled = false;
                 document.getElementById('dead-btn').disabled = false;
-                document.getElementById('alive-btn').style.display = 'inline-block';
-                document.getElementById('dead-btn').style.display = 'inline-block';
-                document.getElementById('check-btn').style.display = 'inline-block';
-                document.getElementById('check-btn').disabled = true; 
+                // Buttons visibility is now handled by updateModeVisibility with delay
                 document.getElementById('next-person').style.display = 'none';
                 document.getElementById('next-photo').disabled = false; 
                 updateCheckButtonState();
@@ -1301,12 +1387,10 @@ async function loadSession() {
         } else {
             console.error('[LOAD_SESSION_FAILURE] Session list is empty after fetching and filtering. Handling error.');
             handleError();
-            updateUI(null); 
         }
     } catch (error) {
         console.error('[LOAD_SESSION_CRITICAL_ERROR] Overall session data loading failed:', error);
         handleError();
-        updateUI(null); 
         updateProgressBar(0, false); 
     }
     console.timeEnd('[LOAD_SESSION_TIMING]');
@@ -1344,6 +1428,10 @@ async function loadNextPerson(triggerButton = 'unknown') {
     document.getElementById('female-btn').classList.remove('active');
     document.getElementById('alive-btn').classList.remove('active');
     document.getElementById('dead-btn').classList.remove('active');
+    
+    const personInfo = document.getElementById('person-info');
+    personInfo.style.display = 'none';
+    personInfo.classList.remove('correct', 'incorrect');
 
     const nextEntry = sessionList.shift(); // nextEntry is { person: personBinding, category: categoryObj }
     if (nextEntry && nextEntry.person) { // Already filtered in loadSession, but good to be safe
@@ -1360,13 +1448,9 @@ async function loadNextPerson(triggerButton = 'unknown') {
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false;
         document.getElementById('dead-btn').disabled = false;
-        document.getElementById('alive-btn').style.display = 'inline-block';
-        document.getElementById('dead-btn').style.display = 'inline-block';
-        document.getElementById('check-btn').style.display = 'inline-block';
+        // Buttons visibility is now handled by updateModeVisibility with delay
         document.getElementById('next-person').style.display = 'none'; 
         document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; 
-         document.getElementById('person-info').style.display = 'none'; 
-         document.getElementById('person-info').classList.remove('correct', 'incorrect');
          console.log('[LOAD_NEXT_PERSON_UI] UI reset for the next person.');
     });
 }
@@ -1419,7 +1503,11 @@ function startNewGame() {
     document.getElementById('stats-success-rate').textContent = '0%';
     updateTimeBetweenAttemptsDisplay(); 
     updateGuessHistoryDisplay(); 
-    updateUI(null); 
+    
+    const personInfo = document.getElementById('person-info');
+    personInfo.style.display = 'none'; 
+    personInfo.classList.remove('correct', 'incorrect');
+    updateUI(null); // This will clear details text and call updateModeVisibility
     console.log('[GAME_FLOW_UI] Statistics display and general UI reset.');
 
     updateNewGameButtonPosition(); 
@@ -1436,13 +1524,10 @@ function startNewGame() {
     document.getElementById('alive-btn').disabled = false;
     document.getElementById('dead-btn').disabled = false;
     updateCheckButtonState(); 
-    document.getElementById('person-info').style.display = 'none';
     document.getElementById('next-person').style.display = 'none';
     document.getElementById('next-photo').disabled = false; 
     
-    document.getElementById('alive-btn').style.display = 'inline-block';
-    document.getElementById('dead-btn').style.display = 'inline-block';
-    document.getElementById('check-btn').style.display = 'inline-block';
+    // Buttons visibility is now handled by updateModeVisibility with delay
     console.log('[GAME_FLOW_UI] Buttons and UI elements reset for new game.');
 
     loadSession(); 
@@ -1566,34 +1651,31 @@ document.getElementById('check-btn').addEventListener('click', () => {
     });
     
     requestAnimationFrame(() => {
-        personInfo.style.display = 'block';
+        personInfo.style.display = 'block'; 
+        personInfo.classList.remove('correct', 'incorrect'); // Clear previous before adding new
+
         if (gameMode === 'closed') {
             overlay.classList.add('hidden'); 
             personImage.classList.add('loaded'); 
+            personImage.style.opacity = ''; 
             console.log('[CHECK_UI] Mode CLOSED: Revealing image.');
         }
         if (isOverallCorrect) {
             personInfo.classList.add('correct');
-            personInfo.classList.remove('incorrect');
             successfulGuesses++;
             console.log('[CHECK_UI] Guess was CORRECT.');
         } else {
             personInfo.classList.add('incorrect');
-            personInfo.classList.remove('correct');
             failedGuesses++;
             console.log('[CHECK_UI] Guess was INCORRECT.');
         }
         document.getElementById('next-person').style.display = 'block'; 
         
-        document.getElementById('alive-btn').style.display = 'none';
-        document.getElementById('dead-btn').style.display = 'none';
-        document.getElementById('check-btn').style.display = 'none';
-        if (gameMode === 'closed') {
-            document.querySelector('.gender-buttons').style.display = 'none';
-        }
-        
         document.getElementById('male-btn').disabled = true; 
         document.getElementById('female-btn').disabled = true;
+        document.getElementById('alive-btn').disabled = true; 
+        document.getElementById('dead-btn').disabled = true;
+
 
         document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
         document.getElementById('stats-success').textContent = successfulGuesses;
@@ -1610,6 +1692,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
         localStorage.setItem('failedGuesses', failedGuesses.toString());
         console.log('[STATE_CHANGE] Game stats after check saved to localStorage.');
 
+        updateUI(currentPerson); // This will populate person-info text and call updateModeVisibility
         updateNewGameButtonPosition(); 
 
         if (currentAttempts >= maxAttempts) {
@@ -1637,22 +1720,16 @@ document.getElementById('check-btn').addEventListener('click', () => {
 document.getElementById('next-person').addEventListener('click', () => {
     console.log('[USER_ACTION] "Next Photo" (after guess) button clicked.');
      requestAnimationFrame(() => { 
-        if (gameMode === 'closed') {
-             document.querySelector('.gender-buttons').style.display = 'flex'; 
-             console.log('[NEXT_PERSON_UI] Mode CLOSED: Gender buttons re-enabled.');
-        }
         document.getElementById('male-btn').disabled = false; 
         document.getElementById('female-btn').disabled = false;
+        document.getElementById('alive-btn').disabled = false; 
+        document.getElementById('dead-btn').disabled = false;
     });
     loadNextPerson('next_after_check');
 });
 
 document.getElementById('new-game').addEventListener('click', () => {
     console.log('[USER_ACTION] "New Game" button clicked.');
-    if (gameMode === 'closed') {
-        document.querySelector('.gender-buttons').style.display = 'flex'; 
-        console.log('[NEW_GAME_UI] Mode CLOSED: Gender buttons re-enabled for new game.');
-    }
     startNewGame();
 });
 
@@ -1715,17 +1792,19 @@ window.onload = () => {
 
     const isFirstLaunchOrReset = localStorage.getItem('currentAttempts') === null;
     console.log(`[WINDOW_ONLOAD] Is first launch or reset: ${isFirstLaunchOrReset}`);
+    
+    const personInfoOnLoad = document.getElementById('person-info');
+    personInfoOnLoad.style.display = 'none'; // Always hide on initial load/resume
+    personInfoOnLoad.classList.remove('correct', 'incorrect'); // Clear any stale classes
 
     if (isFirstLaunchOrReset) {
         console.log("[WINDOW_ONLOAD] First launch or reset detected. Initializing a new game.");
         updateLanguage(); 
-        updateModeVisibility(); 
         startNewGame(); 
         updateNewGameButtonPosition(); 
     } else {
         console.log("[WINDOW_ONLOAD] Resuming existing game state.");
         updateLanguage(); 
-        updateModeVisibility();
         
         if (currentAttempts >= maxAttempts) {
             console.log("[WINDOW_ONLOAD_GAMEOVER] Game was previously over. UI reflects game over state.");
@@ -1737,12 +1816,8 @@ window.onload = () => {
             
             document.getElementById('next-photo').disabled = true;
             document.getElementById('next-person').style.display = 'none';
-            document.getElementById('check-btn').style.display = 'none';
-            document.getElementById('alive-btn').style.display = 'none';
-            document.getElementById('dead-btn').style.display = 'none';
-            if (gameMode === 'closed') {
-                document.querySelector('.gender-buttons').style.display = 'none';
-            }
+            // personInfo already hidden above
+            
             if (currentSessionId || currentAttemptStartTime) {
                 console.warn("[WINDOW_ONLOAD_GAMEOVER_CLEANUP] Game was over, but session ID or start time found in localStorage. Clearing them now.");
                 localStorage.removeItem('currentSessionId');
@@ -1764,6 +1839,8 @@ window.onload = () => {
             if (!currentSessionId && currentAttempts > 0 && currentAttempts < maxAttempts) {
                 console.warn("[WINDOW_ONLOAD_RESUME_WARN] Resuming game, but currentSessionId is missing from localStorage. It will be generated on the next new game. GA events for ongoing attempts might miss session_id.");
             }
+            // personInfo already hidden above
+
             if (!currentPerson) { 
                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson is null. Loading session data to continue/start.");
                 preloadedPersonContainer = null;
@@ -1771,6 +1848,7 @@ window.onload = () => {
                 loadSession(); 
             } else {
                  console.log("[WINDOW_ONLOAD_RESUME] currentPerson somehow exists. UI should be updated. Preloading next.");
+                 updateUI(currentPerson); // Update content. Visibility is already handled.
                  startPreloadNextAvailablePerson(); 
             }
         }
