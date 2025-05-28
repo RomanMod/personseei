@@ -42,12 +42,18 @@ let guessResultsHistory = JSON.parse(localStorage.getItem('guessResultsHistory')
 let currentSessionId = localStorage.getItem('currentSessionId') || null;
 let currentAttemptStartTime = localStorage.getItem('currentAttemptStartTime') ? parseInt(localStorage.getItem('currentAttemptStartTime')) : null;
 let telegramUserId = null; // Telegram User ID
+let telegramUserName = null; // Telegram User Name
 
 
 // DOM element references for New Game button positioning
 let newGameBtn = null;
 let initialNewGameContainer = null;
 let gameOverNewGameContainer = null;
+
+// Состояние для предварительной загрузки
+let preloadedPersonContainer = null; // { data: { person: personBinding, category: categoryObj }, imageElement: HTMLImageElement, commonsUrl: string, proxyUrl: string }
+let isCurrentlyPreloading = false; // Флаг для предотвращения одновременных предварительных загрузок
+
 
 // Переводы
 const translations = {
@@ -81,7 +87,8 @@ const translations = {
         firstAttempt: 'перша спроба',
         guessHistory: 'Крок',
         imageDisplayAlt: 'Зображення людини',
-        errorLoadingImage: 'Помилка завантаження зображення'
+        errorLoadingImage: 'Помилка завантаження зображення',
+        playerNameLabel: 'Гравець'
     },
     ru: {
         themeNight: '🌙 Ночь',
@@ -113,7 +120,8 @@ const translations = {
         firstAttempt: 'первая попытка',
         guessHistory: 'Шаг',
         imageDisplayAlt: 'Изображение человека',
-        errorLoadingImage: 'Ошибка загрузки изображения'
+        errorLoadingImage: 'Ошибка загрузки изображения',
+        playerNameLabel: 'Игрок'
     },
     en: {
         themeNight: '🌙 Night',
@@ -145,7 +153,8 @@ const translations = {
         firstAttempt: 'first attempt',
         guessHistory: 'Step',
         imageDisplayAlt: 'Image of person',
-        errorLoadingImage: 'Error loading image'
+        errorLoadingImage: 'Error loading image',
+        playerNameLabel: 'Player'
     },
     alien: {
         themeNight: '🌙 ⊸⍟⊸',
@@ -177,7 +186,8 @@ const translations = {
         firstAttempt: '⊸⍟ ⊸⍟',
         guessHistory: '⊸⍀⍟',
         imageDisplayAlt: '⊸⍉⋉⏁ ⍜⎎ ⌿⟒⍀⌇⍜⋏', // Alien for "Image of person"
-        errorLoadingImage: '⊸⍟⊸ ⌰⍜⏃⎅ ⟒⍀⍀⍜⍀' // Alien for "Error loading image"
+        errorLoadingImage: '⊸⍟⊸ ⌰⍜⏃⎅ ⟒⍀⍀⍜⍀', // Alien for "Error loading image"
+        playerNameLabel: '⌿⌰⏃⊬⟒⍀'
     }
 };
 
@@ -303,6 +313,24 @@ function updateGuessHistoryDisplay() {
     // console.log(`[UI_UPDATE] Guess history display updated to: "${displayText}"`, guessResultsHistory);
 }
 
+function updateTelegramUserInfoDisplay() {
+    const playerInfoElement = document.getElementById('stats-player-info');
+    if (!playerInfoElement) {
+        console.warn('[UI_WARN] Stats player info display element (stats-player-info) not found.');
+        return;
+    }
+    const texts = translations[selectedLanguage];
+    const label = texts.playerNameLabel || 'Player';
+
+    if (telegramUserName) {
+        playerInfoElement.textContent = `${label}: ${telegramUserName}`;
+        console.log(`[UI_UPDATE] Telegram user info in stats displayed: ${telegramUserName}`);
+    } else {
+        playerInfoElement.textContent = label;
+        console.log('[UI_UPDATE] Telegram user info in stats displayed as generic "Player" as no name is available.');
+    }
+}
+
 
 // Обновление интерфейса по языку
 function updateLanguage() {
@@ -327,6 +355,7 @@ function updateLanguage() {
 
     // Update UI elements related to the current person, including image alt text
     updateUI(currentPerson);
+    updateTelegramUserInfoDisplay(); // Update player name display
 
     updateModeSelect();
     updateLanguageSelect();
@@ -458,8 +487,16 @@ function updateCheckButtonState() {
 
 // Логирование состояния загрузки
 function logPhotoStatus() {
-    console.log(`[PHOTO_STATUS] Loaded photos in session: ${loadedPhotos}, Remaining in sessionList: ${sessionList.length}`);
+    const preloadedPersonName = preloadedPersonContainer &&
+                                preloadedPersonContainer.data &&
+                                preloadedPersonContainer.data.person && // person is the binding
+                                preloadedPersonContainer.data.person.personLabel &&
+                                preloadedPersonContainer.data.person.personLabel.value
+                                ? preloadedPersonContainer.data.person.personLabel.value
+                                : 'None or no label';
+    console.log(`[PHOTO_STATUS] Loaded photos in session: ${loadedPhotos}, Remaining in sessionList: ${sessionList.length}, Preloaded: ${preloadedPersonName}`);
 }
+
 
 // Обновление прогресс-бара (горизонтального и кругового)
 function updateProgressBar(percentage, isImageLoading = false) {
@@ -504,21 +541,27 @@ function updateProgressBar(percentage, isImageLoading = false) {
 
 
 // Имитация прогресса для загрузки изображения
-function simulateImageProgress(duration = 2000) {
+function simulateImageProgress(duration = 1500) {
     console.log('[IMAGE_LOAD] Starting image loading simulation.');
     return new Promise((resolve) => {
+        if (duration <= 0) { // Handle zero or negative duration
+            updateProgressBar(99, true);
+            console.log('[IMAGE_LOAD] Image loading simulation reached 99% (instant due to zero/negative duration).');
+            resolve();
+            return;
+        }
         const startTime = performance.now();
-        const interval = 100;
+        const interval = Math.min(100, duration / 10); // Adjust interval for smoother short durations
         let progress = 0;
 
         const update = () => {
             const elapsed = performance.now() - startTime;
-            progress = Math.min((elapsed / duration) * 90, 90); 
+            progress = Math.min((elapsed / duration) * 99, 99); 
             updateProgressBar(progress, true); // True for image loading (circular)
-            if (progress < 90) {
+            if (progress < 99) {
                 setTimeout(update, interval);
             } else {
-                console.log('[IMAGE_LOAD] Image loading simulation reached 90%.');
+                console.log('[IMAGE_LOAD] Image loading simulation reached 99%.');
                 resolve();
             }
         };
@@ -549,24 +592,31 @@ function rgbToHsl(r, g, b) {
     return [h, s, l];
 }
 
-async function isBlackAndWhite(imageUrl) {
+async function isBlackAndWhite(imageUrl) { // imageUrl is the original commons URL
     if (!settings.excludeBlackAndWhite) {
         // console.log('[IMAGE_CHECK_BW] Black and white filter disabled.');
         return false;
     }
 
-    if (rgbHslCache[imageUrl] !== undefined) {
-        console.log(`[IMAGE_CHECK_BW] Using cached B&W result for ${imageUrl}: ${rgbHslCache[imageUrl] ? 'black-and-white' : 'color'}`);
-        return rgbHslCache[imageUrl];
+    // Use a consistent key for caching, based on the original Commons URL
+    const cacheKey = imageUrl;
+    if (rgbHslCache[cacheKey] !== undefined) {
+        console.log(`[IMAGE_CHECK_BW] Using cached B&W result for ${cacheKey}: ${rgbHslCache[cacheKey] ? 'black-and-white' : 'color'}`);
+        return rgbHslCache[cacheKey];
     }
-    console.log(`[IMAGE_CHECK_BW] Analyzing image for B&W: ${imageUrl}`);
+    console.log(`[IMAGE_CHECK_BW] Analyzing image for B&W: ${cacheKey}`);
 
     return new Promise((resolve) => {
         const img = new Image();
-        img.crossOrigin = 'Anonymous';
+        img.crossOrigin = 'Anonymous'; // Needed for canvas if image server supports CORS
+
+        // For consistency and to avoid potential CORS issues with direct canvas access from commons.wikimedia.org,
+        // use the proxy for B&W check as well.
+        const proxyForBWCheck = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}&w=100&h=100&fit=cover&output=jpg`; // Smaller for faster check
+        
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            canvas.width = 100;
+            canvas.width = 100; // Match the proxy dimensions for direct pixel mapping
             canvas.height = 100;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, 100, 100);
@@ -602,20 +652,20 @@ async function isBlackAndWhite(imageUrl) {
             const meanSaturation = saturationSum / count;
 
             const isBW = rStdDev < 20 && gStdDev < 20 && bStdDev < 20 && meanSaturation < 0.2;
-            console.log(`[IMAGE_CHECK_BW] Result for ${imageUrl}: ${isBW ? 'black-and-white' : 'color'} ` +
+            console.log(`[IMAGE_CHECK_BW] Result for ${cacheKey} (via proxy ${proxyForBWCheck}): ${isBW ? 'black-and-white' : 'color'} ` +
                         `(R_stdDev:${rStdDev.toFixed(2)}, G_stdDev:${gStdDev.toFixed(2)}, B_stdDev:${bStdDev.toFixed(2)}, Mean Saturation:${(meanSaturation * 100).toFixed(2)}%)`);
             
-            rgbHslCache[imageUrl] = isBW;
+            rgbHslCache[cacheKey] = isBW; // Cache based on original URL
             localStorage.setItem('rgbHslCache', JSON.stringify(rgbHslCache));
             console.log('[CACHE_UPDATE] rgbHslCache updated in localStorage.');
             
             resolve(isBW);
         };
         img.onerror = () => {
-            console.error(`[IMAGE_CHECK_BW_ERROR] Failed to load image for B&W analysis: ${imageUrl}`);
-            resolve(false);
+            console.error(`[IMAGE_CHECK_BW_ERROR] Failed to load image via proxy ${proxyForBWCheck} for B&W analysis of ${cacheKey}`);
+            resolve(false); // Assume color on error to avoid false positives
         };
-        img.src = imageUrl;
+        img.src = proxyForBWCheck;
     });
 }
 
@@ -685,10 +735,16 @@ async function fetchPersonData(useRandom = false, category = null) {
 
     if (wikidataCache[cacheKey] && wikidataCache[cacheKey].length > 0) {
         const cachedPerson = wikidataCache[cacheKey][Math.floor(Math.random() * wikidataCache[cacheKey].length)];
-        console.log(`[WIKIDATA_FETCH_CACHE] Using cached data for ${cacheKey}. Person: ${cachedPerson?.personLabel?.value}`);
-        return cachedPerson;
+        // Ensure cached person is valid before returning
+        if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
+            console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
+            return cachedPerson;
+        } else {
+            console.warn(`[WIKIDATA_FETCH_CACHE_INVALID] Cached data for ${cacheKey} is invalid, fetching fresh. Invalid person:`, cachedPerson);
+            delete wikidataCache[cacheKey]; // Remove invalid cache entry
+        }
     }
-    console.log(`[WIKIDATA_FETCH] No cache hit for ${cacheKey}, querying Wikidata.`);
+    console.log(`[WIKIDATA_FETCH] No valid cache hit for ${cacheKey}, querying Wikidata.`);
 
     const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
                         category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
@@ -748,30 +804,38 @@ async function fetchPersonData(useRandom = false, category = null) {
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error(`Wikidata API error: ${response.status} ${response.statusText}`);
             const data = await response.json();
-            const list = data.results.bindings;
+            const list = data.results && data.results.bindings; // Ensure bindings exist
             const duration = (performance.now() - start).toFixed(0);
-            console.log(`[WIKIDATA_QUERY_SUCCESS] Attempt ${attempts}/${maxQueryAttempts} successful for category ${categoryKey}. Found ${list.length} results. Time: ${duration}ms`);
-
-            if (!list.length) {
-                console.warn(`[WIKIDATA_QUERY_WARN] No results for category ${categoryKey}, attempt ${attempts}/${maxQueryAttempts}.`);
+            
+            if (!list || !list.length) { // Check if list is null/undefined or empty
+                console.warn(`[WIKIDATA_QUERY_WARN] No results or invalid list for category ${categoryKey}, attempt ${attempts}/${maxQueryAttempts}. Response:`, data);
                 if (attempts === maxQueryAttempts) throw new Error(`No person found for category ${categoryKey} after ${maxQueryAttempts} query attempts with different offsets.`);
                 continue; // Try next attempt with different offset
             }
+            console.log(`[WIKIDATA_QUERY_SUCCESS] Attempt ${attempts}/${maxQueryAttempts} successful for category ${categoryKey}. Found ${list.length} results. Time: ${duration}ms`);
+
 
             wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100); // Keep cache size manageable
             localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
             console.log('[CACHE_UPDATE] wikidataCache updated in localStorage.');
 
-            return list[Math.floor(Math.random() * list.length)];
+            const randomPerson = list[Math.floor(Math.random() * list.length)];
+            // Validate the randomly selected person before returning
+            if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
+                return randomPerson;
+            } else {
+                 console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
+                 if (attempts === maxQueryAttempts) throw new Error(`Selected invalid person on final attempt for category ${categoryKey}.`);
+                 continue; // Try next attempt (effectively retrying selection or whole query if list was small)
+            }
+
         } catch (error) {
             clearTimeout(timeoutId);
             const isTimeoutAbort = error.name === 'AbortError';
 
             if (isTimeoutAbort) {
                 // Timeout/AbortError specific logging is primarily handled by the setTimeout warning itself.
-                // The final error thrown will also indicate a timeout.
             } else {
-                // For non-AbortErrors during an attempt
                 if (error.message && error.message.includes('Failed to fetch')) {
                     console.warn(`[WIKIDATA_QUERY_WARN] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed with fetch issue. Retrying. Error: ${error.message}`);
                 } else {
@@ -779,132 +843,291 @@ async function fetchPersonData(useRandom = false, category = null) {
                 }
             }
 
-            // We throw if it's a timeout (AbortError) OR if we've exhausted all retries for other errors.
             if (isTimeoutAbort || attempts >= maxQueryAttempts) {
                 let rethrowMessage;
                 if (isTimeoutAbort) {
                     rethrowMessage = `Wikidata query for person data (category: ${categoryKey}) timed out on attempt ${attempts}/${maxQueryAttempts}.`;
-                } else { // Must be attempts >= maxQueryAttempts due to a non-AbortError
+                } else { 
                     rethrowMessage = `Failed to fetch person data (category: ${categoryKey}) after ${maxQueryAttempts} attempts. Last error on attempt ${attempts}: ${error.message}`;
                 }
                 console.error(`[WIKIDATA_FETCH_FINAL_ERROR] ${rethrowMessage}`);
                 throw new Error(rethrowMessage);
             }
-            // Otherwise, the loop continues for the next attempt (if attempts < maxQueryAttempts and not AbortError)
             console.log(`[WIKIDATA_FETCH_RETRY] Retrying query for ${categoryKey}, attempt ${attempts + 1}/${maxQueryAttempts}...`);
         }
     }
-    // Should not be reached if logic is correct, but as a fallback:
     throw new Error(`Failed to fetch person data for category ${categoryKey} after ${maxQueryAttempts} attempts (unexpected exit).`);
 }
 
+async function startPreloadNextAvailablePerson() {
+    if (isCurrentlyPreloading || sessionList.length === 0) {
+        if (isCurrentlyPreloading) console.log('[PRELOAD] Preload already in progress or next item is already the target of current load.');
+        if (sessionList.length === 0) console.log('[PRELOAD] Session list empty, nothing to preload.');
+        return;
+    }
 
-async function loadPersonFromData(personData, category = null) {
-    console.log('[LOAD_PERSON] loadPersonFromData called. Category:', category, 'Person Data:', personData ? personData.personLabel?.value : 'No data');
+    isCurrentlyPreloading = true;
+    // Peek at the next person in the sessionList for preloading
+    // nextPersonToPreload will be { person: personBinding, category: categoryObj }
+    const nextPersonToPreloadEntry = sessionList[0]; 
+
+    if (!nextPersonToPreloadEntry || !nextPersonToPreloadEntry.person || !nextPersonToPreloadEntry.person.image || !nextPersonToPreloadEntry.person.image.value || !nextPersonToPreloadEntry.person.personLabel || !nextPersonToPreloadEntry.person.personLabel.value) {
+        console.warn('[PRELOAD_WARN] Next person data for preloading is invalid or missing image/label info.', nextPersonToPreloadEntry);
+        isCurrentlyPreloading = false;
+        return;
+    }
+    const personBindingForPreload = nextPersonToPreloadEntry.person;
+    console.log(`[PRELOAD] Starting preload for: ${personBindingForPreload.personLabel.value}`);
+
+    try {
+        const fileName = decodeURIComponent(personBindingForPreload.image.value.split('/').pop());
+        const commonsUrl = await getCommonsImageUrl(fileName);
+
+        if (!commonsUrl) {
+            console.warn(`[PRELOAD_WARN] No Commons URL for ${fileName} (person: ${personBindingForPreload.personLabel.value}) during preload. Preload for this item skipped.`);
+            isCurrentlyPreloading = false;
+            return;
+        }
+
+        if (settings.excludeBlackAndWhite) {
+            const isBW = await isBlackAndWhite(commonsUrl);
+            if (isBW) {
+                console.warn(`[PRELOAD_BW_SKIP] Skipping B&W image during preload for ${personBindingForPreload.personLabel.value}.`);
+                isCurrentlyPreloading = false;
+                return;
+            }
+        }
+
+        const preloadedImage = new Image();
+        preloadedImage.crossOrigin = "Anonymous";
+        const proxyImageUrl = `https://images.weserv.nl/?url=${encodeURIComponent(commonsUrl)}`;
+
+        await new Promise((resolve, reject) => {
+            preloadedImage.onload = () => {
+                console.log(`[PRELOAD_SUCCESS] Image preloaded successfully via proxy: ${proxyImageUrl} for ${personBindingForPreload.personLabel.value}`);
+                preloadedPersonContainer = {
+                    data: nextPersonToPreloadEntry, // Contains .person (binding) and .category
+                    imageElement: preloadedImage,
+                    commonsUrl: commonsUrl,
+                    proxyUrl: proxyImageUrl
+                };
+                resolve();
+            };
+            preloadedImage.onerror = () => {
+                console.error(`[PRELOAD_ERROR] Image preload failed for: ${proxyImageUrl} (person: ${personBindingForPreload.personLabel.value})`);
+                reject(new Error(`Preload failed for ${proxyImageUrl}`));
+            };
+            preloadedImage.src = proxyImageUrl;
+        });
+
+    } catch (error) {
+        console.error(`[PRELOAD_ERROR] Error during preload process for ${personBindingForPreload.personLabel.value}: ${error.message}`);
+        preloadedPersonContainer = null; 
+    } finally {
+        isCurrentlyPreloading = false;
+        console.log('[PRELOAD] Preloading process attempt finished.');
+    }
+}
+
+// personDataToDisplay is a personBinding object from Wikidata
+async function loadPersonFromData(personDataToDisplay, category = null) {
+    const personLabelForLogs = personDataToDisplay?.personLabel?.value || 'No data or no label';
+    console.log(`[LOAD_PERSON] loadPersonFromData called for person: ${personLabelForLogs}`);
+    
     const personImage = document.getElementById('person-image');
     const circularProgressContainer = document.getElementById('circular-progress-container');
 
     requestAnimationFrame(() => {
-        personImage.src = ''; // Clear previous image
+        personImage.src = ''; 
         personImage.classList.remove('loaded');
         circularProgressContainer.classList.remove('hidden');
         circularProgressContainer.setAttribute('aria-valuenow', '0');
         document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
-        // document.getElementById('circular-progress-text').textContent = '0%'; // Text removed
-        // Horizontal bar is for session, so not reset here unless it's start of image loading.
-        // document.getElementById('progress-bar').style.width = '0%'; 
-        // document.getElementById('progress-bar').classList.remove('hidden');
-        console.log('[LOAD_PERSON_UI] UI prepared for new person image loading (circular progress shown).');
+        console.log('[LOAD_PERSON_UI] UI prepared for new person image loading.');
     });
 
-    const progressPromise = simulateImageProgress(2000); // Start progress simulation (updates circular progress)
-    let currentPersonCandidate = personData;
+    let currentPersonCandidate = personDataToDisplay; // This is a personBinding
+    let successfullyLoadedImage = false;
+    let imageLoadPathDetail = "unknown"; // For detailed logging
+    let gaLoadSource = "unknown"; // For GA event
 
-    let attempts = 0;
-    const maxImageLoadAttempts = 3; // Max attempts to find a valid image for this *slot*
+    const progressPromise = simulateImageProgress(
+        preloadedPersonContainer && 
+        preloadedPersonContainer.data && 
+        preloadedPersonContainer.data.person &&
+        currentPersonCandidate && currentPersonCandidate.person &&
+        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value && 
+        preloadedPersonContainer.imageElement && 
+        preloadedPersonContainer.imageElement.complete 
+        ? 500 : 1500 // Shorter simulation if preload is likely to be used
+    );
 
-    while (attempts < maxImageLoadAttempts) {
-        attempts++;
-        console.log(`[LOAD_PERSON_ATTEMPT] Image load attempt ${attempts}/${maxImageLoadAttempts} for person: ${currentPersonCandidate?.personLabel?.value || 'Unknown'}`);
-        try {
-            if (!currentPersonCandidate || !currentPersonCandidate.image || !currentPersonCandidate.image.value) {
-                 console.warn(`[LOAD_PERSON_WARN] Invalid person data or missing image for attempt ${attempts}. Fetching new person.`);
-                 currentPersonCandidate = await fetchPersonData(true, category); // Fetch a new random person
-                 continue; // Retry with the new person
-            }
-
-            const fileName = decodeURIComponent(currentPersonCandidate.image.value.split('/').pop());
-            console.log(`[LOAD_PERSON] Processing file: ${fileName}`);
-            const imageUrl = await getCommonsImageUrl(fileName);
-            if (!imageUrl) {
-                 console.warn(`[LOAD_PERSON_WARN] No Commons URL for ${fileName}. Fetching new person.`);
-                 currentPersonCandidate = await fetchPersonData(true, category);
-                 continue;
-            }
-            console.log(`[LOAD_PERSON] Got Commons URL: ${imageUrl}`);
-
-            if (settings.excludeBlackAndWhite) {
-                const isBW = await isBlackAndWhite(imageUrl);
-                if (isBW) {
-                    console.warn(`[LOAD_PERSON_BW_SKIP] Skipping black-and-white image for ${currentPersonCandidate.personLabel.value}. Fetching new person.`);
-                    currentPersonCandidate = await fetchPersonData(true, category);
-                    continue;
-                }
-            }
+    // --- Try Preload ---
+    if (preloadedPersonContainer && 
+        preloadedPersonContainer.data &&
+        preloadedPersonContainer.data.person &&
+        currentPersonCandidate && currentPersonCandidate.person && // Ensure currentPersonCandidate and its .person URI object are valid
+        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value) { // Compare URIs
+        
+        if (preloadedPersonContainer.imageElement && preloadedPersonContainer.imageElement.complete && preloadedPersonContainer.proxyUrl) {
+            console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
+            const preloadedProxyUrl = preloadedPersonContainer.proxyUrl;
             
-            await loadImageWithFallback(imageUrl, personImage); // Load image via proxy
-            await progressPromise; // Wait for simulation to reach 90%
-            updateProgressBar(100, true); // Finalize circular progress bar for image
-            
-            currentPerson = { 
-                personLabel: currentPersonCandidate.personLabel,
-                gender: currentPersonCandidate.gender,
-                deathDate: currentPersonCandidate.deathDate,
-                birthDate: currentPersonCandidate.birthDate,
-                person: currentPersonCandidate.person 
-            };
-            console.log(`[LOAD_PERSON_SUCCESS] Successfully loaded person: ${currentPerson.personLabel.value}`);
-            updateUI(currentPerson);
-            
-            currentAttemptStartTime = Date.now(); // Set start time for this attempt
-            localStorage.setItem('currentAttemptStartTime', currentAttemptStartTime.toString());
-            console.log(`[STATE_CHANGE] Attempt start time set to ${currentAttemptStartTime} for person: ${currentPerson.personLabel.value}. Saved to localStorage.`);
-
-            sendGAEvent('photo_loaded', {
-                person_id: currentPerson.person.value.split('/').pop(),
-                person_name: currentPerson.personLabel.value,
-                language: selectedLanguage,
-                game_mode: gameMode
+            await new Promise((resolvePreloadAssign) => {
+                personImage.onload = () => {
+                    personImage.classList.add('loaded');
+                    console.log(`[LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: ${preloadedProxyUrl}`);
+                    successfullyLoadedImage = true;
+                    imageLoadPathDetail = "preload_assigned_successfully";
+                    gaLoadSource = "preload_success";
+                    resolvePreloadAssign();
+                };
+                personImage.onerror = () => { 
+                    console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
+                    preloadedPersonContainer = null; // Invalidate the preload as its image part failed to assign
+                    imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
+                    // successfullyLoadedImage remains false, will proceed to fetch
+                    resolvePreloadAssign(); 
+                };
+                personImage.src = preloadedProxyUrl;
             });
-            return; // Success
+        } else {
+            console.warn(`[LOAD_PERSON_PRELOAD_WARN] Preloaded data for ${currentPersonCandidate.personLabel.value}, but imageElement not complete or proxyUrl missing. Falling back to fetch.`);
+            preloadedPersonContainer = null; // Invalidate incomplete preload
+            imageLoadPathDetail = "fetch_due_to_incomplete_preload";
+        }
+    } else {
+        imageLoadPathDetail = "fetch_no_preload_match"; // No preload for this specific person
+    }
+    
+    // --- Try Fetch (if preload wasn't used, failed, or was incomplete) ---
+    if (!successfullyLoadedImage) {
+        console.log(`[LOAD_PERSON] Proceeding with standard fetch for ${currentPersonCandidate?.personLabel?.value || 'unknown person'}. Reason: ${imageLoadPathDetail}`);
+        imageLoadPathDetail = imageLoadPathDetail.includes("fallback") || imageLoadPathDetail.includes("incomplete_preload") ? imageLoadPathDetail + "_active_fetch" : "direct_fetch_active";
+        gaLoadSource = "fetch_direct"; // Default for fetch path, will be updated if preload failed
 
-        } catch (error) { 
-            console.error(`[LOAD_PERSON_ERROR] Error processing person/image (attempt ${attempts}/${maxImageLoadAttempts}): ${error.message}`);
-            if (attempts < maxImageLoadAttempts) {
-                 console.log("[LOAD_PERSON_RETRY] Fetching a new person due to error.");
-                 currentPersonCandidate = await fetchPersonData(true, category); // Get a new person
-                 // Reset circular progress for the new attempt's simulation
-                 requestAnimationFrame(() => {
-                    personImage.src = '';
-                    personImage.classList.remove('loaded');
-                    circularProgressContainer.classList.remove('hidden');
-                    document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
-                    // document.getElementById('circular-progress-text').textContent = '0%'; // Text removed
-                 });
-            } else {
-                console.error(`[LOAD_PERSON_FAILURE] Max image load attempts (${maxImageLoadAttempts}) reached for this slot.`);
-                await progressPromise; // Ensure simulation finishes
-                updateProgressBar(100, true); // Finalize circular progress bar even on error
-                handleError(); // Handle final error
-                return;
+        let attempts = 0;
+        const maxImageLoadAttempts = 3;
+
+        while (attempts < maxImageLoadAttempts && !successfullyLoadedImage) {
+            attempts++;
+            console.log(`[LOAD_PERSON_ATTEMPT] Image fetch attempt ${attempts}/${maxImageLoadAttempts} for person: ${currentPersonCandidate?.personLabel?.value || 'Unknown Candidate'}`);
+            try {
+                if (!currentPersonCandidate || !currentPersonCandidate.image || !currentPersonCandidate.image.value || !currentPersonCandidate.personLabel || !currentPersonCandidate.personLabel.value) {
+                     console.warn(`[LOAD_PERSON_WARN] Invalid person data or missing image/label for fetch attempt ${attempts}. Fetching new person. Candidate:`, currentPersonCandidate);
+                     currentPersonCandidate = await fetchPersonData(true, category); 
+                     if (!currentPersonCandidate || !currentPersonCandidate.image || !currentPersonCandidate.image.value || !currentPersonCandidate.personLabel || !currentPersonCandidate.personLabel.value) {
+                        console.warn(`[LOAD_PERSON_WARN] Newly fetched currentPersonCandidate is also invalid for attempt ${attempts}. Continuing to next attempt or failure.`);
+                     }
+                     continue; 
+                }
+
+                const fileName = decodeURIComponent(currentPersonCandidate.image.value.split('/').pop());
+                const commonsUrl = await getCommonsImageUrl(fileName);
+                if (!commonsUrl) {
+                     console.warn(`[LOAD_PERSON_WARN] No Commons URL for ${fileName}. Fetching new person.`);
+                     currentPersonCandidate = await fetchPersonData(true, category);
+                     continue;
+                }
+                
+                if (settings.excludeBlackAndWhite) {
+                    const isBW = await isBlackAndWhite(commonsUrl);
+                    if (isBW) {
+                        console.warn(`[LOAD_PERSON_BW_SKIP] Skipping B&W image for ${currentPersonCandidate.personLabel.value}. Fetching new person.`);
+                        currentPersonCandidate = await fetchPersonData(true, category);
+                        continue;
+                    }
+                }
+                
+                await loadImageWithFallback(commonsUrl, personImage); // Throws on error
+                successfullyLoadedImage = true; 
+                imageLoadPathDetail = imageLoadPathDetail.includes("fallback") || imageLoadPathDetail.includes("incomplete_preload") ? "fetch_after_preload_issue_success" : "direct_fetch_success";
+                if (imageLoadPathDetail === "fetch_after_preload_issue_success") gaLoadSource = "fetch_after_preload_fail";
+                else gaLoadSource = "fetch_direct";
+                
+                console.log(`[LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched for ${currentPersonCandidate.personLabel.value}. Path: ${imageLoadPathDetail}`);
+                break; 
+
+            } catch (error) { 
+                console.error(`[LOAD_PERSON_ERROR] Error processing person/image (fetch attempt ${attempts}/${maxImageLoadAttempts}): ${error.message}`);
+                if (attempts < maxImageLoadAttempts) {
+                     console.log("[LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.");
+                     currentPersonCandidate = await fetchPersonData(true, category); 
+                     requestAnimationFrame(() => { // Reset UI for next attempt in loop
+                        personImage.src = '';
+                        personImage.classList.remove('loaded');
+                        circularProgressContainer.classList.remove('hidden');
+                        document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
+                     });
+                } else {
+                    console.error(`[LOAD_PERSON_FAILURE] Max image fetch attempts (${maxImageLoadAttempts}) reached for this slot. No image loaded.`);
+                }
             }
         }
     }
+
+    // --- Finalize ---
+    await progressPromise; 
+    updateProgressBar(100, true); 
+
+    if (!successfullyLoadedImage) {
+        console.error(`[LOAD_PERSON_CRITICAL_IMAGE_FAIL] Could not load image for slot (intended for ${personLabelForLogs}) after all attempts. Path: ${imageLoadPathDetail}. Handling error.`);
+        handleError(); 
+        startPreloadNextAvailablePerson(); 
+        return;
+    }
+
+    // Ensure currentPersonCandidate (which might have changed if fetch loop got new people) is valid
+    if (!currentPersonCandidate || 
+        !currentPersonCandidate.personLabel || !currentPersonCandidate.personLabel.value ||
+        !currentPersonCandidate.gender || !currentPersonCandidate.gender.value ||
+        !currentPersonCandidate.birthDate || !currentPersonCandidate.birthDate.value ||
+        !currentPersonCandidate.person || !currentPersonCandidate.person.value) {
+        console.error("[LOAD_PERSON_CRITICAL] Final currentPersonCandidate is invalid before assigning to currentPerson. Handling error. Candidate:", currentPersonCandidate);
+        handleError();
+        startPreloadNextAvailablePerson();
+        return;
+    }
+
+    currentPerson = { 
+        personLabel: currentPersonCandidate.personLabel,
+        gender: currentPersonCandidate.gender,
+        deathDate: currentPersonCandidate.deathDate,
+        birthDate: currentPersonCandidate.birthDate,
+        person: currentPersonCandidate.person 
+    };
+    console.log(`[LOAD_PERSON_SUCCESS] Successfully loaded person: ${currentPerson.personLabel.value} (Path: ${imageLoadPathDetail})`);
+    updateUI(currentPerson);
+    
+    currentAttemptStartTime = Date.now(); 
+    localStorage.setItem('currentAttemptStartTime', currentAttemptStartTime.toString());
+    console.log(`[STATE_CHANGE] Attempt start time set to ${currentAttemptStartTime} for person: ${currentPerson.personLabel.value}. Saved to localStorage.`);
+
+    sendGAEvent('photo_loaded', {
+        person_id: currentPerson.person.value.split('/').pop(),
+        person_name: currentPerson.personLabel.value,
+        language: selectedLanguage,
+        game_mode: gameMode,
+        load_source: gaLoadSource, // Use the simplified GA load source
+        load_path_detail: imageLoadPathDetail // More detailed for internal logging if needed
+    });
+    
+    // If the successfully displayed person was the one initially targeted by preload, clear preload.
+    // This handles the case where preload was for person A, assign failed, then fetch for A succeeded.
+    if (preloadedPersonContainer && 
+        preloadedPersonContainer.data && 
+        preloadedPersonContainer.data.person &&
+        currentPersonCandidate && currentPersonCandidate.person && // currentPersonCandidate is the one finally displayed
+        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value) {
+        console.log(`[PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for ${currentPersonCandidate.personLabel.value} is now cleared as it's either used or failed assign.`);
+        preloadedPersonContainer = null;
+    }
+    startPreloadNextAvailablePerson(); 
 }
 
 
-function updateUI(personToDisplay) {
-    console.log('[UI_UPDATE] updateUI called for person:', personToDisplay ? personToDisplay.personLabel.value : 'No person');
+function updateUI(personToDisplay) { // personToDisplay is the currentPerson object
+    console.log('[UI_UPDATE] updateUI called for person:', personToDisplay && personToDisplay.personLabel && personToDisplay.personLabel.value ? personToDisplay.personLabel.value : 'No person');
     const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
@@ -914,31 +1137,29 @@ function updateUI(personToDisplay) {
         personInfo.style.display = 'none';
         personInfo.classList.remove('correct', 'incorrect');
         
-        if (personToDisplay && personToDisplay.personLabel && personToDisplay.gender) {
+        if (personToDisplay && personToDisplay.personLabel && personToDisplay.personLabel.value && personToDisplay.gender && personToDisplay.gender.value) {
              const genderText = personToDisplay.gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female;
-             const statusText = personToDisplay.deathDate ? texts.deceased : texts.alive;
-             const birthText = personToDisplay.birthDate ? new Date(personToDisplay.birthDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU') : texts.unknown; // Alien might not have locale
-             const deathText = personToDisplay.deathDate ? `, ${texts.death}: ${new Date(personToDisplay.deathDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU')}` : '';
+             const statusText = personToDisplay.deathDate ? texts.deceased : texts.alive; // deathDate might be undefined
+             const birthText = personToDisplay.birthDate && personToDisplay.birthDate.value ? new Date(personToDisplay.birthDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU') : texts.unknown;
+             const deathDateVal = personToDisplay.deathDate ? personToDisplay.deathDate.value : null;
+             const deathText = deathDateVal ? `, ${texts.death}: ${new Date(deathDateVal).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU')}` : '';
              personDetails.textContent = `${personToDisplay.personLabel.value}, ${genderText}, ${statusText}, ${texts.birth}: ${birthText}${deathText}`;
              personImage.alt = personToDisplay.personLabel.value;
-             // console.log(`[UI_UPDATE] Person details set: ${personDetails.textContent}. Image alt set to: ${personImage.alt}`);
         } else {
             personDetails.textContent = texts.unknown;
-            personImage.alt = texts.imageDisplayAlt || 'Image of person'; // Use generic alt if no person data
-            // console.log(`[UI_UPDATE] Person details set to unknown. Image alt set to: ${personImage.alt}`);
+            personImage.alt = texts.imageDisplayAlt || 'Image of person'; 
         }
 
-        // Visibility of "Next Photo" button (after guess)
         const nextPersonBtn = document.getElementById('next-person');
         if (hasChecked && currentAttempts < maxAttempts) {
             nextPersonBtn.style.display = 'block';
-            nextPersonBtn.textContent = texts.nextPerson; // Ensure text is updated
+            nextPersonBtn.textContent = texts.nextPerson; 
         } else {
             nextPersonBtn.style.display = 'none';
         }
         
-        updateModeVisibility(); // Ensures overlay is correct for mode
-        if (personToDisplay) { // Only increment if there was an attempt to load a person
+        updateModeVisibility(); 
+        if (personToDisplay) { 
              loadedPhotos++;
         }
         logPhotoStatus();
@@ -952,35 +1173,37 @@ function handleError() {
     const circularProgressContainer = document.getElementById('circular-progress-container');
     const texts = translations[selectedLanguage];
 
+    preloadedPersonContainer = null;
+    isCurrentlyPreloading = false; 
+    console.log('[PRELOAD_RESET] Preload state reset due to error.');
+
 
     requestAnimationFrame(() => {
-        personImage.src = 'https://via.placeholder.com/300'; // Fallback placeholder
-        personImage.alt = texts.errorLoadingImage || 'Error loading image'; // Set alt text for error
-        personImage.classList.add('loaded'); // Show the placeholder
+        personImage.src = 'https://via.placeholder.com/300'; 
+        personImage.alt = texts.errorLoadingImage || 'Error loading image'; 
+        personImage.classList.add('loaded'); 
         
         if (gameMode === 'closed') {
-            overlay.classList.remove('hidden'); // Ensure overlay is visible if closed mode
+            overlay.classList.remove('hidden'); 
         } else {
-            overlay.classList.add('hidden'); // Hide overlay if open mode
+            overlay.classList.add('hidden'); 
         }
         
-        circularProgressContainer.classList.remove('hidden'); // Keep circular progress visible to indicate an issue
+        circularProgressContainer.classList.remove('hidden'); 
         
-        currentAttemptStartTime = null; // Clear attempt start time on error
+        currentAttemptStartTime = null; 
         localStorage.removeItem('currentAttemptStartTime');
         console.log('[STATE_CHANGE] currentAttemptStartTime cleared due to error. Removed from localStorage.');
 
-        // Hide circular progress after a bit, but the error state (placeholder image) remains
         setTimeout(() => {
             circularProgressContainer.classList.add('hidden');
         }, 2000); 
 
-        // Attempt to load a new photo automatically after 3 seconds if game is not over
         if (currentAttempts < maxAttempts) {
             console.log('[HANDLE_ERROR_RETRY] Scheduling automatic attempt to load new photo in 3 seconds.');
             setTimeout(() => {
                 console.log('[HANDLE_ERROR_RETRY] Retrying to load next person due to previous error.');
-                loadNextPerson('error_fallback');
+                loadNextPerson('error_fallback'); 
             }, 3000);
         } else {
             console.log('[HANDLE_ERROR] Game is over, no automatic retry for new photo.');
@@ -995,6 +1218,11 @@ async function loadSession() {
     console.time('[LOAD_SESSION_TIMING]');
     console.log('[LOAD_SESSION] Starting to load new session data...');
     sessionList = [];
+    
+    preloadedPersonContainer = null;
+    isCurrentlyPreloading = false;
+    console.log('[PRELOAD_RESET] Preload state reset for new session.');
+
     const categories = [
         { gender: 'male', status: 'alive' },
         { gender: 'male', status: 'deceased' },
@@ -1002,48 +1230,60 @@ async function loadSession() {
         { gender: 'female', status: 'deceased' }
     ];
 
-    updateProgressBar(0, false); // Start session progress bar (horizontal)
+    updateProgressBar(0, false); 
 
     try {
         const peoplePerCategory = Math.ceil(settings.sessionPeople / categories.length);
         let fetchedCount = 0;
-        const totalToFetch = peoplePerCategory * categories.length; // Approximate total
+        const totalToFetch = peoplePerCategory * categories.length; 
         console.log(`[LOAD_SESSION] Aiming for ${peoplePerCategory} people per category, total ~${totalToFetch}. Max session size: ${settings.sessionPeople}`);
 
         const promises = [];
         for (const category of categories) {
             for (let j = 0; j < peoplePerCategory && sessionList.length < settings.sessionPeople; j++) {
                 promises.push(
-                    fetchPersonData(false, category).then(person => {
-                        if (person) {
-                            sessionList.push({ person, category });
-                            // console.log(`[LOAD_SESSION] Fetched person for category ${category.gender}/${category.status}: ${person.personLabel.value}`);
+                    fetchPersonData(false, category).then(personBinding => { // personBinding is the Wikidata item
+                        if (personBinding) { // fetchPersonData should return a valid binding or throw
+                            sessionList.push({ person: personBinding, category: category });
+                        } else {
+                            // This case should ideally not happen if fetchPersonData throws on failure
+                            console.warn('[LOAD_SESSION_WARN] fetchPersonData returned null/undefined, skipping from session add.');
                         }
                         fetchedCount++;
-                        updateProgressBar((fetchedCount / totalToFetch) * 100, false); // false for session (horizontal)
-                        return person; // Return person for filtering later if needed
+                        updateProgressBar((fetchedCount / totalToFetch) * 100, false); 
+                        return personBinding; 
                     }).catch(error => {
                         console.error(`[LOAD_SESSION_ERROR] Error fetching for category ${category.gender}/${category.status}: ${error.message}`);
-                        fetchedCount++; // Still count as an attempt to fetch
-                        updateProgressBar((fetchedCount / totalToFetch) * 100, false); // false for session (horizontal)
-                        return null; // So Promise.all doesn't break
+                        fetchedCount++; 
+                        updateProgressBar((fetchedCount / totalToFetch) * 100, false); 
+                        return null; 
                     })
                 );
             }
         }
         
         await Promise.all(promises);
-        sessionList = sessionList.filter(p => p !== null).slice(0, settings.sessionPeople); // Filter out nulls and trim to size
+        // Strengthen filter to ensure all essential parts of personBinding are present
+        sessionList = sessionList.filter(entry => 
+            entry && entry.person && 
+            entry.person.personLabel && entry.person.personLabel.value &&
+            entry.person.image && entry.person.image.value &&
+            entry.person.gender && entry.person.gender.value &&
+            entry.person.birthDate && entry.person.birthDate.value &&
+            entry.person.person && entry.person.person.value // person URI
+        ).slice(0, settings.sessionPeople); 
 
         console.log(`[LOAD_SESSION_COMPLETE] New session list loaded with ${sessionList.length} people.`);
         logPhotoStatus();
-        updateProgressBar(100, false); // Complete session progress bar (horizontal)
+        updateProgressBar(100, false); 
 
         if (sessionList.length > 0) {
-            hasChecked = false; // Reset for the first person of the new session
-            const { person, category } = sessionList.shift(); // Get first person
-            console.log(`[LOAD_SESSION] Loading first person from new session: ${person.personLabel.value}`);
-            await loadPersonFromData(person, category); // This will set currentAttemptStartTime
+            hasChecked = false; 
+            const firstEntry = sessionList.shift(); // firstEntry is { person: personBinding, category: categoryObj }
+            console.log(`[LOAD_SESSION] Loading first person from new session: ${firstEntry.person.personLabel.value}`);
+            
+            await loadPersonFromData(firstEntry.person, firstEntry.category); 
+            
             requestAnimationFrame(() => {
                 document.getElementById('male-btn').disabled = false;
                 document.getElementById('female-btn').disabled = false;
@@ -1052,22 +1292,22 @@ async function loadSession() {
                 document.getElementById('alive-btn').style.display = 'inline-block';
                 document.getElementById('dead-btn').style.display = 'inline-block';
                 document.getElementById('check-btn').style.display = 'inline-block';
-                document.getElementById('check-btn').disabled = true; // Initially disabled until selections are made
+                document.getElementById('check-btn').disabled = true; 
                 document.getElementById('next-person').style.display = 'none';
-                document.getElementById('next-photo').disabled = false; // Allow finding new if this one is bad
+                document.getElementById('next-photo').disabled = false; 
                 updateCheckButtonState();
                 console.log('[LOAD_SESSION_UI] UI reset for new person from session.');
             });
         } else {
-            console.error('[LOAD_SESSION_FAILURE] Session list is empty after fetching. Handling error.');
+            console.error('[LOAD_SESSION_FAILURE] Session list is empty after fetching and filtering. Handling error.');
             handleError();
-            updateUI(null); // Ensure UI reflects no person state, including alt text
+            updateUI(null); 
         }
     } catch (error) {
         console.error('[LOAD_SESSION_CRITICAL_ERROR] Overall session data loading failed:', error);
         handleError();
-        updateUI(null); // Ensure UI reflects no person state
-        updateProgressBar(0, false); // Reset progress on critical failure (horizontal)
+        updateUI(null); 
+        updateProgressBar(0, false); 
     }
     console.timeEnd('[LOAD_SESSION_TIMING]');
     console.log(`[LOAD_SESSION_TIMING] Total session loading time: ${(performance.now() - startTime).toFixed(0)}ms`);
@@ -1078,19 +1318,22 @@ async function loadNextPerson(triggerButton = 'unknown') {
     sendGAEvent('next_photo_requested', {
         trigger_button: triggerButton,
         language: selectedLanguage,
-        game_mode: gameMode
+        game_mode: gameMode,
+        remaining_in_session: sessionList.length,
+        is_preloading: isCurrentlyPreloading,
+        preloaded_person_name: preloadedPersonContainer && preloadedPersonContainer.data && preloadedPersonContainer.data.person && preloadedPersonContainer.data.person.personLabel ? preloadedPersonContainer.data.person.personLabel.value : null
     });
 
     if (currentAttempts >= maxAttempts) {
         console.log('[LOAD_NEXT_PERSON] Max attempts reached. Cannot load next person.');
-        updateNewGameButtonPosition(); // Ensure button is in game over spot
+        updateNewGameButtonPosition(); 
         return;
     }
 
     if (sessionList.length === 0) {
         console.log('[LOAD_NEXT_PERSON] Session list is empty, loading new session.');
-        await loadSession();
-        return; // loadSession will handle loading the first person
+        await loadSession(); 
+        return; 
     }
 
     userGenderGuess = null;
@@ -1102,17 +1345,17 @@ async function loadNextPerson(triggerButton = 'unknown') {
     document.getElementById('alive-btn').classList.remove('active');
     document.getElementById('dead-btn').classList.remove('active');
 
-    const { person, category } = sessionList.shift(); // Get next person from current session
-    if (person) {
-        console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${person.personLabel.value}`);
-        await loadPersonFromData(person, category); // This will set currentAttemptStartTime
+    const nextEntry = sessionList.shift(); // nextEntry is { person: personBinding, category: categoryObj }
+    if (nextEntry && nextEntry.person) { // Already filtered in loadSession, but good to be safe
+        console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${nextEntry.person.personLabel.value}`);
+        await loadPersonFromData(nextEntry.person, nextEntry.category);
     } else {
-        console.warn("[LOAD_NEXT_PERSON_WARN] Encountered null person in session list, trying next or reloading session.");
-        await loadNextPerson(triggerButton); // Try again, might re-trigger loadSession if list is now empty
+        console.warn("[LOAD_NEXT_PERSON_WARN] Encountered null or invalid person entry in session list, trying next or reloading session.");
+        await loadNextPerson(triggerButton); 
         return;
     }
     requestAnimationFrame(() => {
-        updateCheckButtonState(); // Update based on (now null) guesses
+        updateCheckButtonState(); 
         document.getElementById('male-btn').disabled = false;
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false;
@@ -1120,9 +1363,9 @@ async function loadNextPerson(triggerButton = 'unknown') {
         document.getElementById('alive-btn').style.display = 'inline-block';
         document.getElementById('dead-btn').style.display = 'inline-block';
         document.getElementById('check-btn').style.display = 'inline-block';
-        document.getElementById('next-person').style.display = 'none'; // Hide "Next Photo" after guess
-        document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; // Disable "Find New" if game over
-         document.getElementById('person-info').style.display = 'none'; // Hide previous person's info
+        document.getElementById('next-person').style.display = 'none'; 
+        document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; 
+         document.getElementById('person-info').style.display = 'none'; 
          document.getElementById('person-info').classList.remove('correct', 'incorrect');
          console.log('[LOAD_NEXT_PERSON_UI] UI reset for the next person.');
     });
@@ -1136,9 +1379,13 @@ function startNewGame() {
     failedGuesses = 0;
     attemptTimestamps = [];
     guessResultsHistory = []; 
-    currentPerson = null; // Reset current person for a new game
-    loadedPhotos = 0; // Reset loaded photos counter
+    currentPerson = null; 
+    loadedPhotos = 0; 
     console.log('[GAME_FLOW] Game statistics and current person reset.');
+
+    preloadedPersonContainer = null;
+    isCurrentlyPreloading = false;
+    console.log('[PRELOAD_RESET] Preload state reset for new game.');
 
     const timestampSeconds = Math.floor(Date.now() / 1000);
     const randomNumber = Math.floor(Math.random() * 10000);
@@ -1146,7 +1393,7 @@ function startNewGame() {
     localStorage.setItem('currentSessionId', currentSessionId);
     console.log(`[GAME_FLOW] New game session ID: ${currentSessionId}. Saved to localStorage.`);
     
-    currentAttemptStartTime = null; // Reset for the new game, will be set by first loadPersonFromData
+    currentAttemptStartTime = null; 
     localStorage.removeItem('currentAttemptStartTime');
     console.log('[GAME_FLOW] currentAttemptStartTime reset and removed from localStorage.');
 
@@ -1172,7 +1419,7 @@ function startNewGame() {
     document.getElementById('stats-success-rate').textContent = '0%';
     updateTimeBetweenAttemptsDisplay(); 
     updateGuessHistoryDisplay(); 
-    updateUI(null); // Ensure UI (including alt text) is reset for a new game
+    updateUI(null); 
     console.log('[GAME_FLOW_UI] Statistics display and general UI reset.');
 
     updateNewGameButtonPosition(); 
@@ -1198,12 +1445,17 @@ function startNewGame() {
     document.getElementById('check-btn').style.display = 'inline-block';
     console.log('[GAME_FLOW_UI] Buttons and UI elements reset for new game.');
 
-    loadSession(); // Load the first session for the new game
+    loadSession(); 
     console.log('[GAME_FLOW] New game started successfully.');
 }
 
 document.getElementById('next-photo').addEventListener('click', () => {
     console.log('[USER_ACTION] "Find New Photo" button clicked.');
+    if (isCurrentlyPreloading) {
+        console.log("[PRELOAD_CANCEL] User clicked 'Find New Photo', cancelling current preload if any.");
+        isCurrentlyPreloading = false; 
+    }
+    preloadedPersonContainer = null; 
     loadNextPerson('find_new');
 });
 
@@ -1241,8 +1493,8 @@ document.getElementById('dead-btn').addEventListener('click', () => {
 
 document.getElementById('check-btn').addEventListener('click', () => {
     console.log('[USER_ACTION] "Check" button clicked.');
-    if (!currentPerson) {
-        console.warn('[CHECK_ACTION_WARN] No current person to check against.');
+    if (!currentPerson || !currentPerson.personLabel || !currentPerson.personLabel.value) { // Ensure currentPerson and its label are valid
+        console.warn('[CHECK_ACTION_WARN] No current person or person label to check against.');
         return;
     }
     if (hasChecked) {
@@ -1261,7 +1513,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
     console.log(`[GAME_STATE] Attempt ${currentAttempts}/${maxAttempts}. Total guesses this game: ${totalGuesses}.`);
     
     const actualGender = currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female';
-    const actualStatus = currentPerson.deathDate ? 'dead' : 'alive';
+    const actualStatus = currentPerson.deathDate ? 'dead' : 'alive'; // deathDate might be undefined
     console.log(`[CHECK_ACTION] Actual person - Gender: ${actualGender}, Status: ${actualStatus}`);
 
     const isGenderCorrect = gameMode === 'closed' ? userGenderGuess === actualGender : true;
@@ -1285,10 +1537,10 @@ document.getElementById('check-btn').addEventListener('click', () => {
     if (currentSessionId) {
         const attemptCompletedParams = {
             session_id: currentSessionId,
-            attempt_number_in_session: currentAttempts, // This is the current attempt number (1-indexed)
+            attempt_number_in_session: currentAttempts, 
             time_for_attempt_seconds: time_for_attempt_seconds,
             attempt_result: isOverallCorrect ? 1 : 0,
-            game_mode: gameMode // Added game mode
+            game_mode: gameMode 
         };
         sendGAEvent('attempt_completed', attemptCompletedParams);
     } else {
@@ -1316,8 +1568,8 @@ document.getElementById('check-btn').addEventListener('click', () => {
     requestAnimationFrame(() => {
         personInfo.style.display = 'block';
         if (gameMode === 'closed') {
-            overlay.classList.add('hidden'); // Reveal image
-            personImage.classList.add('loaded'); // Ensure it shows
+            overlay.classList.add('hidden'); 
+            personImage.classList.add('loaded'); 
             console.log('[CHECK_UI] Mode CLOSED: Revealing image.');
         }
         if (isOverallCorrect) {
@@ -1331,9 +1583,8 @@ document.getElementById('check-btn').addEventListener('click', () => {
             failedGuesses++;
             console.log('[CHECK_UI] Guess was INCORRECT.');
         }
-        document.getElementById('next-person').style.display = 'block'; // Show "Next Photo" button
+        document.getElementById('next-person').style.display = 'block'; 
         
-        // Hide guess-related buttons
         document.getElementById('alive-btn').style.display = 'none';
         document.getElementById('dead-btn').style.display = 'none';
         document.getElementById('check-btn').style.display = 'none';
@@ -1341,14 +1592,13 @@ document.getElementById('check-btn').addEventListener('click', () => {
             document.querySelector('.gender-buttons').style.display = 'none';
         }
         
-        document.getElementById('male-btn').disabled = true; // Disable gender buttons after check
+        document.getElementById('male-btn').disabled = true; 
         document.getElementById('female-btn').disabled = true;
 
-        // Update stats display
         document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
         document.getElementById('stats-success').textContent = successfulGuesses;
         document.getElementById('stats-failure').textContent = failedGuesses;
-        const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+        const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
         document.getElementById('stats-success-rate').textContent = `${successRate}%`;
         updateTimeBetweenAttemptsDisplay(); 
         updateGuessHistoryDisplay(); 
@@ -1364,8 +1614,8 @@ document.getElementById('check-btn').addEventListener('click', () => {
 
         if (currentAttempts >= maxAttempts) {
             console.log('[GAME_OVER] All attempts used. Game over.');
-            document.getElementById('next-photo').disabled = true; // Disable "Find New Photo"
-            document.getElementById('next-person').style.display = 'none'; // Hide "Next Photo" (after guess)
+            document.getElementById('next-photo').disabled = true; 
+            document.getElementById('next-person').style.display = 'none'; 
             sendGAEvent('game_over', {
                 total_attempts: maxAttempts,
                 successful_guesses: successfulGuesses,
@@ -1375,7 +1625,6 @@ document.getElementById('check-btn').addEventListener('click', () => {
                 game_mode: gameMode,
                 session_id: currentSessionId
             });
-            // Clear session-specific localStorage items as the session is over
             localStorage.removeItem('currentSessionId');
             localStorage.removeItem('currentAttemptStartTime');
             currentSessionId = null;
@@ -1392,7 +1641,7 @@ document.getElementById('next-person').addEventListener('click', () => {
              document.querySelector('.gender-buttons').style.display = 'flex'; 
              console.log('[NEXT_PERSON_UI] Mode CLOSED: Gender buttons re-enabled.');
         }
-        document.getElementById('male-btn').disabled = false; // Re-enable gender buttons for next person
+        document.getElementById('male-btn').disabled = false; 
         document.getElementById('female-btn').disabled = false;
     });
     loadNextPerson('next_after_check');
@@ -1410,16 +1659,39 @@ document.getElementById('new-game').addEventListener('click', () => {
 window.onload = () => {
     console.log('[WINDOW_ONLOAD] Page loaded. Initializing application state.');
 
-    // Initialize Telegram WebApp
     if (window.Telegram && window.Telegram.WebApp) {
         try {
-            window.Telegram.WebApp.ready(); // Inform Telegram that the app is ready
-            if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.id) {
-                telegramUserId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
-                console.log(`[TELEGRAM_INIT] Telegram User ID: ${telegramUserId}`);
-                sendGAEvent('telegram_user_identified', { t_user_id_length: telegramUserId.length });
+            window.Telegram.WebApp.ready(); 
+            const tgUser = window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user;
+            let hasUserName = false;
+            if (tgUser) {
+                if (tgUser.id) {
+                    telegramUserId = tgUser.id.toString();
+                    console.log(`[TELEGRAM_INIT] Telegram User ID: ${telegramUserId}`);
+                } else {
+                    console.log('[TELEGRAM_INIT] Telegram User ID missing.');
+                }
+
+                if (tgUser.first_name && tgUser.last_name) {
+                    telegramUserName = `${tgUser.first_name} ${tgUser.last_name}`;
+                } else if (tgUser.first_name) {
+                    telegramUserName = tgUser.first_name;
+                } else if (tgUser.username) {
+                    telegramUserName = tgUser.username;
+                }
+                
+                if (telegramUserName) {
+                    hasUserName = true;
+                    console.log(`[TELEGRAM_INIT] Telegram User Name: ${telegramUserName}`);
+                } else {
+                     console.log('[TELEGRAM_INIT] Telegram User Name (first/last/username) not available.');
+                }
+                sendGAEvent('telegram_user_identified', { 
+                    t_user_id_available: !!telegramUserId,
+                    t_user_name_available: hasUserName 
+                });
             } else {
-                console.log('[TELEGRAM_INIT] Telegram user data not available or user ID missing.');
+                console.log('[TELEGRAM_INIT] Telegram user data not available.');
             }
         } catch (e) {
             console.error('[TELEGRAM_INIT_ERROR] Error initializing Telegram WebApp or accessing user data:', e);
@@ -1433,7 +1705,6 @@ window.onload = () => {
     gameOverNewGameContainer = document.getElementById('new-game-over-location');
     console.log('[WINDOW_ONLOAD] New Game button containers initialized.');
 
-    // Restore session ID and attempt start time
     currentSessionId = localStorage.getItem('currentSessionId');
     const storedAttemptStartTime = localStorage.getItem('currentAttemptStartTime');
     if (storedAttemptStartTime) {
@@ -1449,22 +1720,19 @@ window.onload = () => {
         console.log("[WINDOW_ONLOAD] First launch or reset detected. Initializing a new game.");
         updateLanguage(); 
         updateModeVisibility(); 
-        startNewGame(); // This will set up new session ID and initial attempt start time logic.
+        startNewGame(); 
         updateNewGameButtonPosition(); 
     } else {
         console.log("[WINDOW_ONLOAD] Resuming existing game state.");
-        updateLanguage(); // Call this first to set up all translations and UI for currentPerson (even if null)
+        updateLanguage(); 
         updateModeVisibility();
         
-        // Restore general game state (already done by global variable initialization from localStorage)
-        // currentAttempts, totalGuesses, successfulGuesses, failedGuesses, attemptTimestamps, guessResultsHistory
-
         if (currentAttempts >= maxAttempts) {
             console.log("[WINDOW_ONLOAD_GAMEOVER] Game was previously over. UI reflects game over state.");
             document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
             document.getElementById('stats-success').textContent = successfulGuesses;
             document.getElementById('stats-failure').textContent = failedGuesses;
-            const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+            const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
             document.getElementById('stats-success-rate').textContent = `${successRate}%`;
             
             document.getElementById('next-photo').disabled = true;
@@ -1475,7 +1743,6 @@ window.onload = () => {
             if (gameMode === 'closed') {
                 document.querySelector('.gender-buttons').style.display = 'none';
             }
-            // Clear session-specific localStorage items if game was over and they somehow persisted
             if (currentSessionId || currentAttemptStartTime) {
                 console.warn("[WINDOW_ONLOAD_GAMEOVER_CLEANUP] Game was over, but session ID or start time found in localStorage. Clearing them now.");
                 localStorage.removeItem('currentSessionId');
@@ -1483,39 +1750,28 @@ window.onload = () => {
                 currentSessionId = null;
                 currentAttemptStartTime = null;
             }
+            preloadedPersonContainer = null;
+            isCurrentlyPreloading = false;
             console.log("[WINDOW_ONLOAD_GAMEOVER] Press 'New Game' to start.");
         } else {
-            // Game in progress or just started (currentAttempts < maxAttempts)
             console.log("[WINDOW_ONLOAD_RESUME] Resuming active game. Attempts:", currentAttempts);
             document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
             document.getElementById('stats-success').textContent = successfulGuesses;
             document.getElementById('stats-failure').textContent = failedGuesses;
-            const successRate = totalGuesses > 0 ? ((successfulGuesses / totalGuesses) * 100).toFixed(1) : 0;
+            const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
             document.getElementById('stats-success-rate').textContent = `${successRate}%`;
             
             if (!currentSessionId && currentAttempts > 0 && currentAttempts < maxAttempts) {
                 console.warn("[WINDOW_ONLOAD_RESUME_WARN] Resuming game, but currentSessionId is missing from localStorage. It will be generated on the next new game. GA events for ongoing attempts might miss session_id.");
             }
-
-            // Attempt to restore current person view if app was refreshed mid-game
-            // currentPerson is already potentially restored by updateLanguage calling updateUI(currentPerson)
-            // if it was persisted in a way that `currentPerson` variable got populated from localStorage.
-            // However, explicit `localStorage.getItem('currentPerson')` is not used here.
-            // The current logic relies on `currentPerson` being in-memory from previous session or null.
-            // If `currentPerson` is null at this point (e.g. after a refresh without session persistence for `currentPerson` object),
-            // and game is in progress, we need to load a new session or person.
-            if (currentAttempts > 0 && !currentPerson) { 
-                console.log("[WINDOW_ONLOAD_RESUME] Game in progress (attempts > 0), but no currentPerson data. Loading new session to continue.");
+            if (!currentPerson) { 
+                console.log("[WINDOW_ONLOAD_RESUME] currentPerson is null. Loading session data to continue/start.");
+                preloadedPersonContainer = null;
+                isCurrentlyPreloading = false;
                 loadSession(); 
-            } else if (currentAttempts === 0 && !currentPerson) {
-                // Game was at 0 attempts (likely just started or reset), and no person loaded yet
-                // updateLanguage() -> updateUI(null) would have set generic alt.
-                // loadSession() will be called to get the first person.
-                console.log("[WINDOW_ONLOAD_RESUME] Game at 0 attempts, no currentPerson. Loading initial session.");
-                loadSession();
-            } else if (currentPerson) {
-                 // currentPerson already exists and updateUI has been called by updateLanguage.
-                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson already exists and UI updated by updateLanguage(). Current person:", currentPerson.personLabel.value);
+            } else {
+                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson somehow exists. UI should be updated. Preloading next.");
+                 startPreloadNextAvailablePerson(); 
             }
         }
         updateCheckButtonState();
@@ -1523,5 +1779,6 @@ window.onload = () => {
         updateGuessHistoryDisplay(); 
         updateNewGameButtonPosition();
     }
+    updateTelegramUserInfoDisplay(); // Ensure it's called after all initializations
     console.log('[WINDOW_ONLOAD] Page load sequence finished.');
 };
