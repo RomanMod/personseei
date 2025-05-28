@@ -1,4 +1,5 @@
 
+
 :root {
     --bg-color: #1C2526;
     --text-color: #E8ECEF;
@@ -37,6 +38,10 @@ body {
     margin: 0;
     transition: background-color 0.3s ease, color 0.3s ease;
     font-size: 1rem; /* Базовий шрифт тепер 18px */
+}
+
+.no-transition {
+    transition: none !important;
 }
 
 h1 {
@@ -250,7 +255,7 @@ h1 {
 }
 
 .gender-buttons, .status-buttons {
-    display: flex;
+    display: none; /* Приховані за замовчуванням */
     justify-content: center;
     gap: 10px;
     margin: 10px 0;
@@ -313,16 +318,17 @@ h1 {
     padding: 10px;
     border-radius: 5px;
     margin: 10px 0;
-    transition: border 0.3s ease;
+    transition: border-color 0.3s ease, border-width 0.3s ease; /* Added border-width for smooth transition if border appears/disappears */
     font-size: 1rem; /* 18px */
+    border: 2px solid transparent; /* Start with a transparent border to maintain layout */
 }
 
 #person-info.correct {
-    border: 2px solid green;
+    border-color: green;
 }
 
 #person-info.incorrect {
-    border: 2px solid red;
+    border-color: red;
 }
 
 .next-person-container {
