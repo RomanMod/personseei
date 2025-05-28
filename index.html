@@ -16,12 +16,13 @@
       gtag('config', 'G-WDPB825TVX');
     </script>
     <!-- End Google Analytics -->
-
-    <link rel="stylesheet" href="styles.css">
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body class="night">
     <div class="settings">
-        <button id="theme-toggle" aria-label="Перемкнути тему">🌙 Ніч</button>
+        <button id="theme-toggle" aria-label="Переключити тему">🌙 Ніч</button>
         <div class="custom-select" id="language-select">
             <div class="selected-option">Українська</div>
             <ul class="options" style="display: none;">
@@ -87,15 +88,16 @@
         <div><span id="stats-success-label">Успішні</span>: <span id="stats-success">0</span></div>
         <div><span id="stats-failure-label">Невдалі</span>: <span id="stats-failure">0</span></div>
         <div><span id="stats-success-rate-label">Відсоток успішних</span>: <span id="stats-success-rate">0%</span></div>
-        <div><span id="stats-time-last-attempt-label">Час між спробами</span>: <span id="stats-time-last-attempt">--</span></div>
-        <div><span id="stats-guess-history-label">Історія спроб</span>: <span id="stats-guess-history">--</span></div>
+        <div><span id="stats-time-last-attempt-label">Між спробами</span>: <span id="stats-time-last-attempt">--</span></div>
+        <div><span id="stats-guess-history-label">Крок</span>: <span id="stats-guess-history">--</span></div>
     </div>
     <div class="new-game-container" id="new-game-initial-location">
         <button id="new-game">Нова гра</button>
     </div>
     <div id="progress"></div>
 
-    <script src="script.js"></script>
+    <script src="index.js"></script>
 </body>
-</html><link rel="stylesheet" href="index.css">
+</html>
+<link rel="stylesheet" href="index.css">
 <script src="index.tsx" type="module"></script>
