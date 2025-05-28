@@ -41,6 +41,7 @@ let guessResultsHistory = JSON.parse(localStorage.getItem('guessResultsHistory')
 // Состояние для GA4 события attempt_completed
 let currentSessionId = localStorage.getItem('currentSessionId') || null;
 let currentAttemptStartTime = localStorage.getItem('currentAttemptStartTime') ? parseInt(localStorage.getItem('currentAttemptStartTime')) : null;
+let telegramUserId = null; // Telegram User ID
 
 
 // DOM element references for New Game button positioning
@@ -78,7 +79,7 @@ const translations = {
         secondsAgo: 'сек.',
         justNow: 'щойно',
         firstAttempt: 'перша спроба',
-        guessHistory: 'Крок'
+        guessHistory: 'Крок' // Updated
     },
     ru: {
         themeNight: '🌙 Ночь',
@@ -108,7 +109,7 @@ const translations = {
         secondsAgo: 'сек.',
         justNow: 'только что',
         firstAttempt: 'первая попытка',
-        guessHistory: 'Шаг'
+        guessHistory: 'Шаг' // Updated
     },
     en: {
         themeNight: '🌙 Night',
@@ -138,7 +139,7 @@ const translations = {
         secondsAgo: 'sec',
         justNow: 'just now',
         firstAttempt: 'first attempt',
-        guessHistory: 'Step'
+        guessHistory: 'Step' // Updated
     },
     alien: {
         themeNight: '🌙 ⊸⍟⊸',
@@ -168,20 +169,24 @@ const translations = {
         secondsAgo: '⊸⍟!',
         justNow: '⊸⍟⍟',
         firstAttempt: '⊸⍟ ⊸⍟',
-        guessHistory: '⍀⊸⍟⍀' // Alien for "Step"
+        guessHistory: '⊸⍀⍟' // Updated (shortened for "step")
     }
 };
 
 // Инициализация настроек
 let isNight = localStorage.getItem('theme') !== 'day';
-let selectedLanguage = localStorage.getItem('language') || 'uk';
+let selectedLanguage = localStorage.getItem('language') || 'uk'; // Default to Ukrainian
 let gameMode = localStorage.getItem('mode') || 'open';
 
 // Google Analytics 4 Event Sender
 function sendGAEvent(eventName, eventParams = {}) {
     if (typeof gtag === 'function') {
-        gtag('event', eventName, eventParams);
-        console.log(`[GA_EVENT_SENT] Name: ${eventName}, Params:`, JSON.parse(JSON.stringify(eventParams))); // Log a deep copy for safety
+        const paramsToSend = { ...eventParams }; // Create a copy
+        if (telegramUserId) {
+            paramsToSend.telegram_user_id = telegramUserId;
+        }
+        gtag('event', eventName, paramsToSend);
+        console.log(`[GA_EVENT_SENT] Name: ${eventName}, Params:`, JSON.parse(JSON.stringify(paramsToSend)));
     } else {
         console.warn(`[GA_EVENT_FAIL] gtag is not defined. Event not sent: ${eventName}`, eventParams);
     }
@@ -277,10 +282,15 @@ function updateGuessHistoryDisplay() {
         return;
     }
     let displayText = '--';
+    // const texts = translations[selectedLanguage]; // Not needed here anymore for the label
 
     if (guessResultsHistory.length > 0) {
-        displayText = guessResultsHistory.join(' | ');
+        const historyIcons = guessResultsHistory.map(result => {
+            return result === 1 ? '✅' : '❌';
+        }).join(' | ');
+        displayText = historyIcons; // Only icons, label is separate
     }
+    
     displayElement.textContent = displayText;
     // console.log(`[UI_UPDATE] Guess history display updated to: "${displayText}"`, guessResultsHistory);
 }
@@ -300,11 +310,20 @@ function updateLanguage() {
     document.getElementById('stats-failure-label').textContent = texts.statsFailure;
     document.getElementById('stats-success-rate-label').textContent = texts.statsSuccessRate;
     document.getElementById('stats-time-last-attempt-label').textContent = texts.timeSinceLastAttempt;
-    document.getElementById('stats-guess-history-label').textContent = texts.guessHistory;
+    document.getElementById('stats-guess-history-label').textContent = texts.guessHistory; // This updates the "Крок" / "Шаг" / "Step" label
     document.getElementById('male-btn').textContent = texts.male;
     document.getElementById('female-btn').textContent = texts.female;
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
+    document.title = selectedLanguage === 'uk' ? 'Гра: Випадкова людина з Wikidata' : selectedLanguage === 'ru' ? 'Игра: Случайный человек из Wikidata' : 'Game: Random Person from Wikidata';
+
+
+    const personImage = document.getElementById('person-image');
+    if (personImage.alt !== (translations[selectedLanguage].testPerson || 'Test Person')) { // Avoid changing if it's the test person alt
+        personImage.alt = translations[selectedLanguage].unknown || 'Unknown image';
+    }
+
+
     updateModeSelect();
     updateLanguageSelect();
     if (currentPerson) {
@@ -447,7 +466,7 @@ function updateProgressBar(percentage, isImageLoading = false) {
     const horizontalProgressBar = document.getElementById('progress-bar');
     const circularProgressContainer = document.getElementById('circular-progress-container');
     const circularProgressBar = document.getElementById('circular-progress-bar');
-    const circularProgressText = document.getElementById('circular-progress-text');
+    // const circularProgressText = document.getElementById('circular-progress-text'); // Text removed
 
     requestAnimationFrame(() => {
         if (isImageLoading) {
@@ -458,7 +477,7 @@ function updateProgressBar(percentage, isImageLoading = false) {
             }
             const offset = 100 - percentage; // Circumference is 100 for simplicity
             circularProgressBar.style.strokeDashoffset = offset;
-            circularProgressText.textContent = `${Math.round(percentage)}%`;
+            // circularProgressText.textContent = `${Math.round(percentage)}%`; // Text removed
             
             // console.log(`[PROGRESS_CIRCULAR] Image load progress: ${percentage}%, Offset: ${offset}`);
 
@@ -787,7 +806,7 @@ async function loadPersonFromData(personData, category = null) {
         circularProgressContainer.classList.remove('hidden');
         circularProgressContainer.setAttribute('aria-valuenow', '0');
         document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
-        document.getElementById('circular-progress-text').textContent = '0%';
+        // document.getElementById('circular-progress-text').textContent = '0%'; // Text removed
         // Horizontal bar is for session, so not reset here unless it's start of image loading.
         // document.getElementById('progress-bar').style.width = '0%'; 
         // document.getElementById('progress-bar').classList.remove('hidden');
@@ -866,7 +885,7 @@ async function loadPersonFromData(personData, category = null) {
                     personImage.classList.remove('loaded');
                     circularProgressContainer.classList.remove('hidden');
                     document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
-                    document.getElementById('circular-progress-text').textContent = '0%';
+                    // document.getElementById('circular-progress-text').textContent = '0%'; // Text removed
                  });
             } else {
                 console.error(`[LOAD_PERSON_FAILURE] Max image load attempts (${maxImageLoadAttempts}) reached for this slot.`);
@@ -885,6 +904,7 @@ function updateUI(personToDisplay) {
     const personInfo = document.getElementById('person-info');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
+    const personImage = document.getElementById('person-image');
     
     requestAnimationFrame(() => {
         personInfo.style.display = 'none';
@@ -893,16 +913,26 @@ function updateUI(personToDisplay) {
         if (personToDisplay && personToDisplay.personLabel && personToDisplay.gender) {
              const genderText = personToDisplay.gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female;
              const statusText = personToDisplay.deathDate ? texts.deceased : texts.alive;
-             const birthText = personToDisplay.birthDate ? new Date(personToDisplay.birthDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage + '-UA') : texts.unknown; // Alien might not have locale
-             const deathText = personToDisplay.deathDate ? `, ${texts.death}: ${new Date(personToDisplay.deathDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage + '-UA')}` : '';
+             const birthText = personToDisplay.birthDate ? new Date(personToDisplay.birthDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU') : texts.unknown; // Alien might not have locale
+             const deathText = personToDisplay.deathDate ? `, ${texts.death}: ${new Date(personToDisplay.deathDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU')}` : '';
              personDetails.textContent = `${personToDisplay.personLabel.value}, ${genderText}, ${statusText}, ${texts.birth}: ${birthText}${deathText}`;
-             console.log(`[UI_UPDATE] Person details set: ${personDetails.textContent}`);
+             personImage.alt = personToDisplay.personLabel.value; // Set alt text to person's name for accessibility
+             console.log(`[UI_UPDATE] Person details set: ${personDetails.textContent}. Image alt set to: ${personImage.alt}`);
         } else {
             personDetails.textContent = texts.unknown;
-            console.log('[UI_UPDATE] Person details set to unknown.');
+            personImage.alt = texts.unknown; // Set alt text to "Unknown"
+            console.log(`[UI_UPDATE] Person details set to unknown. Image alt set to: ${personImage.alt}`);
         }
 
-        document.getElementById('next-person').style.display = 'none';
+        // Visibility of "Next Photo" button (after guess)
+        const nextPersonBtn = document.getElementById('next-person');
+        if (hasChecked && currentAttempts < maxAttempts) {
+            nextPersonBtn.style.display = 'block';
+            nextPersonBtn.textContent = texts.nextPerson; // Ensure text is updated
+        } else {
+            nextPersonBtn.style.display = 'none';
+        }
+        
         updateModeVisibility(); // Ensures overlay is correct for mode
         loadedPhotos++;
         logPhotoStatus();
@@ -914,11 +944,13 @@ function handleError() {
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
-    const circularProgressText = document.getElementById('circular-progress-text');
+    // const circularProgressText = document.getElementById('circular-progress-text'); // Text removed
+    const texts = translations[selectedLanguage];
 
 
     requestAnimationFrame(() => {
         personImage.src = 'https://via.placeholder.com/300'; // Fallback placeholder
+        personImage.alt = texts.error || 'Error loading image'; // Set alt text for error
         personImage.classList.add('loaded'); // Show the placeholder
         
         if (gameMode === 'closed') {
@@ -928,7 +960,7 @@ function handleError() {
         }
         
         circularProgressContainer.classList.remove('hidden');
-        circularProgressText.textContent = translations[selectedLanguage].error || 'Error!';
+        // circularProgressText.textContent = texts.error || 'Error!'; // Text removed
         // Optionally, set the circular bar to a "full error" state or hide it too
         // document.getElementById('circular-progress-bar').style.strokeDashoffset = 0; // Example: fill it
         
@@ -1357,6 +1389,25 @@ document.getElementById('new-game').addEventListener('click', () => {
 
 window.onload = () => {
     console.log('[WINDOW_ONLOAD] Page loaded. Initializing application state.');
+
+    // Initialize Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+        try {
+            window.Telegram.WebApp.ready(); // Inform Telegram that the app is ready
+            if (window.Telegram.WebApp.initDataUnsafe && window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.id) {
+                telegramUserId = window.Telegram.WebApp.initDataUnsafe.user.id.toString();
+                console.log(`[TELEGRAM_INIT] Telegram User ID: ${telegramUserId}`);
+                sendGAEvent('telegram_user_identified', { t_user_id_length: telegramUserId.length });
+            } else {
+                console.log('[TELEGRAM_INIT] Telegram user data not available or user ID missing.');
+            }
+        } catch (e) {
+            console.error('[TELEGRAM_INIT_ERROR] Error initializing Telegram WebApp or accessing user data:', e);
+        }
+    } else {
+        console.log('[TELEGRAM_INIT] Telegram WebApp script not loaded or not in Telegram environment.');
+    }
+    
     newGameBtn = document.getElementById('new-game');
     initialNewGameContainer = document.getElementById('new-game-initial-location');
     gameOverNewGameContainer = document.getElementById('new-game-over-location');
@@ -1382,7 +1433,7 @@ window.onload = () => {
         updateNewGameButtonPosition(); 
     } else {
         console.log("[WINDOW_ONLOAD] Resuming existing game state.");
-        updateLanguage();
+        updateLanguage(); // Call this first to set up all translations
         updateModeVisibility();
         
         // Restore general game state (already done by global variable initialization from localStorage)
@@ -1436,10 +1487,15 @@ window.onload = () => {
 
                     // Minimal image restoration logic (complex to do fully without image URL in currentPerson)
                     const personImage = document.getElementById('person-image');
-                    if (personImage.src.includes('placeholder') || !personImage.src) {
-                        console.warn("[WINDOW_ONLOAD_RESUME_WARN] Resuming with person data but image src is placeholder. Image might need manual re-fetch or better state saving.");
-                        // Potentially call a simplified load for just the image if URL was stored with currentPerson
+                    if ((personImage.src.includes('placeholder') || !personImage.src) && currentPerson.image?.value) { // Assuming image URL might be stored
+                         console.warn("[WINDOW_ONLOAD_RESUME_WARN] Resuming with person data but image src is placeholder. Attempting to reload image.");
+                         // Construct a simplified personData-like object if necessary or directly use stored URL
+                         const fileName = decodeURIComponent(currentPerson.image.value.split('/').pop());
+                         getCommonsImageUrl(fileName).then(imageUrl => {
+                             if(imageUrl) loadImageWithFallback(imageUrl, personImage);
+                         });
                     }
+
 
                 } catch (e) {
                     console.error("[WINDOW_ONLOAD_RESUME_ERROR] Failed to parse stored currentPerson from localStorage. Loading new session.", e);
@@ -1455,10 +1511,9 @@ window.onload = () => {
                 // Game was at 0 attempts (likely just started or reset), and no person loaded yet
                 console.log("[WINDOW_ONLOAD_RESUME] Game at 0 attempts, no currentPerson. Loading initial session.");
                 loadSession();
-            } else if (currentPerson) {
-                 // currentPerson was restored by global var init if it was saved correctly and `startNewGame` wasn't called
-                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson already exists globally (likely from previous state). Updating UI.", currentPerson.personLabel.value);
-                 updateUI(currentPerson);
+            } else if (currentPerson) { // currentPerson might have been set if localStorage had it and it was parsed
+                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson already exists (likely from previous state). Updating UI.", currentPerson.personLabel.value);
+                 updateUI(currentPerson); // updateUI should handle alt text correctly based on currentPerson
             }
         }
         updateCheckButtonState();
