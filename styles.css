@@ -1,4 +1,5 @@
 
+
 :root {
     --bg-color: #1C2526;
     --text-color: #E8ECEF;
@@ -145,6 +146,7 @@ h1 {
     dominant-baseline: middle;
     transform: rotate(90deg); /* Counter-rotate text */
     transform-origin: 18px 18px; /* Center of the viewBox */
+    display: none; /* Hide the percentage text */
 }
 
 #person-image.loaded + #circular-progress-container { /* Hide when image is loaded */
