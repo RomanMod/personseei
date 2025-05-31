@@ -19,6 +19,7 @@
     
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body class="night">
     <div class="settings">
@@ -90,8 +91,13 @@
         <div><span id="stats-success-label">Успішні</span>: <span id="stats-success">0</span></div>
         <div><span id="stats-failure-label">Невдалі</span>: <span id="stats-failure">0</span></div>
         <div><span id="stats-success-rate-label">Відсоток успішних</span>: <span id="stats-success-rate">0%</span></div>
-        <div><span id="stats-time-last-attempt-label">Між спробами</span>: <span id="stats-time-last-attempt">--</span></div>
-        <div><span id="stats-guess-history-label">Крок</span>: <span id="stats-guess-history">--</span></div>
+        <div>
+            <div id="stats-guess-history-label">Історія</div>
+            <div id="stats-guess-history" style="text-align: center;">
+                <div id="stats-guess-history-icons">--</div>
+                <div id="stats-guess-history-durations">--</div>
+            </div>
+        </div>
     </div>
     <div class="new-game-container" id="new-game-initial-location">
         <button id="new-game">Нова гра</button>
@@ -99,6 +105,6 @@
     <div id="progress"></div>
 
     <script src="script.js"></script>
+<script type="module" src="/index.tsx"></script>
 </body>
-</html><link rel="stylesheet" href="styles.css">
-<script src="index.tsx" type="module"></script>
+</html>
