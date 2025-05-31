@@ -1,4 +1,5 @@
 
+
 // Настройки приложения
 const settings = {
     superRandomPeople: true,
@@ -35,8 +36,9 @@ let failedGuesses = parseInt(localStorage.getItem('failedGuesses')) || 0;
 let hasChecked = false;
 let currentAttempts = parseInt(localStorage.getItem('currentAttempts')) || 0;
 const maxAttempts = 10;
-let attemptTimestamps = JSON.parse(localStorage.getItem('attemptTimestamps')) || [];
-let guessResultsHistory = JSON.parse(localStorage.getItem('guessResultsHistory')) || [];
+let guessResultsHistory = JSON.parse(localStorage.getItem('guessResultsHistory')) || []; // Stores 1 for success, 0 for fail
+let attemptDurations = JSON.parse(localStorage.getItem('attemptDurations')) || [];
+
 
 // Состояние для GA4 события attempt_completed
 let currentSessionId = localStorage.getItem('currentSessionId') || null;
@@ -80,13 +82,7 @@ const translations = {
         newGame: 'Нова гра',
         attempts: 'Спроби',
         error: 'Помилка',
-        timeSinceLastAttempt: 'Між спробами',
-        hoursAgo: 'год.',
-        minutesAgo: 'хв.',
-        secondsAgo: 'сек.',
-        justNow: 'щойно',
-        firstAttempt: 'перша спроба',
-        guessHistory: 'Крок',
+        guessHistory: 'Історія успіх/час:',
         imageDisplayAlt: 'Зображення людини',
         errorLoadingImage: 'Помилка завантаження зображення',
         playerNameLabel: 'Гравець'
@@ -113,13 +109,7 @@ const translations = {
         newGame: 'Новая игра',
         attempts: 'Попытки',
         error: 'Ошибка',
-        timeSinceLastAttempt: 'Между попытками',
-        hoursAgo: 'ч.',
-        minutesAgo: 'мин.',
-        secondsAgo: 'сек.',
-        justNow: 'только что',
-        firstAttempt: 'первая попытка',
-        guessHistory: 'Шаг',
+        guessHistory: 'История успех/время:',
         imageDisplayAlt: 'Изображение человека',
         errorLoadingImage: 'Ошибка загрузки изображения',
         playerNameLabel: 'Игрок'
@@ -146,13 +136,7 @@ const translations = {
         newGame: 'New Game',
         attempts: 'Attempts',
         error: 'Error',
-        timeSinceLastAttempt: 'Between attempts',
-        hoursAgo: 'hr',
-        minutesAgo: 'min',
-        secondsAgo: 'sec',
-        justNow: 'just now',
-        firstAttempt: 'first attempt',
-        guessHistory: 'Step',
+        guessHistory: 'History success/time:',
         imageDisplayAlt: 'Image of person',
         errorLoadingImage: 'Error loading image',
         playerNameLabel: 'Player'
@@ -179,15 +163,9 @@ const translations = {
         newGame: '⊸⍟⊸ ⊸⍟⊸',
         attempts: '⊸⍟⊸⊸',
         error: '⊸⍟⊸⊸!',
-        timeSinceLastAttempt: '⊸⍟⊸ ⊸⍟⊸⊸',
-        hoursAgo: '⊸⍟',
-        minutesAgo: '⊸⍟⊸',
-        secondsAgo: '⊸⍟!',
-        justNow: '⊸⍟⍟',
-        firstAttempt: '⊸⍟ ⊸⍟',
-        guessHistory: '⊸⍀⍟',
+        guessHistory: '⊸⍀⍟ ✓/⍊:',
         imageDisplayAlt: '⊸⍉⋉⏁ ⍜⎎ ⌿⟒⍀⌇⍜⋏', // Alien for "Image of person"
-        errorLoadingImage: '⊸⍟⊸ ⌰⍜⏃⎅ ⟒⍀⍀⍜⍀', // Alien for "Error loading image"
+        errorLoadingImage: '⊸⍟⊸ ⌰⍜⏃⎅ ⟒⍀⍜⍀', // Alien for "Error loading image"
         playerNameLabel: '⌿⌰⏃⊬⟒⍀'
     }
 };
@@ -227,6 +205,8 @@ console.log('[APP_INIT] Attempts from localStorage:', currentAttempts);
 console.log('[APP_INIT] Total Guesses from localStorage:', totalGuesses);
 console.log('[APP_INIT] Current Session ID from localStorage:', currentSessionId);
 console.log('[APP_INIT] Current Attempt Start Time from localStorage:', currentAttemptStartTime);
+console.log('[APP_INIT] Guess Results History from localStorage:', guessResultsHistory);
+console.log('[APP_INIT] Attempt Durations from localStorage:', attemptDurations);
 
 
 // Function to update the New Game button's position
@@ -254,65 +234,30 @@ function updateNewGameButtonPosition() {
     }
 }
 
-function formatTimeDifference(ms, lang) {
-    if (ms < 0) ms = 0;
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-
-    const t = translations[lang];
-    let result;
-
-    if (hours > 0) result = `${hours} ${t.hoursAgo || 'hr'}`;
-    else if (minutes > 0) result = `${minutes} ${t.minutesAgo || 'min'}`;
-    else if (seconds > 0) result = `${seconds} ${t.secondsAgo || 'sec'}`;
-    else result = t.justNow || 'just now';
-    // console.log(`[FORMAT_TIME] Input: ${ms}ms, Lang: ${lang}, Output: ${result}`);
-    return result;
-}
-
-function updateTimeBetweenAttemptsDisplay() {
-    const displayElement = document.getElementById('stats-time-last-attempt');
-    if (!displayElement) {
-        console.warn('[UI_WARN] Time between attempts display element not found.');
-        return;
-    }
-
-    const t = translations[selectedLanguage];
-    let displayText = '--';
-
-    if (attemptTimestamps.length >= 2) {
-        const lastAttemptTime = attemptTimestamps[attemptTimestamps.length - 1];
-        const secondLastAttemptTime = attemptTimestamps[attemptTimestamps.length - 2];
-        const diffMs = lastAttemptTime - secondLastAttemptTime;
-        displayText = formatTimeDifference(diffMs, selectedLanguage);
-    } else if (attemptTimestamps.length === 1 && currentAttempts > 0) {
-        displayText = t.firstAttempt || 'first attempt';
-    }
-    
-    displayElement.textContent = displayText;
-    // console.log(`[UI_UPDATE] Time between attempts display updated to: "${displayText}"`, attemptTimestamps);
-}
-
 function updateGuessHistoryDisplay() {
-    const displayElement = document.getElementById('stats-guess-history');
-    if (!displayElement) {
-        console.warn('[UI_WARN] Guess history display element not found.');
+    const iconsDisplayElement = document.getElementById('stats-guess-history-icons');
+    const durationsDisplayElement = document.getElementById('stats-guess-history-durations');
+
+    if (!iconsDisplayElement || !durationsDisplayElement) {
+        console.warn('[UI_WARN] Guess history display elements (icons or durations) not found.');
         return;
     }
-    let displayText = '--';
-    // const texts = translations[selectedLanguage]; // Not needed here anymore for the label
 
+    let iconsText = '--';
     if (guessResultsHistory.length > 0) {
-        const historyIcons = guessResultsHistory.map(result => {
-            return result === 1 ? '✅' : '❌';
-        }).join(' | ');
-        displayText = historyIcons; // Only icons, label is separate
+        iconsText = guessResultsHistory.map(result => (result === 1 ? '✅' : '❌')).join(' ');
     }
+    iconsDisplayElement.textContent = iconsText;
+
+    let durationsText = '--';
+    if (attemptDurations.length > 0) {
+        durationsText = attemptDurations.map(duration => `${duration}`).join(' | ');
+    }
+    durationsDisplayElement.textContent = durationsText;
     
-    displayElement.textContent = displayText;
-    // console.log(`[UI_UPDATE] Guess history display updated to: "${displayText}"`, guessResultsHistory);
+    // console.log(`[UI_UPDATE] Guess history display updated. Icons: "${iconsText}", Durations: "${durationsText}"`);
 }
+
 
 function updateTelegramUserInfoDisplay() {
     const playerInfoElement = document.getElementById('stats-player-info');
@@ -346,28 +291,24 @@ function updateLanguage() {
     document.getElementById('stats-success-label').textContent = texts.statsSuccess;
     document.getElementById('stats-failure-label').textContent = texts.statsFailure;
     document.getElementById('stats-success-rate-label').textContent = texts.statsSuccessRate;
-    document.getElementById('stats-time-last-attempt-label').textContent = texts.timeSinceLastAttempt;
-    document.getElementById('stats-guess-history-label').textContent = texts.guessHistory;
+    document.getElementById('stats-guess-history-label').textContent = texts.guessHistory; 
     document.getElementById('male-btn').textContent = texts.male;
     document.getElementById('female-btn').textContent = texts.female;
     document.getElementById('alive-btn').textContent = texts.alive;
     document.getElementById('dead-btn').textContent = texts.deceased;
     document.title = selectedLanguage === 'uk' ? 'Гра: Випадкова людина з Wikidata' : selectedLanguage === 'ru' ? 'Игра: Случайный человек из Wikidata' : 'Game: Random Person from Wikidata';
 
-    // Update UI elements related to the current person, including image alt text
-    updateUI(currentPerson); // This will update text content of #person-info if it's visible
-    updateTelegramUserInfoDisplay(); // Update player name display
+    updateUI(currentPerson); 
+    updateTelegramUserInfoDisplay(); 
 
     updateModeSelect();
     updateLanguageSelect();
-    updateTimeBetweenAttemptsDisplay();
     updateGuessHistoryDisplay(); 
     console.log('[LANGUAGE_UPDATE] Language update complete.');
 }
 
 // Обновление текста режима
 function updateModeSelect() {
-    // console.log('[UI_UPDATE] updateModeSelect called for language:', selectedLanguage);
     const modeSelectOptions = document.querySelector('#mode-select .options');
     modeSelectOptions.innerHTML = `
         <li data-value="open">${translations[selectedLanguage].modeOpen}</li>
@@ -378,7 +319,6 @@ function updateModeSelect() {
 
 // Обновление текста языка
 function updateLanguageSelect() {
-    // console.log('[UI_UPDATE] updateLanguageSelect called.');
     const languageSelectOptions = document.querySelector('#language-select .options');
     languageSelectOptions.innerHTML = `
         <li data-value="uk">Українська</li>
@@ -433,7 +373,6 @@ document.querySelectorAll('.custom-select').forEach(select => {
     document.addEventListener('click', (e) => {
         if (!select.contains(e.target) && options.style.display !== 'none') {
             options.style.display = 'none';
-            // console.log(`[UI_EVENT] Custom select '${select.id}' closed due to outside click.`);
         }
     });
 });
@@ -463,7 +402,6 @@ function updateModeVisibility() {
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
 
-    // Hide buttons immediately
     statusButtons.style.display = 'none';
     genderButtons.style.display = 'none';
     if (checkBtnElement) checkBtnElement.style.display = 'none';
@@ -482,7 +420,7 @@ function updateModeVisibility() {
             statusButtons.style.display = 'flex';
             if (checkBtnElement) {
                 checkBtnElement.style.display = 'inline-block';
-                updateCheckButtonState(); // Update state after making it visible
+                updateCheckButtonState(); 
                  console.log('[UI_UPDATE_MODE_TIMEOUT] Check button shown and state updated.');
             }
 
@@ -490,7 +428,7 @@ function updateModeVisibility() {
                 genderButtons.style.display = 'flex';
                  console.log('[UI_UPDATE_MODE_TIMEOUT] Closed mode: Gender and Status buttons shown.');
             } else {
-                genderButtons.style.display = 'none'; // Explicitly hide if open mode
+                genderButtons.style.display = 'none'; 
                 console.log('[UI_UPDATE_MODE_TIMEOUT] Open mode: Status buttons shown, Gender buttons hidden.');
             }
             buttonVisibilityTimeoutId = null;
@@ -499,16 +437,15 @@ function updateModeVisibility() {
          console.log('[UI_UPDATE_MODE] Conditions NOT met for showing buttons with delay, or timeout was cleared.');
     }
 
-    // Manage overlay visibility
     if (gameMode === 'closed') {
-        if (hasChecked) { // After check, reveal photo
+        if (hasChecked) { 
             overlay.classList.add('hidden');
             console.log('[UI_UPDATE_MODE_OVERLAY] Closed mode, checked: Overlay hidden.');
-        } else { // Before check, cover photo
+        } else { 
             overlay.classList.remove('hidden');
             console.log('[UI_UPDATE_MODE_OVERLAY] Closed mode, not checked: Overlay shown.');
         }
-    } else { // Open mode
+    } else { 
         overlay.classList.add('hidden');
         console.log('[UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden.');
     }
@@ -518,7 +455,7 @@ function updateModeVisibility() {
 // Управление состоянием кнопки "Проверить"
 function updateCheckButtonState() {
     const checkBtn = document.getElementById('check-btn');
-    if (!checkBtn) return; // Guard clause if button not found
+    if (!checkBtn) return; 
     let disabled;
     if (gameMode === 'closed') {
         disabled = !userGenderGuess || !userStatusGuess;
@@ -526,14 +463,13 @@ function updateCheckButtonState() {
         disabled = !userStatusGuess;
     }
     checkBtn.disabled = disabled;
-    // console.log(`[UI_UPDATE] Check button state updated. Mode: ${gameMode}, Gender Guess: ${userGenderGuess}, Status Guess: ${userStatusGuess}, Disabled: ${disabled}`);
 }
 
 // Логирование состояния загрузки
 function logPhotoStatus() {
     const preloadedPersonName = preloadedPersonContainer &&
                                 preloadedPersonContainer.data &&
-                                preloadedPersonContainer.data.person && // person is the binding
+                                preloadedPersonContainer.data.person && 
                                 preloadedPersonContainer.data.person.personLabel &&
                                 preloadedPersonContainer.data.person.personLabel.value
                                 ? preloadedPersonContainer.data.person.personLabel.value
@@ -547,36 +483,27 @@ function updateProgressBar(percentage, isImageLoading = false) {
     const horizontalProgressBar = document.getElementById('progress-bar');
     const circularProgressContainer = document.getElementById('circular-progress-container');
     const circularProgressBar = document.getElementById('circular-progress-bar');
-    // const circularProgressText = document.getElementById('circular-progress-text'); // Text removed
 
     requestAnimationFrame(() => {
         if (isImageLoading) {
-            // Handle circular progress for image loading
             if (percentage < 100) {
                 circularProgressContainer.classList.remove('hidden');
                 circularProgressContainer.setAttribute('aria-valuenow', Math.round(percentage));
             }
-            const offset = 100 - percentage; // Circumference is 100 for simplicity
+            const offset = 100 - percentage; 
             circularProgressBar.style.strokeDashoffset = offset;
-            // circularProgressText.textContent = `${Math.round(percentage)}%`; // Text removed
             
-            // console.log(`[PROGRESS_CIRCULAR] Image load progress: ${percentage}%, Offset: ${offset}`);
-
             if (percentage >= 100) {
                 setTimeout(() => {
                     circularProgressContainer.classList.add('hidden');
-                    // console.log('[PROGRESS_CIRCULAR] Circular progress hidden after completion.');
-                }, 500); // Hide after a short delay
+                }, 500); 
             }
         } else {
-            // Handle horizontal progress bar for session loading
             horizontalProgressBar.classList.remove('hidden');
             horizontalProgressBar.style.width = `${percentage}%`;
-            // console.log(`[PROGRESS_HORIZONTAL] Session load progress: ${percentage}%`);
             if (percentage >= 100) {
                 setTimeout(() => {
                     horizontalProgressBar.classList.add('hidden');
-                    // console.log('[PROGRESS_HORIZONTAL] Horizontal progress bar hidden after completion.');
                 }, 500);
             }
         }
@@ -588,20 +515,20 @@ function updateProgressBar(percentage, isImageLoading = false) {
 function simulateImageProgress(duration = 1500) {
     console.log('[IMAGE_LOAD] Starting image loading simulation.');
     return new Promise((resolve) => {
-        if (duration <= 0) { // Handle zero or negative duration
+        if (duration <= 0) { 
             updateProgressBar(99, true);
             console.log('[IMAGE_LOAD] Image loading simulation reached 99% (instant due to zero/negative duration).');
             resolve();
             return;
         }
         const startTime = performance.now();
-        const interval = Math.min(100, duration / 10); // Adjust interval for smoother short durations
+        const interval = Math.min(100, duration / 10); 
         let progress = 0;
 
         const update = () => {
             const elapsed = performance.now() - startTime;
             progress = Math.min((elapsed / duration) * 99, 99); 
-            updateProgressBar(progress, true); // True for image loading (circular)
+            updateProgressBar(progress, true); 
             if (progress < 99) {
                 setTimeout(update, interval);
             } else {
@@ -636,13 +563,11 @@ function rgbToHsl(r, g, b) {
     return [h, s, l];
 }
 
-async function isBlackAndWhite(imageUrl) { // imageUrl is the original commons URL
+async function isBlackAndWhite(imageUrl) { 
     if (!settings.excludeBlackAndWhite) {
-        // console.log('[IMAGE_CHECK_BW] Black and white filter disabled.');
         return false;
     }
 
-    // Use a consistent key for caching, based on the original Commons URL
     const cacheKey = imageUrl;
     if (rgbHslCache[cacheKey] !== undefined) {
         console.log(`[IMAGE_CHECK_BW] Using cached B&W result for ${cacheKey}: ${rgbHslCache[cacheKey] ? 'black-and-white' : 'color'}`);
@@ -652,15 +577,13 @@ async function isBlackAndWhite(imageUrl) { // imageUrl is the original commons U
 
     return new Promise((resolve) => {
         const img = new Image();
-        img.crossOrigin = 'Anonymous'; // Needed for canvas if image server supports CORS
+        img.crossOrigin = 'Anonymous'; 
 
-        // For consistency and to avoid potential CORS issues with direct canvas access from commons.wikimedia.org,
-        // use the proxy for B&W check as well.
-        const proxyForBWCheck = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}&w=100&h=100&fit=cover&output=jpg`; // Smaller for faster check
+        const proxyForBWCheck = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}&w=100&h=100&fit=cover&output=jpg`; 
         
         img.onload = () => {
             const canvas = document.createElement('canvas');
-            canvas.width = 100; // Match the proxy dimensions for direct pixel mapping
+            canvas.width = 100; 
             canvas.height = 100;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, 100, 100);
@@ -699,7 +622,7 @@ async function isBlackAndWhite(imageUrl) { // imageUrl is the original commons U
             console.log(`[IMAGE_CHECK_BW] Result for ${cacheKey} (via proxy ${proxyForBWCheck}): ${isBW ? 'black-and-white' : 'color'} ` +
                         `(R_stdDev:${rStdDev.toFixed(2)}, G_stdDev:${gStdDev.toFixed(2)}, B_stdDev:${bStdDev.toFixed(2)}, Mean Saturation:${(meanSaturation * 100).toFixed(2)}%)`);
             
-            rgbHslCache[cacheKey] = isBW; // Cache based on original URL
+            rgbHslCache[cacheKey] = isBW; 
             localStorage.setItem('rgbHslCache', JSON.stringify(rgbHslCache));
             console.log('[CACHE_UPDATE] rgbHslCache updated in localStorage.');
             
@@ -707,7 +630,7 @@ async function isBlackAndWhite(imageUrl) { // imageUrl is the original commons U
         };
         img.onerror = () => {
             console.error(`[IMAGE_CHECK_BW_ERROR] Failed to load image via proxy ${proxyForBWCheck} for B&W analysis of ${cacheKey}`);
-            resolve(false); // Assume color on error to avoid false positives
+            resolve(false); 
         };
         img.src = proxyForBWCheck;
     });
@@ -748,17 +671,17 @@ async function loadImageWithFallback(url, element) {
         };
 
         element.onload = () => {
-            element.style.opacity = ''; // Clear forced opacity
-            element.classList.add('loaded'); // Image content is ready
+            element.style.opacity = ''; 
+            element.classList.add('loaded'); 
             console.log(`[IMAGE_LOAD_PROXY_SUCCESS] Image loaded successfully via proxy: ${proxyUrl}`);
             cleanup();
             resolve();
         };
         element.onerror = () => {
             console.error(`[IMAGE_LOAD_PROXY_ERROR] Proxy image load failed: ${proxyUrl}. Falling back to placeholder.`);
-            element.style.opacity = ''; // Clear forced opacity even on error
-            element.src = 'https://via.placeholder.com/300'; // Fallback placeholder
-            element.classList.add('loaded'); // Show placeholder
+            element.style.opacity = ''; 
+            element.src = 'https://via.placeholder.com/300'; 
+            element.classList.add('loaded'); 
             cleanup();
             reject(new Error(`Proxy image load failed for ${url}`));
         };
@@ -767,7 +690,7 @@ async function loadImageWithFallback(url, element) {
     });
 }
 
-const WIKIDATA_QUERY_TIMEOUT_MS = 120000; // 120 seconds for Wikidata queries
+const WIKIDATA_QUERY_TIMEOUT_MS = 120000; 
 
 async function fetchPersonData(useRandom = false, category = null) {
     const start = performance.now();
@@ -781,13 +704,12 @@ async function fetchPersonData(useRandom = false, category = null) {
 
     if (wikidataCache[cacheKey] && wikidataCache[cacheKey].length > 0) {
         const cachedPerson = wikidataCache[cacheKey][Math.floor(Math.random() * wikidataCache[cacheKey].length)];
-        // Ensure cached person is valid before returning
         if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
             console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
             return cachedPerson;
         } else {
             console.warn(`[WIKIDATA_FETCH_CACHE_INVALID] Cached data for ${cacheKey} is invalid, fetching fresh. Invalid person:`, cachedPerson);
-            delete wikidataCache[cacheKey]; // Remove invalid cache entry
+            delete wikidataCache[cacheKey]; 
         }
     }
     console.log(`[WIKIDATA_FETCH] No valid cache hit for ${cacheKey}, querying Wikidata.`);
@@ -826,7 +748,6 @@ async function fetchPersonData(useRandom = false, category = null) {
             OFFSET ${offset}
             LIMIT ${settings.maxPeople}
         `;
-        // console.log(`[WIKIDATA_QUERY] Attempt ${attempts}/${maxQueryAttempts}. Offset: ${offset}. Query: ${query.substring(0, 200)}...`);
 
         const endpoint = 'https://query.wikidata.org/sparql';
         const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
@@ -850,29 +771,28 @@ async function fetchPersonData(useRandom = false, category = null) {
             clearTimeout(timeoutId);
             if (!response.ok) throw new Error(`Wikidata API error: ${response.status} ${response.statusText}`);
             const data = await response.json();
-            const list = data.results && data.results.bindings; // Ensure bindings exist
+            const list = data.results && data.results.bindings; 
             const duration = (performance.now() - start).toFixed(0);
             
-            if (!list || !list.length) { // Check if list is null/undefined or empty
+            if (!list || !list.length) { 
                 console.warn(`[WIKIDATA_QUERY_WARN] No results or invalid list for category ${categoryKey}, attempt ${attempts}/${maxQueryAttempts}. Response:`, data);
                 if (attempts === maxQueryAttempts) throw new Error(`No person found for category ${categoryKey} after ${maxQueryAttempts} query attempts with different offsets.`);
-                continue; // Try next attempt with different offset
+                continue; 
             }
             console.log(`[WIKIDATA_QUERY_SUCCESS] Attempt ${attempts}/${maxQueryAttempts} successful for category ${categoryKey}. Found ${list.length} results. Time: ${duration}ms`);
 
 
-            wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100); // Keep cache size manageable
+            wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100); 
             localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
             console.log('[CACHE_UPDATE] wikidataCache updated in localStorage.');
 
             const randomPerson = list[Math.floor(Math.random() * list.length)];
-            // Validate the randomly selected person before returning
             if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
                 return randomPerson;
             } else {
                  console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
                  if (attempts === maxQueryAttempts) throw new Error(`Selected invalid person on final attempt for category ${categoryKey}.`);
-                 continue; // Try next attempt (effectively retrying selection or whole query if list was small)
+                 continue; 
             }
 
         } catch (error) {
@@ -880,7 +800,6 @@ async function fetchPersonData(useRandom = false, category = null) {
             const isTimeoutAbort = error.name === 'AbortError';
 
             if (isTimeoutAbort) {
-                // Timeout/AbortError specific logging is primarily handled by the setTimeout warning itself.
             } else {
                 if (error.message && error.message.includes('Failed to fetch')) {
                     console.warn(`[WIKIDATA_QUERY_WARN] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed with fetch issue. Retrying. Error: ${error.message}`);
@@ -913,8 +832,6 @@ async function startPreloadNextAvailablePerson() {
     }
 
     isCurrentlyPreloading = true;
-    // Peek at the next person in the sessionList for preloading
-    // nextPersonToPreload will be { person: personBinding, category: categoryObj }
     const nextPersonToPreloadEntry = sessionList[0]; 
 
     if (!nextPersonToPreloadEntry || !nextPersonToPreloadEntry.person || !nextPersonToPreloadEntry.person.image || !nextPersonToPreloadEntry.person.image.value || !nextPersonToPreloadEntry.person.personLabel || !nextPersonToPreloadEntry.person.personLabel.value) {
@@ -952,7 +869,7 @@ async function startPreloadNextAvailablePerson() {
             preloadedImage.onload = () => {
                 console.log(`[PRELOAD_SUCCESS] Image preloaded successfully via proxy: ${proxyImageUrl} for ${personBindingForPreload.personLabel.value}`);
                 preloadedPersonContainer = {
-                    data: nextPersonToPreloadEntry, // Contains .person (binding) and .category
+                    data: nextPersonToPreloadEntry, 
                     imageElement: preloadedImage,
                     commonsUrl: commonsUrl,
                     proxyUrl: proxyImageUrl
@@ -975,7 +892,6 @@ async function startPreloadNextAvailablePerson() {
     }
 }
 
-// personDataToDisplay is a personBinding object from Wikidata
 async function loadPersonFromData(personDataToDisplay, category = null) {
     const personLabelForLogs = personDataToDisplay?.personLabel?.value || 'No data or no label';
     console.log(`[LOAD_PERSON] loadPersonFromData called for person: ${personLabelForLogs}`);
@@ -984,26 +900,22 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
 
-    // Temporarily disable transitions for instant effect
     personImage.classList.add('no-transition');
     overlay.classList.add('no-transition');
 
-    // Synchronously set initial visual state
     personImage.classList.remove('loaded'); 
     if (gameMode === 'closed') {
         overlay.classList.remove('hidden'); 
         personImage.style.opacity = '0';    
         console.log('[LOAD_PERSON_SETUP] Closed Mode: Overlay ON, Image Opacity 0 (transitions disabled)');
-    } else { // Open mode
+    } else { 
         overlay.classList.add('hidden');    
         personImage.style.opacity = '';     
         console.log('[LOAD_PERSON_SETUP] Open Mode: Overlay OFF, Image Opacity by class (transitions disabled)');
     }
     
-    // Prepare UI for loading (clear src, show progress) in next animation frame
     requestAnimationFrame(() => {
-        personImage.src = ''; // Clear the actual image content
-        // If closed mode, re-assert image is hidden after src clear
+        personImage.src = ''; 
         if (gameMode === 'closed') {
             personImage.style.opacity = '0'; 
         }
@@ -1012,7 +924,6 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         document.getElementById('circular-progress-bar').style.strokeDashoffset = 100;
         console.log('[LOAD_PERSON_UI_PREP] Image src cleared, progress UI active.');
 
-        // Re-enable transitions after a brief moment (in next rAF call)
         requestAnimationFrame(() => {
             personImage.classList.remove('no-transition');
             overlay.classList.remove('no-transition');
@@ -1021,10 +932,10 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     });
 
 
-    let currentPersonCandidate = personDataToDisplay; // This is a personBinding
+    let currentPersonCandidate = personDataToDisplay; 
     let successfullyLoadedImage = false;
-    let imageLoadPathDetail = "unknown"; // For detailed logging
-    let gaLoadSource = "unknown"; // For GA event
+    let imageLoadPathDetail = "unknown"; 
+    let gaLoadSource = "unknown"; 
 
     const progressPromise = simulateImageProgress(
         preloadedPersonContainer && 
@@ -1034,15 +945,14 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value && 
         preloadedPersonContainer.imageElement && 
         preloadedPersonContainer.imageElement.complete 
-        ? 500 : 1500 // Shorter simulation if preload is likely to be used
+        ? 500 : 1500 
     );
 
-    // --- Try Preload ---
     if (preloadedPersonContainer && 
         preloadedPersonContainer.data &&
         preloadedPersonContainer.data.person &&
-        currentPersonCandidate && currentPersonCandidate.person && // Ensure currentPersonCandidate and its .person URI object are valid
-        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value) { // Compare URIs
+        currentPersonCandidate && currentPersonCandidate.person && 
+        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value) { 
         
         if (preloadedPersonContainer.imageElement && preloadedPersonContainer.imageElement.complete && preloadedPersonContainer.proxyUrl) {
             console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
@@ -1050,8 +960,8 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
             
             await new Promise((resolvePreloadAssign) => {
                 personImage.onload = () => {
-                    personImage.style.opacity = ''; // Clear forced opacity
-                    personImage.classList.add('loaded'); // Makes it visible IF NOT OVERLAYED
+                    personImage.style.opacity = ''; 
+                    personImage.classList.add('loaded'); 
                     
                     console.log(`[LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: ${preloadedProxyUrl}`);
                     successfullyLoadedImage = true;
@@ -1060,29 +970,27 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                     resolvePreloadAssign();
                 };
                 personImage.onerror = () => { 
-                    personImage.style.opacity = ''; // Clear forced opacity even on error
+                    personImage.style.opacity = ''; 
                     console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
-                    preloadedPersonContainer = null; // Invalidate the preload as its image part failed to assign
+                    preloadedPersonContainer = null; 
                     imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
-                    // successfullyLoadedImage remains false, will proceed to fetch
                     resolvePreloadAssign(); 
                 };
                 personImage.src = preloadedProxyUrl;
             });
         } else {
             console.warn(`[LOAD_PERSON_PRELOAD_WARN] Preloaded data for ${currentPersonCandidate.personLabel.value}, but imageElement not complete or proxyUrl missing. Falling back to fetch.`);
-            preloadedPersonContainer = null; // Invalidate incomplete preload
+            preloadedPersonContainer = null; 
             imageLoadPathDetail = "fetch_due_to_incomplete_preload";
         }
     } else {
-        imageLoadPathDetail = "fetch_no_preload_match"; // No preload for this specific person
+        imageLoadPathDetail = "fetch_no_preload_match"; 
     }
     
-    // --- Try Fetch (if preload wasn't used, failed, or was incomplete) ---
     if (!successfullyLoadedImage) {
         console.log(`[LOAD_PERSON] Proceeding with standard fetch for ${currentPersonCandidate?.personLabel?.value || 'unknown person'}. Reason: ${imageLoadPathDetail}`);
         imageLoadPathDetail = imageLoadPathDetail.includes("fallback") || imageLoadPathDetail.includes("incomplete_preload") ? imageLoadPathDetail + "_active_fetch" : "direct_fetch_active";
-        gaLoadSource = "fetch_direct"; // Default for fetch path, will be updated if preload failed
+        gaLoadSource = "fetch_direct"; 
 
         let attempts = 0;
         const maxImageLoadAttempts = 3;
@@ -1117,7 +1025,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                     }
                 }
                 
-                await loadImageWithFallback(commonsUrl, personImage); // Throws on error
+                await loadImageWithFallback(commonsUrl, personImage); 
                 successfullyLoadedImage = true; 
                 imageLoadPathDetail = imageLoadPathDetail.includes("fallback") || imageLoadPathDetail.includes("incomplete_preload") ? "fetch_after_preload_issue_success" : "direct_fetch_success";
                 if (imageLoadPathDetail === "fetch_after_preload_issue_success") gaLoadSource = "fetch_after_preload_fail";
@@ -1131,7 +1039,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 if (attempts < maxImageLoadAttempts) {
                      console.log("[LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.");
                      currentPersonCandidate = await fetchPersonData(true, category); 
-                     requestAnimationFrame(() => { // Reset UI for next attempt in loop
+                     requestAnimationFrame(() => { 
                         personImage.src = '';
                         if (gameMode === 'closed') {
                             personImage.classList.remove('loaded');
@@ -1150,25 +1058,23 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         }
     }
 
-    // --- Finalize ---
     await progressPromise; 
     updateProgressBar(100, true); 
 
     if (!successfullyLoadedImage) {
         console.error(`[LOAD_PERSON_CRITICAL_IMAGE_FAIL] Could not load image for slot (intended for ${personLabelForLogs}) after all attempts. Path: ${imageLoadPathDetail}. Handling error.`);
-        handleError(); // This will call updateUI(null) and updateModeVisibility
+        handleError(); 
         startPreloadNextAvailablePerson(); 
         return;
     }
 
-    // Ensure currentPersonCandidate (which might have changed if fetch loop got new people) is valid
     if (!currentPersonCandidate || 
         !currentPersonCandidate.personLabel || !currentPersonCandidate.personLabel.value ||
         !currentPersonCandidate.gender || !currentPersonCandidate.gender.value ||
         !currentPersonCandidate.birthDate || !currentPersonCandidate.birthDate.value ||
         !currentPersonCandidate.person || !currentPersonCandidate.person.value) {
         console.error("[LOAD_PERSON_CRITICAL] Final currentPersonCandidate is invalid before assigning to currentPerson. Handling error. Candidate:", currentPersonCandidate);
-        handleError(); // This will call updateUI(null) and updateModeVisibility
+        handleError(); 
         startPreloadNextAvailablePerson();
         return;
     }
@@ -1181,7 +1087,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         person: currentPersonCandidate.person 
     };
     console.log(`[LOAD_PERSON_SUCCESS] Successfully loaded person: ${currentPerson.personLabel.value} (Path: ${imageLoadPathDetail})`);
-    updateUI(currentPerson); // This will call updateModeVisibility to set final correct state
+    updateUI(currentPerson); 
     
     currentAttemptStartTime = Date.now(); 
     localStorage.setItem('currentAttemptStartTime', currentAttemptStartTime.toString());
@@ -1192,16 +1098,14 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         person_name: currentPerson.personLabel.value,
         language: selectedLanguage,
         game_mode: gameMode,
-        load_source: gaLoadSource, // Use the simplified GA load source
-        load_path_detail: imageLoadPathDetail // More detailed for internal logging if needed
+        load_source: gaLoadSource, 
+        load_path_detail: imageLoadPathDetail 
     });
     
-    // If the successfully displayed person was the one initially targeted by preload, clear preload.
-    // This handles the case where preload was for person A, assign failed, then fetch for A succeeded.
     if (preloadedPersonContainer && 
         preloadedPersonContainer.data && 
         preloadedPersonContainer.data.person &&
-        currentPersonCandidate && currentPersonCandidate.person && // currentPersonCandidate is the one finally displayed
+        currentPersonCandidate && currentPersonCandidate.person && 
         preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value) {
         console.log(`[PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for ${currentPersonCandidate.personLabel.value} is now cleared as it's either used or failed assign.`);
         preloadedPersonContainer = null;
@@ -1210,18 +1114,16 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
 }
 
 
-function updateUI(personToDisplay) { // personToDisplay is the currentPerson object
+function updateUI(personToDisplay) { 
     console.log('[UI_UPDATE] updateUI called for person:', personToDisplay && personToDisplay.personLabel && personToDisplay.personLabel.value ? personToDisplay.personLabel.value : 'No person');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
     const personImage = document.getElementById('person-image');
     
     requestAnimationFrame(() => {
-        // person-info display style and correct/incorrect classes are managed by check-btn, loadNextPerson, startNewGame, handleError
-        
         if (personToDisplay && personToDisplay.personLabel && personToDisplay.personLabel.value && personToDisplay.gender && personToDisplay.gender.value) {
              const genderText = personToDisplay.gender.value.split('/').pop() === 'Q6581097' ? texts.male : texts.female;
-             const statusText = personToDisplay.deathDate ? texts.deceased : texts.alive; // deathDate might be undefined
+             const statusText = personToDisplay.deathDate ? texts.deceased : texts.alive; 
              const birthText = personToDisplay.birthDate && personToDisplay.birthDate.value ? new Date(personToDisplay.birthDate.value).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU') : texts.unknown;
              const deathDateVal = personToDisplay.deathDate ? personToDisplay.deathDate.value : null;
              const deathText = deathDateVal ? `, ${texts.death}: ${new Date(deathDateVal).toLocaleDateString(selectedLanguage === 'alien' ? 'en-GB' : selectedLanguage === 'uk' ? 'uk-UA' : selectedLanguage + '-RU')}` : '';
@@ -1265,12 +1167,12 @@ function handleError() {
     requestAnimationFrame(() => {
         personImage.src = 'https://via.placeholder.com/300'; 
         personImage.alt = texts.errorLoadingImage || 'Error loading image'; 
-        personImage.classList.add('loaded'); // Show the placeholder
-        personImage.style.opacity = ''; // Ensure placeholder is visible if direct style was applied
+        personImage.classList.add('loaded'); 
+        personImage.style.opacity = ''; 
         
         personInfo.style.display = 'none'; 
         personInfo.classList.remove('correct', 'incorrect');
-        updateUI(null); // This will populate with "Unknown" and trigger updateModeVisibility
+        updateUI(null); 
 
         if (gameMode === 'closed') {
             overlay.classList.remove('hidden'); 
@@ -1331,11 +1233,10 @@ async function loadSession() {
         for (const category of categories) {
             for (let j = 0; j < peoplePerCategory && sessionList.length < settings.sessionPeople; j++) {
                 promises.push(
-                    fetchPersonData(false, category).then(personBinding => { // personBinding is the Wikidata item
-                        if (personBinding) { // fetchPersonData should return a valid binding or throw
+                    fetchPersonData(false, category).then(personBinding => { 
+                        if (personBinding) { 
                             sessionList.push({ person: personBinding, category: category });
                         } else {
-                            // This case should ideally not happen if fetchPersonData throws on failure
                             console.warn('[LOAD_SESSION_WARN] fetchPersonData returned null/undefined, skipping from session add.');
                         }
                         fetchedCount++;
@@ -1352,14 +1253,13 @@ async function loadSession() {
         }
         
         await Promise.all(promises);
-        // Strengthen filter to ensure all essential parts of personBinding are present
         sessionList = sessionList.filter(entry => 
             entry && entry.person && 
             entry.person.personLabel && entry.person.personLabel.value &&
             entry.person.image && entry.person.image.value &&
             entry.person.gender && entry.person.gender.value &&
             entry.person.birthDate && entry.person.birthDate.value &&
-            entry.person.person && entry.person.person.value // person URI
+            entry.person.person && entry.person.person.value 
         ).slice(0, settings.sessionPeople); 
 
         console.log(`[LOAD_SESSION_COMPLETE] New session list loaded with ${sessionList.length} people.`);
@@ -1368,7 +1268,7 @@ async function loadSession() {
 
         if (sessionList.length > 0) {
             hasChecked = false; 
-            const firstEntry = sessionList.shift(); // firstEntry is { person: personBinding, category: categoryObj }
+            const firstEntry = sessionList.shift(); 
             console.log(`[LOAD_SESSION] Loading first person from new session: ${firstEntry.person.personLabel.value}`);
             
             await loadPersonFromData(firstEntry.person, firstEntry.category); 
@@ -1378,7 +1278,6 @@ async function loadSession() {
                 document.getElementById('female-btn').disabled = false;
                 document.getElementById('alive-btn').disabled = false;
                 document.getElementById('dead-btn').disabled = false;
-                // Buttons visibility is now handled by updateModeVisibility with delay
                 document.getElementById('next-person').style.display = 'none';
                 document.getElementById('next-photo').disabled = false; 
                 updateCheckButtonState();
@@ -1433,8 +1332,8 @@ async function loadNextPerson(triggerButton = 'unknown') {
     personInfo.style.display = 'none';
     personInfo.classList.remove('correct', 'incorrect');
 
-    const nextEntry = sessionList.shift(); // nextEntry is { person: personBinding, category: categoryObj }
-    if (nextEntry && nextEntry.person) { // Already filtered in loadSession, but good to be safe
+    const nextEntry = sessionList.shift(); 
+    if (nextEntry && nextEntry.person) { 
         console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${nextEntry.person.personLabel.value}`);
         await loadPersonFromData(nextEntry.person, nextEntry.category);
     } else {
@@ -1448,7 +1347,6 @@ async function loadNextPerson(triggerButton = 'unknown') {
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false;
         document.getElementById('dead-btn').disabled = false;
-        // Buttons visibility is now handled by updateModeVisibility with delay
         document.getElementById('next-person').style.display = 'none'; 
         document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; 
          console.log('[LOAD_NEXT_PERSON_UI] UI reset for the next person.');
@@ -1461,8 +1359,8 @@ function startNewGame() {
     totalGuesses = 0; 
     successfulGuesses = 0;
     failedGuesses = 0;
-    attemptTimestamps = [];
     guessResultsHistory = []; 
+    attemptDurations = [];
     currentPerson = null; 
     loadedPhotos = 0; 
     console.log('[GAME_FLOW] Game statistics and current person reset.');
@@ -1486,8 +1384,8 @@ function startNewGame() {
     localStorage.setItem('totalGuesses', totalGuesses.toString());
     localStorage.setItem('successfulGuesses', successfulGuesses.toString());
     localStorage.setItem('failedGuesses', failedGuesses.toString());
-    localStorage.setItem('attemptTimestamps', JSON.stringify(attemptTimestamps));
     localStorage.setItem('guessResultsHistory', JSON.stringify(guessResultsHistory));
+    localStorage.setItem('attemptDurations', JSON.stringify(attemptDurations));
     console.log('[GAME_FLOW] Reset game state saved to localStorage.');
 
 
@@ -1501,13 +1399,12 @@ function startNewGame() {
     document.getElementById('stats-success').textContent = '0';
     document.getElementById('stats-failure').textContent = '0';
     document.getElementById('stats-success-rate').textContent = '0%';
-    updateTimeBetweenAttemptsDisplay(); 
     updateGuessHistoryDisplay(); 
     
     const personInfo = document.getElementById('person-info');
     personInfo.style.display = 'none'; 
     personInfo.classList.remove('correct', 'incorrect');
-    updateUI(null); // This will clear details text and call updateModeVisibility
+    updateUI(null); 
     console.log('[GAME_FLOW_UI] Statistics display and general UI reset.');
 
     updateNewGameButtonPosition(); 
@@ -1527,7 +1424,6 @@ function startNewGame() {
     document.getElementById('next-person').style.display = 'none';
     document.getElementById('next-photo').disabled = false; 
     
-    // Buttons visibility is now handled by updateModeVisibility with delay
     console.log('[GAME_FLOW_UI] Buttons and UI elements reset for new game.');
 
     loadSession(); 
@@ -1578,7 +1474,7 @@ document.getElementById('dead-btn').addEventListener('click', () => {
 
 document.getElementById('check-btn').addEventListener('click', () => {
     console.log('[USER_ACTION] "Check" button clicked.');
-    if (!currentPerson || !currentPerson.personLabel || !currentPerson.personLabel.value) { // Ensure currentPerson and its label are valid
+    if (!currentPerson || !currentPerson.personLabel || !currentPerson.personLabel.value) { 
         console.warn('[CHECK_ACTION_WARN] No current person or person label to check against.');
         return;
     }
@@ -1588,9 +1484,6 @@ document.getElementById('check-btn').addEventListener('click', () => {
     }
     
     const endTime = Date.now();
-    attemptTimestamps.push(endTime);
-    localStorage.setItem('attemptTimestamps', JSON.stringify(attemptTimestamps));
-    console.log(`[STATE_CHANGE] Attempt timestamp ${endTime} added. Saved to localStorage. All timestamps:`, attemptTimestamps);
 
     hasChecked = true;
     currentAttempts++;
@@ -1598,7 +1491,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
     console.log(`[GAME_STATE] Attempt ${currentAttempts}/${maxAttempts}. Total guesses this game: ${totalGuesses}.`);
     
     const actualGender = currentPerson.gender.value.split('/').pop() === 'Q6581097' ? 'male' : 'female';
-    const actualStatus = currentPerson.deathDate ? 'dead' : 'alive'; // deathDate might be undefined
+    const actualStatus = currentPerson.deathDate ? 'dead' : 'alive'; 
     console.log(`[CHECK_ACTION] Actual person - Gender: ${actualGender}, Status: ${actualStatus}`);
 
     const isGenderCorrect = gameMode === 'closed' ? userGenderGuess === actualGender : true;
@@ -1608,7 +1501,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
     
     guessResultsHistory.push(isOverallCorrect ? 1 : 0);
     localStorage.setItem('guessResultsHistory', JSON.stringify(guessResultsHistory));
-    console.log(`[STATE_CHANGE] Guess result (${isOverallCorrect ? 1 : 0}) added to history. Saved to localStorage. History:`, guessResultsHistory);
+    console.log(`[STATE_CHANGE] Guess result (${isOverallCorrect ? 1 : 0}) added to success/fail history. Saved to localStorage. History:`, guessResultsHistory);
     
     let time_for_attempt_seconds = 0;
     if (currentAttemptStartTime) {
@@ -1618,6 +1511,11 @@ document.getElementById('check-btn').addEventListener('click', () => {
     } else {
         console.warn("[CHECK_ACTION_TIME_WARN] currentAttemptStartTime was not set for this attempt. Time for attempt will be 0.");
     }
+    
+    attemptDurations.push(time_for_attempt_seconds);
+    localStorage.setItem('attemptDurations', JSON.stringify(attemptDurations));
+    console.log(`[STATE_CHANGE] Attempt duration ${time_for_attempt_seconds}s added. Saved to localStorage. Durations:`, attemptDurations);
+
 
     if (currentSessionId) {
         const attemptCompletedParams = {
@@ -1652,7 +1550,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
     
     requestAnimationFrame(() => {
         personInfo.style.display = 'block'; 
-        personInfo.classList.remove('correct', 'incorrect'); // Clear previous before adding new
+        personInfo.classList.remove('correct', 'incorrect'); 
 
         if (gameMode === 'closed') {
             overlay.classList.add('hidden'); 
@@ -1682,7 +1580,6 @@ document.getElementById('check-btn').addEventListener('click', () => {
         document.getElementById('stats-failure').textContent = failedGuesses;
         const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
         document.getElementById('stats-success-rate').textContent = `${successRate}%`;
-        updateTimeBetweenAttemptsDisplay(); 
         updateGuessHistoryDisplay(); 
         console.log('[CHECK_UI] Stats display updated.');
         
@@ -1692,7 +1589,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
         localStorage.setItem('failedGuesses', failedGuesses.toString());
         console.log('[STATE_CHANGE] Game stats after check saved to localStorage.');
 
-        updateUI(currentPerson); // This will populate person-info text and call updateModeVisibility
+        updateUI(currentPerson); 
         updateNewGameButtonPosition(); 
 
         if (currentAttempts >= maxAttempts) {
@@ -1787,15 +1684,17 @@ window.onload = () => {
     if (storedAttemptStartTime) {
         currentAttemptStartTime = parseInt(storedAttemptStartTime, 10);
     }
-    console.log(`[WINDOW_ONLOAD_RESTORE] Restored from localStorage - Session ID: ${currentSessionId}, Attempt Start Time: ${currentAttemptStartTime}`);
+    guessResultsHistory = JSON.parse(localStorage.getItem('guessResultsHistory')) || [];
+    attemptDurations = JSON.parse(localStorage.getItem('attemptDurations')) || [];
+    console.log(`[WINDOW_ONLOAD_RESTORE] Restored from localStorage - Session ID: ${currentSessionId}, Attempt Start Time: ${currentAttemptStartTime}, Guess Results History: ${guessResultsHistory}, Attempt Durations: ${attemptDurations}`);
 
 
     const isFirstLaunchOrReset = localStorage.getItem('currentAttempts') === null;
     console.log(`[WINDOW_ONLOAD] Is first launch or reset: ${isFirstLaunchOrReset}`);
     
     const personInfoOnLoad = document.getElementById('person-info');
-    personInfoOnLoad.style.display = 'none'; // Always hide on initial load/resume
-    personInfoOnLoad.classList.remove('correct', 'incorrect'); // Clear any stale classes
+    personInfoOnLoad.style.display = 'none'; 
+    personInfoOnLoad.classList.remove('correct', 'incorrect'); 
 
     if (isFirstLaunchOrReset) {
         console.log("[WINDOW_ONLOAD] First launch or reset detected. Initializing a new game.");
@@ -1816,7 +1715,6 @@ window.onload = () => {
             
             document.getElementById('next-photo').disabled = true;
             document.getElementById('next-person').style.display = 'none';
-            // personInfo already hidden above
             
             if (currentSessionId || currentAttemptStartTime) {
                 console.warn("[WINDOW_ONLOAD_GAMEOVER_CLEANUP] Game was over, but session ID or start time found in localStorage. Clearing them now.");
@@ -1839,7 +1737,6 @@ window.onload = () => {
             if (!currentSessionId && currentAttempts > 0 && currentAttempts < maxAttempts) {
                 console.warn("[WINDOW_ONLOAD_RESUME_WARN] Resuming game, but currentSessionId is missing from localStorage. It will be generated on the next new game. GA events for ongoing attempts might miss session_id.");
             }
-            // personInfo already hidden above
 
             if (!currentPerson) { 
                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson is null. Loading session data to continue/start.");
@@ -1848,15 +1745,14 @@ window.onload = () => {
                 loadSession(); 
             } else {
                  console.log("[WINDOW_ONLOAD_RESUME] currentPerson somehow exists. UI should be updated. Preloading next.");
-                 updateUI(currentPerson); // Update content. Visibility is already handled.
+                 updateUI(currentPerson); 
                  startPreloadNextAvailablePerson(); 
             }
         }
         updateCheckButtonState();
-        updateTimeBetweenAttemptsDisplay(); 
         updateGuessHistoryDisplay(); 
         updateNewGameButtonPosition();
     }
-    updateTelegramUserInfoDisplay(); // Ensure it's called after all initializations
+    updateTelegramUserInfoDisplay(); 
     console.log('[WINDOW_ONLOAD] Page load sequence finished.');
 };
