@@ -1,5 +1,6 @@
 
 
+
 // Настройки приложения
 const settings = {
     superRandomPeople: true,
@@ -51,6 +52,7 @@ let telegramUserName = null; // Telegram User Name
 let newGameBtn = null;
 let initialNewGameContainer = null;
 let gameOverNewGameContainer = null;
+let newGameButtonTimeoutId = null; // Timeout ID for delayed "New Game" button appearance
 
 // Состояние для предварительной загрузки
 let preloadedPersonContainer = null; // { data: { person: personBinding, category: categoryObj }, imageElement: HTMLImageElement, commonsUrl: string, proxyUrl: string }
@@ -217,13 +219,37 @@ function updateNewGameButtonPosition() {
         return;
     }
 
+    // Clear any existing timeout for the "New Game" button visibility
+    if (newGameButtonTimeoutId) {
+        clearTimeout(newGameButtonTimeoutId);
+        newGameButtonTimeoutId = null;
+        console.log('[UI_TIMEOUT_CANCELLED] Existing New Game button visibility timeout cancelled.');
+    }
+
     if (currentAttempts >= maxAttempts) {
-        console.log('[UI_UPDATE] Game is over, moving New Game button to game over location.');
-        if (newGameBtn.parentElement !== gameOverNewGameContainer) {
-            gameOverNewGameContainer.appendChild(newGameBtn);
+        console.log('[UI_UPDATE] Game is over, scheduling New Game button move to game over location in 5s.');
+        // Ensure the game over container is hidden initially while the timer runs
+        gameOverNewGameContainer.style.display = 'none';
+        // If the button is currently in the initial container, hide that container too,
+        // so the button doesn't remain visible at the bottom during the delay.
+        if (newGameBtn.parentElement === initialNewGameContainer) {
+            initialNewGameContainer.style.display = 'none';
         }
-        gameOverNewGameContainer.style.display = 'flex';
-        initialNewGameContainer.style.display = 'none';
+
+        newGameButtonTimeoutId = setTimeout(() => {
+            // Re-check the condition in case a new game started very quickly
+            if (currentAttempts >= maxAttempts) {
+                console.log('[UI_UPDATE_DELAYED] 5s timeout elapsed. Moving New Game button to game over location.');
+                if (newGameBtn.parentElement !== gameOverNewGameContainer) {
+                    gameOverNewGameContainer.appendChild(newGameBtn);
+                }
+                gameOverNewGameContainer.style.display = 'flex';
+                initialNewGameContainer.style.display = 'none'; // Ensure initial container remains hidden
+            } else {
+                console.log('[UI_UPDATE_DELAYED] 5s timeout elapsed, but game is no longer over. Button position likely handled by standard logic.');
+            }
+            newGameButtonTimeoutId = null;
+        }, 5000); // 5-second delay
     } else {
         console.log('[UI_UPDATE] Game is active, moving New Game button to initial location.');
         if (newGameBtn.parentElement !== initialNewGameContainer) {
