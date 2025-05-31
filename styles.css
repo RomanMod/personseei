@@ -186,9 +186,16 @@ h1 {
     display: flex;
     justify-content: center;
     gap: 15px;
+    align-items: stretch; /* Ensure items stretch to the same height */
 }
 
-.settings button {
+/* Make direct children of .settings (button and .custom-select) share space equally */
+.settings > * {
+    flex: 1; /* Distribute space equally */
+    box-sizing: border-box; /* Consistent box model */
+}
+
+.settings button { /* Affects #theme-toggle */
     padding: 10px 20px;
     font-size: 1rem; /* 18px */
     background-color: var(--button-bg);
@@ -197,30 +204,37 @@ h1 {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.2s;
-    min-width: 140px;
+    min-width: 140px; /* Base minimum width */
+    text-align: center; /* Explicitly center text */
 }
 
 .settings button:hover {
     background-color: var(--button-hover);
 }
 
-.custom-select {
+.custom-select { /* Affects #language-select and #mode-select containers */
     position: relative;
-    min-width: 140px;
+    min-width: 140px; /* Base minimum width, works with flex:1 */
+    display: flex; /* To allow .selected-option to fill height if needed */
 }
 
-.selected-option {
+.selected-option { /* The visible part of the custom select */
+    width: 100%; /* Fill the width of .custom-select parent */
     padding: 10px 20px;
     font-size: 1rem; /* 18px */
     background-color: var(--button-bg);
     color: var(--button-text);
-    border: 1px solid var(--button-bg);
+    border: none; /* Consistent with button style */
     border-radius: 5px;
     cursor: pointer;
-    text-align: left;
+    text-align: center; /* Consistent with button style */
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    box-sizing: border-box; /* Consistent box model */
+    display: flex; /* For vertical centering of text if needed, and height consistency */
+    align-items: center; /* Vertically center text */
+    justify-content: center; /* Horizontally center text (redundant with text-align: center but good for flex context) */
 }
 
 .selected-option:hover {
@@ -246,7 +260,8 @@ h1 {
     color: var(--button-text);
     cursor: pointer;
     white-space: nowrap;
-    font-size: 1rem; /* 18px, успадковується, але можна явно */
+    font-size: 1rem; /* 18px */
+    text-align: center; /* Consistent text alignment */
 }
 
 .options li:hover {
@@ -412,30 +427,36 @@ h1 {
 }
 
 @media (max-width: 600px) {
-    .settings button {
-        padding: 8px 12px;
-        font-size: 0.8rem; /* ~14.4px (було 13px) */
+    /* Apply reduced min-width to both button and custom-select containers directly */
+    .settings button,
+    .custom-select {
         min-width: 110px;
     }
-    .custom-select .selected-option {
+
+    .settings button { /* Style adjustments for the button itself */
         padding: 8px 12px;
         font-size: 0.8rem; /* ~14.4px */
-        min-width: 110px;
     }
+
+    .custom-select .selected-option { /* Style adjustments for the visible part of select */
+        padding: 8px 12px;
+        font-size: 0.8rem; /* ~14.4px */
+    }
+
     .options li {
         padding: 8px 12px;
         font-size: 0.8rem; /* ~14.4px */
     }
+
     #circular-progress-container {
         width: 60px;
         height: 60px;
     }
     .circular-progress-text {
-        font-size: 0.6rem; /* ~10.8px (було 0.7em)*/
+        font-size: 0.6rem; /* ~10.8px */
     }
     #new-game {
         padding: 12px 30px;
-        font-size: 0.9rem; /* ~16.2px (було 16px) */
+        font-size: 0.9rem; /* ~16.2px */
     }
-    /* #main-display max-width doesn't change further here, so #person-info's max-width also doesn't need to beyond what's set for 900px or default */
 }
