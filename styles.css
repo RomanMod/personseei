@@ -1,5 +1,4 @@
 
-
 :root {
     --bg-color: #1C2526;
     --text-color: #E8ECEF;
@@ -317,10 +316,14 @@ h1 {
     background-color: var(--button-bg);
     padding: 10px;
     border-radius: 5px;
-    margin: 10px 0;
-    transition: border-color 0.3s ease, border-width 0.3s ease; /* Added border-width for smooth transition if border appears/disappears */
-    font-size: 1rem; /* 18px */
-    border: 2px solid transparent; /* Start with a transparent border to maintain layout */
+    margin: 10px auto; /* Changed from 10px 0 for centering */
+    transition: border-color 0.3s ease, border-width 0.3s ease;
+    font-size: 1rem;
+    border: 2px solid transparent;
+    max-width: 400px; /* Added to match #main-display max-width */
+    box-sizing: border-box; /* Ensures padding and border are included in max-width */
+    word-wrap: break-word; /* Allows long text to wrap */
+    text-align: center; /* Centers the text content */
 }
 
 #person-info.correct {
@@ -368,7 +371,7 @@ h1 {
 
 #game-stats span {
     font-weight: bold;
-    color: var(--accent-color);
+    color: var(--text-color); /* Changed from var(--accent-color) */
 }
 
 .new-game-container {
@@ -402,6 +405,10 @@ h1 {
     #main-display {
         max-width: 350px;
     }
+    /* Adjust #person-info max-width if #main-display changes */
+    #person-info {
+        max-width: 350px;
+    }
 }
 
 @media (max-width: 600px) {
@@ -430,4 +437,5 @@ h1 {
         padding: 12px 30px;
         font-size: 0.9rem; /* ~16.2px (було 16px) */
     }
+    /* #main-display max-width doesn't change further here, so #person-info's max-width also doesn't need to beyond what's set for 900px or default */
 }
