@@ -1,6 +1,3 @@
-
-
-
 // Настройки приложения
 const settings = {
     superRandomPeople: true,
@@ -1629,7 +1626,8 @@ document.getElementById('check-btn').addEventListener('click', () => {
                 success_rate: `${successRate}%`,
                 language: selectedLanguage,
                 game_mode: gameMode,
-                session_id: currentSessionId
+                session_id: currentSessionId,
+                current_theme: isNight ? 'night' : 'day' // Добавляем текущую тему
             });
             localStorage.removeItem('currentSessionId');
             localStorage.removeItem('currentAttemptStartTime');
