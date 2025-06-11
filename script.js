@@ -1411,11 +1411,28 @@ function startNewGame() {
     localStorage.setItem('attemptDurations', JSON.stringify(attemptDurations));
     console.log('[GAME_FLOW] Reset game state saved to localStorage.');
 
+    // Get player's local time string
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    
+    const timezoneOffsetMinutes = now.getTimezoneOffset(); // e.g., for UTC+3, this is -180. For UTC-4, this is 240.
+    const offsetSign = timezoneOffsetMinutes <= 0 ? '+' : '-'; // Invert sign for display
+    const offsetHoursAbs = Math.floor(Math.abs(timezoneOffsetMinutes) / 60);
+    const offsetMinutesAbs = Math.abs(timezoneOffsetMinutes) % 60;
+    
+    const playerLocalStartTimeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds} UTC${offsetSign}${offsetHoursAbs.toString().padStart(2, '0')}:${offsetMinutesAbs.toString().padStart(2, '0')}`;
+    console.log(`[GAME_FLOW] Player local start time for GA: ${playerLocalStartTimeString}`);
 
     sendGAEvent('new_game_started', {
         language: selectedLanguage,
         game_mode: gameMode,
-        session_id: currentSessionId
+        session_id: currentSessionId,
+        player_local_start_time: playerLocalStartTimeString 
     });
 
     document.getElementById('stats-attempts').textContent = `0/${maxAttempts}`;
