@@ -1322,6 +1322,7 @@ async function loadSession() {
 async function loadNextPerson(triggerButton = 'unknown') {
     console.log(`[LOAD_NEXT_PERSON] Called. Trigger: ${triggerButton}. Current attempts: ${currentAttempts}/${maxAttempts}`);
     sendGAEvent('next_photo_requested', {
+        session_id: currentSessionId, // Added session_id
         trigger_button: triggerButton,
         language: selectedLanguage,
         game_mode: gameMode,
