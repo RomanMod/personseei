@@ -1563,7 +1563,8 @@ document.getElementById('check-btn').addEventListener('click', () => {
             attempt_number_in_session: currentAttempts, 
             time_for_attempt_seconds: time_for_attempt_seconds,
             attempt_result: isOverallCorrect ? 1 : 0,
-            game_mode: gameMode 
+            game_mode: gameMode,
+            language: selectedLanguage // Added language parameter
         };
         sendGAEvent('attempt_completed', attemptCompletedParams);
     } else {
