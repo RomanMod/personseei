@@ -373,7 +373,7 @@ document.querySelectorAll('.custom-select').forEach(select => {
                 localStorage.setItem('language', selectedLanguage);
                 console.log(`[STATE_CHANGE] Language changed from ${oldLanguage} to ${selectedLanguage}. Saved to localStorage.`);
                 if (oldLanguage !== selectedLanguage) {
-                    sendGAEvent('language_changed', { new_language: selectedLanguage });
+                    sendGAEvent('language_changed', { new_language: selectedLanguage }); // Changed from new_lang
                 }
                 updateLanguage();
             } else if (select.id === 'mode-select') {
@@ -1119,7 +1119,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     sendGAEvent('photo_loaded', {
         person_id: currentPerson.person.value.split('/').pop(),
         person_name: currentPerson.personLabel.value,
-        language: selectedLanguage,
+        new_language: selectedLanguage, // Changed from new_lang
         game_mode: gameMode,
         load_source: gaLoadSource, 
         load_path_detail: imageLoadPathDetail 
@@ -1322,9 +1322,9 @@ async function loadSession() {
 async function loadNextPerson(triggerButton = 'unknown') {
     console.log(`[LOAD_NEXT_PERSON] Called. Trigger: ${triggerButton}. Current attempts: ${currentAttempts}/${maxAttempts}`);
     sendGAEvent('next_photo_requested', {
-        session_id: currentSessionId, // Added session_id
+        session_id: currentSessionId, 
         trigger_button: triggerButton,
-        language: selectedLanguage,
+        new_language: selectedLanguage, // Changed from new_lang
         game_mode: gameMode,
         remaining_in_session: sessionList.length,
         is_preloading: isCurrentlyPreloading,
@@ -1430,7 +1430,7 @@ function startNewGame() {
     console.log(`[GAME_FLOW] Player local start time for GA: ${playerLocalStartTimeString}`);
 
     sendGAEvent('new_game_started', {
-        language: selectedLanguage,
+        new_language: selectedLanguage, // Changed from new_lang
         game_mode: gameMode,
         session_id: currentSessionId,
         player_local_start_time: playerLocalStartTimeString 
@@ -1565,7 +1565,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
             time_for_attempt_seconds: time_for_attempt_seconds,
             attempt_result: isOverallCorrect ? 1 : 0,
             game_mode: gameMode,
-            language: selectedLanguage // Added language parameter
+            new_language: selectedLanguage  // Changed from new_lang
         };
         sendGAEvent('attempt_completed', attemptCompletedParams);
     } else {
@@ -1587,7 +1587,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
         is_status_correct: isStatusCorrect,
         is_overall_correct: isOverallCorrect,
         attempt_number: currentAttempts,
-        language: selectedLanguage
+        new_language: selectedLanguage // Changed from new_lang
     });
     
     requestAnimationFrame(() => {
@@ -1643,10 +1643,10 @@ document.getElementById('check-btn').addEventListener('click', () => {
                 successful_guesses: successfulGuesses,
                 failed_guesses: failedGuesses,
                 success_rate: `${successRate}%`,
-                language: selectedLanguage,
+                new_language: selectedLanguage, // Changed from new_lang
                 game_mode: gameMode,
                 session_id: currentSessionId,
-                current_theme: isNight ? 'night' : 'day' // Добавляем текущую тему
+                current_theme: isNight ? 'night' : 'day' 
             });
             localStorage.removeItem('currentSessionId');
             localStorage.removeItem('currentAttemptStartTime');
