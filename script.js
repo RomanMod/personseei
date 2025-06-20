@@ -1430,10 +1430,11 @@ function startNewGame() {
     console.log(`[GAME_FLOW] Player local start time for GA: ${playerLocalStartTimeString}`);
 
     sendGAEvent('new_game_started', {
-        new_language: selectedLanguage, // Changed from new_lang
+        new_language: selectedLanguage, 
         game_mode: gameMode,
         session_id: currentSessionId,
-        player_local_start_time: playerLocalStartTimeString 
+        player_local_start_time: playerLocalStartTimeString,
+        current_theme: isNight ? 'night' : 'day' // Added current_theme
     });
 
     document.getElementById('stats-attempts').textContent = `0/${maxAttempts}`;
