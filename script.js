@@ -277,8 +277,6 @@ function updateGuessHistoryDisplay() {
         durationsText = attemptDurations.map(duration => `${duration}`).join(' | ');
     }
     durationsDisplayElement.textContent = durationsText;
-    
-    // console.log(`[UI_UPDATE] Guess history display updated. Icons: "${iconsText}", Durations: "${durationsText}"`);
 }
 
 
@@ -1800,3 +1798,31 @@ window.onload = () => {
     updateTelegramUserInfoDisplay(); 
     console.log('[WINDOW_ONLOAD] Page load sequence finished.');
 };
+
+// --- ФИКС: Отслеживание закрытия страницы или сворачивания приложения (в т.ч. Telegram Web App) ---
+document.addEventListener('visibilitychange', () => {
+    // Если страница скрывается (пользователь закрывает вкладку, сворачивает браузер)
+    if (document.visibilityState === 'hidden') {
+        
+        // Проверяем, была ли игра начата, но не доведена до конца (10 попыток)
+        if (currentAttempts > 0 && currentAttempts < maxAttempts && currentSessionId) {
+            console.log('[SESSION_ABANDONED] Пользователь покинул игру до ее завершения.');
+
+            const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
+            
+            // Отправка в Google Analytics 4 события брошенной игры.
+            // Библиотека gtag автоматически использует sendBeacon под капотом, когда это возможно, 
+            // что позволяет запросу отправиться даже при закрытии вкладки.
+            sendGAEvent('game_abandoned', {
+                total_attempts_made: currentAttempts,
+                successful_guesses: successfulGuesses,
+                failed_guesses: failedGuesses,
+                success_rate: `${successRate}%`,
+                new_language: selectedLanguage,
+                game_mode: gameMode,
+                session_id: currentSessionId,
+                current_theme: isNight ? 'night' : 'day'
+            });
+        }
+    }
+});
