@@ -1799,6 +1799,7 @@ window.onload = () => {
     console.log('[WINDOW_ONLOAD] Page load sequence finished.');
 };
 
+
 // --- ФИКС: Отслеживание закрытия страницы или сворачивания приложения (в т.ч. Telegram Web App) ---
 document.addEventListener('visibilitychange', () => {
     // Если страница скрывается (пользователь закрывает вкладку, сворачивает браузер)
@@ -1811,10 +1812,8 @@ document.addEventListener('visibilitychange', () => {
             const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
             
             // Отправка в Google Analytics 4 события брошенной игры.
-            // Библиотека gtag автоматически использует sendBeacon под капотом, когда это возможно, 
-            // что позволяет запросу отправиться даже при закрытии вкладки.
             sendGAEvent('game_abandoned', {
-                total_attempts_made: currentAttempts,
+                attempt_number: currentAttempts, // ИСПОЛЬЗУЕМ ВАШ ГОТОВЫЙ ПАРАМЕТР
                 successful_guesses: successfulGuesses,
                 failed_guesses: failedGuesses,
                 success_rate: `${successRate}%`,
