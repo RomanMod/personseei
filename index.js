@@ -1,6 +1,6 @@
 // === GLOBAL APPLICATION CONFIGURATION ===
 // Change the version number here in exactly one place!
-const APP_VERSION_FALLBACK = '2.1.1';
+const APP_VERSION_FALLBACK = '2.2.0';
 
 // === LOG CAPTURE & DIAGNOSTICS CODE (MUST BE AT THE VERY TOP) ===
 const originalConsoleLog = console.log;
@@ -413,7 +413,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Наступне фото</strong> — перейти до іншої випадкової людини.',
         helpBtnCheckText: '✅ <strong>Перевірити</strong> — відкрити фото та дізнатися результат (у Закритому режимі).',
         helpBtnGenderStatusText: '🔘 <strong>Чоловік / Жінка / Живий / Померлий</strong> — варіанти відповідей.',
-        gotItBtn: 'Зрозуміло!'
+        gotItBtn: 'Зрозуміло!',
+        topControlsSettings: 'Налаштування',
+        topControlsCollapse: 'Згорнути'
     },
     en: {
         themeNight: '🌙 Night',
@@ -464,7 +466,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Next Photo</strong> — move on to a new random person.',
         helpBtnCheckText: '✅ <strong>Check</strong> — reveal the photo and see your result (in Closed Mode).',
         helpBtnGenderStatusText: '🔘 <strong>Male / Female / Alive / Deceased</strong> — select your answers.',
-        gotItBtn: 'Got it!'
+        gotItBtn: 'Got it!',
+        topControlsSettings: 'Settings',
+        topControlsCollapse: 'Collapse'
     },
     de: {
         themeNight: '🌙 Nacht',
@@ -515,7 +519,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Nächstes Foto</strong> — zu einer neuen zufälligen Person wechseln.',
         helpBtnCheckText: '✅ <strong>Prüfen</strong> — Foto aufdecken und Ergebnis sehen.',
         helpBtnGenderStatusText: '🔘 <strong>Mann / Frau / Lebendig / Verstorben</strong> — deine Auswahl.',
-        gotItBtn: 'Verstanden!'
+        gotItBtn: 'Verstanden!',
+        topControlsSettings: 'Einstellungen',
+        topControlsCollapse: 'Einklappen'
     },
     fr: {
         themeNight: '🌙 Nuit',
@@ -566,7 +572,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Photo suivante</strong> — passer à une personne aléatoire.',
         helpBtnCheckText: '✅ <strong>Vérifier</strong> — révéler la photo et voir le résultat.',
         helpBtnGenderStatusText: '🔘 <strong>Homme / Femme / Vivant / Décédé</strong> — vos choix.',
-        gotItBtn: 'Compris !'
+        gotItBtn: 'Compris !',
+        topControlsSettings: 'Paramètres',
+        topControlsCollapse: 'Réduire'
     },
     es: {
         themeNight: '🌙 Noche',
@@ -617,7 +625,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Siguiente foto</strong> — pasar a otra persona aleatoria.',
         helpBtnCheckText: '✅ <strong>Comprobar</strong> — revelar la foto y ver el resultado.',
         helpBtnGenderStatusText: '🔘 <strong>Hombre / Mujer / Vivo / Fallecido</strong> — tus respuestas.',
-        gotItBtn: '¡Entendido!'
+        gotItBtn: '¡Entendido!',
+        topControlsSettings: 'Ajustes',
+        topControlsCollapse: 'Plegar'
     },
     zh: {
         themeNight: '🌙 夜间',
@@ -668,7 +678,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>下一张照片</strong> — 切换到下一位随机人物。',
         helpBtnCheckText: '✅ <strong>验证</strong> — 揭开照片并查看结果。',
         helpBtnGenderStatusText: '🔘 <strong>男性 / 女性 / 健在 / 已故</strong> — 猜想选项。',
-        gotItBtn: '明白了！'
+        gotItBtn: '明白了！',
+        topControlsSettings: '设置',
+        topControlsCollapse: '收起'
     },
     it: {
         themeNight: '🌙 Notte',
@@ -719,7 +731,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Prossima foto</strong> — passa a una nuova persona casuale.',
         helpBtnCheckText: '✅ <strong>Verifica</strong> — svela la foto e scopri il risultato.',
         helpBtnGenderStatusText: '🔘 <strong>Uomo / Donna / Vivente / Deceduto</strong> — le tue opzioni.',
-        gotItBtn: 'Capito!'
+        gotItBtn: 'Capito!',
+        topControlsSettings: 'Impostazioni',
+        topControlsCollapse: 'Riduci'
     },
     ru: {
         themeNight: '🌙 Ночь',
@@ -770,7 +784,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Следующее фото</strong> — перейти к другому случайному человеку.',
         helpBtnCheckText: '✅ <strong>Проверить</strong> — открыть фото и узнать результат (в Закрытом режиме).',
         helpBtnGenderStatusText: '🔘 <strong>Мужчина / Женщина / Жив / Мертв</strong> — варианты ответа.',
-        gotItBtn: 'Понятно!'
+        gotItBtn: 'Понятно!',
+        topControlsSettings: 'Настройки',
+        topControlsCollapse: 'Свернуть'
     },
     alien: {
         themeNight: '🌙 ☌⬡☍',
@@ -821,7 +837,9 @@ const translations = {
         helpBtnNextPersonText: '👤 <strong>Ͼ☍Ͽ</strong> — 👽 ☌⬡ ⨀/⨁.',
         helpBtnCheckText: '✅ <strong>☍Ψ☌</strong> — 🛸 ϘϞϠ ⚡ ☌Ω☍.',
         helpBtnGenderStatusText: '🔘 <strong>♂/♀ ⚡ ⨀/⨁</strong> — ⬡ ☍Ψ☌.',
-        gotItBtn: '👽 ☍Ψ☌!'
+        gotItBtn: '👽 ☍Ψ☌!',
+        topControlsSettings: '☍Ψ☌ ⚙️',
+        topControlsCollapse: '▲ ☍Ψ☌'
     }
 };
 
@@ -834,6 +852,59 @@ if (!translations[selectedLanguage]) {
 let gameMode = localStorage.getItem('mode') || 'open';
 if (gameMode !== 'open' && gameMode !== 'closed') {
     gameMode = 'open';
+}
+
+let isTopControlsCollapsed = false;
+let userManuallyToggledControls = false;
+
+function setTopControlsCollapsed(collapsed, isManual = false) {
+    isTopControlsCollapsed = !!collapsed;
+    if (isManual) {
+        userManuallyToggledControls = true;
+        localStorage.setItem('top_controls_collapsed', isTopControlsCollapsed ? 'true' : 'false');
+    }
+    
+    const wrapper = document.getElementById('top-controls-wrapper');
+    const toggleBtn = document.getElementById('toggle-top-controls');
+    const toggleText = document.getElementById('toggle-top-controls-text');
+    const toggleArrow = document.getElementById('toggle-top-controls-arrow');
+    const texts = translations[selectedLanguage] || translations.uk;
+
+    if (wrapper) {
+        if (isTopControlsCollapsed) {
+            wrapper.classList.add('collapsed');
+            wrapper.classList.remove('expanded');
+            // Close any open custom-select options dropdowns
+            document.querySelectorAll('.custom-select .options').forEach(opt => opt.style.display = 'none');
+        } else {
+            wrapper.classList.remove('collapsed');
+            wrapper.classList.add('expanded');
+        }
+    }
+
+    if (toggleBtn) {
+        toggleBtn.setAttribute('aria-expanded', isTopControlsCollapsed ? 'false' : 'true');
+    }
+    if (toggleText) {
+        toggleText.textContent = isTopControlsCollapsed ? (texts.topControlsSettings || 'Налаштування') : (texts.topControlsCollapse || 'Згорнути');
+    }
+    if (toggleArrow) {
+        if (isTopControlsCollapsed) {
+            toggleArrow.textContent = 'expand_more';
+            toggleArrow.classList.add('collapsed');
+        } else {
+            toggleArrow.textContent = 'expand_less';
+            toggleArrow.classList.remove('collapsed');
+        }
+    }
+    console.log(`[TOP_CONTROLS] Collapsed state: ${isTopControlsCollapsed} (manual: ${isManual})`);
+}
+
+function autoCollapseControlsOnGameplay() {
+    if (!isTopControlsCollapsed && !userManuallyToggledControls) {
+        console.log('[AUTO_COLLAPSE] Auto-collapsing top controls as gameplay is active.');
+        setTopControlsCollapsed(true, false);
+    }
 }
 
 // Google Analytics 4 Event Sender
@@ -881,6 +952,8 @@ const modeToggleBtnInit = document.getElementById('mode-toggle');
 if (modeToggleBtnInit) {
     modeToggleBtnInit.textContent = translations[selectedLanguage][`mode${gameMode.charAt(0).toUpperCase() + gameMode.slice(1)}`];
 }
+const initialControlsCollapsed = localStorage.getItem('top_controls_collapsed') === 'true';
+setTopControlsCollapsed(initialControlsCollapsed, false);
 
 // Логирование инициализации
 console.log('[APP_INIT] Initializing application...');
@@ -1156,6 +1229,11 @@ function updateLanguage() {
     const gotItHelpBtnEl = document.getElementById('got-it-help-btn');
     if (gotItHelpBtnEl) gotItHelpBtnEl.textContent = texts.gotItBtn || 'Зрозуміло!';
 
+    const toggleTopControlsText = document.getElementById('toggle-top-controls-text');
+    if (toggleTopControlsText) {
+        toggleTopControlsText.textContent = isTopControlsCollapsed ? (texts.topControlsSettings || 'Налаштування') : (texts.topControlsCollapse || 'Згорнути');
+    }
+
     updateUI(currentPerson); 
     updateTelegramUserInfoDisplay(); 
 
@@ -1225,6 +1303,15 @@ document.querySelectorAll('.custom-select').forEach(select => {
         });
     }
 });
+
+// Кнопка сворачивания/разворачивания верхних кнопок управления
+const toggleTopControlsBtn = document.getElementById('toggle-top-controls');
+if (toggleTopControlsBtn) {
+    toggleTopControlsBtn.addEventListener('click', () => {
+        setTopControlsCollapsed(!isTopControlsCollapsed, true);
+        sendGAEvent('top_controls_toggled', { collapsed: isTopControlsCollapsed });
+    });
+}
 
 // Кнопка прямого переключения режима игры
 const modeToggleBtn = document.getElementById('mode-toggle');
@@ -2764,13 +2851,15 @@ function startNewGame() {
     document.getElementById('next-person').style.display = 'none';
     document.getElementById('next-photo').disabled = false; 
     
-    console.log('[GAME_FLOW_UI] Buttons and UI elements reset for new game.');
+    userManuallyToggledControls = false;
+    setTopControlsCollapsed(false, false);
 
     loadSession(); 
     console.log('[GAME_FLOW] New game started successfully.');
 }
 
 document.getElementById('next-photo').addEventListener('click', () => {
+    autoCollapseControlsOnGameplay();
     console.log('[USER_ACTION] "Find New Photo" button clicked.');
     if (isCurrentlyPreloading) {
         console.log("[PRELOAD_CANCEL] User clicked 'Find New Photo', cancelling current preload if any.");
@@ -2781,6 +2870,7 @@ document.getElementById('next-photo').addEventListener('click', () => {
 });
 
 document.getElementById('male-btn').addEventListener('click', () => {
+    autoCollapseControlsOnGameplay();
     userGenderGuess = 'male';
     document.getElementById('male-btn').classList.add('active');
     document.getElementById('female-btn').classList.remove('active');
@@ -2789,6 +2879,7 @@ document.getElementById('male-btn').addEventListener('click', () => {
 });
 
 document.getElementById('female-btn').addEventListener('click', () => {
+    autoCollapseControlsOnGameplay();
     userGenderGuess = 'female';
     document.getElementById('female-btn').classList.add('active');
     document.getElementById('male-btn').classList.remove('active');
@@ -2797,6 +2888,7 @@ document.getElementById('female-btn').addEventListener('click', () => {
 });
 
 document.getElementById('alive-btn').addEventListener('click', () => {
+    autoCollapseControlsOnGameplay();
     userStatusGuess = 'alive';
     document.getElementById('alive-btn').classList.add('active');
     document.getElementById('dead-btn').classList.remove('active');
@@ -2805,6 +2897,7 @@ document.getElementById('alive-btn').addEventListener('click', () => {
 });
 
 document.getElementById('dead-btn').addEventListener('click', () => {
+    autoCollapseControlsOnGameplay();
     userStatusGuess = 'dead';
     document.getElementById('dead-btn').classList.add('active');
     document.getElementById('alive-btn').classList.remove('active');
@@ -2813,6 +2906,7 @@ document.getElementById('dead-btn').addEventListener('click', () => {
 });
 
 document.getElementById('check-btn').addEventListener('click', () => {
+    autoCollapseControlsOnGameplay();
     console.log('[USER_ACTION] "Check" button clicked.');
     if (!currentPerson || !currentPerson.personLabel || !currentPerson.personLabel.value) { 
         console.warn('[CHECK_ACTION_WARN] No current person or person label to check against.');
@@ -2974,6 +3068,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
 });
 
 document.getElementById('next-person').addEventListener('click', () => {
+    autoCollapseControlsOnGameplay();
     console.log('[USER_ACTION] "Next Photo" (after guess) button clicked.');
      requestAnimationFrame(() => { 
         document.getElementById('male-btn').disabled = false; 
@@ -3341,6 +3436,17 @@ const initApp = () => {
     }
     updateTelegramUserInfoDisplay(); 
 
+    // Initialize top controls state based on ongoing game progress or saved preference
+    const storedTopControls = localStorage.getItem('top_controls_collapsed');
+    if (currentAttempts > 0 && currentAttempts < maxAttempts) {
+        // Game is actively underway: collapse to maximize photo and button space
+        setTopControlsCollapsed(true, false);
+    } else if (storedTopControls !== null) {
+        setTopControlsCollapsed(storedTopControls === 'true', true);
+    } else {
+        setTopControlsCollapsed(false, false);
+    }
+
     // Setup Help / Instructions Modal
     initHelpModal();
 
@@ -3396,7 +3502,7 @@ const bootstrapApp = () => {
                 'theme', 'language', 'mode', 'totalGuesses', 
                 'successfulGuesses', 'failedGuesses', 'currentAttempts', 
                 'guessResultsHistory', 'attemptDurations', 'currentSessionId', 
-                'currentAttemptStartTime'
+                'currentAttemptStartTime', 'top_controls_collapsed'
             ];
             
             window.Telegram.WebApp.CloudStorage.getItems(keysToLoad, (err, result) => {
