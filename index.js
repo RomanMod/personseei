@@ -1,6 +1,7 @@
 // === GLOBAL APPLICATION CONFIGURATION ===
 // Change the version number here in exactly one place!
-const APP_VERSION_FALLBACK = '2.2.0';
+const APP_VERSION_FALLBACK = '2.2.1';
+const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
 // === LOG CAPTURE & DIAGNOSTICS CODE (MUST BE AT THE VERY TOP) ===
 const originalConsoleLog = console.log;
@@ -1363,7 +1364,13 @@ function updateModeVisibility() {
     if (checkBtnElement) checkBtnElement.style.display = 'none';
     console.log('[UI_UPDATE_MODE] Status, Gender, and Check buttons initially hidden.');
 
-    const imageIsReady = personImage ? personImage.classList.contains('loaded') : false;
+    const imageIsReady = Boolean(
+        personImage && 
+        personImage.classList.contains('loaded') && 
+        personImage.src && 
+        !personImage.src.endsWith('/') && 
+        personImage.src !== window.location.href
+    );
     const gameIsActive = currentAttempts < maxAttempts;
     const canMakeGuess = !hasChecked;
 
@@ -1672,7 +1679,7 @@ async function loadImageWithFallback(url, element) {
                 isCompleted = true;
                 console.error(`[IMAGE_LOAD_PROXY_TIMEOUT] Proxy image load timed out after 5.5s for ${proxyUrl}.`);
                 element.style.opacity = '';
-                element.src = 'https://via.placeholder.com/300';
+                element.src = FALLBACK_PLACEHOLDER_URI;
                 element.classList.add('loaded');
                 cleanup();
                 reject(new Error(`Direct and proxy image load timed out for ${url}`));
@@ -1693,7 +1700,7 @@ async function loadImageWithFallback(url, element) {
                 isCompleted = true;
                 console.error(`[IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: ${proxyUrl}. Falling back to placeholder.`);
                 element.style.opacity = ''; 
-                element.src = 'https://via.placeholder.com/300'; 
+                element.src = FALLBACK_PLACEHOLDER_URI; 
                 element.classList.add('loaded'); 
                 cleanup();
                 reject(new Error(`Direct and proxy image load failed for ${url}`));
@@ -2197,110 +2204,122 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
 
-    personImage.classList.add('no-transition');
-    overlay.classList.add('no-transition');
-
-    personImage.classList.remove('loaded'); 
-    if (gameMode === 'closed') {
-        overlay.classList.remove('hidden'); 
-        personImage.style.opacity = '0';    
-        console.log('[LOAD_PERSON_SETUP] Closed Mode: Overlay ON, Image Opacity 0 (transitions disabled)');
-    } else { 
-        overlay.classList.add('hidden');    
-        personImage.style.opacity = '';     
-        console.log('[LOAD_PERSON_SETUP] Open Mode: Overlay OFF, Image Opacity by class (transitions disabled)');
-    }
-    
-    requestAnimationFrame(() => {
-        personImage.src = ''; 
-        if (gameMode === 'closed') {
-            personImage.style.opacity = '0'; 
-        }
-        circularProgressContainer.classList.remove('hidden');
-        circularProgressContainer.setAttribute('aria-valuenow', '0');
-        const cpBar = document.getElementById('circular-progress-bar');
-        if (cpBar) cpBar.style.strokeDashoffset = 100;
-        console.log('[LOAD_PERSON_UI_PREP] Image src cleared, progress UI active.');
-
-        requestAnimationFrame(() => {
-            personImage.classList.remove('no-transition');
-            overlay.classList.remove('no-transition');
-            console.log('[LOAD_PERSON_SETUP] Transitions re-enabled.');
-        });
-    });
-
+    personImage.onload = null;
+    personImage.onerror = null;
 
     let currentPersonCandidate = personDataToDisplay; 
     let successfullyLoadedImage = false;
     let imageLoadPathDetail = "unknown"; 
     let gaLoadSource = "unknown"; 
 
-    const progressPromise = simulateImageProgress(
+    const hasCompletePreload = Boolean(
         preloadedPersonContainer && 
         preloadedPersonContainer.data && 
         preloadedPersonContainer.data.person &&
-        currentPersonCandidate && currentPersonCandidate.person &&
-        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value && 
+        currentPersonCandidate && currentPersonCandidate.person && 
+        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value &&
         preloadedPersonContainer.imageElement && 
-        preloadedPersonContainer.imageElement.complete 
-        ? 500 : 1500 
+        preloadedPersonContainer.imageElement.complete && 
+        preloadedPersonContainer.proxyUrl
     );
 
-    if (preloadedPersonContainer && 
+    if (gameMode === 'closed') {
+        overlay.classList.remove('hidden'); 
+        personImage.style.opacity = '0';    
+        personImage.style.visibility = 'hidden';
+        console.log('[LOAD_PERSON_SETUP] Closed Mode: Overlay ON, Image Opacity 0');
+    } else { 
+        overlay.classList.add('hidden');    
+        personImage.style.opacity = '';     
+        personImage.style.visibility = '';
+        console.log('[LOAD_PERSON_SETUP] Open Mode: Overlay OFF');
+    }
+
+    if (!hasCompletePreload) {
+        personImage.classList.remove('loaded');
+        if (circularProgressContainer) {
+            circularProgressContainer.classList.remove('hidden');
+            circularProgressContainer.setAttribute('aria-valuenow', '0');
+            const cpBar = document.getElementById('circular-progress-bar');
+            if (cpBar) cpBar.style.strokeDashoffset = 100;
+        }
+    }
+
+    const progressPromise = simulateImageProgress(hasCompletePreload ? 400 : 1500);
+
+    if (hasCompletePreload) {
+        console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
+        const preloadedProxyUrl = preloadedPersonContainer.proxyUrl;
+        
+        await new Promise((resolvePreloadAssign) => {
+            let isPreloadAssignDone = false;
+            const assignTimeout = setTimeout(() => {
+                if (isPreloadAssignDone) return;
+                isPreloadAssignDone = true;
+                personImage.onload = null;
+                personImage.onerror = null;
+                console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_TIMEOUT] Assigning preloaded image src timed out for ${currentPersonCandidate.personLabel.value}. Fallback to fetch.`);
+                preloadedPersonContainer = null;
+                imageLoadPathDetail = "preload_assign_timeout_fallback_to_fetch";
+                resolvePreloadAssign();
+            }, 3500);
+
+            const onAssignSuccess = () => {
+                if (isPreloadAssignDone) return;
+                isPreloadAssignDone = true;
+                clearTimeout(assignTimeout);
+                personImage.onload = null;
+                personImage.onerror = null;
+                if (gameMode === 'closed') {
+                    personImage.style.opacity = '0';
+                    personImage.style.visibility = 'hidden';
+                } else {
+                    personImage.style.opacity = '';
+                    personImage.style.visibility = '';
+                }
+                personImage.classList.add('loaded');
+                if (circularProgressContainer) {
+                    circularProgressContainer.classList.add('hidden');
+                }
+                
+                console.log(`[LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: ${preloadedProxyUrl}`);
+                successfullyLoadedImage = true;
+                imageLoadPathDetail = "preload_assigned_successfully";
+                gaLoadSource = "preload_success";
+                resolvePreloadAssign();
+            };
+
+            const onAssignError = () => {
+                if (isPreloadAssignDone) return;
+                isPreloadAssignDone = true;
+                clearTimeout(assignTimeout);
+                personImage.onload = null;
+                personImage.onerror = null;
+                personImage.style.opacity = ''; 
+                console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
+                preloadedPersonContainer = null; 
+                imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
+                resolvePreloadAssign(); 
+            };
+
+            personImage.onload = onAssignSuccess;
+            personImage.onerror = onAssignError;
+            personImage.src = preloadedProxyUrl;
+
+            if (personImage.complete && personImage.naturalWidth > 0) {
+                onAssignSuccess();
+            }
+        });
+    } else if (preloadedPersonContainer && 
         preloadedPersonContainer.data &&
         preloadedPersonContainer.data.person &&
         currentPersonCandidate && currentPersonCandidate.person && 
-        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value) { 
-        
-        if (preloadedPersonContainer.imageElement && preloadedPersonContainer.imageElement.complete && preloadedPersonContainer.proxyUrl) {
-            console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
-            const preloadedProxyUrl = preloadedPersonContainer.proxyUrl;
-            
-            await new Promise((resolvePreloadAssign) => {
-                let isPreloadAssignDone = false;
-                const assignTimeout = setTimeout(() => {
-                    if (isPreloadAssignDone) return;
-                    isPreloadAssignDone = true;
-                    personImage.onload = null;
-                    personImage.onerror = null;
-                    console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_TIMEOUT] Assigning preloaded image src timed out for ${currentPersonCandidate.personLabel.value}. Fallback to fetch.`);
-                    preloadedPersonContainer = null;
-                    imageLoadPathDetail = "preload_assign_timeout_fallback_to_fetch";
-                    resolvePreloadAssign();
-                }, 3500);
-
-                personImage.onload = () => {
-                    if (isPreloadAssignDone) return;
-                    isPreloadAssignDone = true;
-                    clearTimeout(assignTimeout);
-                    personImage.style.opacity = ''; 
-                    personImage.classList.add('loaded'); 
-                    
-                    console.log(`[LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: ${preloadedProxyUrl}`);
-                    successfullyLoadedImage = true;
-                    imageLoadPathDetail = "preload_assigned_successfully";
-                    gaLoadSource = "preload_success";
-                    resolvePreloadAssign();
-                };
-                personImage.onerror = () => { 
-                    if (isPreloadAssignDone) return;
-                    isPreloadAssignDone = true;
-                    clearTimeout(assignTimeout);
-                    personImage.style.opacity = ''; 
-                    console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
-                    preloadedPersonContainer = null; 
-                    imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
-                    resolvePreloadAssign(); 
-                };
-                personImage.src = preloadedProxyUrl;
-            });
-        } else {
-            console.warn(`[LOAD_PERSON_PRELOAD_WARN] Preloaded data for ${currentPersonCandidate.personLabel.value}, but imageElement not complete or proxyUrl missing. Falling back to fetch.`);
-            preloadedPersonContainer = null; 
-            imageLoadPathDetail = "fetch_due_to_incomplete_preload";
-        }
+        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value) {
+        console.warn(`[LOAD_PERSON_PRELOAD_WARN] Preloaded data for ${currentPersonCandidate.personLabel.value}, but imageElement not complete or proxyUrl missing. Falling back to fetch.`);
+        preloadedPersonContainer = null;
+        imageLoadPathDetail = "fetch_due_to_incomplete_preload";
     } else {
-        imageLoadPathDetail = "fetch_no_preload_match"; 
+        imageLoadPathDetail = "fetch_no_preload_match";
     }
     
     if (!successfullyLoadedImage) {
@@ -2360,19 +2379,17 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 if (attempts < maxImageLoadAttempts) {
                      console.log("[LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.");
                      currentPersonCandidate = await fetchPersonData(true, category); 
-                     requestAnimationFrame(() => { 
-                        personImage.src = '';
-                        if (gameMode === 'closed') {
-                            personImage.classList.remove('loaded');
-                            personImage.style.opacity = '0';
-                        } else {
-                            personImage.classList.remove('loaded');
-                            personImage.style.opacity = '';
-                        }
-                        circularProgressContainer.classList.remove('hidden');
-                        const cpBarSub = document.getElementById('circular-progress-bar');
-                        if (cpBarSub) cpBarSub.style.strokeDashoffset = 100;
-                     });
+                     personImage.classList.remove('loaded');
+                     if (gameMode === 'closed') {
+                         personImage.style.opacity = '0';
+                     } else {
+                         personImage.style.opacity = '';
+                     }
+                     if (circularProgressContainer) {
+                         circularProgressContainer.classList.remove('hidden');
+                         const cpBarSub = document.getElementById('circular-progress-bar');
+                         if (cpBarSub) cpBarSub.style.strokeDashoffset = 100;
+                     }
                 } else {
                     console.error(`[LOAD_PERSON_FAILURE] Max image fetch attempts (${maxImageLoadAttempts}) reached for this slot. No image loaded.`);
                 }
@@ -2481,6 +2498,10 @@ function updateUI(personToDisplay) {
         updateModeVisibility(); 
         if (personToDisplay) { 
              loadedPhotos++;
+             const cpContainer = document.getElementById('circular-progress-container');
+             if (cpContainer) {
+                 cpContainer.classList.add('hidden');
+             }
         }
         logPhotoStatus();
     });
@@ -2501,7 +2522,7 @@ function handleError() {
 
 
     requestAnimationFrame(() => {
-        personImage.src = 'https://via.placeholder.com/300'; 
+        personImage.src = FALLBACK_PLACEHOLDER_URI; 
         personImage.alt = texts.errorLoadingImage || 'Error loading image'; 
         personImage.classList.add('loaded'); 
         personImage.style.opacity = ''; 
