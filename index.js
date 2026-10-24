@@ -2,7 +2,7 @@ import './index.css';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 // Change the version number here in exactly one place!
-const APP_VERSION_FALLBACK = '2.2.3';
+const APP_VERSION_FALLBACK = '2.2.4';
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
 // === LOG CAPTURE & DIAGNOSTICS CODE (MUST BE AT THE VERY TOP) ===
@@ -980,10 +980,10 @@ setTopControlsCollapsed(initialControlsCollapsed, false);
 // Логирование инициализации
 console.log('[APP_INIT] Initializing application...');
 console.log('[APP_INIT] Current theme:', isNight ? 'night' : 'day');
-console.log('[APP_INIT] Selected language:', selectedLanguage);
-console.log('[APP_INIT] Selected game mode:', gameMode);
-console.log('[APP_INIT] RGB HSL Cache from localStorage:', rgbHslCache);
-console.log('[APP_INIT] Wikidata Cache from localStorage:', wikidataCache);
+const rgbCount = Object.keys(rgbHslCache || {}).length;
+console.log(`[APP_INIT] RGB HSL Cache from localStorage: (${rgbCount} entries)`);
+const wikidataCounts = Object.keys(wikidataCache || {}).map(k => `${k}: ${Array.isArray(wikidataCache[k]) ? wikidataCache[k].length : 0}`).join(', ');
+console.log(`[APP_INIT] Wikidata Cache summary: { ${wikidataCounts} }`);
 console.log('[APP_INIT] Attempts from localStorage:', currentAttempts);
 console.log('[APP_INIT] Total Guesses from localStorage:', totalGuesses);
 console.log('[APP_INIT] Current Session ID from localStorage:', currentSessionId);
@@ -1557,13 +1557,14 @@ function rgbToHsl(r, g, b) {
 function makeWeservProxyUrl(rawUrl, extraParams = '') {
     try {
         let clean = String(rawUrl).trim();
-        const u = new URL(clean);
-        u.search = '';
-        clean = u.toString();
         let decoded = clean;
         try {
-            decoded = decodeURI(clean);
-        } catch (e) {}
+            decoded = decodeURIComponent(clean);
+        } catch (e) {
+            try {
+                decoded = decodeURI(clean);
+            } catch (e2) {}
+        }
         const paramStr = extraParams ? (extraParams.startsWith('&') ? extraParams : '&' + extraParams) : '';
         return `https://images.weserv.nl/?url=${encodeURIComponent(decoded)}${paramStr}`;
     } catch (e) {
@@ -1665,13 +1666,13 @@ async function isBlackAndWhite(imageUrl) {
 async function getCommonsImageUrl(fileName) {
     if (!fileName) return null;
     const cleanFileName = decodeURIComponent(fileName).replace(/^File:/i, '').trim();
-    const fallbackUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(cleanFileName)}`;
+    const fallbackUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(cleanFileName)}?width=600`;
     const start = performance.now();
     console.log(`[COMMONS_API] Fetching image URL for file: ${cleanFileName}`);
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
-        const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(cleanFileName)}&prop=imageinfo&iiprop=url&format=json&origin=*`, {
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(cleanFileName)}&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`, {
             signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -1681,17 +1682,13 @@ async function getCommonsImageUrl(fileName) {
         if (!pages) return fallbackUrl;
         const page = pages[Object.keys(pages)[0]];
         const duration = (performance.now() - start).toFixed(0);
-        if (!page || !page.imageinfo || !page.imageinfo[0] || !page.imageinfo[0].url) {
+        if (!page || !page.imageinfo || !page.imageinfo[0]) {
             console.warn(`[COMMONS_API_WARN] No imageinfo found for file: ${cleanFileName}. API Time: ${duration}ms. Using Special:FilePath fallback.`);
             return fallbackUrl;
         }
-        let imageUrl = page.imageinfo[0].url;
-        try {
-            const parsed = new URL(imageUrl);
-            parsed.search = '';
-            imageUrl = parsed.toString();
-        } catch (e) {}
-        console.log(`[COMMONS_API_SUCCESS] Got image URL: ${imageUrl}. API Time: ${duration}ms`);
+        // Prefer 600px CDN thumbnail over multi-megabyte camera original
+        const imageUrl = page.imageinfo[0].thumburl || page.imageinfo[0].url || fallbackUrl;
+        console.log(`[COMMONS_API_SUCCESS] Got image URL (width ~600px): ${imageUrl}. API Time: ${duration}ms`);
         return imageUrl;
     } catch (error) {
         console.warn(`[COMMONS_API_FALLBACK] Commons API failed or timed out for ${cleanFileName} (${error.message}). Falling back to Special:FilePath directly.`);
@@ -1719,25 +1716,18 @@ async function loadImageWithFallback(url, element) {
             if (isCompleted) return;
             console.warn(`[IMAGE_LOAD_DIRECT_${failReason}] Direct image load ${failReason} for ${url}. Trying proxy fallback...`);
             
-            let cleanUrl = url;
-            try {
-                const u = new URL(url);
-                u.search = '';
-                cleanUrl = u.toString();
-            } catch (e) {}
-
-            const proxyUrl = makeWeservProxyUrl(cleanUrl);
+            const proxyUrl = makeWeservProxyUrl(url);
             
             proxyTimeoutId = setTimeout(() => {
                 if (isCompleted) return;
                 isCompleted = true;
-                console.error(`[IMAGE_LOAD_PROXY_TIMEOUT] Proxy image load timed out after 3.5s for ${proxyUrl}.`);
+                console.error(`[IMAGE_LOAD_PROXY_TIMEOUT] Proxy image load timed out for ${proxyUrl}.`);
                 element.style.opacity = '';
                 element.src = FALLBACK_PLACEHOLDER_URI;
                 element.classList.add('loaded');
                 cleanup();
                 reject(new Error(`Direct and proxy image load timed out for ${url}`));
-            }, 3500);
+            }, 5000);
 
             element.onload = () => {
                 if (isCompleted) return;
@@ -1771,10 +1761,10 @@ async function loadImageWithFallback(url, element) {
             }
         };
 
-        // 3.5s timeout for direct load to prevent WebView freeze
+        // 6.5s timeout for direct load to prevent premature aborts on slower connections
         directTimeoutId = setTimeout(() => {
             tryProxy('TIMEOUT');
-        }, 3500);
+        }, 6500);
 
         element.onload = () => {
             if (isCompleted) return;
@@ -2177,7 +2167,6 @@ async function startPreloadNextAvailablePerson() {
         }
 
         const preloadedImage = new Image();
-        preloadedImage.crossOrigin = "Anonymous";
 
         await new Promise((resolve, reject) => {
             let isCompleted = false;
@@ -2197,7 +2186,6 @@ async function startPreloadNextAvailablePerson() {
                 
                 const proxyImageUrl = makeWeservProxyUrl(commonsUrl);
                 const proxyImage = new Image();
-                proxyImage.crossOrigin = "Anonymous";
 
                 proxyTimeoutId = setTimeout(() => {
                     if (isCompleted) return;
@@ -2207,7 +2195,7 @@ async function startPreloadNextAvailablePerson() {
                     proxyImage.onload = null;
                     proxyImage.onerror = null;
                     reject(new Error(`Preload timed out for ${commonsUrl}`));
-                }, 3000);
+                }, 5000);
                 
                 proxyImage.onload = () => {
                     if (isCompleted) return;
@@ -2236,7 +2224,7 @@ async function startPreloadNextAvailablePerson() {
 
             directTimeoutId = setTimeout(() => {
                 tryProxyPreload('TIMEOUT');
-            }, 3000);
+            }, 6500);
 
             preloadedImage.onload = () => {
                 if (isCompleted) return;
@@ -2332,7 +2320,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 preloadedPersonContainer = null;
                 imageLoadPathDetail = "preload_assign_timeout_fallback_to_fetch";
                 resolvePreloadAssign();
-            }, 3500);
+            }, 5000);
 
             const onAssignSuccess = () => {
                 if (isPreloadAssignDone) return;
@@ -2681,7 +2669,7 @@ async function loadSession() {
         }
 
         if (targetIndex >= targets.length || loadedCount >= settings.sessionPeople) {
-            if (activePromisesCount === 0) {
+            if (activePromisesCount === 0 && isStreamingActive) {
                 isStreamingActive = false;
                 console.log(`[STREAM_QUEUE_COMPLETE] Background stream queue finished. Cached or loaded ${loadedCount} total items.`);
                 updateProgressBar(100, false);
