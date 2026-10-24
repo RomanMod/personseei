@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "./index.html";
+@source "./index.js";
 
 /* Design System Theme Definitions */
 @theme {
@@ -8,9 +10,15 @@
   --color-neon-cyan: #00F0FF;
   --color-spirit-violet: #BC13FE;
   --color-ritual-gold: #FFD700;
+  --color-surface: #131313;
   --color-surface-container-low: #1c1b1b;
   --color-surface-container-lowest: #0e0e0e;
   --color-on-surface: #e5e2e1;
+  --color-on-surface-variant: #b9cacb;
+
+  --font-headline: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 :root {

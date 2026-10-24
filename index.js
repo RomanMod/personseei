@@ -1,6 +1,8 @@
+import './index.css';
+
 // === GLOBAL APPLICATION CONFIGURATION ===
 // Change the version number here in exactly one place!
-const APP_VERSION_FALLBACK = '2.2.1';
+const APP_VERSION_FALLBACK = '2.2.3';
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
 // === LOG CAPTURE & DIAGNOSTICS CODE (MUST BE AT THE VERY TOP) ===
@@ -148,17 +150,29 @@ const localStorage = (() => {
             storage[key] = String(value);
             
             // Asynchronously sync to Telegram WebApp CloudStorage if available
-            if (key !== 'appLogs_persistent' && typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
-                try {
-                    window.Telegram.WebApp.CloudStorage.setItem(key, String(value), (err, success) => {
-                        if (err) {
-                            console.warn(`[TG_CLOUD_STORAGE_WARN] Asynchronous setItem failed for key "${key}":`, err);
-                        } else {
-                            console.log(`[TG_CLOUD_STORAGE_OK] Asynchronously saved key "${key}" to Telegram cloud storage.`);
-                        }
-                    });
-                } catch (e) {
-                    console.warn(`[TG_CLOUD_STORAGE_ERROR] Exception while calling setItem for key "${key}":`, e);
+            // CRITICAL: Telegram CloudStorage has a 4096-byte limit per key!
+            // NEVER sync giant caches (like wikidataCache, rgbHslCache, logs) to CloudStorage!
+            const TG_ALLOWED_CLOUD_KEYS = new Set([
+                'theme', 'language', 'mode', 'totalGuesses', 
+                'successfulGuesses', 'failedGuesses', 'currentAttempts', 
+                'guessResultsHistory', 'attemptDurations', 'currentSessionId', 
+                'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled'
+            ]);
+
+            if (TG_ALLOWED_CLOUD_KEYS.has(key) && typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
+                const strVal = String(value);
+                if (strVal.length <= 2500) {
+                    try {
+                        window.Telegram.WebApp.CloudStorage.setItem(key, strVal, (err, success) => {
+                            if (err) {
+                                console.warn(`[TG_CLOUD_STORAGE_WARN] Asynchronous setItem failed for key "${key}":`, err);
+                            } else {
+                                console.log(`[TG_CLOUD_STORAGE_OK] Asynchronously saved key "${key}" to Telegram cloud storage.`);
+                            }
+                        });
+                    } catch (e) {
+                        console.warn(`[TG_CLOUD_STORAGE_ERROR] Exception while calling setItem for key "${key}":`, e);
+                    }
                 }
             }
         },
@@ -171,7 +185,14 @@ const localStorage = (() => {
             delete storage[key];
             
             // Asynchronously sync removal to Telegram WebApp CloudStorage if available
-            if (key !== 'appLogs_persistent' && typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
+            const TG_ALLOWED_CLOUD_KEYS = new Set([
+                'theme', 'language', 'mode', 'totalGuesses', 
+                'successfulGuesses', 'failedGuesses', 'currentAttempts', 
+                'guessResultsHistory', 'attemptDurations', 'currentSessionId', 
+                'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled'
+            ]);
+
+            if (TG_ALLOWED_CLOUD_KEYS.has(key) && typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
                 try {
                     window.Telegram.WebApp.CloudStorage.removeItem(key, (err, success) => {
                         if (err) {
@@ -1350,7 +1371,6 @@ function updateModeVisibility() {
     if (buttonVisibilityTimeoutId) {
         clearTimeout(buttonVisibilityTimeoutId);
         buttonVisibilityTimeoutId = null;
-        console.log('[UI_TIMEOUT_CANCELLED] Existing button visibility timeout cancelled.');
     }
 
     const statusButtons = document.querySelector('.status-buttons');
@@ -1358,46 +1378,42 @@ function updateModeVisibility() {
     const checkBtnElement = document.getElementById('check-btn');
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
+    const nextPersonBtn = document.getElementById('next-person');
 
-    if (statusButtons) statusButtons.style.display = 'none';
-    if (genderButtons) genderButtons.style.display = 'none';
-    if (checkBtnElement) checkBtnElement.style.display = 'none';
-    console.log('[UI_UPDATE_MODE] Status, Gender, and Check buttons initially hidden.');
-
-    const imageIsReady = Boolean(
-        personImage && 
-        personImage.classList.contains('loaded') && 
-        personImage.src && 
-        !personImage.src.endsWith('/') && 
-        personImage.src !== window.location.href
-    );
     const gameIsActive = currentAttempts < maxAttempts;
     const canMakeGuess = !hasChecked;
 
-    console.log(`[UI_UPDATE_MODE] updateModeVisibility: imageIsReady=${imageIsReady}, gameIsActive=${gameIsActive}, canMakeGuess=${canMakeGuess}, mode=${gameMode}`);
+    console.log(`[UI_UPDATE_MODE] updateModeVisibility: gameIsActive=${gameIsActive}, canMakeGuess=${canMakeGuess}, mode=${gameMode}`);
 
-    if (imageIsReady && gameIsActive && canMakeGuess) {
-        console.log('[UI_UPDATE_MODE] Conditions met for showing buttons, starting 3s timeout.');
-        buttonVisibilityTimeoutId = setTimeout(() => {
-            console.log('[UI_TIMEOUT_ELAPSED] 3s timeout elapsed. Showing buttons.');
-            if (statusButtons) statusButtons.style.display = 'flex';
-            if (checkBtnElement) {
-                checkBtnElement.style.display = 'inline-block';
-                updateCheckButtonState(); 
-                console.log('[UI_UPDATE_MODE_TIMEOUT] Check button shown and state updated.');
-            }
+    if (gameIsActive && canMakeGuess) {
+        if (statusButtons) statusButtons.style.display = 'flex';
+        if (checkBtnElement) {
+            checkBtnElement.style.display = 'inline-block';
+            updateCheckButtonState(); 
+        }
 
-            if (gameMode === 'closed') {
-                if (genderButtons) genderButtons.style.display = 'flex';
-                console.log('[UI_UPDATE_MODE_TIMEOUT] Closed mode: Gender and Status buttons shown.');
-            } else {
-                if (genderButtons) genderButtons.style.display = 'none'; 
-                console.log('[UI_UPDATE_MODE_TIMEOUT] Open mode: Status buttons shown, Gender buttons hidden.');
-            }
-            buttonVisibilityTimeoutId = null;
-        }, 3000);
+        if (gameMode === 'closed') {
+            if (genderButtons) genderButtons.style.display = 'flex';
+        } else {
+            if (genderButtons) genderButtons.style.display = 'none'; 
+        }
+        if (nextPersonBtn) nextPersonBtn.style.display = 'none';
+    } else if (gameIsActive && hasChecked) {
+        // Guess has been made and verified: show Next Person button
+        if (statusButtons) statusButtons.style.display = 'none';
+        if (genderButtons) genderButtons.style.display = 'none';
+        if (checkBtnElement) checkBtnElement.style.display = 'none';
+        if (nextPersonBtn) {
+            nextPersonBtn.style.display = 'block';
+            const texts = translations[selectedLanguage] || translations.uk;
+            nextPersonBtn.textContent = texts.nextPerson || 'Наступне фото';
+        }
     } else {
-         console.log('[UI_UPDATE_MODE] Conditions NOT met for showing buttons with delay, or timeout was cleared.');
+        // Game is over: hide all in-game guess controls
+        if (statusButtons) statusButtons.style.display = 'none';
+        if (genderButtons) genderButtons.style.display = 'none';
+        if (checkBtnElement) checkBtnElement.style.display = 'none';
+        if (nextPersonBtn) nextPersonBtn.style.display = 'none';
     }
 
     if (gameMode === 'closed') {
@@ -1538,6 +1554,23 @@ function rgbToHsl(r, g, b) {
     return [h, s, l];
 }
 
+function makeWeservProxyUrl(rawUrl, extraParams = '') {
+    try {
+        let clean = String(rawUrl).trim();
+        const u = new URL(clean);
+        u.search = '';
+        clean = u.toString();
+        let decoded = clean;
+        try {
+            decoded = decodeURI(clean);
+        } catch (e) {}
+        const paramStr = extraParams ? (extraParams.startsWith('&') ? extraParams : '&' + extraParams) : '';
+        return `https://images.weserv.nl/?url=${encodeURIComponent(decoded)}${paramStr}`;
+    } catch (e) {
+        return `https://images.weserv.nl/?url=${encodeURIComponent(rawUrl)}${extraParams || ''}`;
+    }
+}
+
 async function isBlackAndWhite(imageUrl) { 
     if (!settings.excludeBlackAndWhite) {
         return false;
@@ -1613,7 +1646,7 @@ async function isBlackAndWhite(imageUrl) {
         img.onerror = () => {
             console.warn(`[IMAGE_CHECK_BW_DIRECT_ERROR] Direct load failed for B&W check: ${imageUrl}. Trying proxy fallback...`);
             
-            const proxyForBWCheck = `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}&w=100&h=100&fit=cover&output=jpg`; 
+            const proxyForBWCheck = makeWeservProxyUrl(imageUrl, 'w=100&h=100&fit=cover&output=jpg'); 
             const proxyImg = new Image();
             proxyImg.crossOrigin = 'Anonymous';
             proxyImg.onload = () => {
@@ -1630,25 +1663,39 @@ async function isBlackAndWhite(imageUrl) {
 }
 
 async function getCommonsImageUrl(fileName) {
+    if (!fileName) return null;
+    const cleanFileName = decodeURIComponent(fileName).replace(/^File:/i, '').trim();
+    const fallbackUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(cleanFileName)}`;
     const start = performance.now();
-    console.log(`[COMMONS_API] Fetching image URL for file: ${fileName}`);
+    console.log(`[COMMONS_API] Fetching image URL for file: ${cleanFileName}`);
     try {
-        const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(fileName)}&prop=imageinfo&iiprop=url&format=json&origin=*`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(cleanFileName)}&prop=imageinfo&iiprop=url&format=json&origin=*`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         if (!response.ok) throw new Error(`Commons API error: ${response.status} ${response.statusText}`);
         const data = await response.json();
-        const pages = data.query.pages;
+        const pages = data.query ? data.query.pages : null;
+        if (!pages) return fallbackUrl;
         const page = pages[Object.keys(pages)[0]];
         const duration = (performance.now() - start).toFixed(0);
-        if (!page.imageinfo) {
-            console.warn(`[COMMONS_API_WARN] No imageinfo found for file: ${fileName}. API Time: ${duration}ms`);
-            return null;
+        if (!page || !page.imageinfo || !page.imageinfo[0] || !page.imageinfo[0].url) {
+            console.warn(`[COMMONS_API_WARN] No imageinfo found for file: ${cleanFileName}. API Time: ${duration}ms. Using Special:FilePath fallback.`);
+            return fallbackUrl;
         }
-        const imageUrl = page.imageinfo[0].url;
+        let imageUrl = page.imageinfo[0].url;
+        try {
+            const parsed = new URL(imageUrl);
+            parsed.search = '';
+            imageUrl = parsed.toString();
+        } catch (e) {}
         console.log(`[COMMONS_API_SUCCESS] Got image URL: ${imageUrl}. API Time: ${duration}ms`);
         return imageUrl;
     } catch (error) {
-        console.error(`[COMMONS_API_ERROR] Failed to fetch Commons image for ${fileName}:`, error.message);
-        return null;
+        console.warn(`[COMMONS_API_FALLBACK] Commons API failed or timed out for ${cleanFileName} (${error.message}). Falling back to Special:FilePath directly.`);
+        return fallbackUrl;
     }
 }
 
@@ -1672,18 +1719,25 @@ async function loadImageWithFallback(url, element) {
             if (isCompleted) return;
             console.warn(`[IMAGE_LOAD_DIRECT_${failReason}] Direct image load ${failReason} for ${url}. Trying proxy fallback...`);
             
-            const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+            let cleanUrl = url;
+            try {
+                const u = new URL(url);
+                u.search = '';
+                cleanUrl = u.toString();
+            } catch (e) {}
+
+            const proxyUrl = makeWeservProxyUrl(cleanUrl);
             
             proxyTimeoutId = setTimeout(() => {
                 if (isCompleted) return;
                 isCompleted = true;
-                console.error(`[IMAGE_LOAD_PROXY_TIMEOUT] Proxy image load timed out after 5.5s for ${proxyUrl}.`);
+                console.error(`[IMAGE_LOAD_PROXY_TIMEOUT] Proxy image load timed out after 3.5s for ${proxyUrl}.`);
                 element.style.opacity = '';
                 element.src = FALLBACK_PLACEHOLDER_URI;
                 element.classList.add('loaded');
                 cleanup();
                 reject(new Error(`Direct and proxy image load timed out for ${url}`));
-            }, 5500);
+            }, 3500);
 
             element.onload = () => {
                 if (isCompleted) return;
@@ -1707,12 +1761,20 @@ async function loadImageWithFallback(url, element) {
             };
             
             element.src = proxyUrl;
+            if (element.complete && element.naturalWidth > 0) {
+                if (isCompleted) return;
+                isCompleted = true;
+                element.style.opacity = '';
+                element.classList.add('loaded');
+                cleanup();
+                resolve();
+            }
         };
 
-        // 5.5s timeout for direct load to prevent WebView freeze
+        // 3.5s timeout for direct load to prevent WebView freeze
         directTimeoutId = setTimeout(() => {
             tryProxy('TIMEOUT');
-        }, 5500);
+        }, 3500);
 
         element.onload = () => {
             if (isCompleted) return;
@@ -1729,6 +1791,14 @@ async function loadImageWithFallback(url, element) {
         };
         
         element.src = url;
+        if (element.complete && element.naturalWidth > 0) {
+            if (isCompleted) return;
+            isCompleted = true;
+            element.style.opacity = '';
+            element.classList.add('loaded');
+            cleanup();
+            resolve();
+        }
     });
 }
 
@@ -2125,7 +2195,7 @@ async function startPreloadNextAvailablePerson() {
                 if (isCompleted) return;
                 console.warn(`[PRELOAD_DIRECT_${failReason}] Direct image preload ${failReason} for ${commonsUrl}. Trying proxy fallback...`);
                 
-                const proxyImageUrl = `https://images.weserv.nl/?url=${encodeURIComponent(commonsUrl)}`;
+                const proxyImageUrl = makeWeservProxyUrl(commonsUrl);
                 const proxyImage = new Image();
                 proxyImage.crossOrigin = "Anonymous";
 
@@ -2137,7 +2207,7 @@ async function startPreloadNextAvailablePerson() {
                     proxyImage.onload = null;
                     proxyImage.onerror = null;
                     reject(new Error(`Preload timed out for ${commonsUrl}`));
-                }, 5000);
+                }, 3000);
                 
                 proxyImage.onload = () => {
                     if (isCompleted) return;
@@ -2166,7 +2236,7 @@ async function startPreloadNextAvailablePerson() {
 
             directTimeoutId = setTimeout(() => {
                 tryProxyPreload('TIMEOUT');
-            }, 5000);
+            }, 3000);
 
             preloadedImage.onload = () => {
                 if (isCompleted) return;
@@ -2245,7 +2315,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         }
     }
 
-    const progressPromise = simulateImageProgress(hasCompletePreload ? 400 : 1500);
+    const progressPromise = simulateImageProgress(hasCompletePreload ? 150 : 500);
 
     if (hasCompletePreload) {
         console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
@@ -2306,7 +2376,8 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
             personImage.onerror = onAssignError;
             personImage.src = preloadedProxyUrl;
 
-            if (personImage.complete && personImage.naturalWidth > 0) {
+            if ((personImage.complete && personImage.naturalWidth > 0) || 
+                (preloadedPersonContainer && preloadedPersonContainer.imageElement && preloadedPersonContainer.imageElement.complete && preloadedPersonContainer.imageElement.naturalWidth > 0)) {
                 onAssignSuccess();
             }
         });
@@ -3500,25 +3571,30 @@ const initApp = () => {
 
 const bootstrapApp = () => {
     console.log('[BOOTSTRAP] Starting bootstrap sequence...');
-    
-    let bootstrapped = false;
-    const proceed = () => {
-        if (bootstrapped) return;
-        bootstrapped = true;
-        initApp();
-    };
 
-    // Set a fallback timeout of 2 seconds in case Telegram CloudStorage callback never fires or is slow
-    const timeoutId = setTimeout(() => {
-        if (!bootstrapped) {
-            console.warn('[BOOTSTRAP] Telegram CloudStorage loading timed out (2s limit). Proceeding to initApp with local state.');
-            proceed();
+    // Guarantee Telegram WebApp is notified of readiness and expanded immediately
+    if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp) {
+        try {
+            window.Telegram.WebApp.ready();
+            window.Telegram.WebApp.expand();
+            if (typeof window.Telegram.WebApp.setHeaderColor === 'function') {
+                window.Telegram.WebApp.setHeaderColor('#0A0A0B');
+            }
+            if (typeof window.Telegram.WebApp.setBackgroundColor === 'function') {
+                window.Telegram.WebApp.setBackgroundColor('#0A0A0B');
+            }
+            console.log('[BOOTSTRAP] Telegram WebApp ready() and expand() signaled.');
+        } catch (e) {
+            console.warn('[BOOTSTRAP_WARN] Telegram ready() error:', e);
         }
-    }, 2000);
+    }
 
+    // Immediately initialize app UI with local storage state so the user never sees a blank screen
+    initApp();
+
+    // Asynchronously synchronize with Telegram CloudStorage in background if available
     if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
         try {
-            console.log('[BOOTSTRAP] Telegram WebApp and CloudStorage detected. Pre-loading keys...');
             const keysToLoad = [
                 'theme', 'language', 'mode', 'totalGuesses', 
                 'successfulGuesses', 'failedGuesses', 'currentAttempts', 
@@ -3527,29 +3603,30 @@ const bootstrapApp = () => {
             ];
             
             window.Telegram.WebApp.CloudStorage.getItems(keysToLoad, (err, result) => {
-                clearTimeout(timeoutId);
                 if (err) {
-                    console.error('[BOOTSTRAP_ERROR] Failed to load keys from Telegram CloudStorage:', err);
+                    console.warn('[BOOTSTRAP_WARN] Background Telegram CloudStorage sync failed:', err);
                 } else if (result) {
-                    console.log('[BOOTSTRAP] Loaded keys from Telegram CloudStorage successfully:', result);
-                    // Merge into in-memory storage of our custom localStorage wrapper
+                    console.log('[BOOTSTRAP] Background loaded keys from Telegram CloudStorage:', result);
+                    let hasSignificantChange = false;
                     for (const key of keysToLoad) {
                         if (result[key] !== undefined && result[key] !== null && result[key] !== '') {
-                            localStorage.setInMemoryValue(key, result[key]);
+                            const currentVal = localStorage.getItem(key);
+                            if (currentVal !== result[key]) {
+                                localStorage.setInMemoryValue(key, result[key]);
+                                if (key === 'language' || key === 'theme' || key === 'mode') {
+                                    hasSignificantChange = true;
+                                }
+                            }
                         }
                     }
+                    if (hasSignificantChange) {
+                        updateLanguage();
+                    }
                 }
-                proceed();
             });
         } catch (e) {
-            console.error('[BOOTSTRAP_ERROR] Exception in Telegram CloudStorage pre-load:', e);
-            clearTimeout(timeoutId);
-            proceed();
+            console.warn('[BOOTSTRAP_WARN] Background CloudStorage exception:', e);
         }
-    } else {
-        console.log('[BOOTSTRAP] Not in Telegram environment or CloudStorage not supported. Proceeding instantly.');
-        clearTimeout(timeoutId);
-        proceed();
     }
 };
 
