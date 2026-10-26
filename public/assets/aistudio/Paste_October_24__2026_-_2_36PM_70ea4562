@@ -1,0 +1,250 @@
+[10:47:22.92] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[10:47:28.32] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://upload.wikimedia.org/wikipedia/commons/9/9d/Sergey_Agaptsov_SovFed.jpg. Trying proxy fallback...
+[10:47:33.27] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/1/19/Toshikotakeya.jpg for Toshiko Takeya
+[10:47:35.83] [LOG] [PRELOAD] Preloading process attempt finished.
+[10:47:38.54] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[10:47:41.26] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Bert Oosterbosch
+[10:47:43.78] [LOG] [STREAM_QUEUE] Appended streamed candidate #3: Bert Oosterbosch (male-deceased)
+[10:47:46.52] [ERROR] [IMAGE_LOAD_PROXY_TIMEOUT] Proxy image load timed out after 3.5s for https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F9d%2FSergey_Agaptsov_SovFed.jpg.
+[10:47:49.18] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 1/3): Direct and proxy image load timed out for https://upload.wikimedia.org/wikipedia/commons/9/9d/Sergey_Agaptsov_SovFed.jpg
+[10:47:51.78] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[10:47:54.42] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: true, Category: male-alive, CacheKey: true-male-alive
+[10:47:57.09] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for true-male-alive. Person: Alex Boyd
+[10:47:59.74] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Alex Boyd
+[10:48:02.37] [LOG] [COMMONS_API] Fetching image URL for file: Photographer Alex Boyd.jpg
+[10:48:05.11] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[10:48:07.89] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[10:48:10.47] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 2, Preloaded: Toshiko Takeya
+[10:48:14.87] [LOG] [COMMONS_API_SUCCESS] Got image URL: https://upload.wikimedia.org/wikipedia/commons/8/85/Photographer_Alex_Boyd.jpg. API Time: 12504ms
+[10:48:17.88] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://upload.wikimedia.org/wikipedia/commons/8/85/Photographer_Alex_Boyd.jpg
+[10:48:20.87] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[10:48:23.53] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Simone Battle
+[10:48:26.27] [LOG] [STREAM_QUEUE] Appended streamed candidate #4: Simone Battle (female-deceased)
+[10:48:29.79] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://upload.wikimedia.org/wikipedia/commons/8/85/Photographer_Alex_Boyd.jpg. Trying proxy fallback...
+[10:48:35.86] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[10:48:38.89] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Aleksandar Zečević
+[10:48:41.86] [LOG] [STREAM_QUEUE] Appended streamed candidate #5: Aleksandar Zečević (male-alive)
+[10:48:44.96] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F8%2F85%2FPhotographer_Alex_Boyd.jpg. Falling back to placeholder.
+[10:48:47.77] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/8/85/Photographer_Alex_Boyd.jpg
+[10:48:50.44] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[10:48:53.04] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: true, Category: male-alive, CacheKey: true-male-alive
+[10:48:55.61] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for true-male-alive. Person: Tanguy Kerleroux
+[10:48:58.38] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Tanguy Kerleroux
+[10:49:01.31] [LOG] [COMMONS_API] Fetching image URL for file: Tanguy Kerleroux in Paris, 2019.jpg
+[10:49:06.28] [LOG] [COMMONS_API_SUCCESS] Got image URL: https://upload.wikimedia.org/wikipedia/commons/7/7a/Tanguy_Kerleroux_in_Paris%2C_2019.jpg. API Time: 4968ms
+[10:49:09.58] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://upload.wikimedia.org/wikipedia/commons/7/7a/Tanguy_Kerleroux_in_Paris%2C_2019.jpg
+[10:49:12.81] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[10:49:15.98] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Gong Lijiao
+[10:49:19.25] [LOG] [STREAM_QUEUE] Appended streamed candidate #6: Gong Lijiao (female-alive)
+[10:49:22.50] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://upload.wikimedia.org/wikipedia/commons/7/7a/Tanguy_Kerleroux_in_Paris%2C_2019.jpg. Trying proxy fallback...
+[10:49:28.63] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[10:49:32.36] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Luděk Čajka
+[10:49:35.37] [LOG] [STREAM_QUEUE] Appended streamed candidate #7: Luděk Čajka (male-deceased)
+[10:49:38.73] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F7%2F7a%2FTanguy_Kerleroux_in_Paris%252C_2019.jpg. Falling back to placeholder.
+[10:49:42.00] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 3/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/7/7a/Tanguy_Kerleroux_in_Paris%2C_2019.jpg
+[10:49:45.10] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[10:49:48.13] [ERROR] [LOAD_PERSON_CRITICAL_IMAGE_FAIL] Could not load image for slot (intended for Sergey Agaptsov) after all attempts. Path: direct_fetch_active. Handling error.
+[10:49:50.94] [ERROR] [HANDLE_ERROR] An error occurred. Displaying placeholder and error message.
+[10:49:53.67] [LOG] [PRELOAD_RESET] Preload state reset due to error.
+[10:49:56.55] [LOG] [PRELOAD] Starting preload for: Toshiko Takeya
+[10:49:59.36] [LOG] [COMMONS_API] Fetching image URL for file: Toshikotakeya.jpg
+[10:50:02.23] [LOG] [COMMONS_API_SUCCESS] Got image URL: https://upload.wikimedia.org/wikipedia/commons/1/19/Toshikotakeya.jpg. API Time: 2877ms
+[10:50:05.20] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/1/19/Toshikotakeya.jpg for Toshiko Takeya
+[10:50:08.24] [LOG] [PRELOAD] Preloading process attempt finished.
+[10:50:11.04] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[10:50:14.02] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Nargis Bandishoeva
+[10:50:16.88] [LOG] [STREAM_QUEUE] Appended streamed candidate #8: Nargis Bandishoeva (female-deceased)
+[10:50:19.70] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[10:50:23.11] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Marcin Osadowski
+[10:50:27.78] [LOG] [STREAM_QUEUE] Appended streamed candidate #9: Marcin Osadowski (male-alive)
+[10:50:32.48] [LOG] [UI_UPDATE] updateUI called for person: No person
+[10:50:37.11] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"uaYPMpae3j7Q4lh1","method":"deleteStorageValues","params":{"keys":["currentAttemptStartTime"]}}
+[10:50:41.04] [LOG] [STATE_CHANGE] currentAttemptStartTime cleared due to error. Removed from localStorage.
+[10:50:45.75] [LOG] [HANDLE_ERROR_RETRY] Scheduling automatic attempt to load new photo in 3 seconds.
+[10:50:49.58] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 8, Preloaded: Toshiko Takeya
+[10:50:53.19] [LOG] [STREAM_QUEUE_UI] Screen initialized with first streaming candidate.
+[10:50:57.07] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"uaYPMpae3j7Q4lh1","result":true}
+[10:51:00.59] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttemptStartTime" from Telegram cloud storage.
+[10:51:04.50] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[10:51:08.20] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Lila Downs
+[10:51:12.75] [LOG] [STREAM_QUEUE] Appended streamed candidate #10: Lila Downs (female-alive)
+[10:51:15.84] [LOG] [HANDLE_ERROR_RETRY] Retrying to load next person due to previous error.
+[10:51:18.58] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: error_fallback. Current attempts: 1/10
+[10:51:21.61] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1781034448_339","trigger_button":"error_fallback","new_language":"ru","game_mode":"open","remaining_in_session":9,"is_preloading":false,"preloaded_person_name":"Toshiko Takeya","telegram_user_id":"399251099","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[10:51:25.04] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[10:51:28.72] [LOG] [LOAD_NEXT_PERSON] Loading next person from session: Toshiko Takeya
+[10:51:32.64] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Toshiko Takeya
+[10:51:37.50] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[10:51:43.30] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[10:51:57.67] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Toshiko Takeya
+[10:52:21.00] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/1/19/Toshikotakeya.jpg
+[10:52:39.84] [LOG] [STREAM_QUEUE_COMPLETE] Background stream queue finished. Cached or loaded 10 total items.
+[10:53:00.02] [LOG] [LOAD_SESSION_TIMING] Total stream load elapsed (since launch): 434856ms
+[10:53:10.59] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[10:53:13.64] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Toshiko Takeya (Path: preload_assigned_successfully)
+[10:53:16.61] [LOG] [UI_UPDATE] updateUI called for person: Toshiko Takeya
+[10:53:19.62] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"b6m9gVuOzooveeZo","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1792839199627"}}
+[10:53:23.31] [LOG] [STATE_CHANGE] Attempt start time set to 1792839199627 for person: Toshiko Takeya. Saved to localStorage.
+[10:53:26.94] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q32968","person_name":"Toshiko Takeya","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","telegram_user_id":"399251099","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[10:53:30.63] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Toshiko Takeya is now cleared as it's either used or failed assign.
+[10:53:34.43] [LOG] [PRELOAD] Starting preload for: Bert Oosterbosch
+[10:53:37.88] [LOG] [COMMONS_API] Fetching image URL for file: Bert Oosterbosch 1978.jpg
+[10:53:41.75] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"b6m9gVuOzooveeZo","result":true}
+[10:53:46.38] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[10:53:52.77] [WARN] [COMMONS_API_FALLBACK] Commons API failed or timed out for Bert Oosterbosch 1978.jpg (Fetch is aborted). Falling back to Special:FilePath directly.
+[10:54:01.32] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[10:54:19.69] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[10:54:42.01] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 8, Preloaded: None or no label
+[10:55:01.08] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[10:55:20.03] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[10:55:35.43] [LOG] [PHOTO_STATUS] Loaded photos in session: 1, Remaining in sessionList: 8, Preloaded: None or no label
+[10:55:48.34] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[10:56:03.18] [WARN] [PRELOAD_DIRECT_TIMEOUT] Direct image preload TIMEOUT for https://commons.wikimedia.org/wiki/Special:FilePath/Bert%20Oosterbosch%201978.jpg. Trying proxy fallback...
+[10:56:21.66] [WARN] [PRELOAD_DIRECT_FAILED] Direct image preload FAILED for https://commons.wikimedia.org/wiki/Special:FilePath/Bert%20Oosterbosch%201978.jpg. Trying proxy fallback...
+[10:56:24.67] [WARN] [PRELOAD_PROXY_TIMEOUT] Proxy image preload timed out for: https://images.weserv.nl/?url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FSpecial%3AFilePath%2FBert%20Oosterbosch%201978.jpg
+[10:56:27.46] [ERROR] [PRELOAD_ERROR] Error during preload process for Bert Oosterbosch: Preload timed out for https://commons.wikimedia.org/wiki/Special:FilePath/Bert%20Oosterbosch%201978.jpg
+[10:56:30.49] [LOG] [PRELOAD] Preloading process attempt finished.
+[10:58:59.91] [LOG] [DIAG] Logs copied to clipboard.
+[10:59:56.35] [LOG] [DIAG] Logs copied to clipboard.
+[11:29:45.84] [SYSTEM] --- APPLICATION RESTARTED (PREVIOUS LOGS PRESERVED) ---
+[11:29:45.86] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[11:29:54.07] [LOG] [APP_INIT] Initializing application...
+[11:29:57.04] [LOG] [APP_INIT] Current theme: night
+[11:29:59.21] [LOG] [APP_INIT] RGB HSL Cache from localStorage: (0 entries)
+[11:30:01.95] [LOG] [APP_INIT] Wikidata Cache summary: { false-female-alive: 100, false-female-deceased: 100, false-male-alive: 100, false-male-deceased: 100, true-male-alive: 100 }
+[11:30:05.82] [LOG] [APP_INIT] Attempts from localStorage: 1
+[11:30:07.84] [LOG] [APP_INIT] Total Guesses from localStorage: 1
+[11:30:10.52] [LOG] [APP_INIT] Current Session ID from localStorage: 1781034448_339
+[11:30:12.98] [LOG] [APP_INIT] Current Attempt Start Time from localStorage: 1792839199627
+[11:30:15.12] [LOG] [APP_INIT] Guess Results History from localStorage: [1]
+[11:30:17.91] [LOG] [APP_INIT] Attempt Durations from localStorage: [81]
+[11:30:20.70] [LOG] [BOOTSTRAP] Starting bootstrap sequence...
+[11:30:23.24] [LOG] [Telegram.WebView] > postEvent web_app_ready 
+[11:30:25.56] [LOG] [Telegram.WebView] > postEvent web_app_expand 
+[11:30:28.20] [LOG] [BOOTSTRAP] Telegram WebApp ready() and expand() signaled.
+[11:30:30.77] [LOG] [WINDOW_ONLOAD] Page loaded. Initializing application state.
+[11:30:33.08] [LOG] [Telegram.WebView] > postEvent web_app_ready 
+[11:30:35.68] [LOG] [TELEGRAM_INIT] Telegram User ID: 399251099
+[11:30:37.70] [LOG] [TELEGRAM_INIT] Telegram User Name: R=OMΩ { 読愛者 }
+[11:30:39.60] [LOG] [GA_EVENT_SENT] Name: telegram_user_identified, Params: {"t_user_id_available":true,"t_user_name_available":true,"telegram_user_id":"399251099","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","new_language":"ru","current_theme":"night"}
+[11:30:41.64] [LOG] [WINDOW_ONLOAD] New Game button containers initialized.
+[11:30:44.02] [LOG] [WINDOW_ONLOAD_RESTORE] Restored from localStorage - Session ID: 1781034448_339, Attempt Start Time: 1792839199627, Guess Results History: 1, Attempt Durations: 81
+[11:30:46.58] [LOG] [WINDOW_ONLOAD] Is first launch or reset: false
+[11:30:48.68] [LOG] [WINDOW_ONLOAD] Resuming existing game state.
+[11:30:51.00] [LOG] [LANGUAGE_UPDATE] Updating language to: ru
+[11:30:53.24] [LOG] [UI_UPDATE] updateUI called for person: No person
+[11:30:55.59] [LOG] [UI_UPDATE] Telegram user info in stats displayed: R=OMΩ { 読愛者 }
+[11:30:57.53] [LOG] [LANGUAGE_UPDATE] Language update complete.
+[11:30:59.65] [LOG] [WINDOW_ONLOAD_RESUME] Resuming active game. Attempts: 1
+[11:31:01.78] [LOG] [WINDOW_ONLOAD_RESUME] currentPerson is null. Loading session data to continue/start.
+[11:31:04.23] [LOG] [LOAD_SESSION] Starting dynamic background streaming session...
+[11:31:07.41] [LOG] [PRELOAD_RESET] Preload state reset for new session.
+[11:31:09.51] [LOG] [STREAM_QUEUE] Scheduled highly interleaved queue of 10 candidates. Starting parallel stream worker pool.
+[11:31:11.97] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 1 Max: 10 IsInitialCall: true
+[11:31:15.37] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[11:31:17.93] [LOG] [UI_UPDATE] Telegram user info in stats displayed: R=OMΩ { 読愛者 }
+[11:31:20.51] [LOG] [TOP_CONTROLS] Collapsed state: true (manual: false)
+[11:31:22.82] [LOG] [HELP_MODAL_SETUP] Initializing Help modal event listeners...
+[11:31:25.40] [LOG] [DIAG_SETUP] Initializing diagnostics panel listeners...
+[11:31:27.51] [LOG] --- RUNNING DIAGNOSTICS ---
+[11:31:29.58] [LOG] [DIAG] Current Local Time: Sat Oct 24 2026 14:31:29 GMT+0300 (Eastern European Summer Time)
+[11:31:31.60] [LOG] [DIAG] Build App Version: v2.2.4
+[11:31:34.04] [LOG] [DIAG] Build Completion Time: 10/24/2026, 11:16:50 AM
+[11:31:36.02] [LOG] [DIAG] User Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15
+[11:31:38.56] [LOG] [DIAG] Platform (Navigator): Linux x86_64
+[11:31:40.68] [LOG] [DIAG] window.Telegram: Present
+[11:31:42.75] [LOG] [DIAG] Telegram.WebApp: Present
+[11:31:45.00] [LOG] [DIAG] WebApp Platform: tdesktop
+[11:31:47.19] [LOG] [DIAG] WebApp Version: 9.6
+[11:31:49.46] [LOG] [DIAG] WebApp ColorScheme: dark
+[11:31:51.38] [LOG] [DIAG] WebApp IsExpanded: true
+[11:31:54.02] [LOG] [DIAG] WebApp User ID: 399251099
+[11:31:55.93] [LOG] [DIAG] WebApp Username: cyber0lll
+[11:31:56.22] [LOG] [DIAG] WebApp LangCode: en
+[11:31:56.55] [LOG] [DIAG] LocalStorage write check: SUCCESS
+[11:31:56.71] [LOG] [DIAG] Cookies write check: ALLOWED
+[11:31:56.90] [LOG] [DIAG] GTM elements found in DOM: 1
+[11:31:57.13] [LOG]   [GTM-Script #0] SRC: https://www.googletagmanager.com/gtag/js?id=G-WDPB825TVX, ASYNC: true
+[11:31:57.32] [LOG] [DIAG] typeof gtag: function
+[11:31:57.48] [LOG] [DIAG] typeof window.gtag: function
+[11:31:57.71] [LOG] [DIAG] window.google_tag_manager present: false
+[11:31:57.95] [LOG] [DIAG] window.dataLayer present: true
+[11:31:58.40] [LOG] [DIAG] window.dataLayer length: 4
+[11:31:58.58] [LOG] [DIAG] window.dataLayer events list: [{"0":"js","1":"2026-10-24T11:29:45.095Z"},{"0":"config","1":"G-WDPB825TVX","2":{"cookie_flags":"SameSite=None;Secure","cookie_domain":"auto","transport_type":"xhr","client_id":"tg_127670385.1792625970"}},{"0":"set","1":"user_id","2":"399251099"},{"0":"event","1":"telegram_user_identified","2":{"t_user_id_available":true,"t_user_name_available":true,"telegram_user_id":"399251099","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","new_language":"ru","current_theme":"night"}}]
+[11:31:58.77] [LOG] --- END DIAGNOSTICS ---
+[11:31:58.97] [LOG] [WINDOW_ONLOAD] Page load sequence finished.
+[11:31:59.19] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"BxUtZnppAF925vls","method":"getStorageValues","params":{"keys":["theme","language","mode","totalGuesses","successfulGuesses","failedGuesses","currentAttempts","guessResultsHistory","attemptDurations","currentSessionId","currentAttemptStartTime","top_controls_collapsed"]}}
+[11:32:01.17] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"BxUtZnppAF925vls","result":{"attemptDurations":"[]","currentAttemptStartTime":"1792839199627","currentAttempts":"0","currentSessionId":"1792837315_5255","failedGuesses":"0","guessResultsHistory":"[]","language":"ru","mode":"open","successfulGuesses":"0","theme":"night","top_controls_collapsed":"true","totalGuesses":"0"}}
+[11:32:02.07] [LOG] [BOOTSTRAP] Background loaded keys from Telegram CloudStorage: {"attemptDurations":"[]","currentAttemptStartTime":"1792839199627","currentAttempts":"0","currentSessionId":"1792837315_5255","failedGuesses":"0","guessResultsHistory":"[]","language":"ru","mode":"open","successfulGuesses":"0","theme":"night","top_controls_collapsed":"true","totalGuesses":"0"}
+[11:32:02.60] [LOG] [STORAGE_IN_MEMORY_PREFILL] Key "totalGuesses" prefilled with value: 0
+[11:32:03.05] [LOG] [STORAGE_IN_MEMORY_PREFILL] Key "successfulGuesses" prefilled with value: 0
+[11:32:03.57] [LOG] [STORAGE_IN_MEMORY_PREFILL] Key "currentAttempts" prefilled with value: 0
+[11:32:04.00] [LOG] [STORAGE_IN_MEMORY_PREFILL] Key "guessResultsHistory" prefilled with value: []
+[11:32:05.01] [LOG] [STORAGE_IN_MEMORY_PREFILL] Key "attemptDurations" prefilled with value: []
+[11:32:05.45] [LOG] [STORAGE_IN_MEMORY_PREFILL] Key "currentSessionId" prefilled with value: 1792837315_5255
+[11:32:05.97] [LOG] [STORAGE_IN_MEMORY_PREFILL] Key "top_controls_collapsed" prefilled with value: true
+[11:32:08.23] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[11:32:08.71] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Laurin Hoppler
+[11:32:09.37] [LOG] [STREAM_QUEUE] Appended streamed candidate #1: Laurin Hoppler (male-alive)
+[11:32:09.82] [LOG] [STREAM_QUEUE_FIRST_ENTRY] Rendering first candidate instantly on screen: Laurin Hoppler
+[11:32:10.37] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Laurin Hoppler
+[11:32:10.85] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[11:32:11.67] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[11:32:12.15] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Laurin Hoppler. Reason: fetch_no_preload_match
+[11:32:12.70] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Laurin Hoppler
+[11:32:13.26] [LOG] [COMMONS_API] Fetching image URL for file: ^dbcjbsajb-min.jpg
+[11:32:13.88] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[11:32:15.05] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Estrella Cabeza Candela
+[11:32:15.52] [LOG] [STREAM_QUEUE] Appended streamed candidate #2: Estrella Cabeza Candela (female-alive)
+[11:32:15.99] [LOG] [PRELOAD] Starting preload for: Estrella Cabeza Candela
+[11:32:16.39] [LOG] [COMMONS_API] Fetching image URL for file: Cabeza Candela WMQ14 (5) (14607049775).jpg
+[11:32:19.41] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/%5Edbcjbsajb-min.jpg/960px-%5Edbcjbsajb-min.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 6148ms
+[11:32:20.23] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/%5Edbcjbsajb-min.jpg/960px-%5Edbcjbsajb-min.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[11:32:20.69] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Cabeza_Candela_WMQ14_%285%29_%2814607049775%29.jpg/960px-Cabeza_Candela_WMQ14_%285%29_%2814607049775%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 4303ms
+[11:32:21.33] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[11:32:21.90] [LOG] [IMAGE_LOAD_SUCCESS] Image loaded successfully: https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/%5Edbcjbsajb-min.jpg/960px-%5Edbcjbsajb-min.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[11:32:22.57] [LOG] [LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched for Laurin Hoppler. Path: direct_fetch_success
+[11:32:22.96] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Laurin Hoppler (Path: direct_fetch_success)
+[11:32:23.57] [LOG] [UI_UPDATE] updateUI called for person: Laurin Hoppler
+[11:32:24.06] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"7rQJ2ZGW5pHEDq9k","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1792841544068"}}
+[11:32:24.55] [LOG] [STATE_CHANGE] Attempt start time set to 1792841544068 for person: Laurin Hoppler. Saved to localStorage.
+[11:32:25.12] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q101088434","person_name":"Laurin Hoppler","new_language":"ru","game_mode":"open","load_source":"fetch_direct","load_path_detail":"direct_fetch_success","telegram_user_id":"399251099","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[11:32:25.55] [LOG] [PRELOAD] Preload already in progress or next item is already the target of current load.
+[11:32:26.07] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"7rQJ2ZGW5pHEDq9k","result":true}
+[11:32:26.66] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[11:32:27.14] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[11:32:27.66] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Andrew Wood
+[11:32:28.23] [LOG] [STREAM_QUEUE] Appended streamed candidate #3: Andrew Wood (male-deceased)
+[11:32:28.71] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Cabeza_Candela_WMQ14_%285%29_%2814607049775%29.jpg/960px-Cabeza_Candela_WMQ14_%285%29_%2814607049775%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail for Estrella Cabeza Candela
+[11:32:29.39] [LOG] [PRELOAD] Preloading process attempt finished.
+[11:32:29.83] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[11:32:30.48] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[11:32:30.98] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 2, Preloaded: Estrella Cabeza Candela
+[11:32:31.65] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[11:32:32.12] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[11:32:32.64] [LOG] [PHOTO_STATUS] Loaded photos in session: 1, Remaining in sessionList: 2, Preloaded: Estrella Cabeza Candela
+[11:32:33.10] [LOG] [STREAM_QUEUE_UI] Screen initialized with first streaming candidate.
+[11:32:34.00] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[11:32:34.38] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Susan Bieke Neilson
+[11:32:34.71] [LOG] [STREAM_QUEUE] Appended streamed candidate #4: Susan Bieke Neilson (female-deceased)
+[11:32:35.02] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[11:32:35.38] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Jean-Michel Bardez
+[11:32:35.74] [LOG] [STREAM_QUEUE] Appended streamed candidate #5: Jean-Michel Bardez (male-alive)
+[11:32:36.40] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[11:32:36.84] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Amanda Carreras
+[11:32:37.25] [LOG] [STREAM_QUEUE] Appended streamed candidate #6: Amanda Carreras (female-alive)
+[11:32:37.61] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[11:32:38.02] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Tim Richmond
+[11:32:38.36] [LOG] [STREAM_QUEUE] Appended streamed candidate #7: Tim Richmond (male-deceased)
+[11:32:38.89] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[11:32:39.33] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Susan Bayh
+[11:32:39.71] [LOG] [STREAM_QUEUE] Appended streamed candidate #8: Susan Bayh (female-deceased)
+[11:32:40.10] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[11:32:40.57] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Nicolas Van de Walle
+[11:32:41.53] [LOG] [STREAM_QUEUE] Appended streamed candidate #9: Nicolas Van de Walle (male-alive)
+[11:32:42.30] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[11:32:42.89] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Laurie Holden
+[11:32:43.61] [LOG] [STREAM_QUEUE] Appended streamed candidate #10: Laurie Holden (female-alive)
+[11:32:44.28] [LOG] [STREAM_QUEUE_COMPLETE] Background stream queue finished. Cached or loaded 10 total items.
+[11:32:44.95] [LOG] [LOAD_SESSION_TIMING] Total stream load elapsed (since launch): 100721ms
+[11:35:11.59] [LOG] [DIAG] Logs copied to clipboard.

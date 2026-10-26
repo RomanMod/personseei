@@ -13,7 +13,7 @@
     <meta http-equiv="Expires" content="0">
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDPB825TVX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WDPB825TVX" onerror="console.warn('[GA4_BLOCKED] GTM script failed to load. Check adblock, DNS or network blocking.')"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -25,8 +25,9 @@
         try {
           if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
             cid = window.localStorage.getItem('ga_client_id');
-            if (!cid) {
-              cid = 'tg_' + Math.floor(Math.random() * 1e9) + '.' + Math.floor(Date.now() / 1000);
+            // GA4 strictly expects numeric format "XXXXXXXXXX.YYYYYYYYYY" without letters/prefixes
+            if (!cid || !/^\d+\.\d+$/.test(cid)) {
+              cid = Math.floor(Math.random() * 2147483647) + '.' + Math.floor(Date.now() / 1000);
               window.localStorage.setItem('ga_client_id', cid);
             }
           }
@@ -35,7 +36,8 @@
         var configOptions = {
           cookie_flags: 'SameSite=None;Secure',
           cookie_domain: 'auto',
-          transport_type: 'xhr'
+          transport_type: 'xhr',
+          debug_mode: true
         };
         if (cid) {
           configOptions.client_id = cid;

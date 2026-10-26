@@ -2,7 +2,7 @@ import './index.css';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 // Change the version number here in exactly one place!
-const APP_VERSION_FALLBACK = '2.2.4';
+const APP_VERSION_FALLBACK = '2.2.5';
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
 // === LOG CAPTURE & DIAGNOSTICS CODE (MUST BE AT THE VERY TOP) ===
@@ -933,6 +933,7 @@ function autoCollapseControlsOnGameplay() {
 function sendGAEvent(eventName, eventParams = {}) {
     if (typeof gtag === 'function') {
         const paramsToSend = { ...eventParams }; // Create a copy
+        paramsToSend.debug_mode = true;
         if (telegramUserId) {
             paramsToSend.telegram_user_id = telegramUserId;
         }
