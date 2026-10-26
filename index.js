@@ -2,7 +2,7 @@ import './index.css';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 // Change the version number here in exactly one place!
-const APP_VERSION_FALLBACK = '2.2.5';
+const APP_VERSION_FALLBACK = '2.2.6';
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
 // === LOG CAPTURE & DIAGNOSTICS CODE (MUST BE AT THE VERY TOP) ===
@@ -929,8 +929,98 @@ function autoCollapseControlsOnGameplay() {
     }
 }
 
+// Google Sheets Webhook Integration & Anti-Spam Tracking
+const GOOGLE_SHEETS_SECURITY_TOKEN = "ipersonsee_safe_2026";
+const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw0YoVemBiXEUNA4c8PUOMPLILgtWOM00ZblXGU8nWnvbnfGh7Pt0oHUis97NgCxAanNw/exec";
+let googleSheetsWebhookUrl = localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
+let consecutiveEmptyNewGames = 0;
+
+function sendToGoogleSheet(eventName, eventParams = {}) {
+    const webhookUrl = googleSheetsWebhookUrl || localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
+    if (!webhookUrl) {
+        return;
+    }
+
+    // Anti-spam detection: If user clicks 'New Game' 10+ times without making any guesses
+    let isSpam = false;
+    let spamReason = '';
+    if (eventName === 'new_game_started') {
+        if (consecutiveEmptyNewGames >= 10) {
+            isSpam = true;
+            spamReason = `flood_empty_restarts_${consecutiveEmptyNewGames}_times`;
+            console.warn(`[ANTI_SPAM] Flagged suspicious empty restart flood (${consecutiveEmptyNewGames} consecutive resets without gameplay).`);
+        }
+    }
+
+    const now = new Date();
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown';
+    const tgPlatform = window.Telegram?.WebApp?.platform || 'web';
+    const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code || '';
+
+    const payload = {
+        token: GOOGLE_SHEETS_SECURITY_TOKEN,
+        timestamp_iso: now.toISOString(),
+        local_time_string: now.toLocaleString(),
+        timezone: timeZone,
+        timezone_offset: now.getTimezoneOffset(),
+        platform: tgPlatform,
+        device_lang: navigator.language || '',
+        telegram_lang: tgLang,
+        screen_res: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
+        user_agent: navigator.userAgent || '',
+        
+        event_name: eventName,
+        telegram_user_id: telegramUserId || '',
+        telegram_user_name: telegramUserName || '',
+        session_id: currentSessionId || eventParams.session_id || '',
+        
+        person_name: eventParams.person_name || currentPerson?.personLabel?.value || '',
+        person_id: eventParams.person_id || (currentPerson?.person?.value ? currentPerson.person.value.split('/').pop() : ''),
+        
+        guess_gender: eventParams.guessed_gender || userGenderGuess || '',
+        actual_gender: eventParams.actual_gender || '',
+        guess_status: eventParams.guessed_status || userStatusGuess || '',
+        actual_status: eventParams.actual_status || '',
+        
+        is_correct: eventParams.is_overall_correct !== undefined ? eventParams.is_overall_correct : (eventParams.attempt_result !== undefined ? eventParams.attempt_result : ''),
+        duration_seconds: eventParams.time_for_attempt_seconds !== undefined ? eventParams.time_for_attempt_seconds : (eventParams.duration_seconds !== undefined ? eventParams.duration_seconds : ''),
+        attempt_number: eventParams.attempt_number_in_session || eventParams.attempt_number || currentAttempts || '',
+        
+        successful_guesses: successfulGuesses,
+        failed_guesses: failedGuesses,
+        success_rate: `${totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0}%`,
+        language: selectedLanguage,
+        game_mode: gameMode,
+        current_theme: isNight ? 'night' : 'day',
+        
+        is_spam: isSpam,
+        spam_reason: spamReason,
+        consecutive_empty_restarts: consecutiveEmptyNewGames
+    };
+
+    try {
+        fetch(webhookUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8'
+            },
+            body: JSON.stringify(payload)
+        }).then(() => {
+            console.log(`[SHEETS_SENT] Dispatched event "${eventName}" to Google Sheets (Spam: ${isSpam})`);
+        }).catch((err) => {
+            console.warn(`[SHEETS_WARN] Failed to dispatch event "${eventName}" to Google Sheets:`, err);
+        });
+    } catch (e) {
+        console.warn(`[SHEETS_ERROR] Exception in sendToGoogleSheet:`, e);
+    }
+}
+
 // Google Analytics 4 Event Sender
 function sendGAEvent(eventName, eventParams = {}) {
+    // Parallel dispatch to Google Sheets webhook
+    sendToGoogleSheet(eventName, eventParams);
+
     if (typeof gtag === 'function') {
         const paramsToSend = { ...eventParams }; // Create a copy
         paramsToSend.debug_mode = true;
@@ -2843,6 +2933,12 @@ async function loadNextPerson(triggerButton = 'unknown') {
 
 function startNewGame() {
     console.log('[GAME_FLOW] Starting new game...');
+    if (currentAttempts === 0 && currentSessionId) {
+        consecutiveEmptyNewGames++;
+        console.log(`[ANTI_SPAM] Empty game restart count: ${consecutiveEmptyNewGames}`);
+    } else {
+        consecutiveEmptyNewGames = 0;
+    }
     currentAttempts = 0;
     totalGuesses = 0; 
     successfulGuesses = 0;
@@ -3001,6 +3097,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
     const endTime = Date.now();
 
     hasChecked = true;
+    consecutiveEmptyNewGames = 0;
     currentAttempts++;
     totalGuesses++; 
     console.log(`[GAME_STATE] Attempt ${currentAttempts}/${maxAttempts}. Total guesses this game: ${totalGuesses}.`);
@@ -3245,6 +3342,94 @@ function setupDiagnosticsPanel() {
     const diagPanel = document.getElementById('diagnostics-panel');
     if (diagPanel) {
         diagPanel.style.display = window.diagnosticsEnabled ? 'block' : 'none';
+    }
+
+    // Google Sheets Webhook Configuration UI
+    const sheetsInput = document.getElementById('sheets-webhook-url-input');
+    const saveSheetsBtn = document.getElementById('save-sheets-webhook-btn');
+    const testSheetsBtn = document.getElementById('test-sheets-webhook-btn');
+    const sheetsStatus = document.getElementById('sheets-webhook-status');
+    const sheetsIndicator = document.getElementById('sheets-webhook-indicator');
+
+    const updateWebhookIndicator = (hasUrl) => {
+        if (sheetsIndicator) {
+            sheetsIndicator.className = hasUrl ? 'w-2 h-2 rounded-full bg-neon-cyan shadow-[0_0_8px_rgba(0,240,255,0.6)]' : 'w-2 h-2 rounded-full bg-on-surface-variant/40';
+            sheetsIndicator.title = hasUrl ? 'Google Sheets Webhook Connected' : 'Webhook not configured';
+        }
+    };
+
+    if (sheetsInput) {
+        sheetsInput.value = googleSheetsWebhookUrl || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
+        updateWebhookIndicator(Boolean(googleSheetsWebhookUrl || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL));
+    }
+
+    if (saveSheetsBtn && sheetsInput) {
+        saveSheetsBtn.addEventListener('click', () => {
+            const val = sheetsInput.value.trim();
+            googleSheetsWebhookUrl = val;
+            if (val) {
+                localStorage.setItem('google_sheets_webhook_url', val);
+                updateWebhookIndicator(true);
+                if (sheetsStatus) {
+                    sheetsStatus.textContent = 'Збережено! Webhook активний ✅';
+                    sheetsStatus.classList.remove('hidden', 'text-error');
+                    sheetsStatus.classList.add('text-neon-cyan');
+                }
+                console.log('[SHEETS_CONFIG] Saved Google Sheets Webhook URL:', val);
+            } else {
+                localStorage.removeItem('google_sheets_webhook_url');
+                updateWebhookIndicator(false);
+                if (sheetsStatus) {
+                    sheetsStatus.textContent = 'Webhook вимкнено (URL очищено).';
+                    sheetsStatus.classList.remove('hidden', 'text-neon-cyan');
+                    sheetsStatus.classList.add('text-on-surface-variant');
+                }
+                console.log('[SHEETS_CONFIG] Cleared Google Sheets Webhook URL.');
+            }
+            setTimeout(() => {
+                if (sheetsStatus) sheetsStatus.textContent = '';
+            }, 3000);
+        });
+    }
+
+    if (testSheetsBtn) {
+        testSheetsBtn.addEventListener('click', () => {
+            const currentUrl = googleSheetsWebhookUrl || (sheetsInput ? sheetsInput.value.trim() : '');
+            if (!currentUrl) {
+                if (sheetsStatus) {
+                    sheetsStatus.textContent = 'Вставте URL перед тестом! ❌';
+                    sheetsStatus.classList.remove('hidden', 'text-neon-cyan');
+                    sheetsStatus.classList.add('text-error');
+                }
+                return;
+            }
+            if (sheetsStatus) {
+                sheetsStatus.textContent = 'Надсилання тестового рядка... ⏳';
+                sheetsStatus.classList.remove('hidden', 'text-error');
+                sheetsStatus.classList.add('text-spirit-violet');
+            }
+            sendToGoogleSheet('test_connection', {
+                person_name: 'Тестовий Персонаж',
+                person_id: 'Q999999',
+                guessed_gender: 'male',
+                actual_gender: 'male',
+                guessed_status: 'alive',
+                actual_status: 'alive',
+                is_overall_correct: 1,
+                time_for_attempt_seconds: 1,
+                attempt_number: 1
+            });
+            setTimeout(() => {
+                if (sheetsStatus) {
+                    sheetsStatus.textContent = 'Тест надіслано! Перевірте Google Таблицю 🚀';
+                    sheetsStatus.classList.remove('text-spirit-violet');
+                    sheetsStatus.classList.add('text-neon-cyan');
+                }
+            }, 800);
+            setTimeout(() => {
+                if (sheetsStatus) sheetsStatus.textContent = '';
+            }, 4000);
+        });
     }
 
     const runDiagBtn = document.getElementById('run-diag-btn');

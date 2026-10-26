@@ -328,6 +328,23 @@
                     <button id="copy-logs-btn" class="bg-surface-container-lowest px-3 py-1.5 rounded-lg text-[10px] font-mono hover:bg-spirit-violet/20 hover:text-spirit-violet text-on-surface transition-all active:scale-95 border border-white/5">Копіювати логи</button>
                     <button id="force-reload-btn" class="bg-surface-container-lowest px-3 py-1.5 rounded-lg text-[10px] font-mono hover:bg-ritual-gold/20 hover:text-ritual-gold text-on-surface transition-all active:scale-95 border border-white/5">Оновити кеш 🔄</button>
                 </div>
+                
+                <!-- Google Sheets Webhook Integration Section -->
+                <div class="bg-void-black/70 p-2.5 rounded-xl border border-white/5 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                        <label class="text-[10px] font-mono text-neon-cyan flex items-center gap-1 font-bold">
+                            <span class="material-symbols-outlined text-xs">table_chart</span> Google Sheets Webhook URL:
+                        </label>
+                        <span id="sheets-webhook-indicator" class="w-2 h-2 rounded-full bg-on-surface-variant/40" title="Webhook not configured"></span>
+                    </div>
+                    <div class="flex gap-1.5">
+                        <input type="text" id="sheets-webhook-url-input" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-surface-container-lowest border border-white/10 rounded-lg px-2.5 py-1 text-[10px] font-mono text-on-surface focus:outline-none focus:border-neon-cyan/50" />
+                        <button id="save-sheets-webhook-btn" class="bg-neon-cyan/20 border border-neon-cyan/40 text-neon-cyan text-[10px] font-mono px-2.5 py-1 rounded-lg hover:bg-neon-cyan/30 active:scale-95 transition-all">Зберегти</button>
+                        <button id="test-sheets-webhook-btn" class="bg-spirit-violet/20 border border-spirit-violet/40 text-spirit-violet text-[10px] font-mono px-2.5 py-1 rounded-lg hover:bg-spirit-violet/30 active:scale-95 transition-all">Тест</button>
+                    </div>
+                    <div id="sheets-webhook-status" class="text-[9px] font-mono text-on-surface-variant/70"></div>
+                </div>
+
                 <pre id="debug-log-output" class="bg-void-black/90 p-3 rounded-xl border border-white/5 font-mono text-[10px] max-h-48 overflow-y-auto leading-relaxed text-on-surface-variant/90 scrollbar-thin">Initializing diagnostics log...</pre>
             </div>
         </details>
