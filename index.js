@@ -931,9 +931,42 @@ function autoCollapseControlsOnGameplay() {
 
 // Google Sheets Webhook Integration & Anti-Spam Tracking
 const GOOGLE_SHEETS_SECURITY_TOKEN = "ipersonsee_safe_2026";
-const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw0YoVemBiXEUNA4c8PUOMPLILgtWOM00ZblXGU8nWnvbnfGh7Pt0oHUis97NgCxAanNw/exec";
+const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) || "";
 let googleSheetsWebhookUrl = localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
 let consecutiveEmptyNewGames = 0;
+
+// Lightweight deterministic string hashing for GDPR & user privacy (pseudonymization)
+function anonymizeUserId(rawId) {
+    if (!rawId) return 'anon_guest';
+    const str = 'ipersonsee_salt_' + String(rawId);
+    let h = 0x811c9dc5;
+    for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 0x01000193);
+    }
+    const hex = (h >>> 0).toString(16).padStart(8, '0');
+    return `usr_${hex}`;
+}
+
+function anonymizePlayerName(rawName, anonId) {
+    if (!rawName) return `Player_${anonId.slice(4)}`;
+    const trimmed = String(rawName).trim();
+    if (!trimmed) return `Player_${anonId.slice(4)}`;
+    const firstChar = Array.from(trimmed)[0] || 'P';
+    return `${firstChar}*** (${anonId.slice(4, 10)})`;
+}
+
+function simplifyUserAgent(ua) {
+    if (!ua) return 'unknown';
+    if (ua.includes('iPhone')) return 'iPhone (iOS)';
+    if (ua.includes('iPad')) return 'iPad (iPadOS)';
+    if (ua.includes('Android')) return 'Android';
+    if (ua.includes('Ubuntu')) return 'Ubuntu Linux';
+    if (ua.includes('Linux')) return 'Linux';
+    if (ua.includes('Windows')) return 'Windows';
+    if (ua.includes('Macintosh')) return 'macOS';
+    return 'Other';
+}
 
 function sendToGoogleSheet(eventName, eventParams = {}) {
     const webhookUrl = googleSheetsWebhookUrl || localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
@@ -956,6 +989,11 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown';
     const tgPlatform = window.Telegram?.WebApp?.platform || 'web';
     const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code || '';
+    
+    // Privacy protection: pseudonymize user identifiers before sending over the wire
+    const anonId = anonymizeUserId(telegramUserId);
+    const anonName = anonymizePlayerName(telegramUserName, anonId);
+    const osType = simplifyUserAgent(navigator.userAgent || '');
 
     const payload = {
         token: GOOGLE_SHEETS_SECURITY_TOKEN,
@@ -967,11 +1005,11 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         device_lang: navigator.language || '',
         telegram_lang: tgLang,
         screen_res: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
-        user_agent: navigator.userAgent || '',
+        user_agent: osType,
         
         event_name: eventName,
-        telegram_user_id: telegramUserId || '',
-        telegram_user_name: telegramUserName || '',
+        telegram_user_id: anonId,
+        telegram_user_name: anonName,
         session_id: currentSessionId || eventParams.session_id || '',
         
         person_name: eventParams.person_name || currentPerson?.personLabel?.value || '',
@@ -1007,7 +1045,7 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
             },
             body: JSON.stringify(payload)
         }).then(() => {
-            console.log(`[SHEETS_SENT] Dispatched event "${eventName}" to Google Sheets (Spam: ${isSpam})`);
+            console.log(`[SHEETS_SENT] Dispatched anonymized event "${eventName}" to Google Sheets (Spam: ${isSpam})`);
         }).catch((err) => {
             console.warn(`[SHEETS_WARN] Failed to dispatch event "${eventName}" to Google Sheets:`, err);
         });
@@ -1024,8 +1062,11 @@ function sendGAEvent(eventName, eventParams = {}) {
     if (typeof gtag === 'function') {
         const paramsToSend = { ...eventParams }; // Create a copy
         paramsToSend.debug_mode = true;
-        if (telegramUserId) {
-            paramsToSend.telegram_user_id = telegramUserId;
+        
+        // Use pseudonymized user identifier for privacy & GA4 policy compliance
+        const anonId = anonymizeUserId(telegramUserId);
+        if (anonId) {
+            paramsToSend.telegram_user_id = anonId;
         }
         if (currentSessionId) {
             if (!paramsToSend.ga_session_id) {
@@ -3568,7 +3609,7 @@ const initApp = () => {
                     telegramUserId = tgUser.id.toString();
                     console.log(`[TELEGRAM_INIT] Telegram User ID: ${telegramUserId}`);
                     if (typeof gtag === 'function') {
-                        gtag('set', 'user_id', telegramUserId);
+                        gtag('set', 'user_id', anonymizeUserId(telegramUserId));
                     }
                 } else {
                     console.log('[TELEGRAM_INIT] Telegram User ID missing.');
