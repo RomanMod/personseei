@@ -1,4 +1,5 @@
 import './index.css';
+import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
@@ -2286,31 +2287,52 @@ const offlinePeople = [
     }
 ];
 
-let recentOfflineNamesHistory = [];
+// Category deck system to guarantee rich diversity and zero duplicates across games
+const categoryDecks = {
+    'male-alive': [],
+    'male-deceased': [],
+    'female-alive': [],
+    'female-deceased': []
+};
+
+let sessionShownNames = new Set();
+
+function getNextCatalogPerson(category) {
+    const gender = category?.gender || (Math.random() > 0.5 ? 'male' : 'female');
+    const status = category?.status || (Math.random() > 0.5 ? 'alive' : 'deceased');
+    const catKey = `${gender}-${status}`;
+
+    // Refill and Fisher-Yates shuffle if deck is depleted
+    if (!categoryDecks[catKey] || categoryDecks[catKey].length === 0) {
+        const pool = (Array.isArray(peopleCatalog) && peopleCatalog.length > 0) ? peopleCatalog : offlinePeople;
+        let matching = pool.filter(p => p.gender_string === gender && p.status_string === status);
+        if (!matching || matching.length === 0) {
+            matching = pool;
+        }
+
+        const shuffled = [...matching];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        categoryDecks[catKey] = shuffled;
+        console.log(`[CATALOG_DECK] Deck "${catKey}" refilled and shuffled (${shuffled.length} candidates).`);
+    }
+
+    // Prefer candidate not yet shown in this game session
+    let candidateIndex = categoryDecks[catKey].findIndex(p => !sessionShownNames.has(p.personLabel.value));
+    if (candidateIndex === -1) {
+        candidateIndex = categoryDecks[catKey].length - 1;
+    }
+
+    const candidate = categoryDecks[catKey].splice(candidateIndex, 1)[0];
+    sessionShownNames.add(candidate.personLabel.value);
+    console.log(`[CATALOG_DECK] Dealt candidate: ${candidate.personLabel.value} (${catKey}). Remaining in deck: ${categoryDecks[catKey].length}`);
+    return candidate;
+}
 
 function getOfflineFallbackPerson(category) {
-    const gender = category?.gender || 'male';
-    const status = category?.status || 'alive';
-    let matches = offlinePeople.filter(p => p.gender_string === gender && p.status_string === status);
-    if (!matches || matches.length === 0) {
-        matches = offlinePeople;
-    }
-
-    // Filter out recently shown candidates to prevent repeating cycles ("два фото по кругу")
-    let freshMatches = matches.filter(p => !recentOfflineNamesHistory.includes(p.personLabel.value));
-    if (freshMatches.length === 0) {
-        recentOfflineNamesHistory = [];
-        freshMatches = matches;
-    }
-
-    const selected = freshMatches[Math.floor(Math.random() * freshMatches.length)];
-    recentOfflineNamesHistory.push(selected.personLabel.value);
-    if (recentOfflineNamesHistory.length > 10) {
-        recentOfflineNamesHistory.shift();
-    }
-
-    console.log(`[OFFLINE_FALLBACK] Selected offline backup candidate: ${selected.personLabel.value} (${gender}-${status}). Recent history size: ${recentOfflineNamesHistory.length}`);
-    return selected;
+    return getNextCatalogPerson(category);
 }
 
 function removePersonFromCache(personToRemove) {
@@ -2345,9 +2367,13 @@ function removePersonFromCache(personToRemove) {
 async function fetchPersonData(useRandom = false, category = null) {
     const categoryKey = `${category?.gender || 'any'}-${category?.status || 'any'}`;
     try {
+        const candidate = getNextCatalogPerson(category);
+        if (candidate) {
+            return candidate;
+        }
         return await fetchPersonDataInner(useRandom, category);
     } catch (err) {
-        console.warn(`[WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata fetch failed for ${categoryKey}: ${err.message}. Invoking offline fallback...`);
+        console.warn(`[CATALOG_FETCH_FALLBACK] Catalog or fetch error for ${categoryKey}: ${err.message}. Invoking fallback...`);
         return getOfflineFallbackPerson(category);
     }
 }
@@ -2511,7 +2537,7 @@ async function startPreloadNextAvailablePerson() {
 
     try {
         let commonsUrl;
-        if (personBindingForPreload.isOfflineFallback) {
+        if (personBindingForPreload.isOfflineFallback || personBindingForPreload.isCatalogPerson) {
             commonsUrl = personBindingForPreload.image.value;
         } else {
             const fileName = decodeURIComponent(personBindingForPreload.image.value.split('/').pop());
@@ -2770,7 +2796,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 }
 
                 let commonsUrl;
-                if (currentPersonCandidate.isOfflineFallback) {
+                if (currentPersonCandidate.isOfflineFallback || currentPersonCandidate.isCatalogPerson) {
                     commonsUrl = currentPersonCandidate.image.value;
                 } else {
                     const fileName = decodeURIComponent(currentPersonCandidate.image.value.split('/').pop());
@@ -3229,6 +3255,11 @@ function startNewGame() {
     preloadedPersonContainer = null;
     isCurrentlyPreloading = false;
     console.log('[PRELOAD_RESET] Preload state reset for new game.');
+
+    if (sessionShownNames && sessionShownNames.size >= 80) {
+        console.log(`[CATALOG_RESET] sessionShownNames reached ${sessionShownNames.size}, clearing to allow fresh cycling.`);
+        sessionShownNames.clear();
+    }
 
     const timestampSeconds = Math.floor(Date.now() / 1000);
     const randomNumber = Math.floor(Math.random() * 10000);
