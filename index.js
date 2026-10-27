@@ -118,6 +118,20 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
+function isCloudStorageSupported() {
+    try {
+        return Boolean(
+            typeof window !== 'undefined' &&
+            window.Telegram &&
+            window.Telegram.WebApp &&
+            window.Telegram.WebApp.CloudStorage &&
+            (typeof window.Telegram.WebApp.isVersionAtLeast === 'function' ? window.Telegram.WebApp.isVersionAtLeast('6.9') : false)
+        );
+    } catch (e) {
+        return false;
+    }
+}
+
 // Safe localStorage wrapper to prevent crashes in sandboxed iframe or Telegram WebView environments
 const localStorage = (() => {
     let storage = {};
@@ -149,7 +163,7 @@ const localStorage = (() => {
             }
             storage[key] = String(value);
             
-            // Asynchronously sync to Telegram WebApp CloudStorage if available
+            // Asynchronously sync to Telegram WebApp CloudStorage if available (Bot API 6.9+)
             // CRITICAL: Telegram CloudStorage has a 4096-byte limit per key!
             // NEVER sync giant caches (like wikidataCache, rgbHslCache, logs) to CloudStorage!
             const TG_ALLOWED_CLOUD_KEYS = new Set([
@@ -159,7 +173,7 @@ const localStorage = (() => {
                 'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled'
             ]);
 
-            if (TG_ALLOWED_CLOUD_KEYS.has(key) && typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
+            if (TG_ALLOWED_CLOUD_KEYS.has(key) && isCloudStorageSupported()) {
                 const strVal = String(value);
                 if (strVal.length <= 2500) {
                     try {
@@ -192,7 +206,7 @@ const localStorage = (() => {
                 'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled'
             ]);
 
-            if (TG_ALLOWED_CLOUD_KEYS.has(key) && typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
+            if (TG_ALLOWED_CLOUD_KEYS.has(key) && isCloudStorageSupported()) {
                 try {
                     window.Telegram.WebApp.CloudStorage.removeItem(key, (err, success) => {
                         if (err) {
@@ -303,8 +317,8 @@ function runSystemDiagnostics() {
 const settings = {
     superRandomPeople: true,
     dynamicOffset: true,
-    maxOffset: 2000,
-    maxPeople: 300,
+    maxOffset: 120,
+    maxPeople: 30,
     sessionPeople: 10,
     genderRatio: { male: 50, female: 50 },
     statusRatio: { alive: 50, deceased: 50 },
@@ -948,8 +962,8 @@ try {
     }
 } catch (e) {}
 
-// Async check for Telegram CloudStorage fallback
-if (typeof window !== 'undefined' && window.Telegram?.WebApp?.CloudStorage && !googleSheetsWebhookUrl) {
+// Async check for Telegram CloudStorage fallback (if supported)
+if (isCloudStorageSupported() && !googleSheetsWebhookUrl) {
     try {
         window.Telegram.WebApp.CloudStorage.getItem('google_sheets_webhook_url', (err, val) => {
             if (!err && val && !googleSheetsWebhookUrl) {
@@ -1954,14 +1968,14 @@ async function loadImageWithFallback(url, element) {
     });
 }
 
-const WIKIDATA_QUERY_TIMEOUT_MS = 4000; 
+const WIKIDATA_QUERY_TIMEOUT_MS = 10000; 
 
 const offlinePeople = [
     // Male, Alive
     {
         person: { value: "https://en.wikipedia.org/wiki/Elon_Musk" },
         personLabel: { value: "Elon Musk" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/c/cb/Elon_Musk_Royal_Society_cropped.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Elon_Musk_Royal_Society_crop.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1971-06-28T00:00:00Z" },
         isOfflineFallback: true,
@@ -1969,31 +1983,31 @@ const offlinePeople = [
         status_string: "alive"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/Volodymyr_Zelenskyy" },
-        personLabel: { value: "Volodymyr Zelenskyy" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/9/9c/Volodymyr_Zelenskyy_Kyiv_2022_%28cropped%29.jpg" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1978-01-25T00:00:00Z" },
-        isOfflineFallback: true,
-        gender_string: "male",
-        status_string: "alive"
-    },
-    {
-        person: { value: "https://en.wikipedia.org/wiki/Vitali_Klitschko" },
-        personLabel: { value: "Vitali Klitschko" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/c/cb/Vitali_Klitschko_June_2015.jpg" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1971-07-19T00:00:00Z" },
-        isOfflineFallback: true,
-        gender_string: "male",
-        status_string: "alive"
-    },
-    {
         person: { value: "https://en.wikipedia.org/wiki/Keanu_Reeves" },
         personLabel: { value: "Keanu Reeves" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/3/33/Keanu_Reeves_2014_cropped.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Keanu_Reeves_at_TIFF_2025_02_(Cropped).jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1964-09-02T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "alive"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Brad_Pitt" },
+        personLabel: { value: "Brad Pitt" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Brad_Pitt_2019_by_Glenn_Francis.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1963-12-18T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "alive"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Bill_Gates" },
+        personLabel: { value: "Bill Gates" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Bill_Gates_2017_(cropped).jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1955-10-28T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "male",
         status_string: "alive"
@@ -2002,7 +2016,7 @@ const offlinePeople = [
     {
         person: { value: "https://en.wikipedia.org/wiki/Albert_Einstein" },
         personLabel: { value: "Albert Einstein" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/d/d3/Albert_Einstein_Head.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Albert_Einstein_Head.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1879-03-14T00:00:00Z" },
         deathDate: { value: "1955-04-18T00:00:00Z" },
@@ -2011,31 +2025,9 @@ const offlinePeople = [
         status_string: "deceased"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/Taras_Shevchenko" },
-        personLabel: { value: "Taras Shevchenko" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/a/af/Tarass_Chevtchenko_1859.jpg" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1814-03-09T00:00:00Z" },
-        deathDate: { value: "1861-03-10T00:00:00Z" },
-        isOfflineFallback: true,
-        gender_string: "male",
-        status_string: "deceased"
-    },
-    {
-        person: { value: "https://en.wikipedia.org/wiki/Steve_Jobs" },
-        personLabel: { value: "Steve Jobs" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/d/dc/Steve_Jobs_Headshot_2010-CROP.jpg" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1955-02-24T00:00:00Z" },
-        deathDate: { value: "2011-10-05T00:00:00Z" },
-        isOfflineFallback: true,
-        gender_string: "male",
-        status_string: "deceased"
-    },
-    {
         person: { value: "https://en.wikipedia.org/wiki/Stephen_Hawking" },
         personLabel: { value: "Stephen Hawking" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/e/eb/Stephen_Hawking.StarChild.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Stephen_Hawking.StarChild.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1942-01-08T00:00:00Z" },
         deathDate: { value: "2018-03-14T00:00:00Z" },
@@ -2043,21 +2035,22 @@ const offlinePeople = [
         gender_string: "male",
         status_string: "deceased"
     },
-    // Female, Alive
     {
-        person: { value: "https://en.wikipedia.org/wiki/Lina_Kostenko" },
-        personLabel: { value: "Lina Kostenko" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/f/fb/Lina_Kostenko_cropped.jpg" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
-        birthDate: { value: "1930-03-19T00:00:00Z" },
+        person: { value: "https://en.wikipedia.org/wiki/Steve_Jobs" },
+        personLabel: { value: "Steve Jobs" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Steve_Jobs_Headshot_2010_(cropped_4).jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1955-02-24T00:00:00Z" },
+        deathDate: { value: "2011-10-05T00:00:00Z" },
         isOfflineFallback: true,
-        gender_string: "female",
-        status_string: "alive"
+        gender_string: "male",
+        status_string: "deceased"
     },
+    // Female, Alive
     {
         person: { value: "https://en.wikipedia.org/wiki/Taylor_Swift" },
         personLabel: { value: "Taylor Swift" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/b/b5/191125_Taylor_Swift_at_the_2019_American_Music_Awards_%28cropped%29.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Taylor_Swift_at_the_2023_MTV_Video_Music_Awards_(3).png?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1989-12-13T00:00:00Z" },
         isOfflineFallback: true,
@@ -2065,9 +2058,19 @@ const offlinePeople = [
         status_string: "alive"
     },
     {
+        person: { value: "https://en.wikipedia.org/wiki/Emma_Watson" },
+        personLabel: { value: "Emma Watson" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Emma_Watson_2013.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1990-04-15T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "alive"
+    },
+    {
         person: { value: "https://en.wikipedia.org/wiki/Ruslana" },
         personLabel: { value: "Ruslana" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/3/30/Ruslana_Lyzhychko_2013-12-04_01.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Ruslana_in_Cologne,_Germany_05.JPG?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1973-05-24T00:00:00Z" },
         isOfflineFallback: true,
@@ -2075,42 +2078,40 @@ const offlinePeople = [
         status_string: "alive"
     },
     {
+        person: { value: "https://en.wikipedia.org/wiki/Lina_Kostenko" },
+        personLabel: { value: "Lina Kostenko" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Lina_Kostenko.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1930-03-19T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "alive"
+    },
+    {
         person: { value: "https://en.wikipedia.org/wiki/Angela_Merkel" },
         personLabel: { value: "Angela Merkel" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/2/2d/Angela_Merkel_2019_cropped.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Angela_Merkel_2019_cropped.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1954-07-17T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "female",
         status_string: "alive"
     },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/J._K._Rowling" },
+        personLabel: { value: "J. K. Rowling" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/J._K._Rowling_2010.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1965-07-31T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "alive"
+    },
     // Female, Deceased
     {
-        person: { value: "https://en.wikipedia.org/wiki/Marie_Curie" },
-        personLabel: { value: "Marie Curie" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Marie_Curie_c1920.jpg" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
-        birthDate: { value: "1867-11-07T00:00:00Z" },
-        deathDate: { value: "1934-07-04T00:00:00Z" },
-        isOfflineFallback: true,
-        gender_string: "female",
-        status_string: "deceased"
-    },
-    {
-        person: { value: "https://en.wikipedia.org/wiki/Lesya_Ukrainka" },
-        personLabel: { value: "Lesya Ukrainka" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/d/dd/Lesya_Ukrainka.jpg" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
-        birthDate: { value: "1871-02-25T00:00:00Z" },
-        deathDate: { value: "1913-08-01T00:00:00Z" },
-        isOfflineFallback: true,
-        gender_string: "female",
-        status_string: "deceased"
-    },
-    {
-        person: { value: "https://en.wikipedia.org/wiki/Elizabeth_II" },
+        person: { value: "https://en.wikipedia.org/wiki/Queen_Elizabeth_II" },
         personLabel: { value: "Elizabeth II" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/b/b6/Queen_Elizabeth_II_in_March_2015.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Queen_Elizabeth_II_in_March_2015.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1926-04-21T00:00:00Z" },
         deathDate: { value: "2022-09-08T00:00:00Z" },
@@ -2119,12 +2120,45 @@ const offlinePeople = [
         status_string: "deceased"
     },
     {
+        person: { value: "https://en.wikipedia.org/wiki/Marie_Curie" },
+        personLabel: { value: "Marie Curie" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Marie_Curie_c._1920s.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1867-11-07T00:00:00Z" },
+        deathDate: { value: "1934-07-04T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "deceased"
+    },
+    {
         person: { value: "https://en.wikipedia.org/wiki/Marilyn_Monroe" },
         personLabel: { value: "Marilyn Monroe" },
-        image: { value: "https://upload.wikimedia.org/wikipedia/commons/0/0a/Marilyn_Monroe_photo_portait_Cabinet_Card_cropped.jpg" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Monroecirca1953.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1926-06-01T00:00:00Z" },
         deathDate: { value: "1962-08-05T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Audrey_Hepburn" },
+        personLabel: { value: "Audrey Hepburn" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Audrey_Hepburn_1956.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1929-05-04T00:00:00Z" },
+        deathDate: { value: "1993-01-20T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Lesya_Ukrainka" },
+        personLabel: { value: "Lesya Ukrainka" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Lesya_Ukrainka.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1871-02-25T00:00:00Z" },
+        deathDate: { value: "1913-08-01T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "female",
         status_string: "deceased"
@@ -3440,9 +3474,11 @@ function setupDiagnosticsPanel() {
             googleSheetsWebhookUrl = val;
             if (val) {
                 localStorage.setItem('google_sheets_webhook_url', val);
-                try {
-                    window.Telegram?.WebApp?.CloudStorage?.setItem('google_sheets_webhook_url', val);
-                } catch (e) {}
+                if (isCloudStorageSupported()) {
+                    try {
+                        window.Telegram.WebApp.CloudStorage.setItem('google_sheets_webhook_url', val);
+                    } catch (e) {}
+                }
                 updateWebhookIndicator(true);
                 if (sheetsStatus) {
                     sheetsStatus.textContent = 'Збережено! Webhook активний ✅';
@@ -3452,9 +3488,11 @@ function setupDiagnosticsPanel() {
                 console.log('[SHEETS_CONFIG] Saved Google Sheets Webhook URL:', val);
             } else {
                 localStorage.removeItem('google_sheets_webhook_url');
-                try {
-                    window.Telegram?.WebApp?.CloudStorage?.removeItem('google_sheets_webhook_url');
-                } catch (e) {}
+                if (isCloudStorageSupported()) {
+                    try {
+                        window.Telegram.WebApp.CloudStorage.removeItem('google_sheets_webhook_url');
+                    } catch (e) {}
+                }
                 updateWebhookIndicator(false);
                 if (sheetsStatus) {
                     sheetsStatus.textContent = 'Webhook вимкнено (URL очищено).';
@@ -3843,8 +3881,8 @@ const bootstrapApp = () => {
     // Immediately initialize app UI with local storage state so the user never sees a blank screen
     initApp();
 
-    // Asynchronously synchronize with Telegram CloudStorage in background if available
-    if (typeof window !== 'undefined' && window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage) {
+    // Asynchronously synchronize with Telegram CloudStorage in background if supported (Bot API 6.9+)
+    if (isCloudStorageSupported()) {
         try {
             const keysToLoad = [
                 'theme', 'language', 'mode', 'totalGuesses', 
