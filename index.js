@@ -1,9 +1,22 @@
 import './index.css';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
-// Change the version number here in exactly one place!
-const APP_VERSION_FALLBACK = '2.2.6';
+/* global __APP_VERSION__ */
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.0';
+const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
+
+// Detect app version upgrade: automatically clear stale cache to prevent broken images and photo loops
+try {
+    const installedVer = safeGetItem('app_installed_version');
+    if (installedVer !== CURRENT_APP_VERSION) {
+        if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
+            window.localStorage.removeItem('wikidataCache');
+            window.localStorage.removeItem('appLogs_persistent');
+        }
+        safeSetItem('app_installed_version', CURRENT_APP_VERSION);
+    }
+} catch (e) {}
 
 // === LOG CAPTURE & DIAGNOSTICS CODE (MUST BE AT THE VERY TOP) ===
 const originalConsoleLog = console.log;
@@ -317,8 +330,8 @@ function runSystemDiagnostics() {
 const settings = {
     superRandomPeople: true,
     dynamicOffset: true,
-    maxOffset: 120,
-    maxPeople: 30,
+    maxOffset: 40,
+    maxPeople: 25,
     sessionPeople: 10,
     genderRatio: { male: 50, female: 50 },
     statusRatio: { alive: 50, deceased: 50 },
@@ -2012,6 +2025,16 @@ const offlinePeople = [
         gender_string: "male",
         status_string: "alive"
     },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Arnold_Schwarzenegger" },
+        personLabel: { value: "Arnold Schwarzenegger" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Arnold_Schwarzenegger_2019.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1947-07-30T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "alive"
+    },
     // Male, Deceased
     {
         person: { value: "https://en.wikipedia.org/wiki/Albert_Einstein" },
@@ -2025,23 +2048,78 @@ const offlinePeople = [
         status_string: "deceased"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/Stephen_Hawking" },
-        personLabel: { value: "Stephen Hawking" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Stephen_Hawking.StarChild.jpg?width=600" },
-        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1942-01-08T00:00:00Z" },
-        deathDate: { value: "2018-03-14T00:00:00Z" },
-        isOfflineFallback: true,
-        gender_string: "male",
-        status_string: "deceased"
-    },
-    {
         person: { value: "https://en.wikipedia.org/wiki/Steve_Jobs" },
         personLabel: { value: "Steve Jobs" },
         image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Steve_Jobs_Headshot_2010_(cropped_4).jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1955-02-24T00:00:00Z" },
         deathDate: { value: "2011-10-05T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Nikola_Tesla" },
+        personLabel: { value: "Nikola Tesla" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Tesla_Sarony.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1856-07-10T00:00:00Z" },
+        deathDate: { value: "1943-01-07T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Vincent_van_Gogh" },
+        personLabel: { value: "Vincent van Gogh" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1853-03-30T00:00:00Z" },
+        deathDate: { value: "1890-07-29T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Thomas_Edison" },
+        personLabel: { value: "Thomas Edison" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Thomas_Edison2.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1847-02-11T00:00:00Z" },
+        deathDate: { value: "1931-10-18T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Abraham_Lincoln" },
+        personLabel: { value: "Abraham Lincoln" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Abraham_Lincoln_O-77_matte_collodion_print.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1809-02-12T00:00:00Z" },
+        deathDate: { value: "1865-04-15T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Leonardo_da_Vinci" },
+        personLabel: { value: "Leonardo da Vinci" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1452-04-15T00:00:00Z" },
+        deathDate: { value: "1519-05-02T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "male",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/William_Shakespeare" },
+        personLabel: { value: "William Shakespeare" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/William_Shakespeare_1609.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581097" },
+        birthDate: { value: "1564-04-26T00:00:00Z" },
+        deathDate: { value: "1616-04-23T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "male",
         status_string: "deceased"
@@ -2058,11 +2136,11 @@ const offlinePeople = [
         status_string: "alive"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/Emma_Watson" },
-        personLabel: { value: "Emma Watson" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Emma_Watson_2013.jpg?width=600" },
+        person: { value: "https://en.wikipedia.org/wiki/Beyonc%C3%A9" },
+        personLabel: { value: "Beyoncé" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Beyonce_Knowles_with_necklaces.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
-        birthDate: { value: "1990-04-15T00:00:00Z" },
+        birthDate: { value: "1981-09-04T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "female",
         status_string: "alive"
@@ -2103,6 +2181,16 @@ const offlinePeople = [
         image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/J._K._Rowling_2010.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1965-07-31T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "alive"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Scarlett_Johansson" },
+        personLabel: { value: "Scarlett Johansson" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Scarlett_Johansson_by_Gage_Skidmore_2_(cropped).jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1984-11-22T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "female",
         status_string: "alive"
@@ -2162,21 +2250,96 @@ const offlinePeople = [
         isOfflineFallback: true,
         gender_string: "female",
         status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Frida_Kahlo" },
+        personLabel: { value: "Frida Kahlo" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Frida_Kahlo,_by_Guillermo_Kahlo.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1907-07-06T00:00:00Z" },
+        deathDate: { value: "1954-07-13T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Ada_Lovelace" },
+        personLabel: { value: "Ada Lovelace" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Ada_Lovelace_portrait.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1815-12-10T00:00:00Z" },
+        deathDate: { value: "1852-11-27T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "deceased"
+    },
+    {
+        person: { value: "https://en.wikipedia.org/wiki/Rosa_Parks" },
+        personLabel: { value: "Rosa Parks" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Rosa_Parks_1955.jpg?width=600" },
+        gender: { value: "http://www.wikidata.org/entity/Q6581072" },
+        birthDate: { value: "1913-02-04T00:00:00Z" },
+        deathDate: { value: "2005-10-24T00:00:00Z" },
+        isOfflineFallback: true,
+        gender_string: "female",
+        status_string: "deceased"
     }
 ];
+
+let recentOfflineNamesHistory = [];
 
 function getOfflineFallbackPerson(category) {
     const gender = category?.gender || 'male';
     const status = category?.status || 'alive';
-    const matches = offlinePeople.filter(p => p.gender_string === gender && p.status_string === status);
-    if (matches.length > 0) {
-        const selected = matches[Math.floor(Math.random() * matches.length)];
-        console.log(`[OFFLINE_FALLBACK] Selected offline backup candidate: ${selected.personLabel.value} (${gender}-${status})`);
-        return selected;
+    let matches = offlinePeople.filter(p => p.gender_string === gender && p.status_string === status);
+    if (!matches || matches.length === 0) {
+        matches = offlinePeople;
     }
-    const selected = offlinePeople[Math.floor(Math.random() * offlinePeople.length)];
-    console.log(`[OFFLINE_FALLBACK] Selected random backup candidate: ${selected.personLabel.value}`);
+
+    // Filter out recently shown candidates to prevent repeating cycles ("два фото по кругу")
+    let freshMatches = matches.filter(p => !recentOfflineNamesHistory.includes(p.personLabel.value));
+    if (freshMatches.length === 0) {
+        recentOfflineNamesHistory = [];
+        freshMatches = matches;
+    }
+
+    const selected = freshMatches[Math.floor(Math.random() * freshMatches.length)];
+    recentOfflineNamesHistory.push(selected.personLabel.value);
+    if (recentOfflineNamesHistory.length > 10) {
+        recentOfflineNamesHistory.shift();
+    }
+
+    console.log(`[OFFLINE_FALLBACK] Selected offline backup candidate: ${selected.personLabel.value} (${gender}-${status}). Recent history size: ${recentOfflineNamesHistory.length}`);
     return selected;
+}
+
+function removePersonFromCache(personToRemove) {
+    if (!personToRemove) return;
+    const uri = personToRemove.person?.value;
+    const name = personToRemove.personLabel?.value;
+    if (!uri && !name) return;
+
+    let modified = false;
+    for (const key of Object.keys(wikidataCache)) {
+        if (Array.isArray(wikidataCache[key])) {
+            const initialCount = wikidataCache[key].length;
+            wikidataCache[key] = wikidataCache[key].filter(item => {
+                if (!item) return false;
+                if (uri && item.person?.value === uri) return false;
+                if (name && item.personLabel?.value === name) return false;
+                return true;
+            });
+            if (wikidataCache[key].length !== initialCount) {
+                modified = true;
+            }
+        }
+    }
+    if (modified) {
+        try {
+            localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
+            console.log(`[CACHE_PURGE] Removed bad or failing person "${name || uri}" from local wikidataCache.`);
+        } catch (e) {}
+    }
 }
 
 async function fetchPersonData(useRandom = false, category = null) {
@@ -2200,125 +2363,132 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
     console.log(`[WIKIDATA_FETCH] Attempting to fetch person data. Random: ${useRandom}, Category: ${categoryKey}, CacheKey: ${cacheKey}`);
 
     if (wikidataCache[cacheKey] && wikidataCache[cacheKey].length > 0) {
-        const cachedPerson = wikidataCache[cacheKey][Math.floor(Math.random() * wikidataCache[cacheKey].length)];
-        if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
-            console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
-            return cachedPerson;
-        } else {
-            console.warn(`[WIKIDATA_FETCH_CACHE_INVALID] Cached data for ${cacheKey} is invalid, fetching fresh. Invalid person:`, cachedPerson);
-            delete wikidataCache[cacheKey]; 
+        // Filter out broken upload.wikimedia.org hashes from old caches
+        wikidataCache[cacheKey] = wikidataCache[cacheKey].filter(p => 
+            p && p.personLabel && p.personLabel.value && 
+            p.image && p.image.value && 
+            !p.image.value.includes('/wikipedia/commons/b/b5/191125_Taylor_Swift')
+        );
+
+        if (wikidataCache[cacheKey].length > 0) {
+            const cachedPerson = wikidataCache[cacheKey][Math.floor(Math.random() * wikidataCache[cacheKey].length)];
+            if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
+                console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
+                return cachedPerson;
+            }
         }
+        delete wikidataCache[cacheKey]; 
     }
 
     console.log(`[WIKIDATA_FETCH] No valid cache hit for ${cacheKey}, querying Wikidata.`);
 
     const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
-                            category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
-                            'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
-        const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
-                            category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
-                            'OPTIONAL { ?person wdt:P570 ?deathDate }';
-        const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01T00:00:00Z"^^xsd:dateTime).`;
-        const countryFilter = settings.selectedCountries === 'all' ? '' :
-                             `FILTER(?country IN (${settings.selectedCountries
-                                 .map(code => `wd:${settings.countryMap[code]}`)
-                                 .filter(id => id)
-                                 .join(', ')})).`;
+                         category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
+                         'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
+    const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
+                         category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
+                         'OPTIONAL { ?person wdt:P570 ?deathDate }';
+    const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01T00:00:00Z"^^xsd:dateTime).`;
+    const countryFilter = settings.selectedCountries === 'all' ? '' :
+                         `FILTER(?country IN (${settings.selectedCountries
+                             .map(code => `wd:${settings.countryMap[code]}`)
+                             .filter(id => id)
+                             .join(', ')})).`;
 
-        while (attempts < maxQueryAttempts) {
-            attempts++;
-            const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
-            query = `
-                SELECT ?person ?personLabel ?image ?country ?gender ?deathDate ?birthDate
-                WHERE {
-                    ?person wdt:P31 wd:Q5;
-                            wdt:P18 ?image;
-                            wdt:P21 ?gender;
-                            wdt:P569 ?birthDate.
-                    ${settings.strictCountryFilter ? '' : 'OPTIONAL'} { ?person wdt:P27 ?country }.
-                    ${genderFilter}
-                    ${statusFilter}
-                    ${birthDateFilter}
-                    ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
-                    ?person rdfs:label ?personLabel.
-                    FILTER (LANG(?personLabel) = "en").
-                }
-                OFFSET ${offset}
-                LIMIT ${settings.maxPeople}
-            `;
-
-            const endpoint = 'https://query.wikidata.org/sparql';
-            const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&nocache=${Date.now()}`;
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-                console.warn(`[WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} is taking too long and will be aborted.`);
-                controller.abort();
-            }, WIKIDATA_QUERY_TIMEOUT_MS);
-
-            try {
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/sparql-results+json'
-                    },
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-                if (!response.ok) throw new Error(`Wikidata API error: ${response.status} ${response.statusText}`);
-                const data = await response.json();
-                const list = data.results && data.results.bindings; 
-                const duration = (performance.now() - start).toFixed(0);
-                
-                if (!list || !list.length) { 
-                    console.warn(`[WIKIDATA_QUERY_WARN] No results or invalid list for category ${categoryKey}, attempt ${attempts}/${maxQueryAttempts}. Response:`, data);
-                    if (attempts === maxQueryAttempts) throw new Error(`No person found for category ${categoryKey} after ${maxQueryAttempts} query attempts with different offsets.`);
-                    continue; 
-                }
-                console.log(`[WIKIDATA_QUERY_SUCCESS] Attempt ${attempts}/${maxQueryAttempts} successful for category ${categoryKey}. Found ${list.length} results. Time: ${duration}ms`);
-
-
-                wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100); 
-                localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
-                console.log('[CACHE_UPDATE] wikidataCache updated in localStorage.');
-
-                const randomPerson = list[Math.floor(Math.random() * list.length)];
-                if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
-                    return randomPerson;
-                } else {
-                     console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
-                     if (attempts === maxQueryAttempts) throw new Error(`Selected invalid person on final attempt for category ${categoryKey}.`);
-                     continue; 
-                }
-
-            } catch (error) {
-                clearTimeout(timeoutId);
-                const isTimeoutAbort = error.name === 'AbortError';
-
-                if (isTimeoutAbort) {
-                } else {
-                    if (error.message && error.message.includes('Failed to fetch')) {
-                        console.warn(`[WIKIDATA_QUERY_WARN] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed with fetch issue. Retrying. Error: ${error.message}`);
-                    } else {
-                        console.error(`[WIKIDATA_QUERY_ERROR] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed. Retrying. Error: ${error.message}`);
-                    }
-                }
-
-                if (isTimeoutAbort || attempts >= maxQueryAttempts) {
-                    let rethrowMessage;
-                    if (isTimeoutAbort) {
-                        rethrowMessage = `Wikidata query for person data (category: ${categoryKey}) timed out on attempt ${attempts}/${maxQueryAttempts}.`;
-                    } else { 
-                        rethrowMessage = `Failed to fetch person data (category: ${categoryKey}) after ${maxQueryAttempts} attempts. Last error on attempt ${attempts}: ${error.message}`;
-                    }
-                    console.error(`[WIKIDATA_FETCH_FINAL_ERROR] ${rethrowMessage}`);
-                    throw new Error(rethrowMessage);
-                }
-                console.log(`[WIKIDATA_FETCH_RETRY] Retrying query for ${categoryKey}, attempt ${attempts + 1}/${maxQueryAttempts}...`);
+    while (attempts < maxQueryAttempts) {
+        attempts++;
+        const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
+        
+        // Fast optimized SPARQL: omit optional country unless strict filter is active
+        query = `
+            SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
+            WHERE {
+                ?person wdt:P31 wd:Q5;
+                        wdt:P18 ?image;
+                        wdt:P21 ?gender;
+                        wdt:P569 ?birthDate.
+                ${genderFilter}
+                ${statusFilter}
+                ${birthDateFilter}
+                ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
+                ?person rdfs:label ?personLabel.
+                FILTER (LANG(?personLabel) = "en").
             }
+            OFFSET ${offset}
+            LIMIT ${settings.maxPeople}
+        `;
+
+        const endpoint = 'https://query.wikidata.org/sparql';
+        // Note: origin=* enables standard CORS headers; nocache is omitted to allow fast CDN serving without 429 throttling
+        const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&origin=*`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => {
+            console.warn(`[WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} is taking too long and will be aborted.`);
+            controller.abort();
+        }, WIKIDATA_QUERY_TIMEOUT_MS);
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/sparql-results+json'
+                },
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error(`Wikidata API error: ${response.status} ${response.statusText}`);
+            const data = await response.json();
+            const list = data.results && data.results.bindings; 
+            const duration = (performance.now() - start).toFixed(0);
+            
+            if (!list || !list.length) { 
+                console.warn(`[WIKIDATA_QUERY_WARN] No results or invalid list for category ${categoryKey}, attempt ${attempts}/${maxQueryAttempts}. Response:`, data);
+                if (attempts === maxQueryAttempts) throw new Error(`No person found for category ${categoryKey} after ${maxQueryAttempts} query attempts with different offsets.`);
+                continue; 
+            }
+            console.log(`[WIKIDATA_QUERY_SUCCESS] Attempt ${attempts}/${maxQueryAttempts} successful for category ${categoryKey}. Found ${list.length} results. Time: ${duration}ms`);
+
+            wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100); 
+            localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
+            console.log('[CACHE_UPDATE] wikidataCache updated in localStorage.');
+
+            const randomPerson = list[Math.floor(Math.random() * list.length)];
+            if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
+                return randomPerson;
+            } else {
+                 console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
+                 if (attempts === maxQueryAttempts) throw new Error(`Selected invalid person on final attempt for category ${categoryKey}.`);
+                 continue; 
+            }
+
+        } catch (error) {
+            clearTimeout(timeoutId);
+            const isTimeoutAbort = error.name === 'AbortError';
+
+            if (!isTimeoutAbort) {
+                if (error.message && error.message.includes('Failed to fetch')) {
+                    console.warn(`[WIKIDATA_QUERY_WARN] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed with fetch issue. Retrying. Error: ${error.message}`);
+                } else {
+                    console.error(`[WIKIDATA_QUERY_ERROR] Query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} failed. Retrying. Error: ${error.message}`);
+                }
+            }
+
+            if (isTimeoutAbort || attempts >= maxQueryAttempts) {
+                let rethrowMessage;
+                if (isTimeoutAbort) {
+                    rethrowMessage = `Wikidata query for person data (category: ${categoryKey}) timed out on attempt ${attempts}/${maxQueryAttempts}.`;
+                } else { 
+                    rethrowMessage = `Failed to fetch person data (category: ${categoryKey}) after ${maxQueryAttempts} attempts. Last error on attempt ${attempts}: ${error.message}`;
+                }
+                console.error(`[WIKIDATA_FETCH_FINAL_ERROR] ${rethrowMessage}`);
+                throw new Error(rethrowMessage);
+            }
+            console.log(`[WIKIDATA_FETCH_RETRY] Retrying query for ${categoryKey}, attempt ${attempts + 1}/${maxQueryAttempts}...`);
         }
-        throw new Error(`Failed to fetch person data for category ${categoryKey} after ${maxQueryAttempts} attempts (unexpected exit).`);
+    }
+    throw new Error(`Failed to fetch person data for category ${categoryKey} after ${maxQueryAttempts} attempts (unexpected exit).`);
 }
 
 async function startPreloadNextAvailablePerson() {
@@ -2412,6 +2582,7 @@ async function startPreloadNextAvailablePerson() {
                     isCompleted = true;
                     cleanup();
                     console.error(`[PRELOAD_ERROR] Both direct and proxy preloads failed for: ${commonsUrl} (person: ${personBindingForPreload.personLabel.value})`);
+                    removePersonFromCache(personBindingForPreload);
                     reject(new Error(`Preload failed for ${commonsUrl}`));
                 };
                 
@@ -2631,6 +2802,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
 
             } catch (error) { 
                 console.error(`[LOAD_PERSON_ERROR] Error processing person/image (fetch attempt ${attempts}/${maxImageLoadAttempts}): ${error.message}`);
+                removePersonFromCache(currentPersonCandidate);
                 if (attempts < maxImageLoadAttempts) {
                      console.log("[LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.");
                      currentPersonCandidate = await fetchPersonData(true, category); 
@@ -3558,6 +3730,11 @@ function setupDiagnosticsPanel() {
     if (forceReloadBtn) {
         forceReloadBtn.addEventListener('click', () => {
             console.log('[DIAG] Force Reload triggered by user. Clearing cache and reloading...');
+            try {
+                localStorage.removeItem('wikidataCache');
+                localStorage.removeItem('rgbHslCache');
+                localStorage.removeItem('appLogs_persistent');
+            } catch (e) {}
             const url = new URL(window.location.href);
             url.searchParams.set('cache_bust', Date.now().toString());
             window.location.replace(url.toString());
