@@ -935,6 +935,32 @@ const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = (typeof import.meta !== 'undefined' &&
 let googleSheetsWebhookUrl = localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
 let consecutiveEmptyNewGames = 0;
 
+// Auto-detect Webhook URL from URL query parameters (e.g. ?sheets=https://... or ?webhook=https://...)
+try {
+    if (typeof window !== 'undefined' && window.location && window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramUrl = urlParams.get('sheets') || urlParams.get('webhook') || urlParams.get('sheet_url');
+        if (paramUrl && paramUrl.startsWith('https://script.google.com/')) {
+            localStorage.setItem('google_sheets_webhook_url', paramUrl);
+            googleSheetsWebhookUrl = paramUrl;
+            console.log('[SHEETS_INIT] Webhook URL auto-configured from URL parameter.');
+        }
+    }
+} catch (e) {}
+
+// Async check for Telegram CloudStorage fallback
+if (typeof window !== 'undefined' && window.Telegram?.WebApp?.CloudStorage && !googleSheetsWebhookUrl) {
+    try {
+        window.Telegram.WebApp.CloudStorage.getItem('google_sheets_webhook_url', (err, val) => {
+            if (!err && val && !googleSheetsWebhookUrl) {
+                googleSheetsWebhookUrl = val;
+                localStorage.setItem('google_sheets_webhook_url', val);
+                console.log('[SHEETS_TG_CLOUD] Loaded webhook URL from Telegram CloudStorage.');
+            }
+        });
+    } catch (e) {}
+}
+
 // Lightweight deterministic string hashing for GDPR & user privacy (pseudonymization)
 function anonymizeUserId(rawId) {
     if (!rawId) return 'anon_guest';
@@ -971,6 +997,10 @@ function simplifyUserAgent(ua) {
 function sendToGoogleSheet(eventName, eventParams = {}) {
     const webhookUrl = googleSheetsWebhookUrl || localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
     if (!webhookUrl) {
+        if (!window._sheetsWarningLogged) {
+            console.warn(`[SHEETS_SKIPPED] Event "${eventName}" not sent to Google Sheets: Webhook URL is empty or not configured. (Use ?sheets=URL parameter, GitHub Secrets, or Settings panel).`);
+            window._sheetsWarningLogged = true;
+        }
         return;
     }
 
@@ -3410,6 +3440,9 @@ function setupDiagnosticsPanel() {
             googleSheetsWebhookUrl = val;
             if (val) {
                 localStorage.setItem('google_sheets_webhook_url', val);
+                try {
+                    window.Telegram?.WebApp?.CloudStorage?.setItem('google_sheets_webhook_url', val);
+                } catch (e) {}
                 updateWebhookIndicator(true);
                 if (sheetsStatus) {
                     sheetsStatus.textContent = 'Збережено! Webhook активний ✅';
@@ -3419,6 +3452,9 @@ function setupDiagnosticsPanel() {
                 console.log('[SHEETS_CONFIG] Saved Google Sheets Webhook URL:', val);
             } else {
                 localStorage.removeItem('google_sheets_webhook_url');
+                try {
+                    window.Telegram?.WebApp?.CloudStorage?.removeItem('google_sheets_webhook_url');
+                } catch (e) {}
                 updateWebhookIndicator(false);
                 if (sheetsStatus) {
                     sheetsStatus.textContent = 'Webhook вимкнено (URL очищено).';

@@ -31,6 +31,8 @@ jobs:
         run: npm i --legacy-peer-deps
 
       - name: Build project
+        env:
+          VITE_SHEETS_WEBHOOK_URL: ${{ secrets.VITE_SHEETS_WEBHOOK_URL || vars.VITE_SHEETS_WEBHOOK_URL }}
         run: npm run build
 
       - name: Setup Pages

@@ -1,0 +1,250 @@
+[17:06:43.34] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[17:06:43.48] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://upload.wikimedia.org/wikipedia/commons/a/ab/Meksa_%28chanteur_kabyle_Alg%C3%A9rie%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 444ms
+[17:06:43.64] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[17:06:43.80] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:06:43.95] [LOG] [PHOTO_STATUS] Loaded photos in session: 11, Remaining in sessionList: 4, Preloaded: None or no label
+[17:06:44.10] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[17:06:44.27] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/a/ab/Meksa_%28chanteur_kabyle_Alg%C3%A9rie%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled for Abdelkader Meksa
+[17:06:44.41] [LOG] [PRELOAD] Preloading process attempt finished.
+[17:07:30.99] [LOG] [USER_ACTION] Status selected: Alive
+[17:07:32.75] [LOG] [USER_ACTION] "Check" button clicked.
+[17:07:32.89] [LOG] [GAME_STATE] Attempt 7/10. Total guesses this game: 7.
+[17:07:33.05] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: alive
+[17:07:33.18] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[17:07:33.34] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"KLeyr9fnIvAssYpv","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,1,1,0,0,1]"}}
+[17:07:33.48] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1,1,1,0,0,1]
+[17:07:33.63] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 51 seconds (50615ms). Start: 1793120802280, End: 1793120852895
+[17:07:33.76] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"TeSeqalq7BQQz2HB","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[81,82,51,38,49,16,51]"}}
+[17:07:33.91] [LOG] [STATE_CHANGE] Attempt duration 51s added. Saved to localStorage. Durations: [81,82,51,38,49,16,51]
+[17:07:34.08] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1781034448_339","attempt_number_in_session":7,"time_for_attempt_seconds":51,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:07:34.24] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q32661","person_name":"Jane Goldman","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":7,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:07:34.38] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"KLeyr9fnIvAssYpv","result":true}
+[17:07:34.56] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[17:07:34.74] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"TeSeqalq7BQQz2HB","result":true}
+[17:07:34.91] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[17:07:35.07] [LOG] [CHECK_UI] Guess was CORRECT.
+[17:07:35.21] [LOG] [CHECK_UI] Stats display updated.
+[17:07:35.36] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"OYP5CpvGZZmVVtRD","method":"saveStorageValue","params":{"key":"currentAttempts","value":"7"}}
+[17:07:35.50] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"1niwXu5Y9l7bpgWB","method":"saveStorageValue","params":{"key":"totalGuesses","value":"7"}}
+[17:07:35.65] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"RzFrfOxXMQC7sb0W","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"5"}}
+[17:07:35.79] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"hWpbRWOp3S2tE5n2","method":"saveStorageValue","params":{"key":"failedGuesses","value":"2"}}
+[17:07:35.93] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[17:07:36.08] [LOG] [UI_UPDATE] updateUI called for person: Jane Goldman
+[17:07:36.22] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 7 Max: 10 IsInitialCall: false
+[17:07:36.36] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[17:07:36.54] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"OYP5CpvGZZmVVtRD","result":true}
+[17:07:36.69] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[17:07:36.83] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"1niwXu5Y9l7bpgWB","result":true}
+[17:07:36.97] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[17:07:37.13] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"RzFrfOxXMQC7sb0W","result":true}
+[17:07:37.28] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[17:07:37.44] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"hWpbRWOp3S2tE5n2","result":true}
+[17:07:37.60] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[17:07:37.76] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, mode=open
+[17:07:37.90] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:07:38.04] [LOG] [PHOTO_STATUS] Loaded photos in session: 12, Remaining in sessionList: 4, Preloaded: Abdelkader Meksa
+[17:07:39.72] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[17:07:39.87] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 7/10
+[17:07:40.03] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1781034448_339","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":4,"is_preloading":false,"preloaded_person_name":"Abdelkader Meksa","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:07:40.17] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[17:07:40.31] [LOG] [LOAD_NEXT_PERSON] Loading next person from session: Abdelkader Meksa
+[17:07:40.49] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Abdelkader Meksa
+[17:07:40.63] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[17:07:40.77] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[17:07:40.92] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Abdelkader Meksa
+[17:07:41.07] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/a/ab/Meksa_%28chanteur_kabyle_Alg%C3%A9rie%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
+[17:07:41.22] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[17:07:41.36] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Abdelkader Meksa (Path: preload_assigned_successfully)
+[17:07:41.50] [LOG] [UI_UPDATE] updateUI called for person: Abdelkader Meksa
+[17:07:41.64] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"sAp0AYIWD2C0cmCL","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1793120861642"}}
+[17:07:41.77] [LOG] [STATE_CHANGE] Attempt start time set to 1793120861642 for person: Abdelkader Meksa. Saved to localStorage.
+[17:07:41.94] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q2821098","person_name":"Abdelkader Meksa","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:07:42.11] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Abdelkader Meksa is now cleared as it's either used or failed assign.
+[17:07:42.25] [LOG] [PRELOAD] Starting preload for: Zhila Hoseini
+[17:07:42.39] [LOG] [COMMONS_API] Fetching image URL for file: JilaHoseini.jpg
+[17:07:42.53] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"sAp0AYIWD2C0cmCL","result":true}
+[17:07:42.67] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[17:07:42.83] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://upload.wikimedia.org/wikipedia/commons/2/2c/JilaHoseini.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 441ms
+[17:07:42.99] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[17:07:43.15] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:07:43.32] [LOG] [PHOTO_STATUS] Loaded photos in session: 13, Remaining in sessionList: 3, Preloaded: None or no label
+[17:07:43.47] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[17:07:43.65] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/2/2c/JilaHoseini.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled for Zhila Hoseini
+[17:07:43.80] [LOG] [PRELOAD] Preloading process attempt finished.
+[17:07:57.00] [LOG] [USER_ACTION] Status selected: Dead
+[17:07:57.87] [LOG] [USER_ACTION] "Check" button clicked.
+[17:07:58.00] [LOG] [GAME_STATE] Attempt 8/10. Total guesses this game: 8.
+[17:07:58.16] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: dead
+[17:07:58.30] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[17:07:58.46] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"qK9Oca63gOMcBhW7","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,1,1,0,0,1,1]"}}
+[17:07:58.60] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1,1,1,0,0,1,1]
+[17:07:58.77] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 16 seconds (16367ms). Start: 1793120861642, End: 1793120878009
+[17:07:58.91] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"3EomTxhsj6cKxg89","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[81,82,51,38,49,16,51,16]"}}
+[17:07:59.06] [LOG] [STATE_CHANGE] Attempt duration 16s added. Saved to localStorage. Durations: [81,82,51,38,49,16,51,16]
+[17:07:59.22] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1781034448_339","attempt_number_in_session":8,"time_for_attempt_seconds":16,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:07:59.39] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q2821098","person_name":"Abdelkader Meksa","game_mode":"open","actual_gender":"male","guessed_status":"dead","actual_status":"dead","is_status_correct":1,"is_overall_correct":1,"attempt_number":8,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:07:59.52] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"qK9Oca63gOMcBhW7","result":true}
+[17:07:59.65] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[17:07:59.79] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"3EomTxhsj6cKxg89","result":true}
+[17:07:59.92] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[17:08:00.10] [LOG] [CHECK_UI] Guess was CORRECT.
+[17:08:00.23] [LOG] [CHECK_UI] Stats display updated.
+[17:08:00.40] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"zSMYXNgkae4c5rY1","method":"saveStorageValue","params":{"key":"currentAttempts","value":"8"}}
+[17:08:00.53] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"QNEWjk45wQZgKXYc","method":"saveStorageValue","params":{"key":"totalGuesses","value":"8"}}
+[17:08:00.66] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"QfOJp9MNHaXJOmUj","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"6"}}
+[17:08:00.80] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"IlA31hBWlgOTNFaK","method":"saveStorageValue","params":{"key":"failedGuesses","value":"2"}}
+[17:08:00.96] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[17:08:01.11] [LOG] [UI_UPDATE] updateUI called for person: Abdelkader Meksa
+[17:08:01.26] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 8 Max: 10 IsInitialCall: false
+[17:08:01.41] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[17:08:01.59] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"zSMYXNgkae4c5rY1","result":true}
+[17:08:01.74] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[17:08:01.89] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"QNEWjk45wQZgKXYc","result":true}
+[17:08:02.02] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[17:08:02.20] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"QfOJp9MNHaXJOmUj","result":true}
+[17:08:02.34] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[17:08:02.50] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"IlA31hBWlgOTNFaK","result":true}
+[17:08:02.64] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[17:08:02.79] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, mode=open
+[17:08:02.93] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:08:03.07] [LOG] [PHOTO_STATUS] Loaded photos in session: 14, Remaining in sessionList: 3, Preloaded: Zhila Hoseini
+[17:08:04.67] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[17:08:04.81] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 8/10
+[17:08:04.97] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1781034448_339","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":3,"is_preloading":false,"preloaded_person_name":"Zhila Hoseini","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:05.11] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[17:08:05.26] [LOG] [LOAD_NEXT_PERSON] Loading next person from session: Zhila Hoseini
+[17:08:05.39] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Zhila Hoseini
+[17:08:05.54] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[17:08:05.68] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[17:08:05.82] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Zhila Hoseini
+[17:08:05.95] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/2/2c/JilaHoseini.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
+[17:08:06.11] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[17:08:06.27] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Zhila Hoseini (Path: preload_assigned_successfully)
+[17:08:06.40] [LOG] [UI_UPDATE] updateUI called for person: Zhila Hoseini
+[17:08:06.53] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"QNb2dUwfOf4KMEs3","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1793120886538"}}
+[17:08:06.67] [LOG] [STATE_CHANGE] Attempt start time set to 1793120886538 for person: Zhila Hoseini. Saved to localStorage.
+[17:08:06.84] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q6967907","person_name":"Zhila Hoseini","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:06.98] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Zhila Hoseini is now cleared as it's either used or failed assign.
+[17:08:07.12] [LOG] [PRELOAD] Starting preload for: Ollie Chessum
+[17:08:07.25] [LOG] [COMMONS_API] Fetching image URL for file: Ollie Chessum LQ Feb 2024.jpg
+[17:08:07.40] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"QNb2dUwfOf4KMEs3","result":true}
+[17:08:07.54] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[17:08:07.70] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://upload.wikimedia.org/wikipedia/commons/2/26/Ollie_Chessum_LQ_Feb_2024.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 445ms
+[17:08:07.87] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[17:08:08.02] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:08:08.17] [LOG] [PHOTO_STATUS] Loaded photos in session: 15, Remaining in sessionList: 2, Preloaded: None or no label
+[17:08:08.35] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[17:08:08.53] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/2/26/Ollie_Chessum_LQ_Feb_2024.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled for Ollie Chessum
+[17:08:08.67] [LOG] [PRELOAD] Preloading process attempt finished.
+[17:08:18.83] [LOG] [USER_ACTION] Status selected: Dead
+[17:08:19.81] [LOG] [USER_ACTION] "Check" button clicked.
+[17:08:19.95] [LOG] [GAME_STATE] Attempt 9/10. Total guesses this game: 9.
+[17:08:20.09] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: dead
+[17:08:20.22] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[17:08:20.36] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"PXXHCNwLu5nU5bm0","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,1,1,0,0,1,1,1]"}}
+[17:08:20.53] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1,1,1,0,0,1,1,1]
+[17:08:20.66] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 13 seconds (13412ms). Start: 1793120886538, End: 1793120899950
+[17:08:20.79] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"oQ51D1hXEtt7gRyb","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[81,82,51,38,49,16,51,16,13]"}}
+[17:08:20.92] [LOG] [STATE_CHANGE] Attempt duration 13s added. Saved to localStorage. Durations: [81,82,51,38,49,16,51,16,13]
+[17:08:21.08] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1781034448_339","attempt_number_in_session":9,"time_for_attempt_seconds":13,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:21.24] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q6967907","person_name":"Zhila Hoseini","game_mode":"open","actual_gender":"female","guessed_status":"dead","actual_status":"dead","is_status_correct":1,"is_overall_correct":1,"attempt_number":9,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:21.39] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"PXXHCNwLu5nU5bm0","result":true}
+[17:08:21.54] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[17:08:21.67] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"oQ51D1hXEtt7gRyb","result":true}
+[17:08:21.81] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[17:08:21.95] [LOG] [CHECK_UI] Guess was CORRECT.
+[17:08:22.12] [LOG] [CHECK_UI] Stats display updated.
+[17:08:22.26] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"4G04PQbtR3YDQE9U","method":"saveStorageValue","params":{"key":"currentAttempts","value":"9"}}
+[17:08:22.40] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"WNrtWqG7mKQnDkCJ","method":"saveStorageValue","params":{"key":"totalGuesses","value":"9"}}
+[17:08:22.55] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"fwdM5VmknV0nxoWD","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"7"}}
+[17:08:22.69] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"7s1w3y9kdwn6yl4a","method":"saveStorageValue","params":{"key":"failedGuesses","value":"2"}}
+[17:08:22.83] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[17:08:22.97] [LOG] [UI_UPDATE] updateUI called for person: Zhila Hoseini
+[17:08:23.13] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 9 Max: 10 IsInitialCall: false
+[17:08:23.30] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[17:08:23.60] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"4G04PQbtR3YDQE9U","result":true}
+[17:08:23.75] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[17:08:23.88] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"WNrtWqG7mKQnDkCJ","result":true}
+[17:08:24.02] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[17:08:24.15] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"fwdM5VmknV0nxoWD","result":true}
+[17:08:24.30] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[17:08:24.45] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"7s1w3y9kdwn6yl4a","result":true}
+[17:08:24.61] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[17:08:24.77] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, mode=open
+[17:08:24.91] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:08:25.06] [LOG] [PHOTO_STATUS] Loaded photos in session: 16, Remaining in sessionList: 2, Preloaded: Ollie Chessum
+[17:08:26.22] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[17:08:26.37] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 9/10
+[17:08:26.52] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1781034448_339","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":2,"is_preloading":false,"preloaded_person_name":"Ollie Chessum","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:26.69] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[17:08:26.82] [LOG] [LOAD_NEXT_PERSON] Loading next person from session: Ollie Chessum
+[17:08:26.96] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Ollie Chessum
+[17:08:27.10] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[17:08:27.23] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[17:08:27.37] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Ollie Chessum
+[17:08:27.51] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/2/26/Ollie_Chessum_LQ_Feb_2024.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
+[17:08:27.66] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[17:08:27.80] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Ollie Chessum (Path: preload_assigned_successfully)
+[17:08:27.93] [LOG] [UI_UPDATE] updateUI called for person: Ollie Chessum
+[17:08:28.08] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"RjbuWq8UzJrxwSQi","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1793120908082"}}
+[17:08:28.24] [LOG] [STATE_CHANGE] Attempt start time set to 1793120908082 for person: Ollie Chessum. Saved to localStorage.
+[17:08:28.40] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q101006672","person_name":"Ollie Chessum","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:28.54] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Ollie Chessum is now cleared as it's either used or failed assign.
+[17:08:28.69] [LOG] [PRELOAD] Starting preload for: Maxine D. Brown
+[17:08:28.83] [LOG] [COMMONS_API] Fetching image URL for file: Maxine Brown - iGrid00.jpg
+[17:08:28.97] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"RjbuWq8UzJrxwSQi","result":true}
+[17:08:29.10] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[17:08:29.25] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://upload.wikimedia.org/wikipedia/commons/4/4c/Maxine_Brown_-_iGrid00.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 421ms
+[17:08:29.39] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[17:08:29.53] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:08:29.67] [LOG] [PHOTO_STATUS] Loaded photos in session: 17, Remaining in sessionList: 1, Preloaded: None or no label
+[17:08:29.81] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[17:08:29.99] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/4/4c/Maxine_Brown_-_iGrid00.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled for Maxine D. Brown
+[17:08:30.14] [LOG] [PRELOAD] Preloading process attempt finished.
+[17:08:43.58] [LOG] [USER_ACTION] Status selected: Alive
+[17:08:44.49] [LOG] [USER_ACTION] "Check" button clicked.
+[17:08:44.65] [LOG] [GAME_STATE] Attempt 10/10. Total guesses this game: 10.
+[17:08:44.79] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: alive
+[17:08:44.93] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[17:08:45.05] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"ASGzQdZObKkhp3nL","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,1,1,0,0,1,1,1,1]"}}
+[17:08:45.20] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1,1,1,0,0,1,1,1,1]
+[17:08:45.33] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 17 seconds (16574ms). Start: 1793120908082, End: 1793120924656
+[17:08:45.48] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"ghxDV6qw8aqvkMBQ","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[81,82,51,38,49,16,51,16,13,17]"}}
+[17:08:45.60] [LOG] [STATE_CHANGE] Attempt duration 17s added. Saved to localStorage. Durations: [81,82,51,38,49,16,51,16,13,17]
+[17:08:45.77] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1781034448_339","attempt_number_in_session":10,"time_for_attempt_seconds":17,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:45.93] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q101006672","person_name":"Ollie Chessum","game_mode":"open","actual_gender":"male","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":10,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","session_id":"1781034448_339","language":"ru","current_theme":"night"}
+[17:08:46.07] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"ASGzQdZObKkhp3nL","result":true}
+[17:08:46.23] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[17:08:46.37] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"ghxDV6qw8aqvkMBQ","result":true}
+[17:08:46.52] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[17:08:46.68] [LOG] [CHECK_UI] Guess was CORRECT.
+[17:08:46.82] [LOG] [CHECK_UI] Stats display updated.
+[17:08:46.99] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"rFLot9aZBrYvZnOH","method":"saveStorageValue","params":{"key":"currentAttempts","value":"10"}}
+[17:08:47.17] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"HbE8HiRexX74RvT8","method":"saveStorageValue","params":{"key":"totalGuesses","value":"10"}}
+[17:08:47.30] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"qVY0IvlX2NZZPduv","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"8"}}
+[17:08:47.44] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"zlGiQpj8D1285JqO","method":"saveStorageValue","params":{"key":"failedGuesses","value":"2"}}
+[17:08:47.60] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[17:08:47.74] [LOG] [UI_UPDATE] updateUI called for person: Ollie Chessum
+[17:08:47.89] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 10 Max: 10 IsInitialCall: false
+[17:08:48.03] [LOG] [UI_UPDATE] Game is over, scheduling New Game button move to game over location in 5s.
+[17:08:48.16] [LOG] [GAME_OVER] All attempts used. Game over.
+[17:08:48.32] [LOG] [GA_EVENT_SENT] Name: game_over, Params: {"total_attempts":10,"successful_guesses":8,"failed_guesses":2,"success_rate":"80%","new_language":"ru","game_mode":"open","session_id":"1781034448_339","current_theme":"night","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1781034448_339","language":"ru"}
+[17:08:48.45] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"NbafpOh59xQFaTRH","method":"deleteStorageValues","params":{"keys":["currentSessionId"]}}
+[17:08:48.61] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"0J8hKvZtvJWCVJeD","method":"deleteStorageValues","params":{"keys":["currentAttemptStartTime"]}}
+[17:08:48.77] [LOG] [STATE_CHANGE] Game over: currentSessionId and currentAttemptStartTime cleared from localStorage.
+[17:08:49.08] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"rFLot9aZBrYvZnOH","result":true}
+[17:08:49.23] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[17:08:49.38] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"HbE8HiRexX74RvT8","result":true}
+[17:08:49.52] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[17:08:49.66] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"qVY0IvlX2NZZPduv","result":true}
+[17:08:49.81] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[17:08:49.96] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"zlGiQpj8D1285JqO","result":true}
+[17:08:50.11] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[17:08:50.24] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"NbafpOh59xQFaTRH","result":true}
+[17:08:50.40] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentSessionId" from Telegram cloud storage.
+[17:08:50.53] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"0J8hKvZtvJWCVJeD","result":true}
+[17:08:50.68] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttemptStartTime" from Telegram cloud storage.
+[17:08:50.87] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=false, canMakeGuess=false, mode=open
+[17:08:51.01] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:08:51.16] [LOG] [PHOTO_STATUS] Loaded photos in session: 18, Remaining in sessionList: 1, Preloaded: Maxine D. Brown
+[17:08:53.16] [LOG] [UI_UPDATE_DELAYED] 5s timeout elapsed. Moving New Game button to game over location.
