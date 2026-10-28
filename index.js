@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.2';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.3';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -44,6 +44,38 @@ function safeSetItem(key, value) {
         }
     } catch (e) {}
 }
+
+// === GOOGLE SHEETS WEBHOOK CONFIGURATION (SAFELY INITIALIZED AT TOP) ===
+const GOOGLE_SHEETS_SECURITY_TOKEN = "ipersonsee_safe_2026";
+const BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzZwEUME6E0vkbRSSrFlBov2fOE_paLZ57fsczTp9IS58MqmT58YbvXzzBxGn9XEJf5Lw/exec";
+const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) || BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
+
+let googleSheetsWebhookUrl = "";
+
+function getActiveSheetsWebhookUrl() {
+    try {
+        const stored = safeGetItem('google_sheets_webhook_url');
+        if (stored && typeof stored === 'string') {
+            const trimmed = stored.trim();
+            if (trimmed.startsWith('https://script.google.com/')) {
+                return trimmed;
+            }
+        }
+    } catch (e) {}
+    if (googleSheetsWebhookUrl && typeof googleSheetsWebhookUrl === 'string' && googleSheetsWebhookUrl.startsWith('https://script.google.com/')) {
+        return googleSheetsWebhookUrl.trim();
+    }
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) {
+        const envUrl = String(import.meta.env.VITE_SHEETS_WEBHOOK_URL).trim();
+        if (envUrl.startsWith('https://script.google.com/')) {
+            return envUrl;
+        }
+    }
+    return BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
+}
+
+googleSheetsWebhookUrl = getActiveSheetsWebhookUrl();
+
 
 try {
     if (window.diagnosticsEnabled) {
@@ -968,33 +1000,6 @@ function autoCollapseControlsOnGameplay() {
 }
 
 // Google Sheets Webhook Integration & Anti-Spam Tracking
-const GOOGLE_SHEETS_SECURITY_TOKEN = "ipersonsee_safe_2026";
-const BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzZwEUME6E0vkbRSSrFlBov2fOE_paLZ57fsczTp9IS58MqmT58YbvXzzBxGn9XEJf5Lw/exec";
-const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) || BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
-
-function getActiveSheetsWebhookUrl() {
-    try {
-        const stored = localStorage.getItem('google_sheets_webhook_url');
-        if (stored && typeof stored === 'string') {
-            const trimmed = stored.trim();
-            if (trimmed.startsWith('https://script.google.com/')) {
-                return trimmed;
-            }
-        }
-    } catch (e) {}
-    if (typeof googleSheetsWebhookUrl === 'string' && googleSheetsWebhookUrl.startsWith('https://script.google.com/')) {
-        return googleSheetsWebhookUrl.trim();
-    }
-    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) {
-        const envUrl = String(import.meta.env.VITE_SHEETS_WEBHOOK_URL).trim();
-        if (envUrl.startsWith('https://script.google.com/')) {
-            return envUrl;
-        }
-    }
-    return BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
-}
-
-let googleSheetsWebhookUrl = getActiveSheetsWebhookUrl();
 let consecutiveEmptyNewGames = 0;
 
 // Auto-detect Webhook URL from URL query parameters (e.g. ?sheets=https://... or ?webhook=https://...)
@@ -4117,10 +4122,11 @@ const bootstrapApp = () => {
         try {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
-            if (typeof window.Telegram.WebApp.setHeaderColor === 'function') {
+            const isAtLeast61 = typeof window.Telegram.WebApp.isVersionAtLeast === 'function' && window.Telegram.WebApp.isVersionAtLeast('6.1');
+            if (isAtLeast61 && typeof window.Telegram.WebApp.setHeaderColor === 'function') {
                 window.Telegram.WebApp.setHeaderColor('#0A0A0B');
             }
-            if (typeof window.Telegram.WebApp.setBackgroundColor === 'function') {
+            if (isAtLeast61 && typeof window.Telegram.WebApp.setBackgroundColor === 'function') {
                 window.Telegram.WebApp.setBackgroundColor('#0A0A0B');
             }
             console.log('[BOOTSTRAP] Telegram WebApp ready() and expand() signaled.');
