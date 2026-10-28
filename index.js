@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.0';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.1';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -331,12 +331,12 @@ function runSystemDiagnostics() {
 const settings = {
     superRandomPeople: true,
     dynamicOffset: true,
-    maxOffset: 40,
+    maxOffset: 400,
     maxPeople: 25,
     sessionPeople: 10,
     genderRatio: { male: 50, female: 50 },
     statusRatio: { alive: 50, deceased: 50 },
-    birthYearFilter: 1950,
+    birthYearFilter: 1940,
     excludeBlackAndWhite: false,
     selectedCountries: ['ua', 'us'],
     countryMap: {
@@ -1982,7 +1982,7 @@ async function loadImageWithFallback(url, element) {
     });
 }
 
-const WIKIDATA_QUERY_TIMEOUT_MS = 10000; 
+const WIKIDATA_QUERY_TIMEOUT_MS = 12000; 
 
 const offlinePeople = [
     // Male, Alive
@@ -2367,13 +2367,10 @@ function removePersonFromCache(personToRemove) {
 async function fetchPersonData(useRandom = false, category = null) {
     const categoryKey = `${category?.gender || 'any'}-${category?.status || 'any'}`;
     try {
-        const candidate = getNextCatalogPerson(category);
-        if (candidate) {
-            return candidate;
-        }
+        // Query live Wikidata database directly for fresh, ordinary, diverse historical/modern figures
         return await fetchPersonDataInner(useRandom, category);
     } catch (err) {
-        console.warn(`[CATALOG_FETCH_FALLBACK] Catalog or fetch error for ${categoryKey}: ${err.message}. Invoking fallback...`);
+        console.warn(`[WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for ${categoryKey}: ${err.message}. Invoking backup fallback...`);
         return getOfflineFallbackPerson(category);
     }
 }
@@ -2397,10 +2394,14 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         );
 
         if (wikidataCache[cacheKey].length > 0) {
-            const cachedPerson = wikidataCache[cacheKey][Math.floor(Math.random() * wikidataCache[cacheKey].length)];
-            if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
-                console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
-                return cachedPerson;
+            let available = wikidataCache[cacheKey].filter(p => p && p.personLabel && p.personLabel.value && !sessionShownNames.has(p.personLabel.value));
+            if (available.length > 0) {
+                const cachedPerson = available[Math.floor(Math.random() * available.length)];
+                if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
+                    sessionShownNames.add(cachedPerson.personLabel.value);
+                    console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
+                    return cachedPerson;
+                }
             }
         }
         delete wikidataCache[cacheKey]; 
@@ -2480,8 +2481,13 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
             console.log('[CACHE_UPDATE] wikidataCache updated in localStorage.');
 
-            const randomPerson = list[Math.floor(Math.random() * list.length)];
+            let freshList = list.filter(p => p && p.personLabel && p.personLabel.value && !sessionShownNames.has(p.personLabel.value));
+            if (!freshList || freshList.length === 0) {
+                freshList = list;
+            }
+            const randomPerson = freshList[Math.floor(Math.random() * freshList.length)];
             if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
+                sessionShownNames.add(randomPerson.personLabel.value);
                 return randomPerson;
             } else {
                  console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
