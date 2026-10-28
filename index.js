@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.1';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.2';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -322,6 +322,16 @@ function runSystemDiagnostics() {
             console.log(`[DIAG] window.dataLayer stringify error: ${err.message}`);
         }
     }
+    
+    // Google Sheets Webhook Diagnostics
+    const activeWebhookUrl = typeof getActiveSheetsWebhookUrl === 'function' ? getActiveSheetsWebhookUrl() : (googleSheetsWebhookUrl || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL);
+    console.log(`[DIAG] Google Sheets Webhook Configured: ${Boolean(activeWebhookUrl)}`);
+    if (activeWebhookUrl) {
+        console.log(`[DIAG] Google Sheets Webhook URL Prefix: ${activeWebhookUrl.substring(0, 48)}...`);
+    } else {
+        console.log('[DIAG] Google Sheets Webhook URL: NOT CONFIGURED');
+    }
+    
     console.log('--- END DIAGNOSTICS ---');
 }
 // ======================================
@@ -959,8 +969,32 @@ function autoCollapseControlsOnGameplay() {
 
 // Google Sheets Webhook Integration & Anti-Spam Tracking
 const GOOGLE_SHEETS_SECURITY_TOKEN = "ipersonsee_safe_2026";
-const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) || "";
-let googleSheetsWebhookUrl = localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
+const BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzZwEUME6E0vkbRSSrFlBov2fOE_paLZ57fsczTp9IS58MqmT58YbvXzzBxGn9XEJf5Lw/exec";
+const DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) || BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
+
+function getActiveSheetsWebhookUrl() {
+    try {
+        const stored = localStorage.getItem('google_sheets_webhook_url');
+        if (stored && typeof stored === 'string') {
+            const trimmed = stored.trim();
+            if (trimmed.startsWith('https://script.google.com/')) {
+                return trimmed;
+            }
+        }
+    } catch (e) {}
+    if (typeof googleSheetsWebhookUrl === 'string' && googleSheetsWebhookUrl.startsWith('https://script.google.com/')) {
+        return googleSheetsWebhookUrl.trim();
+    }
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SHEETS_WEBHOOK_URL) {
+        const envUrl = String(import.meta.env.VITE_SHEETS_WEBHOOK_URL).trim();
+        if (envUrl.startsWith('https://script.google.com/')) {
+            return envUrl;
+        }
+    }
+    return BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
+}
+
+let googleSheetsWebhookUrl = getActiveSheetsWebhookUrl();
 let consecutiveEmptyNewGames = 0;
 
 // Auto-detect Webhook URL from URL query parameters (e.g. ?sheets=https://... or ?webhook=https://...)
@@ -1023,7 +1057,7 @@ function simplifyUserAgent(ua) {
 }
 
 function sendToGoogleSheet(eventName, eventParams = {}) {
-    const webhookUrl = googleSheetsWebhookUrl || localStorage.getItem('google_sheets_webhook_url') || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
+    const webhookUrl = getActiveSheetsWebhookUrl();
     if (!webhookUrl) {
         if (!window._sheetsWarningLogged) {
             console.warn(`[SHEETS_SKIPPED] Event "${eventName}" not sent to Google Sheets: Webhook URL is empty or not configured. (Use ?sheets=URL parameter, GitHub Secrets, or Settings panel).`);
@@ -1098,6 +1132,7 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         fetch(webhookUrl, {
             method: 'POST',
             mode: 'no-cors',
+            keepalive: true,
             headers: {
                 'Content-Type': 'text/plain;charset=utf-8'
             },
@@ -3673,8 +3708,8 @@ function setupDiagnosticsPanel() {
     };
 
     if (sheetsInput) {
-        sheetsInput.value = googleSheetsWebhookUrl || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL;
-        updateWebhookIndicator(Boolean(googleSheetsWebhookUrl || DEFAULT_GOOGLE_SHEETS_WEBHOOK_URL));
+        sheetsInput.value = getActiveSheetsWebhookUrl();
+        updateWebhookIndicator(Boolean(getActiveSheetsWebhookUrl()));
     }
 
     if (saveSheetsBtn && sheetsInput) {
@@ -3702,13 +3737,15 @@ function setupDiagnosticsPanel() {
                         window.Telegram.WebApp.CloudStorage.removeItem('google_sheets_webhook_url');
                     } catch (e) {}
                 }
-                updateWebhookIndicator(false);
+                googleSheetsWebhookUrl = BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
+                if (sheetsInput) sheetsInput.value = BUILTIN_GOOGLE_SHEETS_WEBHOOK_URL;
+                updateWebhookIndicator(true);
                 if (sheetsStatus) {
-                    sheetsStatus.textContent = 'Webhook вимкнено (URL очищено).';
-                    sheetsStatus.classList.remove('hidden', 'text-neon-cyan');
-                    sheetsStatus.classList.add('text-on-surface-variant');
+                    sheetsStatus.textContent = 'Відновлено стандартний Webhook URL ✅';
+                    sheetsStatus.classList.remove('hidden', 'text-error');
+                    sheetsStatus.classList.add('text-neon-cyan');
                 }
-                console.log('[SHEETS_CONFIG] Cleared Google Sheets Webhook URL.');
+                console.log('[SHEETS_CONFIG] Reverted to default built-in Google Sheets Webhook URL.');
             }
             setTimeout(() => {
                 if (sheetsStatus) sheetsStatus.textContent = '';
@@ -3718,7 +3755,7 @@ function setupDiagnosticsPanel() {
 
     if (testSheetsBtn) {
         testSheetsBtn.addEventListener('click', () => {
-            const currentUrl = googleSheetsWebhookUrl || (sheetsInput ? sheetsInput.value.trim() : '');
+            const currentUrl = (sheetsInput ? sheetsInput.value.trim() : '') || getActiveSheetsWebhookUrl();
             if (!currentUrl) {
                 if (sheetsStatus) {
                     sheetsStatus.textContent = 'Вставте URL перед тестом! ❌';
