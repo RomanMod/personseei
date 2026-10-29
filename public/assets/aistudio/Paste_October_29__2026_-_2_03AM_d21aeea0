@@ -1,0 +1,250 @@
+[23:59:31.82] [LOG] [WINDOW_ONLOAD] Resuming existing game state.
+[23:59:31.85] [LOG] [LANGUAGE_UPDATE] Updating language to: uk
+[23:59:31.87] [LOG] [UI_UPDATE] updateUI called for person: No person
+[23:59:31.92] [LOG] [UI_UPDATE] Telegram user info in stats displayed as generic "Player" as no name is available.
+[23:59:31.96] [LOG] [LANGUAGE_UPDATE] Language update complete.
+[23:59:32.00] [LOG] [WINDOW_ONLOAD_GAMEOVER] Game was previously over. UI reflects game over state.
+[23:59:32.01] [LOG] [WINDOW_ONLOAD_GAMEOVER] Press 'New Game' to start.
+[23:59:32.05] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 10 Max: 10 IsInitialCall: true
+[23:59:32.07] [LOG] [UI_UPDATE] Game is over on initial load. Moving New Game button to game over location immediately.
+[23:59:32.10] [LOG] [UI_UPDATE] Telegram user info in stats displayed as generic "Player" as no name is available.
+[23:59:32.14] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[23:59:32.15] [LOG] [HELP_MODAL_SETUP] Initializing Help modal event listeners...
+[23:59:32.18] [LOG] [DIAG_SETUP] Initializing diagnostics panel listeners...
+[23:59:32.20] [LOG] --- RUNNING DIAGNOSTICS ---
+[23:59:32.24] [LOG] [DIAG] Current Local Time: Thu Oct 29 2026 01:59:32 GMT+0200 (Eastern European Standard Time)
+[23:59:32.25] [LOG] [DIAG] Build App Version: v2.3.3
+[23:59:32.29] [LOG] [DIAG] Build Completion Time: 10/28/2026, 11:59:16 PM
+[23:59:32.33] [LOG] [DIAG] User Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36
+[23:59:32.34] [LOG] [DIAG] Platform (Navigator): Linux x86_64
+[23:59:32.35] [LOG] [DIAG] window.Telegram: Present
+[23:59:32.38] [LOG] [DIAG] Telegram.WebApp: Present
+[23:59:32.39] [LOG] [DIAG] WebApp Platform: unknown
+[23:59:32.39] [LOG] [DIAG] WebApp Version: 6.0
+[23:59:32.40] [LOG] [DIAG] WebApp ColorScheme: light
+[23:59:32.43] [LOG] [DIAG] WebApp IsExpanded: true
+[23:59:32.44] [LOG] [DIAG] WebApp User: No data in initDataUnsafe
+[23:59:32.48] [LOG] [DIAG] LocalStorage write check: SUCCESS
+[23:59:32.52] [LOG] [DIAG] Cookies write check: ALLOWED
+[23:59:32.54] [LOG] [DIAG] GTM elements found in DOM: 1
+[23:59:32.58] [LOG]   [GTM-Script #0] SRC: https://www.googletagmanager.com/gtag/js?id=G-WDPB825TVX, ASYNC: true
+[23:59:32.62] [LOG] [DIAG] typeof gtag: function
+[23:59:32.66] [LOG] [DIAG] typeof window.gtag: function
+[23:59:32.67] [LOG] [DIAG] window.google_tag_manager present: false
+[23:59:32.68] [LOG] [DIAG] window.dataLayer present: true
+[23:59:32.72] [LOG] [DIAG] window.dataLayer length: 2
+[23:59:32.73] [LOG] [DIAG] window.dataLayer events list: [{"0":"js","1":"2026-10-28T23:59:29.654Z"},{"0":"config","1":"G-WDPB825TVX","2":{"cookie_flags":"SameSite=None;Secure","cookie_domain":"auto","transport_type":"xhr","debug_mode":true,"client_id":"16055557.1793229754"}}]
+[23:59:32.76] [LOG] [DIAG] Google Sheets Webhook Configured: true
+[23:59:32.77] [LOG] [DIAG] Google Sheets Webhook URL Prefix: https://script.google.com/macros/s/AKfycbzZwEUME...
+[23:59:32.81] [LOG] --- END DIAGNOSTICS ---
+[23:59:32.82] [LOG] [WINDOW_ONLOAD] Page load sequence finished.
+[23:59:33.07] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=false, canMakeGuess=true, mode=open
+[23:59:33.34] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[23:59:33.39] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 0, Preloaded: None or no label
+[00:01:58.35] [SYSTEM] --- APPLICATION RESTARTED (PREVIOUS LOGS PRESERVED) ---
+[00:01:58.35] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[00:01:58.37] [LOG] [APP_INIT] Initializing application...
+[00:01:58.41] [LOG] [APP_INIT] Current theme: night
+[00:01:58.42] [LOG] [APP_INIT] RGB HSL Cache from localStorage: (0 entries)
+[00:01:58.45] [LOG] [APP_INIT] Wikidata Cache summary: {  }
+[00:01:58.47] [LOG] [APP_INIT] Attempts from localStorage: 10
+[00:01:58.52] [LOG] [APP_INIT] Total Guesses from localStorage: 10
+[00:01:58.54] [LOG] [APP_INIT] Current Session ID from localStorage: null
+[00:01:58.58] [LOG] [APP_INIT] Current Attempt Start Time from localStorage: null
+[00:01:58.61] [LOG] [APP_INIT] Guess Results History from localStorage: [1,1,1,1,1,1,1,0,1,1]
+[00:01:58.65] [LOG] [APP_INIT] Attempt Durations from localStorage: [16,4,24,3,2,2,3,4,5,8]
+[00:01:58.70] [LOG] [BOOTSTRAP] Starting bootstrap sequence...
+[00:01:58.72] [LOG] [Telegram.WebView] > postEvent web_app_ready 
+[00:01:58.77] [LOG] [Telegram.WebView] > postEvent web_app_expand 
+[00:01:58.83] [LOG] [BOOTSTRAP] Telegram WebApp ready() and expand() signaled.
+[00:01:58.88] [LOG] [WINDOW_ONLOAD] Page loaded. Initializing application state.
+[00:01:58.90] [LOG] [Telegram.WebView] > postEvent web_app_ready 
+[00:01:58.96] [LOG] [TELEGRAM_INIT] Telegram user data not available.
+[00:01:59.02] [LOG] [WINDOW_ONLOAD] New Game button containers initialized.
+[00:01:59.08] [LOG] [WINDOW_ONLOAD_RESTORE] Restored from localStorage - Session ID: null, Attempt Start Time: null, Guess Results History: 1,1,1,1,1,1,1,0,1,1, Attempt Durations: 16,4,24,3,2,2,3,4,5,8
+[00:01:59.20] [LOG] [WINDOW_ONLOAD] Is first launch or reset: false
+[00:01:59.30] [LOG] [WINDOW_ONLOAD] Resuming existing game state.
+[00:01:59.35] [LOG] [LANGUAGE_UPDATE] Updating language to: uk
+[00:01:59.38] [LOG] [UI_UPDATE] updateUI called for person: No person
+[00:01:59.44] [LOG] [UI_UPDATE] Telegram user info in stats displayed as generic "Player" as no name is available.
+[00:01:59.50] [LOG] [LANGUAGE_UPDATE] Language update complete.
+[00:01:59.56] [LOG] [WINDOW_ONLOAD_GAMEOVER] Game was previously over. UI reflects game over state.
+[00:01:59.61] [LOG] [WINDOW_ONLOAD_GAMEOVER] Press 'New Game' to start.
+[00:01:59.67] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 10 Max: 10 IsInitialCall: true
+[00:01:59.75] [LOG] [UI_UPDATE] Game is over on initial load. Moving New Game button to game over location immediately.
+[00:01:59.80] [LOG] [UI_UPDATE] Telegram user info in stats displayed as generic "Player" as no name is available.
+[00:01:59.86] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[00:01:59.92] [LOG] [HELP_MODAL_SETUP] Initializing Help modal event listeners...
+[00:01:59.97] [LOG] [DIAG_SETUP] Initializing diagnostics panel listeners...
+[00:02:00.02] [LOG] --- RUNNING DIAGNOSTICS ---
+[00:02:00.07] [LOG] [DIAG] Current Local Time: Thu Oct 29 2026 02:02:00 GMT+0200 (Eastern European Standard Time)
+[00:02:00.10] [LOG] [DIAG] Build App Version: v2.3.3
+[00:02:00.16] [LOG] [DIAG] Build Completion Time: 10/28/2026, 11:59:16 PM
+[00:02:00.21] [LOG] [DIAG] User Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36
+[00:02:00.27] [LOG] [DIAG] Platform (Navigator): Linux x86_64
+[00:02:00.33] [LOG] [DIAG] window.Telegram: Present
+[00:02:00.39] [LOG] [DIAG] Telegram.WebApp: Present
+[00:02:00.46] [LOG] [DIAG] WebApp Platform: unknown
+[00:02:00.52] [LOG] [DIAG] WebApp Version: 6.0
+[00:02:00.58] [LOG] [DIAG] WebApp ColorScheme: light
+[00:02:00.63] [LOG] [DIAG] WebApp IsExpanded: true
+[00:02:00.70] [LOG] [DIAG] WebApp User: No data in initDataUnsafe
+[00:02:00.75] [LOG] [DIAG] LocalStorage write check: SUCCESS
+[00:02:00.81] [LOG] [DIAG] Cookies write check: ALLOWED
+[00:02:00.92] [LOG] [DIAG] GTM elements found in DOM: 1
+[00:02:00.97] [LOG]   [GTM-Script #0] SRC: https://www.googletagmanager.com/gtag/js?id=G-WDPB825TVX, ASYNC: true
+[00:02:00.98] [LOG] [DIAG] typeof gtag: function
+[00:02:01.00] [LOG] [DIAG] typeof window.gtag: function
+[00:02:01.01] [LOG] [DIAG] window.google_tag_manager present: true
+[00:02:01.02] [LOG] [DIAG] window.dataLayer present: true
+[00:02:01.03] [LOG] [DIAG] window.dataLayer length: 2
+[00:02:01.04] [LOG] [DIAG] window.dataLayer events list: [{"0":"js","1":"2026-10-29T00:01:53.364Z","gtm.uniqueEventId":3},{"0":"config","1":"G-WDPB825TVX","2":{"cookie_flags":"SameSite=None;Secure","cookie_domain":"auto","transport_type":"xhr","debug_mode":true,"client_id":"16055557.1793229754"}}]
+[00:02:01.05] [LOG] [DIAG] Google Sheets Webhook Configured: true
+[00:02:01.06] [LOG] [DIAG] Google Sheets Webhook URL Prefix: https://script.google.com/macros/s/AKfycbzZwEUME...
+[00:02:01.07] [LOG] --- END DIAGNOSTICS ---
+[00:02:01.08] [LOG] [WINDOW_ONLOAD] Page load sequence finished.
+[00:02:01.10] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=false, canMakeGuess=true, mode=open
+[00:02:01.11] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:02:01.12] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 0, Preloaded: None or no label
+[00:02:18.02] [LOG] [USER_ACTION] "New Game" button clicked.
+[00:02:18.04] [LOG] [LIFE_CYCLE_REPORT] No unfinished game report needed inside new_game_reset callback (attempts active: false).
+[00:02:18.05] [LOG] [GAME_FLOW] Starting new game...
+[00:02:18.06] [LOG] [GAME_FLOW] Game statistics and current person reset.
+[00:02:18.08] [LOG] [PRELOAD_RESET] Preload state reset for new game.
+[00:02:18.09] [LOG] [GAME_FLOW] New game session ID: 1793232138_262. Saved to localStorage.
+[00:02:18.11] [LOG] [GAME_FLOW] currentAttemptStartTime reset and removed from localStorage.
+[00:02:18.12] [LOG] [GAME_FLOW] Reset game state saved to localStorage.
+[00:02:18.13] [LOG] [GAME_FLOW] Player local start time for GA: 2026-10-29 02:02:18 UTC+02:00
+[00:02:18.22] [LOG] [GA_EVENT_SENT] Name: new_game_started, Params: {"new_language":"uk","game_mode":"open","session_id":"1793232138_262","player_local_start_time":"2026-10-29 02:02:18 UTC+02:00","current_theme":"night","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232138_262","language":"uk"}
+[00:02:18.23] [LOG] [UI_UPDATE] updateUI called for person: No person
+[00:02:18.25] [LOG] [GAME_FLOW_UI] Statistics display and general UI reset.
+[00:02:18.27] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 0 Max: 10 IsInitialCall: false
+[00:02:18.28] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[00:02:18.29] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[00:02:18.31] [LOG] [LOAD_SESSION] Starting dynamic background streaming session...
+[00:02:18.32] [LOG] [PRELOAD_RESET] Preload state reset for new session.
+[00:02:18.34] [LOG] [STREAM_QUEUE] Scheduled highly interleaved queue of 10 candidates. Starting parallel stream worker pool.
+[00:02:18.35] [LOG] [GAME_FLOW] New game started successfully.
+[00:02:18.37] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[00:02:18.39] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:02:18.40] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 0, Preloaded: None or no label
+[00:02:18.47] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[00:02:18.50] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-alive, querying Wikidata.
+[00:02:18.55] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:02:18.57] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[00:02:18.76] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category male-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:18.77] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[00:02:18.80] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category female-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:18.81] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
+[00:02:18.87] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category male-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:18.88] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:18.90] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-alive: Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:18.93] [LOG] [CATALOG_DECK] Deck "male-alive" refilled and shuffled (25 candidates).
+[00:02:18.96] [LOG] [CATALOG_DECK] Dealt candidate: Quentin Tarantino (male-alive). Remaining in deck: 24
+[00:02:18.98] [LOG] [STREAM_QUEUE] Appended streamed candidate #1: Quentin Tarantino (male-alive)
+[00:02:19.03] [LOG] [STREAM_QUEUE_FIRST_ENTRY] Rendering first candidate instantly on screen: Quentin Tarantino
+[00:02:19.07] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Quentin Tarantino
+[00:02:19.09] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[00:02:19.11] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[00:02:19.13] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Quentin Tarantino. Reason: fetch_no_preload_match
+[00:02:19.15] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Quentin Tarantino
+[00:02:19.17] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Quentin_Tarantino_by_Gage_Skidmore.jpg/960px-Quentin_Tarantino_by_Gage_Skidmore.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[00:02:19.20] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category female-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:19.21] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:19.23] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for female-alive: Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:19.25] [LOG] [CATALOG_DECK] Deck "female-alive" refilled and shuffled (25 candidates).
+[00:02:19.27] [LOG] [CATALOG_DECK] Dealt candidate: Ruslana (female-alive). Remaining in deck: 24
+[00:02:19.28] [LOG] [STREAM_QUEUE] Appended streamed candidate #2: Ruslana (female-alive)
+[00:02:19.30] [LOG] [PRELOAD] Starting preload for: Ruslana
+[00:02:19.38] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[00:02:19.40] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[00:02:19.48] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category male-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:19.50] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[00:02:19.58] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category male-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:19.61] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:19.63] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:19.64] [LOG] [CATALOG_DECK] Deck "male-deceased" refilled and shuffled (25 candidates).
+[00:02:19.66] [LOG] [CATALOG_DECK] Dealt candidate: Freddie Mercury (male-deceased). Remaining in deck: 24
+[00:02:19.68] [LOG] [STREAM_QUEUE] Appended streamed candidate #3: Freddie Mercury (male-deceased)
+[00:02:19.72] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[00:02:19.75] [LOG] [IMAGE_LOAD_SUCCESS] Image loaded successfully: https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Quentin_Tarantino_by_Gage_Skidmore.jpg/960px-Quentin_Tarantino_by_Gage_Skidmore.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[00:02:19.77] [LOG] [LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched for Quentin Tarantino. Path: direct_fetch_success
+[00:02:19.80] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Quentin Tarantino (Path: direct_fetch_success)
+[00:02:19.83] [LOG] [UI_UPDATE] updateUI called for person: Quentin Tarantino
+[00:02:19.85] [LOG] [STATE_CHANGE] Attempt start time set to 1793232139856 for person: Quentin Tarantino. Saved to localStorage.
+[00:02:19.91] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q3772","person_name":"Quentin Tarantino","new_language":"uk","game_mode":"open","load_source":"fetch_direct","load_path_detail":"direct_fetch_success","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232138_262","session_id":"1793232138_262","language":"uk","current_theme":"night"}
+[00:02:19.92] [LOG] [PRELOAD] Preload already in progress or next item is already the target of current load.
+[00:02:19.95] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[00:02:19.98] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:02:20.00] [LOG] [PHOTO_STATUS] Loaded photos in session: 1, Remaining in sessionList: 2, Preloaded: None or no label
+[00:02:20.03] [LOG] [STREAM_QUEUE_UI] Screen initialized with first streaming candidate.
+[00:02:20.06] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Ruslana_in_Cologne%2C_Germany_05.JPG/960px-Ruslana_in_Cologne%2C_Germany_05.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail for Ruslana
+[00:02:20.08] [LOG] [PRELOAD] Preloading process attempt finished.
+[00:02:20.11] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[00:02:20.13] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-deceased, querying Wikidata.
+[00:02:20.21] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category female-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:20.23] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-deceased, attempt 2/2...
+[00:02:20.27] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[00:02:20.32] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-alive, querying Wikidata.
+[00:02:20.41] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category female-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:20.47] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:20.51] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for female-deceased: Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:20.53] [LOG] [CATALOG_DECK] Deck "female-deceased" refilled and shuffled (25 candidates).
+[00:02:20.56] [LOG] [CATALOG_DECK] Dealt candidate: Edith Piaf (female-deceased). Remaining in deck: 24
+[00:02:20.58] [LOG] [STREAM_QUEUE] Appended streamed candidate #4: Edith Piaf (female-deceased)
+[00:02:20.62] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category male-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:20.65] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[00:02:20.73] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category male-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:20.76] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:20.78] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-alive: Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:20.81] [LOG] [CATALOG_DECK] Dealt candidate: Gordon Ramsay (male-alive). Remaining in deck: 23
+[00:02:20.83] [LOG] [STREAM_QUEUE] Appended streamed candidate #5: Gordon Ramsay (male-alive)
+[00:02:20.87] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:02:20.89] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[00:02:20.92] [LOG] [SHEETS_SENT] Dispatched anonymized event "new_game_started" to Google Sheets (Spam: false)
+[00:02:20.97] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category female-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:20.99] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
+[00:02:21.02] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[00:02:21.05] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[00:02:21.08] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category female-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:21.11] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:21.14] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for female-alive: Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:21.16] [LOG] [CATALOG_DECK] Dealt candidate: Scarlett Johansson (female-alive). Remaining in deck: 23
+[00:02:21.19] [LOG] [STREAM_QUEUE] Appended streamed candidate #6: Scarlett Johansson (female-alive)
+[00:02:21.23] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category male-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:21.25] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[00:02:21.32] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category male-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:21.35] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:21.38] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:21.41] [LOG] [CATALOG_DECK] Dealt candidate: Winston Churchill (male-deceased). Remaining in deck: 23
+[00:02:21.43] [LOG] [STREAM_QUEUE] Appended streamed candidate #7: Winston Churchill (male-deceased)
+[00:02:21.47] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[00:02:21.50] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-deceased, querying Wikidata.
+[00:02:21.59] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category female-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:21.65] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-deceased, attempt 2/2...
+[00:02:21.68] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[00:02:21.71] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-alive, querying Wikidata.
+[00:02:21.76] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category female-deceased failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:21.78] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:21.83] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for female-deceased: Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:21.85] [LOG] [CATALOG_DECK] Dealt candidate: Maria Zankovetska (female-deceased). Remaining in deck: 23
+[00:02:21.87] [LOG] [STREAM_QUEUE] Appended streamed candidate #8: Maria Zankovetska (female-deceased)
+[00:02:21.90] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category male-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:21.93] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[00:02:22.01] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category male-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:22.05] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:22.09] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-alive: Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:22.14] [LOG] [CATALOG_DECK] Dealt candidate: Vitali Klitschko (male-alive). Remaining in deck: 22
+[00:02:22.18] [LOG] [STREAM_QUEUE] Appended streamed candidate #9: Vitali Klitschko (male-alive)
+[00:02:22.23] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[00:02:22.25] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:02:22.28] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[00:02:22.36] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 1/2 for category female-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:22.39] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
+[00:02:22.46] [WARN] [WIKIDATA_QUERY_WARN] Query attempt 2/2 for category female-alive failed with fetch issue. Retrying. Error: Failed to fetch
+[00:02:22.50] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+[00:02:22.54] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for female-alive: Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch. Invoking backup fallback...
+[00:02:22.57] [LOG] [CATALOG_DECK] Dealt candidate: Emma Watson (female-alive). Remaining in deck: 22
+[00:02:22.60] [LOG] [STREAM_QUEUE] Appended streamed candidate #10: Emma Watson (female-alive)
+[00:02:22.65] [LOG] [STREAM_QUEUE_COMPLETE] Background stream queue finished. Cached or loaded 10 total items.
+[00:02:22.68] [LOG] [LOAD_SESSION_TIMING] Total stream load elapsed (since launch): 4372ms

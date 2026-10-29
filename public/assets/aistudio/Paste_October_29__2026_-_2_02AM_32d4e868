@@ -1,0 +1,513 @@
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20133%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20133%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20373%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20373%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20148%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20148%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20149%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20149%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2012%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2012%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20308%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20308%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20219%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20219%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2095%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2095%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20281%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20281%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20181%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20181%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20339%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20339%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20182%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20182%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2012%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2012%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2032%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2032%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20257%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20257%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20250%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP570%20%3FdeathDate%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20250%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20375%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20375%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20305%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581097)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%20305%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
+console.error @ index-BmHkYjT7.js:2
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2081%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2081%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+personseei/:1 Access to fetch at 'https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2041%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=*' from origin 'https://romanmod.github.io' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+index-BmHkYjT7.js:31  GET https://query.wikidata.org/sparql?query=%0A%20%20%20%20%20%20%20%20%20%20%20%20SELECT%20%3Fperson%20%3FpersonLabel%20%3Fimage%20%3Fgender%20%3FdeathDate%20%3FbirthDate%0A%20%20%20%20%20%20%20%20%20%20%20%20WHERE%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20wdt%3AP31%20wd%3AQ5%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP18%20%3Fimage%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP21%20%3Fgender%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20wdt%3AP569%20%3FbirthDate.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3Fgender%20%3D%20wd%3AQ6581072)%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20NOT%20EXISTS%20%7B%20%3Fperson%20wdt%3AP570%20%3FdeathDate%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER(%3FbirthDate%20%3E%3D%20%221940-01-01T00%3A00%3A00Z%22%5E%5Exsd%3AdateTime).%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Fperson%20rdfs%3Alabel%20%3FpersonLabel.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20(LANG(%3FpersonLabel)%20%3D%20%22en%22).%0A%20%20%20%20%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%20%20%20%20%20%20OFFSET%2041%0A%20%20%20%20%20%20%20%20%20%20%20%20LIMIT%2025%0A%20%20%20%20%20%20%20%20&format=json&origin=* net::ERR_FAILED 403 (Forbidden)
+Lt @ index-BmHkYjT7.js:31
+await in Lt
+be @ index-BmHkYjT7.js:15
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+(анонимно) @ index-BmHkYjT7.js:31
+setTimeout
+p @ index-BmHkYjT7.js:31
+await in p
+Te @ index-BmHkYjT7.js:31
+ot @ index-BmHkYjT7.js:31
+(анонимно) @ index-BmHkYjT7.js:31
+index-BmHkYjT7.js:2 [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Failed to fetch
