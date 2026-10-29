@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.5';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.6';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -1061,6 +1061,35 @@ function simplifyUserAgent(ua) {
     return 'Other';
 }
 
+function detectClientPlatform() {
+    const tgPlatform = window.Telegram?.WebApp?.platform;
+    // Telegram SDK returns string "unknown" when running in standard desktop/mobile web browsers
+    if (tgPlatform && tgPlatform !== 'unknown') {
+        return tgPlatform;
+    }
+    const ua = navigator.userAgent || '';
+    if (/Android/i.test(ua)) return 'chrome_android';
+    if (/iPhone|iPad|iPod/i.test(ua)) return 'safari_ios';
+    if (/Windows/i.test(ua)) {
+        if (/Edg\//i.test(ua)) return 'edge_windows';
+        if (/Chrome|CriOS/i.test(ua)) return 'chrome_windows';
+        if (/Firefox/i.test(ua)) return 'firefox_windows';
+        return 'windows';
+    }
+    if (/Macintosh|Mac OS X/i.test(ua)) {
+        if (/Chrome|CriOS/i.test(ua)) return 'chrome_mac';
+        if (/Safari/i.test(ua)) return 'safari_mac';
+        if (/Firefox/i.test(ua)) return 'firefox_mac';
+        return 'macos';
+    }
+    if (/Linux/i.test(ua)) {
+        if (/Chrome|CriOS/i.test(ua)) return 'chrome_linux';
+        if (/Firefox/i.test(ua)) return 'firefox_linux';
+        return 'linux';
+    }
+    return 'web_browser';
+}
+
 function sendToGoogleSheet(eventName, eventParams = {}) {
     const webhookUrl = getActiveSheetsWebhookUrl();
     if (!webhookUrl) {
@@ -1084,7 +1113,7 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
 
     const now = new Date();
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown';
-    const tgPlatform = window.Telegram?.WebApp?.platform || 'web';
+    const clientPlatform = detectClientPlatform();
     const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code || '';
     
     // Privacy protection: pseudonymize user identifiers before sending over the wire
@@ -1098,7 +1127,7 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         local_time_string: now.toLocaleString(),
         timezone: timeZone,
         timezone_offset: now.getTimezoneOffset(),
-        platform: tgPlatform,
+        platform: clientPlatform,
         device_lang: navigator.language || '',
         telegram_lang: tgLang,
         screen_res: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
@@ -1369,6 +1398,87 @@ function updateTelegramUserInfoDisplay() {
 }
 
 
+// === DATA SOURCE HEALTH & INDICATOR STATE ===
+let currentDataSourceStatus = 'healthy'; // 'healthy' (green) | 'fallback' (closer to red) | 'error' (red)
+let currentDataSourceDetails = 'Wikidata Live';
+
+function updateDataSourceIndicator(status, details = '') {
+    if (status) currentDataSourceStatus = status;
+    if (details) currentDataSourceDetails = details;
+
+    const versionBadge = document.getElementById('app-version-badge');
+    const diagSourceLabel = document.getElementById('data-source-label');
+    const diagSourceBadge = document.getElementById('data-source-status-badge');
+    const diagSourceText = document.getElementById('data-source-status-text');
+
+    const versionPrefixes = {
+        uk: 'Версія v',
+        ru: 'Версия v',
+        en: 'Version v',
+        de: 'Version v',
+        fr: 'Version v',
+        es: 'Versión v',
+        zh: '版本 v',
+        it: 'Versione v',
+        alien: '⊸⍟⊸ v'
+    };
+    const prefix = versionPrefixes[selectedLanguage] || 'Version v';
+    const verText = `${prefix}${CURRENT_APP_VERSION}`;
+
+    const isHealthy = currentDataSourceStatus === 'healthy' || currentDataSourceStatus === 'live' || currentDataSourceStatus === 'cache';
+
+    const healthyLabel = selectedLanguage === 'ru'
+        ? (currentDataSourceStatus === 'cache' ? 'Wikidata (Кэш) ✅' : 'Wikidata (Онлайн) ✅')
+        : (selectedLanguage === 'uk'
+            ? (currentDataSourceStatus === 'cache' ? 'Wikidata (Кеш) ✅' : 'Wikidata (Онлайн) ✅')
+            : (currentDataSourceStatus === 'cache' ? 'Wikidata (Cache) ✅' : 'Wikidata (Live) ✅'));
+
+    const fallbackLabel = selectedLanguage === 'ru'
+        ? 'Резервный каталог (сбой Wikidata) ⚠️'
+        : (selectedLanguage === 'uk'
+            ? 'Резервний каталог (збій Wikidata) ⚠️'
+            : 'Offline Backup (Wikidata offline) ⚠️');
+
+    const activeLabel = isHealthy ? healthyLabel : fallbackLabel;
+
+    if (versionBadge) {
+        if (isHealthy) {
+            // Зелёный цвет надписи версии, когда всё как надо
+            versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.35)] hover:text-emerald-300';
+            versionBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse"></span><span>${verText}</span>`;
+            versionBadge.title = selectedLanguage === 'ru' 
+                ? `Источник данных: ${activeLabel} (всё как надо)` 
+                : (selectedLanguage === 'uk' ? `Джерело даних: ${activeLabel} (все гаразд)` : `Data source: ${activeLabel} (healthy)`);
+        } else {
+            // Цвет ближе к красному, если что-то не так с данными
+            versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.45)] hover:text-rose-400';
+            versionBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]"></span><span>${verText}</span>`;
+            versionBadge.title = selectedLanguage === 'ru' 
+                ? `Внимание: ${activeLabel} (проблема с живыми данными)` 
+                : (selectedLanguage === 'uk' ? `Увага: ${activeLabel} (проблема з живими даними)` : `Warning: ${activeLabel} (issue with live data)`);
+        }
+    }
+
+    if (diagSourceLabel) {
+        diagSourceLabel.textContent = selectedLanguage === 'ru' ? 'Источник данных:' : (selectedLanguage === 'uk' ? 'Джерело даних:' : 'Data Source:');
+    }
+    if (diagSourceBadge && diagSourceText) {
+        if (isHealthy) {
+            diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-emerald-400';
+            if (diagSourceBadge.firstElementChild) {
+                diagSourceBadge.firstElementChild.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]';
+            }
+            diagSourceText.textContent = activeLabel;
+        } else {
+            diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-rose-500';
+            if (diagSourceBadge.firstElementChild) {
+                diagSourceBadge.firstElementChild.className = 'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]';
+            }
+            diagSourceText.textContent = activeLabel;
+        }
+    }
+}
+
 // Обновление интерфейса по языку
 function updateLanguage() {
     console.log(`[LANGUAGE_UPDATE] Updating language to: ${selectedLanguage}`);
@@ -1430,24 +1540,8 @@ function updateLanguage() {
     const forceReloadBtn = document.getElementById('force-reload-btn');
     if (forceReloadBtn) forceReloadBtn.textContent = forceReloadTexts[selectedLanguage] || forceReloadTexts.en;
 
-    // Translate version badge dynamically using APP_VERSION_FALLBACK
-    const versionPrefixes = {
-        uk: 'Версія v',
-        ru: 'Версия v',
-        en: 'Version v',
-        de: 'Version v',
-        fr: 'Version v',
-        es: 'Versión v',
-        zh: '版本 v',
-        it: 'Versione v',
-        alien: '⊸⍟⊸ v'
-    };
-    const versionBadge = document.getElementById('app-version-badge');
-    if (versionBadge) {
-        let currentVersion = APP_VERSION_FALLBACK;
-        let prefix = versionPrefixes[selectedLanguage] || 'Version v';
-        versionBadge.textContent = `${prefix}${currentVersion}`;
-    }
+    // Update dynamic version badge color and data source indicator (Green when OK, Reddish when fallback/error)
+    updateDataSourceIndicator();
 
     // Help button and Help Modal translation updates
     const helpBtnTextEl = document.getElementById('help-btn-text');
@@ -2414,7 +2508,13 @@ async function fetchPersonData(useRandom = false, category = null) {
         return await fetchPersonDataInner(useRandom, category);
     } catch (err) {
         console.warn(`[WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for ${categoryKey}: ${err.message}. Invoking backup fallback...`);
-        return getOfflineFallbackPerson(category);
+        updateDataSourceIndicator('fallback', 'Offline Backup');
+        const fallbackPerson = getOfflineFallbackPerson(category);
+        if (fallbackPerson) {
+            fallbackPerson.isOfflineFallback = true;
+            fallbackPerson.dataSource = 'Offline Catalog';
+        }
+        return fallbackPerson;
     }
 }
 
@@ -2442,6 +2542,8 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
                 const cachedPerson = available[Math.floor(Math.random() * available.length)];
                 if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
                     sessionShownNames.add(cachedPerson.personLabel.value);
+                    cachedPerson.dataSource = 'Wikidata Cache';
+                    updateDataSourceIndicator('cache', 'Wikidata Cache');
                     console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
                     return cachedPerson;
                 }
@@ -2470,7 +2572,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
         // Fast optimized SPARQL: start from wdt:P18 and wdt:P21 to bypass massive wd:Q5 join
-        query = `#TOOL: iPersonSeeTrivia/2.3.5 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        query = `#TOOL: iPersonSeeTrivia/2.3.6 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
                 ?person wdt:P18 ?image;
@@ -2513,19 +2615,31 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             }
 
             if (!response || !response.ok) {
-                // Secondary resilient fallback: query through CORS proxy
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                try {
-                    response = await fetch(proxyUrl, {
-                        method: 'GET',
-                        signal: controller.signal
-                    });
-                    if (response && response.ok) {
-                        usedProxy = true;
-                        console.log(`[WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded for category ${categoryKey}.`);
+                // Secondary resilient fallback: query through high-speed CORS proxies
+                const proxyEndpoints = [
+                    (targetUrl) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+                    (targetUrl) => `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
+                    (targetUrl) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+                ];
+                for (const buildProxyUrl of proxyEndpoints) {
+                    try {
+                        const proxyUrl = buildProxyUrl(url);
+                        const proxyController = new AbortController();
+                        const proxyTimer = setTimeout(() => proxyController.abort(), 6000);
+                        const proxyRes = await fetch(proxyUrl, {
+                            method: 'GET',
+                            signal: proxyController.signal
+                        });
+                        clearTimeout(proxyTimer);
+                        if (proxyRes && proxyRes.ok) {
+                            response = proxyRes;
+                            usedProxy = true;
+                            console.log(`[WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded via ${new URL(proxyUrl).hostname} for category ${categoryKey}.`);
+                            break;
+                        }
+                    } catch (proxyErr) {
+                        // Continue to next proxy
                     }
-                } catch (proxyErr) {
-                    console.warn(`[WIKIDATA_PROXY_FAIL] Proxy query failed (${proxyErr.message}).`);
                 }
             }
 
@@ -2553,6 +2667,8 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             const randomPerson = freshList[Math.floor(Math.random() * freshList.length)];
             if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
                 sessionShownNames.add(randomPerson.personLabel.value);
+                randomPerson.dataSource = usedProxy ? 'Wikidata Proxy' : 'Wikidata Live';
+                updateDataSourceIndicator('healthy', randomPerson.dataSource);
                 return randomPerson;
             } else {
                  console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
@@ -2942,14 +3058,21 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         return;
     }
 
+    const isCandidateFallback = Boolean(currentPersonCandidate.isOfflineFallback || currentPersonCandidate.dataSource === 'Offline Catalog');
     currentPerson = { 
         personLabel: currentPersonCandidate.personLabel,
         gender: currentPersonCandidate.gender,
         deathDate: currentPersonCandidate.deathDate,
         birthDate: currentPersonCandidate.birthDate,
-        person: currentPersonCandidate.person 
+        person: currentPersonCandidate.person,
+        dataSource: isCandidateFallback ? 'Offline Catalog' : (currentPersonCandidate.dataSource || 'Wikidata Live')
     };
-    console.log(`[LOAD_PERSON_SUCCESS] Successfully loaded person: ${currentPerson.personLabel.value} (Path: ${imageLoadPathDetail})`);
+    if (isCandidateFallback) {
+        updateDataSourceIndicator('fallback', 'Offline Backup');
+    } else {
+        updateDataSourceIndicator('healthy', currentPerson.dataSource);
+    }
+    console.log(`[LOAD_PERSON_SUCCESS] Successfully loaded person: ${currentPerson.personLabel.value} (Source: ${currentPerson.dataSource}, Path: ${imageLoadPathDetail})`);
     updateUI(currentPerson); 
     
     currentAttemptStartTime = Date.now(); 
@@ -3033,6 +3156,7 @@ function updateUI(personToDisplay) {
 
 function handleError() {
     console.error('[HANDLE_ERROR] An error occurred. Displaying placeholder and error message.');
+    updateDataSourceIndicator('error', 'Image/Data Error');
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
@@ -3656,7 +3780,7 @@ function reportProgressOnLeave(trigger) {
             game_mode: gameMode,
             current_theme: isNight ? 'night' : 'day',
             trigger_event: trigger,
-            platform: window.Telegram?.WebApp?.platform || 'web'
+            platform: detectClientPlatform()
         });
     } else {
         console.log(`[LIFE_CYCLE_REPORT] No unfinished game report needed inside ${trigger} callback (attempts active: ${currentAttempts > 0 && currentAttempts < maxAttempts}).`);

@@ -346,13 +346,25 @@
                     <div id="sheets-webhook-status" class="text-[9px] font-mono text-on-surface-variant/70"></div>
                 </div>
 
+                <!-- Data Source Status Section in Diagnostics -->
+                <div class="flex items-center justify-between text-[10px] font-mono bg-void-black/70 p-2.5 rounded-xl border border-white/5">
+                    <span class="text-on-surface-variant flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-xs">database</span>
+                        <span id="data-source-label">Джерело даних:</span>
+                    </span>
+                    <span id="data-source-status-badge" class="font-bold flex items-center gap-1.5 text-emerald-400">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
+                        <span id="data-source-status-text">Wikidata (Live)</span>
+                    </span>
+                </div>
+
                 <pre id="debug-log-output" class="bg-void-black/90 p-3 rounded-xl border border-white/5 font-mono text-[10px] max-h-48 overflow-y-auto leading-relaxed text-on-surface-variant/90 scrollbar-thin">Initializing diagnostics log...</pre>
             </div>
         </details>
     </div>
 
-    <!-- App Version Badge -->
-    <div id="app-version-badge" class="font-mono text-[9px] text-on-surface-variant/40 tracking-[0.3em] uppercase cursor-pointer select-none hover:text-neon-cyan transition-colors mt-8 mb-12">v2.3.5</div>
+    <!-- App Version Badge with Live Data Source Color Indicator -->
+    <div id="app-version-badge" class="font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.35)]" title="Джерело даних: Wikidata ✅">v2.3.6</div>
 
     <!-- Help / Instructions Modal Dialog -->
     <div id="help-modal" class="fixed inset-0 bg-void-black/80 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 transition-all duration-300">
