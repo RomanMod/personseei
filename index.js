@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.4';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.5';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -373,7 +373,7 @@ function runSystemDiagnostics() {
 const settings = {
     superRandomPeople: true,
     dynamicOffset: true,
-    maxOffset: 400,
+    maxOffset: 80,
     maxPeople: 25,
     sessionPeople: 10,
     genderRatio: { male: 50, female: 50 },
@@ -2025,7 +2025,7 @@ async function loadImageWithFallback(url, element) {
     });
 }
 
-const WIKIDATA_QUERY_TIMEOUT_MS = 12000; 
+const WIKIDATA_QUERY_TIMEOUT_MS = 25000; 
 
 const offlinePeople = [
     // Male, Alive
@@ -2456,7 +2456,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
                          category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
                          'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
     const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
-                         category?.status === 'deceased' ? '?person wdt:P570 ?deathDate' :
+                         category?.status === 'deceased' ? '?person wdt:P570 ?deathDate.' :
                          'OPTIONAL { ?person wdt:P570 ?deathDate }';
     const birthDateFilter = `FILTER(?birthDate >= "${settings.birthYearFilter}-01-01T00:00:00Z"^^xsd:dateTime).`;
     const countryFilter = settings.selectedCountries === 'all' ? '' :
@@ -2469,12 +2469,11 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         attempts++;
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
-        // Fast optimized SPARQL: omit optional country unless strict filter is active
-        query = `
+        // Fast optimized SPARQL: start from wdt:P18 and wdt:P21 to bypass massive wd:Q5 join
+        query = `#TOOL: iPersonSeeTrivia/2.3.5 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
-                ?person wdt:P31 wd:Q5;
-                        wdt:P18 ?image;
+                ?person wdt:P18 ?image;
                         wdt:P21 ?gender;
                         wdt:P569 ?birthDate.
                 ${genderFilter}
@@ -2489,7 +2488,6 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         `;
 
         const endpoint = 'https://query.wikidata.org/sparql';
-        // Note: origin=* enables standard CORS headers; nocache is omitted to allow fast CDN serving without 429 throttling
         const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&origin=*`;
 
         const controller = new AbortController();
@@ -2502,11 +2500,11 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             let response = null;
             let usedProxy = false;
             try {
+                // Simple CORS GET: keep headers safelisted (no custom headers) to eliminate browser OPTIONS preflight failures
                 response = await fetch(url, {
                     method: 'GET',
                     headers: {
-                        'Accept': 'application/sparql-results+json',
-                        'Api-User-Agent': 'iPersonSeeTrivia/2.3.4 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com) WebApp'
+                        'Accept': 'application/sparql-results+json'
                     },
                     signal: controller.signal
                 });

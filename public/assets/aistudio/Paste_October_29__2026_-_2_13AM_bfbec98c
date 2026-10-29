@@ -1,0 +1,250 @@
+[00:11:48.61] [LOG] [CATALOG_DECK] Deck "male-deceased" refilled and shuffled (25 candidates).
+[00:11:48.63] [LOG] [CATALOG_DECK] Dealt candidate: Wolfgang Amadeus Mozart (male-deceased). Remaining in deck: 24
+[00:11:48.66] [LOG] [STREAM_QUEUE] Appended streamed candidate #4: Wolfgang Amadeus Mozart (male-deceased)
+[00:11:48.74] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:11:48.76] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Lee Hi
+[00:11:48.78] [LOG] [STREAM_QUEUE] Appended streamed candidate #5: Lee Hi (female-alive)
+[00:11:48.87] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[00:11:48.89] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[00:11:48.97] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[00:11:50.50] [LOG] [WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded for category male-alive.
+[00:11:50.54] [LOG] [WIKIDATA_QUERY_SUCCESS] Attempt 1/2 successful for category male-alive. Found 25 results. Time: 3038ms
+[00:11:50.56] [LOG] [CACHE_UPDATE] wikidataCache updated in localStorage.
+[00:11:50.59] [LOG] [STREAM_QUEUE] Appended streamed candidate #6: Iwan Bobekov (male-alive)
+[00:11:50.67] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[00:11:50.69] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Mo Mowlam
+[00:11:50.71] [LOG] [STREAM_QUEUE] Appended streamed candidate #7: Mo Mowlam (female-deceased)
+[00:11:50.80] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[00:11:50.82] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Lajos Fodor
+[00:11:50.84] [LOG] [STREAM_QUEUE] Appended streamed candidate #8: Lajos Fodor (male-alive)
+[00:11:50.91] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:11:50.94] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Yarisley Silva
+[00:11:50.96] [LOG] [STREAM_QUEUE] Appended streamed candidate #9: Yarisley Silva (female-alive)
+[00:11:57.03] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: 408
+[00:11:57.05] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[00:11:57.12] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[00:12:05.18] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: 408
+[00:12:05.20] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: 408
+[00:12:05.22] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: 408. Invoking backup fallback...
+[00:12:05.23] [LOG] [CATALOG_DECK] Dealt candidate: Charles Darwin (male-deceased). Remaining in deck: 23
+[00:12:05.25] [LOG] [STREAM_QUEUE] Appended streamed candidate #10: Charles Darwin (male-deceased)
+[00:12:05.27] [LOG] [STREAM_QUEUE_COMPLETE] Background stream queue finished. Cached or loaded 10 total items.
+[00:12:05.29] [LOG] [LOAD_SESSION_TIMING] Total stream load elapsed (since launch): 35675ms
+[00:12:07.15] [LOG] [USER_ACTION] "New Game" button clicked.
+[00:12:07.18] [LOG] [LIFE_CYCLE_REPORT] No unfinished game report needed inside new_game_reset callback (attempts active: false).
+[00:12:07.19] [LOG] [GAME_FLOW] Starting new game...
+[00:12:07.21] [LOG] [ANTI_SPAM] Empty game restart count: 1
+[00:12:07.23] [LOG] [GAME_FLOW] Game statistics and current person reset.
+[00:12:07.25] [LOG] [PRELOAD_RESET] Preload state reset for new game.
+[00:12:07.27] [LOG] [GAME_FLOW] New game session ID: 1793232727_3554. Saved to localStorage.
+[00:12:07.29] [LOG] [GAME_FLOW] currentAttemptStartTime reset and removed from localStorage.
+[00:12:07.31] [LOG] [GAME_FLOW] Reset game state saved to localStorage.
+[00:12:07.33] [LOG] [GAME_FLOW] Player local start time for GA: 2026-10-29 02:12:07 UTC+02:00
+[00:12:07.39] [LOG] [GA_EVENT_SENT] Name: new_game_started, Params: {"new_language":"uk","game_mode":"open","session_id":"1793232727_3554","player_local_start_time":"2026-10-29 02:12:07 UTC+02:00","current_theme":"night","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","language":"uk"}
+[00:12:07.42] [LOG] [UI_UPDATE] updateUI called for person: No person
+[00:12:07.46] [LOG] [GAME_FLOW_UI] Statistics display and general UI reset.
+[00:12:07.52] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 0 Max: 10 IsInitialCall: false
+[00:12:07.55] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[00:12:07.57] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[00:12:07.61] [LOG] [LOAD_SESSION] Starting dynamic background streaming session...
+[00:12:07.64] [LOG] [PRELOAD_RESET] Preload state reset for new session.
+[00:12:07.67] [LOG] [STREAM_QUEUE] Scheduled highly interleaved queue of 10 candidates. Starting parallel stream worker pool.
+[00:12:07.71] [LOG] [GAME_FLOW] New game started successfully.
+[00:12:07.75] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[00:12:07.78] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:12:07.81] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 0, Preloaded: None or no label
+[00:12:07.87] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[00:12:07.90] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Tamaiti Williams
+[00:12:07.92] [LOG] [STREAM_QUEUE] Appended streamed candidate #1: Tamaiti Williams (male-alive)
+[00:12:07.94] [LOG] [STREAM_QUEUE_FIRST_ENTRY] Rendering first candidate instantly on screen: Tamaiti Williams
+[00:12:07.97] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Tamaiti Williams
+[00:12:07.99] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[00:12:08.01] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[00:12:08.03] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Tamaiti Williams. Reason: fetch_no_preload_match
+[00:12:08.05] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Tamaiti Williams
+[00:12:08.06] [LOG] [COMMONS_API] Fetching image URL for file: Tamaiti Williams 2017.jpg
+[00:12:08.09] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:12:08.11] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Silke Lippok
+[00:12:08.12] [LOG] [STREAM_QUEUE] Appended streamed candidate #2: Silke Lippok (female-alive)
+[00:12:08.14] [LOG] [PRELOAD] Starting preload for: Silke Lippok
+[00:12:08.16] [LOG] [COMMONS_API] Fetching image URL for file: Silke Lippok.jpg
+[00:12:08.26] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[00:12:08.28] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[00:12:08.36] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[00:12:08.53] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[00:12:08.65] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Tamaiti_Williams_2017.jpg/960px-Tamaiti_Williams_2017.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 582ms
+[00:12:08.66] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Tamaiti_Williams_2017.jpg/960px-Tamaiti_Williams_2017.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[00:12:08.72] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://upload.wikimedia.org/wikipedia/commons/9/93/Silke_Lippok.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 561ms
+[00:12:09.02] [LOG] [IMAGE_LOAD_SUCCESS] Image loaded successfully: https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5a/Tamaiti_Williams_2017.jpg/960px-Tamaiti_Williams_2017.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[00:12:09.04] [LOG] [LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched for Tamaiti Williams. Path: direct_fetch_success
+[00:12:09.07] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Tamaiti Williams (Path: direct_fetch_success)
+[00:12:09.09] [LOG] [UI_UPDATE] updateUI called for person: Tamaiti Williams
+[00:12:09.12] [LOG] [STATE_CHANGE] Attempt start time set to 1793232729122 for person: Tamaiti Williams. Saved to localStorage.
+[00:12:09.16] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q100269559","person_name":"Tamaiti Williams","new_language":"uk","game_mode":"open","load_source":"fetch_direct","load_path_detail":"direct_fetch_success","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:09.19] [LOG] [PRELOAD] Preload already in progress or next item is already the target of current load.
+[00:12:09.21] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[00:12:09.23] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:12:09.25] [LOG] [PHOTO_STATUS] Loaded photos in session: 1, Remaining in sessionList: 1, Preloaded: None or no label
+[00:12:09.28] [LOG] [STREAM_QUEUE_UI] Screen initialized with first streaming candidate.
+[00:12:09.31] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/9/93/Silke_Lippok.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled for Silke Lippok
+[00:12:09.34] [LOG] [PRELOAD] Preloading process attempt finished.
+[00:12:09.42] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[00:12:09.45] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Jane Birkin
+[00:12:09.47] [LOG] [STREAM_QUEUE] Appended streamed candidate #3: Jane Birkin (female-deceased)
+[00:12:09.57] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[00:12:09.59] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: David Kriel
+[00:12:09.62] [LOG] [STREAM_QUEUE] Appended streamed candidate #4: David Kriel (male-alive)
+[00:12:09.70] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:12:09.73] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Luísa Sobral
+[00:12:09.75] [LOG] [STREAM_QUEUE] Appended streamed candidate #5: Luísa Sobral (female-alive)
+[00:12:09.83] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[00:12:09.86] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[00:12:09.94] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[00:12:10.10] [LOG] [SHEETS_SENT] Dispatched anonymized event "new_game_started" to Google Sheets (Spam: false)
+[00:12:11.58] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[00:12:14.96] [LOG] [AUTO_COLLAPSE] Auto-collapsing top controls as gameplay is active.
+[00:12:14.98] [LOG] [TOP_CONTROLS] Collapsed state: true (manual: false)
+[00:12:15.01] [LOG] [USER_ACTION] Status selected: Alive
+[00:12:15.81] [LOG] [USER_ACTION] "Check" button clicked.
+[00:12:15.84] [LOG] [GAME_STATE] Attempt 1/10. Total guesses this game: 1.
+[00:12:15.87] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: alive
+[00:12:15.89] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[00:12:15.91] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1]
+[00:12:15.93] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 7 seconds (6723ms). Start: 1793232729122, End: 1793232735845
+[00:12:15.95] [LOG] [STATE_CHANGE] Attempt duration 7s added. Saved to localStorage. Durations: [7]
+[00:12:16.00] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1793232727_3554","attempt_number_in_session":1,"time_for_attempt_seconds":7,"attempt_result":1,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:16.04] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q100269559","person_name":"Tamaiti Williams","game_mode":"open","actual_gender":"male","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":1,"new_language":"uk","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:16.07] [LOG] [CHECK_UI] Guess was CORRECT.
+[00:12:16.10] [LOG] [CHECK_UI] Stats display updated.
+[00:12:16.13] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[00:12:16.15] [LOG] [UI_UPDATE] updateUI called for person: Tamaiti Williams
+[00:12:16.17] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 1 Max: 10 IsInitialCall: false
+[00:12:16.19] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[00:12:16.22] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, mode=open
+[00:12:16.25] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:12:16.28] [LOG] [PHOTO_STATUS] Loaded photos in session: 2, Remaining in sessionList: 4, Preloaded: Silke Lippok
+[00:12:16.48] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: 408
+[00:12:16.51] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[00:12:16.60] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[00:12:17.77] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
+[00:12:18.05] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: 408
+[00:12:18.08] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[00:12:18.12] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[00:12:18.17] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[00:12:20.33] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[00:12:20.36] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 1/10
+[00:12:20.40] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1793232727_3554","trigger_button":"next_after_check","new_language":"uk","game_mode":"open","remaining_in_session":4,"is_preloading":false,"preloaded_person_name":"Silke Lippok","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:20.42] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[00:12:20.44] [LOG] [LOAD_NEXT_PERSON] Loading next person from session: Silke Lippok
+[00:12:20.47] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Silke Lippok
+[00:12:20.51] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[00:12:20.55] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[00:12:20.60] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Silke Lippok
+[00:12:20.65] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/9/93/Silke_Lippok.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
+[00:12:20.76] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[00:12:20.79] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Silke Lippok (Path: preload_assigned_successfully)
+[00:12:20.82] [LOG] [UI_UPDATE] updateUI called for person: Silke Lippok
+[00:12:20.84] [LOG] [STATE_CHANGE] Attempt start time set to 1793232740844 for person: Silke Lippok. Saved to localStorage.
+[00:12:20.90] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q69283","person_name":"Silke Lippok","new_language":"uk","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:20.92] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Silke Lippok is now cleared as it's either used or failed assign.
+[00:12:20.94] [LOG] [PRELOAD] Starting preload for: Jane Birkin
+[00:12:20.97] [LOG] [COMMONS_API] Fetching image URL for file: Jane Birkin07.JPG
+[00:12:21.01] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[00:12:21.04] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:12:21.07] [LOG] [PHOTO_STATUS] Loaded photos in session: 3, Remaining in sessionList: 3, Preloaded: None or no label
+[00:12:21.10] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[00:12:21.57] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Jane_Birkin07.JPG/960px-Jane_Birkin07.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 601ms
+[00:12:21.71] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Jane_Birkin07.JPG/960px-Jane_Birkin07.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail for Jane Birkin
+[00:12:21.74] [LOG] [PRELOAD] Preloading process attempt finished.
+[00:12:22.65] [LOG] [USER_ACTION] Status selected: Alive
+[00:12:22.89] [LOG] [SHEETS_SENT] Dispatched anonymized event "next_photo_requested" to Google Sheets (Spam: false)
+[00:12:23.64] [LOG] [USER_ACTION] "Check" button clicked.
+[00:12:23.67] [LOG] [GAME_STATE] Attempt 2/10. Total guesses this game: 2.
+[00:12:23.70] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: alive
+[00:12:23.72] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[00:12:23.74] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1]
+[00:12:23.77] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 3 seconds (2831ms). Start: 1793232740844, End: 1793232743675
+[00:12:23.79] [LOG] [STATE_CHANGE] Attempt duration 3s added. Saved to localStorage. Durations: [7,3]
+[00:12:23.84] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1793232727_3554","attempt_number_in_session":2,"time_for_attempt_seconds":3,"attempt_result":1,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:23.89] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q69283","person_name":"Silke Lippok","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":2,"new_language":"uk","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:23.92] [LOG] [CHECK_UI] Guess was CORRECT.
+[00:12:23.94] [LOG] [CHECK_UI] Stats display updated.
+[00:12:23.97] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[00:12:24.00] [LOG] [UI_UPDATE] updateUI called for person: Silke Lippok
+[00:12:24.03] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 2 Max: 10 IsInitialCall: false
+[00:12:24.05] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[00:12:24.09] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, mode=open
+[00:12:24.13] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:12:24.15] [LOG] [PHOTO_STATUS] Loaded photos in session: 4, Remaining in sessionList: 3, Preloaded: Jane Birkin
+[00:12:24.20] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[00:12:24.66] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: 408
+[00:12:24.69] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: 408
+[00:12:24.71] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: 408. Invoking backup fallback...
+[00:12:24.74] [LOG] [CATALOG_DECK] Dealt candidate: Bohdan Khmelnytsky (male-deceased). Remaining in deck: 22
+[00:12:24.77] [LOG] [STREAM_QUEUE] Appended streamed candidate #6: Bohdan Khmelnytsky (male-deceased)
+[00:12:24.86] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[00:12:24.90] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Sara Tavares
+[00:12:24.93] [LOG] [STREAM_QUEUE] Appended streamed candidate #7: Sara Tavares (female-deceased)
+[00:12:25.01] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[00:12:25.04] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Ricardo Rosario
+[00:12:25.07] [LOG] [STREAM_QUEUE] Appended streamed candidate #8: Ricardo Rosario (male-alive)
+[00:12:25.17] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[00:12:25.20] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-alive. Person: Yelena Isinbayeva
+[00:12:25.24] [LOG] [STREAM_QUEUE] Appended streamed candidate #9: Yelena Isinbayeva (female-alive)
+[00:12:25.67] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[00:12:26.23] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
+[00:12:26.26] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: 408
+[00:12:26.28] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: 408
+[00:12:26.31] [WARN] [WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: 408. Invoking backup fallback...
+[00:12:26.33] [LOG] [CATALOG_DECK] Dealt candidate: Pablo Picasso (male-deceased). Remaining in deck: 21
+[00:12:26.36] [LOG] [STREAM_QUEUE] Appended streamed candidate #10: Pablo Picasso (male-deceased)
+[00:12:26.39] [LOG] [STREAM_QUEUE_COMPLETE] Background stream queue finished. Cached or loaded 10 total items.
+[00:12:26.42] [LOG] [LOAD_SESSION_TIMING] Total stream load elapsed (since launch): 18804ms
+[00:12:28.10] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[00:12:28.13] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 2/10
+[00:12:28.18] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1793232727_3554","trigger_button":"next_after_check","new_language":"uk","game_mode":"open","remaining_in_session":8,"is_preloading":false,"preloaded_person_name":"Jane Birkin","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:28.21] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[00:12:28.24] [LOG] [LOAD_NEXT_PERSON] Loading next person from session: Jane Birkin
+[00:12:28.26] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Jane Birkin
+[00:12:28.29] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[00:12:28.32] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[00:12:28.35] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Jane Birkin
+[00:12:28.37] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Jane_Birkin07.JPG/960px-Jane_Birkin07.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[00:12:28.51] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[00:12:28.54] [LOG] [LOAD_PERSON_SUCCESS] Successfully loaded person: Jane Birkin (Path: preload_assigned_successfully)
+[00:12:28.56] [LOG] [UI_UPDATE] updateUI called for person: Jane Birkin
+[00:12:28.59] [LOG] [STATE_CHANGE] Attempt start time set to 1793232748594 for person: Jane Birkin. Saved to localStorage.
+[00:12:28.65] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q212873","person_name":"Jane Birkin","new_language":"uk","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:28.67] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Jane Birkin is now cleared as it's either used or failed assign.
+[00:12:28.71] [LOG] [PRELOAD] Starting preload for: David Kriel
+[00:12:28.74] [LOG] [COMMONS_API] Fetching image URL for file: David Kriel 2023.jpg
+[00:12:28.79] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[00:12:28.82] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:12:28.85] [LOG] [PHOTO_STATUS] Loaded photos in session: 5, Remaining in sessionList: 7, Preloaded: None or no label
+[00:12:28.87] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[00:12:29.22] [LOG] [COMMONS_API_SUCCESS] Got image URL (width ~600px): https://upload.wikimedia.org/wikipedia/commons/1/10/David_Kriel_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 479ms
+[00:12:29.39] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly: https://upload.wikimedia.org/wikipedia/commons/1/10/David_Kriel_2023.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled for David Kriel
+[00:12:29.42] [LOG] [PRELOAD] Preloading process attempt finished.
+[00:12:29.95] [LOG] [USER_ACTION] Status selected: Dead
+[00:12:30.12] [LOG] [SHEETS_SENT] Dispatched anonymized event "next_photo_requested" to Google Sheets (Spam: false)
+[00:12:30.60] [LOG] [USER_ACTION] "Check" button clicked.
+[00:12:30.63] [LOG] [GAME_STATE] Attempt 3/10. Total guesses this game: 3.
+[00:12:30.66] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: dead
+[00:12:30.69] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[00:12:30.72] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1,1]
+[00:12:30.74] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 2 seconds (2044ms). Start: 1793232748594, End: 1793232750638
+[00:12:30.77] [LOG] [STATE_CHANGE] Attempt duration 2s added. Saved to localStorage. Durations: [7,3,2]
+[00:12:30.83] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1793232727_3554","attempt_number_in_session":3,"time_for_attempt_seconds":2,"attempt_result":1,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:30.89] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q212873","person_name":"Jane Birkin","game_mode":"open","actual_gender":"female","guessed_status":"dead","actual_status":"dead","is_status_correct":1,"is_overall_correct":1,"attempt_number":3,"new_language":"uk","debug_mode":true,"telegram_user_id":"anon_guest","ga_session_id":"1793232727_3554","session_id":"1793232727_3554","language":"uk","current_theme":"night"}
+[00:12:30.94] [LOG] [CHECK_UI] Guess was CORRECT.
+[00:12:30.97] [LOG] [CHECK_UI] Stats display updated.
+[00:12:31.00] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[00:12:31.04] [LOG] [UI_UPDATE] updateUI called for person: Jane Birkin
+[00:12:31.07] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 3 Max: 10 IsInitialCall: false
+[00:12:31.10] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[00:12:31.14] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, mode=open
+[00:12:31.18] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[00:12:31.20] [LOG] [PHOTO_STATUS] Loaded photos in session: 6, Remaining in sessionList: 7, Preloaded: David Kriel
+[00:12:31.26] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[00:12:32.81] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[00:12:33.34] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
