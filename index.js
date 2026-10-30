@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.6';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.7';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -76,6 +76,28 @@ function getActiveSheetsWebhookUrl() {
 
 googleSheetsWebhookUrl = getActiveSheetsWebhookUrl();
 
+// Sheets Logging Mode (Option 2): 'summary' (1 game = 1 row) vs 'detailed' (all micro events)
+let sheetsLoggingMode = safeGetItem('sheets_logging_mode') || 'summary';
+let gameSessionStartTime = Date.now();
+let sessionGuessedPersons = [];
+let sessionFindNewClicks = 0;
+let currentSessionLocalStartTime = '';
+
+function formatGuessHistoryString() {
+    if (!guessResultsHistory || guessResultsHistory.length === 0) return '';
+    return guessResultsHistory.map((res, idx) => {
+        const dur = (attemptDurations && attemptDurations[idx] !== undefined) ? attemptDurations[idx] : 0;
+        const icon = res === 1 ? '✅' : '❌';
+        return `${icon}(${dur}s)`;
+    }).join(' ');
+}
+
+function formatDurationSeconds(totalSeconds) {
+    if (isNaN(totalSeconds) || totalSeconds < 0) return '0:00';
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
 
 try {
     if (window.diagnosticsEnabled) {
@@ -1100,6 +1122,15 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         return;
     }
 
+    // In 'summary' mode (1 game = 1 row), send ONLY end-of-game summary, unfinished reports, or manual test
+    if (sheetsLoggingMode === 'summary') {
+        const isSummaryEvent = (eventName === 'game_over' || eventName === 'game_unfinished_report' || eventName === 'test_connection');
+        if (!isSummaryEvent) {
+            console.log(`[SHEETS_SUMMARY_FILTER] Bypassed micro-event "${eventName}" in 1-Game=1-Row summary mode.`);
+            return;
+        }
+    }
+
     // Anti-spam detection: If user clicks 'New Game' 10+ times without making any guesses
     let isSpam = false;
     let spamReason = '';
@@ -1121,6 +1152,21 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
     const anonName = anonymizePlayerName(telegramUserName, anonId);
     const osType = simplifyUserAgent(navigator.userAgent || '');
 
+    // Rich Session Summary Data (matches Screenshot 2)
+    const historyString = formatGuessHistoryString() || (eventParams.attempts_history_string || '');
+    const sessionDurationSec = gameSessionStartTime ? Math.round((Date.now() - gameSessionStartTime) / 1000) : (eventParams.duration_seconds || 0);
+    const durationFormatted = formatDurationSeconds(sessionDurationSec);
+    const totalActiveTime = (attemptDurations && attemptDurations.length > 0)
+        ? attemptDurations.reduce((sum, d) => sum + (Number(d) || 0), 0)
+        : (eventParams.active_time_seconds || 0);
+    const personsList = (sessionGuessedPersons && sessionGuessedPersons.length > 0)
+        ? sessionGuessedPersons.join(', ')
+        : (eventParams.person_name || currentPerson?.personLabel?.value || '');
+
+    const attemptsCountDisplay = currentAttempts > 0 
+        ? `${currentAttempts}/${maxAttempts}` 
+        : (eventParams.attempt_number || `${maxAttempts}/${maxAttempts}`);
+
     const payload = {
         token: GOOGLE_SHEETS_SECURITY_TOKEN,
         timestamp_iso: now.toISOString(),
@@ -1134,11 +1180,12 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         user_agent: osType,
         
         event_name: eventName,
+        status: (eventName === 'game_over' || eventName === 'test_connection') ? 'game_completed' : (eventName === 'game_unfinished_report' ? 'unfinished' : eventName),
         telegram_user_id: anonId,
         telegram_user_name: anonName,
         session_id: currentSessionId || eventParams.session_id || '',
         
-        person_name: eventParams.person_name || currentPerson?.personLabel?.value || '',
+        person_name: personsList,
         person_id: eventParams.person_id || (currentPerson?.person?.value ? currentPerson.person.value.split('/').pop() : ''),
         
         guess_gender: eventParams.guessed_gender || userGenderGuess || '',
@@ -1147,15 +1194,28 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         actual_status: eventParams.actual_status || '',
         
         is_correct: eventParams.is_overall_correct !== undefined ? eventParams.is_overall_correct : (eventParams.attempt_result !== undefined ? eventParams.attempt_result : ''),
-        duration_seconds: eventParams.time_for_attempt_seconds !== undefined ? eventParams.time_for_attempt_seconds : (eventParams.duration_seconds !== undefined ? eventParams.duration_seconds : ''),
-        attempt_number: eventParams.attempt_number_in_session || eventParams.attempt_number || currentAttempts || '',
+        duration_seconds: sessionDurationSec,
+        duration_formatted: durationFormatted,
+        session_duration: durationFormatted,
+        active_time_seconds: totalActiveTime,
+        attempt_number: attemptsCountDisplay,
+        attempts_display: attemptsCountDisplay,
         
-        successful_guesses: successfulGuesses,
-        failed_guesses: failedGuesses,
-        success_rate: `${totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0}%`,
+        successful_guesses: successfulGuesses !== undefined ? successfulGuesses : (eventParams.successful_guesses || 0),
+        failed_guesses: failedGuesses !== undefined ? failedGuesses : (eventParams.failed_guesses || 0),
+        success_rate: eventParams.success_rate || `${totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0}%`,
         language: selectedLanguage,
+        player_language: selectedLanguage,
         game_mode: gameMode,
         current_theme: isNight ? 'night' : 'day',
+        
+        // Exact formatting matching Screenshot 2:
+        attempts_history: historyString,
+        attempts_history_string: historyString,
+        history: historyString,
+        start_time_local: currentSessionLocalStartTime || playerLocalStartTimeString || now.toLocaleString(),
+        find_new_clicks: sessionFindNewClicks,
+        logging_mode: sheetsLoggingMode,
         
         is_spam: isSpam,
         spam_reason: spamReason,
@@ -1539,6 +1599,25 @@ function updateLanguage() {
     };
     const forceReloadBtn = document.getElementById('force-reload-btn');
     if (forceReloadBtn) forceReloadBtn.textContent = forceReloadTexts[selectedLanguage] || forceReloadTexts.en;
+
+    const sheetsModeLabel = document.getElementById('sheets-mode-label');
+    if (sheetsModeLabel) {
+        sheetsModeLabel.textContent = selectedLanguage === 'ru' 
+            ? 'Режим таблицы:' 
+            : (selectedLanguage === 'uk' ? 'Режим таблиці:' : 'Sheets Mode:');
+    }
+    const sheetsModeSummaryBtn = document.getElementById('sheets-mode-summary-btn');
+    if (sheetsModeSummaryBtn) {
+        sheetsModeSummaryBtn.textContent = selectedLanguage === 'ru' 
+            ? '📊 1 игра = 1 строка' 
+            : (selectedLanguage === 'uk' ? '📊 1 гра = 1 рядок' : '📊 1 Game = 1 Row');
+    }
+    const sheetsModeDetailedBtn = document.getElementById('sheets-mode-detailed-btn');
+    if (sheetsModeDetailedBtn) {
+        sheetsModeDetailedBtn.textContent = selectedLanguage === 'ru' 
+            ? '⚙️ Все события' 
+            : (selectedLanguage === 'uk' ? '⚙️ Усі події' : '⚙️ All Events');
+    }
 
     // Update dynamic version badge color and data source indicator (Green when OK, Reddish when fallback/error)
     updateDataSourceIndicator();
@@ -3491,6 +3570,10 @@ function startNewGame() {
     
     const playerLocalStartTimeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds} UTC${offsetSign}${offsetHoursAbs.toString().padStart(2, '0')}:${offsetMinutesAbs.toString().padStart(2, '0')}`;
     console.log(`[GAME_FLOW] Player local start time for GA: ${playerLocalStartTimeString}`);
+    gameSessionStartTime = Date.now();
+    sessionGuessedPersons = [];
+    sessionFindNewClicks = 0;
+    currentSessionLocalStartTime = playerLocalStartTimeString;
 
     sendGAEvent('new_game_started', {
         new_language: selectedLanguage, 
@@ -3540,6 +3623,7 @@ function startNewGame() {
 
 document.getElementById('next-photo').addEventListener('click', () => {
     autoCollapseControlsOnGameplay();
+    sessionFindNewClicks++;
     console.log('[USER_ACTION] "Find New Photo" button clicked.');
     if (isCurrentlyPreloading) {
         console.log("[PRELOAD_CANCEL] User clicked 'Find New Photo', cancelling current preload if any.");
@@ -3615,6 +3699,9 @@ document.getElementById('check-btn').addEventListener('click', () => {
     console.log(`[CHECK_ACTION] Guess result - Gender Correct: ${isGenderCorrect} (Mode: ${gameMode}), Status Correct: ${isStatusCorrect}, Overall Correct: ${isOverallCorrect}`);
     
     guessResultsHistory.push(isOverallCorrect ? 1 : 0);
+    if (currentPerson && currentPerson.personLabel && currentPerson.personLabel.value) {
+        sessionGuessedPersons.push(currentPerson.personLabel.value);
+    }
     localStorage.setItem('guessResultsHistory', JSON.stringify(guessResultsHistory));
     console.log(`[STATE_CHANGE] Guess result (${isOverallCorrect ? 1 : 0}) added to success/fail history. Saved to localStorage. History:`, guessResultsHistory);
     
@@ -3923,20 +4010,26 @@ function setupDiagnosticsPanel() {
                 sheetsStatus.classList.remove('hidden', 'text-error');
                 sheetsStatus.classList.add('text-spirit-violet');
             }
+            const isSummary = sheetsLoggingMode === 'summary';
             sendToGoogleSheet('test_connection', {
-                person_name: 'Тестовий Персонаж',
+                person_name: isSummary ? 'Тестова гра (Test Session)' : 'Тестовий Персонаж (Test Person)',
                 person_id: 'Q999999',
                 guessed_gender: 'male',
                 actual_gender: 'male',
                 guessed_status: 'alive',
                 actual_status: 'alive',
                 is_overall_correct: 1,
-                time_for_attempt_seconds: 1,
-                attempt_number: 1
+                time_for_attempt_seconds: 3,
+                attempt_number: isSummary ? '10/10' : 1,
+                successful_guesses: 8,
+                failed_guesses: 2,
+                success_rate: '80%'
             });
             setTimeout(() => {
                 if (sheetsStatus) {
-                    sheetsStatus.textContent = 'Тест надіслано! Перевірте Google Таблицю 🚀';
+                    sheetsStatus.textContent = isSummary 
+                        ? 'Тестовий підсумок надіслано! 🚀 (1 рядок)' 
+                        : 'Тестову подію надіслано! Перевірте Google Таблицю 🚀';
                     sheetsStatus.classList.remove('text-spirit-violet');
                     sheetsStatus.classList.add('text-neon-cyan');
                 }
@@ -3946,6 +4039,61 @@ function setupDiagnosticsPanel() {
             }, 4000);
         });
     }
+
+    // Google Sheets Mode toggle buttons (Summary vs Detailed)
+    const sheetsModeSummaryBtn = document.getElementById('sheets-mode-summary-btn');
+    const sheetsModeDetailedBtn = document.getElementById('sheets-mode-detailed-btn');
+
+    function updateSheetsModeButtons() {
+        if (!sheetsModeSummaryBtn || !sheetsModeDetailedBtn) return;
+        const isSummary = sheetsLoggingMode === 'summary';
+        const activeClass = 'bg-neon-cyan/20 text-neon-cyan border-neon-cyan/40 shadow-[0_0_8px_rgba(0,240,255,0.2)]';
+        const inactiveClass = 'text-on-surface-variant hover:text-on-surface border-transparent';
+
+        if (isSummary) {
+            sheetsModeSummaryBtn.className = `px-2 py-0.5 rounded text-[9px] font-bold transition-all border ${activeClass}`;
+            sheetsModeDetailedBtn.className = `px-2 py-0.5 rounded text-[9px] font-bold transition-all border ${inactiveClass}`;
+        } else {
+            sheetsModeSummaryBtn.className = `px-2 py-0.5 rounded text-[9px] font-bold transition-all border ${inactiveClass}`;
+            sheetsModeDetailedBtn.className = `px-2 py-0.5 rounded text-[9px] font-bold transition-all border ${activeClass}`;
+        }
+    }
+
+    if (sheetsModeSummaryBtn) {
+        sheetsModeSummaryBtn.addEventListener('click', () => {
+            sheetsLoggingMode = 'summary';
+            try {
+                localStorage.setItem('sheets_logging_mode', 'summary');
+            } catch (e) {}
+            updateSheetsModeButtons();
+            console.log('[SHEETS_MODE] Switched Google Sheets logging mode to: SUMMARY (1 game = 1 row)');
+            if (sheetsStatus) {
+                sheetsStatus.textContent = 'Режим: 1 гра = 1 рядок 📊';
+                sheetsStatus.classList.remove('hidden', 'text-error', 'text-spirit-violet');
+                sheetsStatus.classList.add('text-neon-cyan');
+                setTimeout(() => { if (sheetsStatus) sheetsStatus.textContent = ''; }, 2500);
+            }
+        });
+    }
+
+    if (sheetsModeDetailedBtn) {
+        sheetsModeDetailedBtn.addEventListener('click', () => {
+            sheetsLoggingMode = 'detailed';
+            try {
+                localStorage.setItem('sheets_logging_mode', 'detailed');
+            } catch (e) {}
+            updateSheetsModeButtons();
+            console.log('[SHEETS_MODE] Switched Google Sheets logging mode to: DETAILED (all micro-events logged)');
+            if (sheetsStatus) {
+                sheetsStatus.textContent = 'Режим: Усі події ⚙️';
+                sheetsStatus.classList.remove('hidden', 'text-error');
+                sheetsStatus.classList.add('text-spirit-violet');
+                setTimeout(() => { if (sheetsStatus) sheetsStatus.textContent = ''; }, 2500);
+            }
+        });
+    }
+
+    updateSheetsModeButtons();
 
     const runDiagBtn = document.getElementById('run-diag-btn');
     if (runDiagBtn) {

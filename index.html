@@ -344,6 +344,22 @@
                         <button id="test-sheets-webhook-btn" class="bg-spirit-violet/20 border border-spirit-violet/40 text-spirit-violet text-[10px] font-mono px-2.5 py-1 rounded-lg hover:bg-spirit-violet/30 active:scale-95 transition-all">Тест</button>
                     </div>
                     <div id="sheets-webhook-status" class="text-[9px] font-mono text-on-surface-variant/70"></div>
+                    
+                    <!-- Logging Mode Toggle: Summary (1 Game = 1 Row) vs Detailed (All Events) -->
+                    <div class="flex items-center justify-between pt-1.5 border-t border-white/5 text-[10px] font-mono">
+                        <span class="text-on-surface-variant flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">format_list_bulleted</span>
+                            <span id="sheets-mode-label">Режим таблиці:</span>
+                        </span>
+                        <div class="flex items-center gap-1 bg-surface-container-lowest p-0.5 rounded-lg border border-white/10">
+                            <button id="sheets-mode-summary-btn" type="button" class="px-2 py-0.5 rounded text-[9px] font-bold transition-all bg-neon-cyan/20 text-neon-cyan border border-neon-cyan/40 shadow-[0_0_8px_rgba(0,240,255,0.2)]" title="1 гра = 1 рядок (підсумковий звіт за гру)">
+                                📊 1 гра = 1 рядок
+                            </button>
+                            <button id="sheets-mode-detailed-btn" type="button" class="px-2 py-0.5 rounded text-[9px] font-bold transition-all text-on-surface-variant hover:text-on-surface border border-transparent" title="Записувати кожне мікро-подію (кліки, фото, відповіді)">
+                                ⚙️ Усі події
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Data Source Status Section in Diagnostics -->
@@ -364,7 +380,7 @@
     </div>
 
     <!-- App Version Badge with Live Data Source Color Indicator -->
-    <div id="app-version-badge" class="font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.35)]" title="Джерело даних: Wikidata ✅">v2.3.6</div>
+    <div id="app-version-badge" class="font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.35)]" title="Джерело даних: Wikidata ✅">v2.3.7</div>
 
     <!-- Help / Instructions Modal Dialog -->
     <div id="help-modal" class="fixed inset-0 bg-void-black/80 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 transition-all duration-300">
