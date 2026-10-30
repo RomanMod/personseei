@@ -25,6 +25,7 @@ const SECURITY_TOKEN = "ipersonsee_safe_2026";
 // Column Headers for Sheet 1: «Общая» (Summary / Overview)
 const SUMMARY_HEADERS = [
   'Статус',
+  'Платформа',
   'Telegram ID',
   'Имя игрока',
   'Режим',
@@ -80,16 +81,20 @@ function getOrCreateSheet(spreadsheet, sheetName, headers, headerBgColor) {
   
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
-    try {
-      var headerRange = sheet.getRange(1, 1, 1, headers.length);
-      headerRange.setBackground(headerBgColor || '#1b5e20');
-      headerRange.setFontColor('#FFFFFF');
-      headerRange.setFontWeight('bold');
-      headerRange.setHorizontalAlignment('center');
-      sheet.setFrozenRows(1);
-    } catch (e) {
-      logger('Header styling notice: ' + e.message);
-    }
+  } else {
+    // Keep row 1 headers up to date with new columns (e.g. Платформа)
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  }
+
+  try {
+    var headerRange = sheet.getRange(1, 1, 1, headers.length);
+    headerRange.setBackground(headerBgColor || '#1b5e20');
+    headerRange.setFontColor('#FFFFFF');
+    headerRange.setFontWeight('bold');
+    headerRange.setHorizontalAlignment('center');
+    sheet.setFrozenRows(1);
+  } catch (e) {
+    logger('Header styling notice: ' + e.message);
   }
   return sheet;
 }
@@ -196,6 +201,7 @@ function doPost(e) {
       
       const summaryRow = [
         statusLabel,
+        data.platform || 'unknown',
         data.telegram_user_id || 'anon_guest',
         data.telegram_user_name || 'Player_guest',
         data.game_mode || 'open',
@@ -612,6 +618,7 @@ function getGA4Data() {
 
     values.push([
       session.status,
+      session.platform || 'unknown',
       session.telegramId,
       pseudoName,
       session.gameMode,
