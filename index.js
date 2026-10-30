@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.7';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.8';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -1122,14 +1122,20 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         return;
     }
 
+    const isSummaryEvent = (eventName === 'game_over' || eventName === 'game_unfinished_report' || eventName === 'test_connection');
+
     // In 'summary' mode (1 game = 1 row), send ONLY end-of-game summary, unfinished reports, or manual test
     if (sheetsLoggingMode === 'summary') {
-        const isSummaryEvent = (eventName === 'game_over' || eventName === 'game_unfinished_report' || eventName === 'test_connection');
         if (!isSummaryEvent) {
             console.log(`[SHEETS_SUMMARY_FILTER] Bypassed micro-event "${eventName}" in 1-Game=1-Row summary mode.`);
             return;
         }
     }
+
+    // Determine target sheet: 'summary' (Общая), 'detailed' (Подробности), or 'both'
+    const targetSheet = isSummaryEvent 
+        ? (sheetsLoggingMode === 'detailed' ? 'both' : 'summary')
+        : 'detailed';
 
     // Anti-spam detection: If user clicks 'New Game' 10+ times without making any guesses
     let isSpam = false;
@@ -1194,11 +1200,13 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         actual_status: eventParams.actual_status || '',
         
         is_correct: eventParams.is_overall_correct !== undefined ? eventParams.is_overall_correct : (eventParams.attempt_result !== undefined ? eventParams.attempt_result : ''),
-        duration_seconds: sessionDurationSec,
+        duration_seconds: (eventParams.time_for_attempt_seconds !== undefined) ? eventParams.time_for_attempt_seconds : sessionDurationSec,
+        time_for_attempt_seconds: eventParams.time_for_attempt_seconds !== undefined ? eventParams.time_for_attempt_seconds : (eventParams.duration_seconds !== undefined ? eventParams.duration_seconds : 0),
         duration_formatted: durationFormatted,
         session_duration: durationFormatted,
         active_time_seconds: totalActiveTime,
         attempt_number: attemptsCountDisplay,
+        attempt_number_in_session: eventParams.attempt_number_in_session !== undefined ? eventParams.attempt_number_in_session : (eventParams.attempt_number !== undefined ? eventParams.attempt_number : currentAttempts),
         attempts_display: attemptsCountDisplay,
         
         successful_guesses: successfulGuesses !== undefined ? successfulGuesses : (eventParams.successful_guesses || 0),
@@ -1209,13 +1217,14 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         game_mode: gameMode,
         current_theme: isNight ? 'night' : 'day',
         
-        // Exact formatting matching Screenshot 2:
+        // Exact formatting matching Screenshot 2 & 3:
         attempts_history: historyString,
         attempts_history_string: historyString,
         history: historyString,
         start_time_local: currentSessionLocalStartTime || playerLocalStartTimeString || now.toLocaleString(),
         find_new_clicks: sessionFindNewClicks,
         logging_mode: sheetsLoggingMode,
+        target_sheet: targetSheet,
         
         is_spam: isSpam,
         spam_reason: spamReason,
@@ -4068,7 +4077,7 @@ function setupDiagnosticsPanel() {
             updateSheetsModeButtons();
             console.log('[SHEETS_MODE] Switched Google Sheets logging mode to: SUMMARY (1 game = 1 row)');
             if (sheetsStatus) {
-                sheetsStatus.textContent = 'Режим: 1 гра = 1 рядок 📊';
+                sheetsStatus.textContent = 'Режим: «Общая» (1 гра = 1 рядок) 📊';
                 sheetsStatus.classList.remove('hidden', 'text-error', 'text-spirit-violet');
                 sheetsStatus.classList.add('text-neon-cyan');
                 setTimeout(() => { if (sheetsStatus) sheetsStatus.textContent = ''; }, 2500);
@@ -4083,9 +4092,9 @@ function setupDiagnosticsPanel() {
                 localStorage.setItem('sheets_logging_mode', 'detailed');
             } catch (e) {}
             updateSheetsModeButtons();
-            console.log('[SHEETS_MODE] Switched Google Sheets logging mode to: DETAILED (all micro-events logged)');
+            console.log('[SHEETS_MODE] Switched Google Sheets logging mode to: DETAILED (all micro-events logged to «Подробности»)');
             if (sheetsStatus) {
-                sheetsStatus.textContent = 'Режим: Усі події ⚙️';
+                sheetsStatus.textContent = 'Режим: «Подробности» (Усі події) ⚙️';
                 sheetsStatus.classList.remove('hidden', 'text-error');
                 sheetsStatus.classList.add('text-spirit-violet');
                 setTimeout(() => { if (sheetsStatus) sheetsStatus.textContent = ''; }, 2500);
