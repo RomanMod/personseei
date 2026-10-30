@@ -121,6 +121,23 @@ function formatDuration(ms) {
 }
 
 /**
+ * Функция для мгновенной ручной инициализации вкладок прямо из редактора Apps Script.
+ * Выберите "createTabsManually" в верхнем выпадающем меню Apps Script и нажмите кнопку "Выполнить" (Run).
+ * Это мгновенно создаст и красиво раскрасит вкладки «Общая» и «Подробности» в вашей таблице!
+ */
+function createTabsManually() {
+  let ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) {
+    try {
+      ss = SpreadsheetApp.openById('17vi2Ya6CfOhFpQcCKlebCa5-QAPYlCUQ2QdQIf3yzYo');
+    } catch (e) {}
+  }
+  getOrCreateSheet(ss, 'Общая', SUMMARY_HEADERS, '#1b5e20');
+  getOrCreateSheet(ss, 'Подробности', DETAILS_HEADERS, '#0b192c');
+  Logger.log('Вкладки «Общая» и «Подробности» успешно созданы и отформатированы!');
+}
+
+/**
  * Webhook Health Check (GET request)
  */
 function doGet(e) {
@@ -148,7 +165,12 @@ function doPost(e) {
     }
 
     const data = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (!ss) {
+      try {
+        ss = SpreadsheetApp.openById('17vi2Ya6CfOhFpQcCKlebCa5-QAPYlCUQ2QdQIf3yzYo');
+      } catch (err) {}
+    }
     if (!ss) {
       return ContentService.createTextOutput(JSON.stringify({
         status: 'error',
