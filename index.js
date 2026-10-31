@@ -81,7 +81,25 @@ let sheetsLoggingMode = safeGetItem('sheets_logging_mode') || 'summary';
 let gameSessionStartTime = Date.now();
 let sessionGuessedPersons = [];
 let sessionFindNewClicks = 0;
-let currentSessionLocalStartTime = '';
+function getFormattedPlayerLocalTime(d = new Date()) {
+    try {
+        const year = d.getFullYear();
+        const month = (d.getMonth() + 1).toString().padStart(2, '0');
+        const day = d.getDate().toString().padStart(2, '0');
+        const hours = d.getHours().toString().padStart(2, '0');
+        const minutes = d.getMinutes().toString().padStart(2, '0');
+        const seconds = d.getSeconds().toString().padStart(2, '0');
+        const timezoneOffsetMinutes = d.getTimezoneOffset();
+        const offsetSign = timezoneOffsetMinutes <= 0 ? '+' : '-';
+        const offsetHoursAbs = Math.floor(Math.abs(timezoneOffsetMinutes) / 60);
+        const offsetMinutesAbs = Math.abs(timezoneOffsetMinutes) % 60;
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} UTC${offsetSign}${offsetHoursAbs.toString().padStart(2, '0')}:${offsetMinutesAbs.toString().padStart(2, '0')}`;
+    } catch (e) {
+        return d.toLocaleString();
+    }
+}
+
+let currentSessionLocalStartTime = getFormattedPlayerLocalTime();
 
 function formatGuessHistoryString() {
     if (!guessResultsHistory || guessResultsHistory.length === 0) return '';
@@ -1221,7 +1239,7 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         attempts_history: historyString,
         attempts_history_string: historyString,
         history: historyString,
-        start_time_local: currentSessionLocalStartTime || playerLocalStartTimeString || now.toLocaleString(),
+        start_time_local: currentSessionLocalStartTime || (eventParams && eventParams.player_local_start_time) || getFormattedPlayerLocalTime(now),
         find_new_clicks: sessionFindNewClicks,
         logging_mode: sheetsLoggingMode,
         target_sheet: targetSheet,
