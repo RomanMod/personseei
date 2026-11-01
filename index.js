@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.3.8';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.0';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2093,6 +2093,173 @@ async function isBlackAndWhite(imageUrl) {
     });
 }
 
+// Inspect filename/URL to filter out 18+ (NSFW), monuments, statues, art drawings, animals, and teams/groups
+function isForbiddenImageName(urlOrFilename) {
+    if (!urlOrFilename) return false;
+    let clean = '';
+    try {
+        clean = decodeURIComponent(String(urlOrFilename)).toLowerCase();
+    } catch (e) {
+        clean = String(urlOrFilename).toLowerCase();
+    }
+
+    // 18+ / NSFW keywords
+    const nsfwKeywords = [
+        'nude', 'naked', 'erotic', 'nsfw', 'xxx', 'playboy', 'penthouse',
+        'topless', 'provocative', 'bikini', 'lingerie', 'nudity', 'sensual',
+        'porn', 'penis', 'vagina', 'fetish', 'sexual', 'stripper', 'playmate',
+        '18plus', '18_plus', '18+'
+    ];
+
+    // Monuments, Sculptures, Statues, Memorials, Drawings, Non-photo art
+    const monumentArtKeywords = [
+        'statue', 'monument', 'bust', 'sculpture', 'memorial', 'plaque',
+        'relief', 'effigy', 'grave', 'tomb', 'cemetery', 'headstone', 'mausoleum',
+        'cenotaph', 'coin', 'stamp', 'banknote', 'medal', 'wax_museum', 'madame_tussaud',
+        'drawing', 'painting', 'sketch', 'cartoon', 'caricature', 'illustration',
+        'engraving', 'lithograph', 'fresco', 'mosaic', 'doll', 'action_figure',
+        'portrait_painting', 'oil_on_canvas', 'duck', 'mallard', 'bird', 'animal',
+        'equestrian_statue', 'bronze_statue', 'marble_bust'
+    ];
+
+    // Multi-person / Team / Group photos
+    const groupKeywords = [
+        'team', 'squad', 'squadra', 'roster', 'lineup', 'group', 'band',
+        'ensemble', 'delegation', 'chorus', 'orchestra', 'choir', 'cast',
+        'family', 'couple', 'duo', 'trio', 'quartet', 'members', 'with_',
+        '_and_', 'together', 'meeting', 'conference', 'audience', 'crowd',
+        'national_team', 'football_team', 'olympic_team'
+    ];
+
+    for (const kw of nsfwKeywords) {
+        if (clean.includes(kw)) {
+            console.warn(`[IMAGE_FILTER_REJECT] Rejected NSFW/18+ keyword "${kw}" in: ${urlOrFilename}`);
+            return true;
+        }
+    }
+    for (const kw of monumentArtKeywords) {
+        if (clean.includes(kw)) {
+            console.warn(`[IMAGE_FILTER_REJECT] Rejected Monument/Statue/Art keyword "${kw}" in: ${urlOrFilename}`);
+            return true;
+        }
+    }
+    for (const kw of groupKeywords) {
+        if (clean.includes(kw)) {
+            console.warn(`[IMAGE_FILTER_REJECT] Rejected Group/Team keyword "${kw}" in: ${urlOrFilename}`);
+            return true;
+        }
+    }
+    return false;
+}
+
+// Single face verification: checks that photo has exactly ONE human face
+async function verifySingleFace(imgElement) {
+    if (!imgElement) return { valid: false, reason: 'missing_element', faceCount: 0 };
+
+    // 1. Aspect ratio sanity check: single portrait is rarely ultra-wide (>1.85) or ultra-tall (<0.45)
+    if (imgElement.naturalWidth && imgElement.naturalHeight) {
+        const ratio = imgElement.naturalWidth / imgElement.naturalHeight;
+        if (ratio > 1.85) {
+            console.warn(`[FACE_VERIFY_REJECT] Ultra-wide image (aspect ratio ${ratio.toFixed(2)} > 1.85). Typically team/group or ceremony photo.`);
+            return { valid: false, reason: 'ultra_wide_aspect_ratio', faceCount: 2 };
+        }
+        if (ratio < 0.45) {
+            console.warn(`[FACE_VERIFY_REJECT] Ultra-narrow image (aspect ratio ${ratio.toFixed(2)} < 0.45). Typically tall monument or column.`);
+            return { valid: false, reason: 'ultra_narrow_aspect_ratio', faceCount: 0 };
+        }
+    }
+
+    // 2. Native Shape Detection API (window.FaceDetector) - Chromium & Android Chrome WebView (Telegram on Android)
+    if (typeof window !== 'undefined' && 'FaceDetector' in window) {
+        try {
+            // @ts-ignore
+            const detector = new window.FaceDetector({ maxDetectedFaces: 10, fastMode: true });
+            const detectedFaces = await detector.detect(imgElement);
+            const count = Array.isArray(detectedFaces) ? detectedFaces.length : 0;
+            console.log(`[FACE_DETECTOR_NATIVE] FaceDetector detected ${count} face(s) in image.`);
+            if (count === 1) {
+                return { valid: true, reason: 'single_face_confirmed', faceCount: 1 };
+            } else if (count === 0) {
+                console.warn(`[FACE_VERIFY_REJECT] 0 faces detected by native FaceDetector (monument/duck/landscape/no-face).`);
+                return { valid: false, reason: 'zero_faces', faceCount: 0 };
+            } else {
+                console.warn(`[FACE_VERIFY_REJECT] Multiple faces detected (${count} faces > 1). Group or team photo.`);
+                return { valid: false, reason: 'multiple_faces', faceCount: count };
+            }
+        } catch (detectorErr) {
+            console.warn(`[FACE_DETECTOR_NATIVE_FALLBACK] Native FaceDetector error (${detectorErr.message}), proceeding to canvas skin analyzer.`);
+        }
+    }
+
+    // 3. Fallback: Fast Canvas Skin-Tone & Spatial Face Distribution Analysis
+    try {
+        const canvas = document.createElement('canvas');
+        const sampleW = 120;
+        const sampleH = 120;
+        canvas.width = sampleW;
+        canvas.height = sampleH;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return { valid: true, reason: 'canvas_unsupported', faceCount: 1 };
+
+        ctx.drawImage(imgElement, 0, 0, sampleW, sampleH);
+        const imgData = ctx.getImageData(0, 0, sampleW, sampleH).data;
+
+        let skinPixels = 0;
+        let leftThirdSkin = 0;
+        let rightThirdSkin = 0;
+        let centerThirdSkin = 0;
+        let upperHalfSkin = 0;
+
+        for (let y = 0; y < sampleH; y++) {
+            for (let x = 0; x < sampleW; x++) {
+                const idx = (y * sampleW + x) * 4;
+                const r = imgData[idx];
+                const g = imgData[idx + 1];
+                const b = imgData[idx + 2];
+
+                // YCbCr skin color transformation
+                const yVal = 0.299 * r + 0.587 * g + 0.114 * b;
+                const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+                const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+
+                // Human skin tone standard range (all skin types): Cb in [77, 127], Cr in [133, 173]
+                if (cb >= 77 && cb <= 127 && cr >= 133 && cr <= 173 && yVal > 40) {
+                    skinPixels++;
+                    if (y < sampleH * 0.5) upperHalfSkin++;
+                    if (x < sampleW * 0.33) leftThirdSkin++;
+                    else if (x > sampleW * 0.67) rightThirdSkin++;
+                    else centerThirdSkin++;
+                }
+            }
+        }
+
+        const totalPixels = sampleW * sampleH;
+        const skinPercentage = (skinPixels / totalPixels) * 100;
+
+        // Statues (grey bronze/stone), monuments, buildings, ducks, animals have < 2.5% skin tones
+        if (skinPercentage < 2.5) {
+            console.warn(`[FACE_CANVAS_REJECT] Very low skin-tone coverage (${skinPercentage.toFixed(2)}% < 2.5%). Likely statue, monument, duck, or non-human entity.`);
+            return { valid: false, reason: 'insufficient_human_skin', faceCount: 0 };
+        }
+
+        // Multiple separated skin clusters on opposite borders (team/group bimodal spread)
+        if (skinPixels > 100) {
+            const leftRatio = leftThirdSkin / skinPixels;
+            const rightRatio = rightThirdSkin / skinPixels;
+            const centerRatio = centerThirdSkin / skinPixels;
+            if (leftRatio > 0.36 && rightRatio > 0.36 && centerRatio < 0.28) {
+                console.warn(`[FACE_CANVAS_REJECT] Bimodal horizontal skin spread (left: ${(leftRatio * 100).toFixed(0)}%, right: ${(rightRatio * 100).toFixed(0)}%). Team/group photo.`);
+                return { valid: false, reason: 'bimodal_team_spread', faceCount: 2 };
+            }
+        }
+
+        return { valid: true, reason: 'skin_analysis_passed', faceCount: 1 };
+    } catch (canvasErr) {
+        console.warn(`[FACE_CANVAS_WARN] Canvas analysis bypassed (${canvasErr.message}).`);
+        return { valid: true, reason: 'canvas_tainted_pass', faceCount: 1 };
+    }
+}
+
 async function getCommonsImageUrl(fileName) {
     if (!fileName) return null;
     const cleanFileName = decodeURIComponent(fileName).replace(/^File:/i, '').trim();
@@ -2635,11 +2802,12 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
     console.log(`[WIKIDATA_FETCH] Attempting to fetch person data. Random: ${useRandom}, Category: ${categoryKey}, CacheKey: ${cacheKey}`);
 
     if (wikidataCache[cacheKey] && wikidataCache[cacheKey].length > 0) {
-        // Filter out broken upload.wikimedia.org hashes from old caches
+        // Filter out broken upload.wikimedia.org hashes and forbidden/monument/team images from old caches
         wikidataCache[cacheKey] = wikidataCache[cacheKey].filter(p => 
             p && p.personLabel && p.personLabel.value && 
             p.image && p.image.value && 
-            !p.image.value.includes('/wikipedia/commons/b/b5/191125_Taylor_Swift')
+            !p.image.value.includes('/wikipedia/commons/b/b5/191125_Taylor_Swift') &&
+            !isForbiddenImageName(p.image.value)
         );
 
         if (wikidataCache[cacheKey].length > 0) {
@@ -2677,11 +2845,12 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         attempts++;
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
-        // Fast optimized SPARQL: start from wdt:P18 and wdt:P21 to bypass massive wd:Q5 join
-        query = `#TOOL: iPersonSeeTrivia/2.3.6 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        // Strict SPARQL query: ?person wdt:P31 wd:Q5 enforces Human (eliminates animals/ducks, monuments, objects)
+        query = `#TOOL: iPersonSeeTrivia/2.4.0 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
-                ?person wdt:P18 ?image;
+                ?person wdt:P31 wd:Q5;
+                        wdt:P18 ?image;
                         wdt:P21 ?gender;
                         wdt:P569 ?birthDate.
                 ${genderFilter}
@@ -2752,7 +2921,8 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             clearTimeout(timeoutId);
             if (!response || !response.ok) throw new Error(`Wikidata API error: ${response ? response.status : 'network failure'}`);
             const data = await response.json();
-            const list = data.results && data.results.bindings; 
+            const rawList = data.results && data.results.bindings; 
+            const list = Array.isArray(rawList) ? rawList.filter(p => p && p.image?.value && !isForbiddenImageName(p.image.value)) : [];
             const duration = (performance.now() - start).toFixed(0);
             
             if (!list || !list.length) { 
@@ -2842,6 +3012,14 @@ async function startPreloadNextAvailablePerson() {
             }
         }
 
+        if (isForbiddenImageName(personBindingForPreload.image?.value) || isForbiddenImageName(commonsUrl)) {
+            console.warn(`[PRELOAD_FORBIDDEN_SKIP] Skipping forbidden/monument/team/18+ image for ${personBindingForPreload.personLabel.value}.`);
+            sessionList.shift();
+            removePersonFromCache(personBindingForPreload);
+            isCurrentlyPreloading = false;
+            return;
+        }
+
         if (settings.excludeBlackAndWhite) {
             const isBW = await isBlackAndWhite(commonsUrl);
             if (isBW) {
@@ -2882,11 +3060,20 @@ async function startPreloadNextAvailablePerson() {
                     reject(new Error(`Preload timed out for ${commonsUrl}`));
                 }, 5000);
                 
-                proxyImage.onload = () => {
+                proxyImage.onload = async () => {
                     if (isCompleted) return;
                     isCompleted = true;
                     cleanup();
-                    console.log(`[PRELOAD_PROXY_SUCCESS] Image preloaded successfully via proxy: ${proxyImageUrl} for ${personBindingForPreload.personLabel.value}`);
+                    const faceCheck = await verifySingleFace(proxyImage);
+                    if (!faceCheck.valid) {
+                        console.warn(`[PRELOAD_FACE_REJECT] Proxy preload face check failed (${faceCheck.reason}, faces: ${faceCheck.faceCount}) for ${personBindingForPreload.personLabel.value}`);
+                        removePersonFromCache(personBindingForPreload);
+                        sessionList.shift();
+                        preloadedPersonContainer = null;
+                        reject(new Error(`Face check failed: ${faceCheck.reason}`));
+                        return;
+                    }
+                    console.log(`[PRELOAD_PROXY_SUCCESS] Image preloaded successfully via proxy with 1 verified face: ${proxyImageUrl} for ${personBindingForPreload.personLabel.value}`);
                     preloadedPersonContainer = {
                         data: nextPersonToPreloadEntry, 
                         imageElement: proxyImage,
@@ -2912,11 +3099,20 @@ async function startPreloadNextAvailablePerson() {
                 tryProxyPreload('TIMEOUT');
             }, 6500);
 
-            preloadedImage.onload = () => {
+            preloadedImage.onload = async () => {
                 if (isCompleted) return;
                 isCompleted = true;
                 cleanup();
-                console.log(`[PRELOAD_SUCCESS] Image preloaded successfully directly: ${commonsUrl} for ${personBindingForPreload.personLabel.value}`);
+                const faceCheck = await verifySingleFace(preloadedImage);
+                if (!faceCheck.valid) {
+                    console.warn(`[PRELOAD_FACE_REJECT] Direct preload face check failed (${faceCheck.reason}, faces: ${faceCheck.faceCount}) for ${personBindingForPreload.personLabel.value}`);
+                    removePersonFromCache(personBindingForPreload);
+                    sessionList.shift();
+                    preloadedPersonContainer = null;
+                    reject(new Error(`Face check failed: ${faceCheck.reason}`));
+                    return;
+                }
+                console.log(`[PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: ${commonsUrl} for ${personBindingForPreload.personLabel.value}`);
                 preloadedPersonContainer = {
                     data: nextPersonToPreloadEntry, 
                     imageElement: preloadedImage,
@@ -3101,6 +3297,13 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                     }
                 }
                 
+                if (isForbiddenImageName(currentPersonCandidate.image?.value) || isForbiddenImageName(commonsUrl)) {
+                    console.warn(`[LOAD_PERSON_FORBIDDEN_SKIP] Skipping forbidden/monument/team/18+ image for ${currentPersonCandidate.personLabel.value}. Fetching new person.`);
+                    removePersonFromCache(currentPersonCandidate);
+                    currentPersonCandidate = await fetchPersonData(true, category);
+                    continue;
+                }
+
                 if (settings.excludeBlackAndWhite) {
                     const isBW = await isBlackAndWhite(commonsUrl);
                     if (isBW) {
@@ -3111,12 +3314,21 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 }
                 
                 await loadImageWithFallback(commonsUrl, personImage); 
+                
+                // Verify that loaded photo contains strictly ONE human face
+                const faceCheck = await verifySingleFace(personImage);
+                if (!faceCheck.valid) {
+                    console.warn(`[LOAD_PERSON_FACE_REJECT] Single face verification failed (${faceCheck.reason}, faces: ${faceCheck.faceCount}) for ${currentPersonCandidate.personLabel.value}. Discarding and retrying...`);
+                    removePersonFromCache(currentPersonCandidate);
+                    throw new Error(`Face verification failed: ${faceCheck.reason}`);
+                }
+
                 successfullyLoadedImage = true; 
                 imageLoadPathDetail = imageLoadPathDetail.includes("fallback") || imageLoadPathDetail.includes("incomplete_preload") ? "fetch_after_preload_issue_success" : "direct_fetch_success";
                 if (imageLoadPathDetail === "fetch_after_preload_issue_success") gaLoadSource = "fetch_after_preload_fail";
                 else gaLoadSource = "fetch_direct";
                 
-                console.log(`[LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched for ${currentPersonCandidate.personLabel.value}. Path: ${imageLoadPathDetail}`);
+                console.log(`[LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched & verified with 1 face for ${currentPersonCandidate.personLabel.value}. Path: ${imageLoadPathDetail}`);
                 break; 
 
             } catch (error) { 
@@ -3880,25 +4092,40 @@ document.getElementById('new-game').addEventListener('click', () => {
     startNewGame();
 });
 
+let lastReportedUnfinishedSessionId = null;
+let lastReportedUnfinishedTime = 0;
+
 function reportProgressOnLeave(trigger) {
-    if (currentSessionId && currentAttempts > 0 && currentAttempts < maxAttempts) {
-        console.log(`[LIFE_CYCLE_REPORT] Unfinished game detected inside ${trigger}. Attempts/max: ${currentAttempts}/${maxAttempts}. Reporting to GA...`);
-        sendGAEvent('game_unfinished_report', {
-            session_id: currentSessionId,
-            current_attempts: currentAttempts,
-            total_attempts_max: maxAttempts,
-            successful_guesses: successfulGuesses,
-            failed_guesses: failedGuesses,
-            success_rate: `${totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0}%`,
-            new_language: selectedLanguage,
-            game_mode: gameMode,
-            current_theme: isNight ? 'night' : 'day',
-            trigger_event: trigger,
-            platform: detectClientPlatform()
-        });
-    } else {
+    if (!currentSessionId || currentAttempts <= 0 || currentAttempts >= maxAttempts) {
         console.log(`[LIFE_CYCLE_REPORT] No unfinished game report needed inside ${trigger} callback (attempts active: ${currentAttempts > 0 && currentAttempts < maxAttempts}).`);
+        return;
     }
+
+    const now = Date.now();
+    // Telegram Mini App closing via "✕" fires both 'visibilitychange' and 'pagehide' within milliseconds.
+    // Prevent duplicate notifications within 10 seconds for the same unfinished session:
+    if (lastReportedUnfinishedSessionId === currentSessionId && (now - lastReportedUnfinishedTime) < 10000) {
+        console.log(`[LIFE_CYCLE_REPORT] Deduplicated leave report for session "${currentSessionId}" from trigger "${trigger}" (already sent ${now - lastReportedUnfinishedTime}ms ago).`);
+        return;
+    }
+
+    lastReportedUnfinishedSessionId = currentSessionId;
+    lastReportedUnfinishedTime = now;
+
+    console.log(`[LIFE_CYCLE_REPORT] Unfinished game detected inside ${trigger}. Attempts/max: ${currentAttempts}/${maxAttempts}. Reporting to GA...`);
+    sendGAEvent('game_unfinished_report', {
+        session_id: currentSessionId,
+        current_attempts: currentAttempts,
+        total_attempts_max: maxAttempts,
+        successful_guesses: successfulGuesses,
+        failed_guesses: failedGuesses,
+        success_rate: `${totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0}%`,
+        new_language: selectedLanguage,
+        game_mode: gameMode,
+        current_theme: isNight ? 'night' : 'day',
+        trigger_event: trigger,
+        platform: detectClientPlatform()
+    });
 }
 
 // Setup Help / Instructions Modal dialog event listeners
