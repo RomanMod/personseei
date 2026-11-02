@@ -1512,37 +1512,53 @@ function updateDataSourceIndicator(status, details = '') {
     const prefix = versionPrefixes[selectedLanguage] || 'Version v';
     const verText = `${prefix}${CURRENT_APP_VERSION}`;
 
-    const isHealthy = currentDataSourceStatus === 'healthy' || currentDataSourceStatus === 'live' || currentDataSourceStatus === 'cache';
+    const isLive = currentDataSourceStatus === 'healthy' || currentDataSourceStatus === 'live';
+    const isCacheOrCatalog = currentDataSourceStatus === 'cache' || currentDataSourceStatus === 'fallback';
+    const isDeviceOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
 
-    const healthyLabel = selectedLanguage === 'ru'
-        ? (currentDataSourceStatus === 'cache' ? 'Wikidata (Кэш) ✅' : 'Wikidata (Онлайн) ✅')
-        : (selectedLanguage === 'uk'
-            ? (currentDataSourceStatus === 'cache' ? 'Wikidata (Кеш) ✅' : 'Wikidata (Онлайн) ✅')
-            : (currentDataSourceStatus === 'cache' ? 'Wikidata (Cache) ✅' : 'Wikidata (Live) ✅'));
+    let activeLabel = 'Wikidata (Онлайн) ✅';
+    let statusTheme = 'emerald'; // 'emerald' | 'amber' | 'rose'
 
-    const fallbackLabel = selectedLanguage === 'ru'
-        ? 'Резервный каталог (сбой Wikidata) ⚠️'
-        : (selectedLanguage === 'uk'
-            ? 'Резервний каталог (збій Wikidata) ⚠️'
-            : 'Offline Backup (Wikidata offline) ⚠️');
-
-    const activeLabel = isHealthy ? healthyLabel : fallbackLabel;
+    if (isDeviceOffline) {
+        statusTheme = 'rose';
+        activeLabel = selectedLanguage === 'ru'
+            ? 'Нет связи на телефоне ⚠️'
+            : (selectedLanguage === 'uk' ? 'Немає зв’язку на телефоні ⚠️' : 'Device Offline ⚠️');
+    } else if (isLive) {
+        statusTheme = 'emerald';
+        activeLabel = selectedLanguage === 'ru'
+            ? 'Wikidata (Онлайн) ✅'
+            : (selectedLanguage === 'uk' ? 'Wikidata (Онлайн) ✅' : 'Wikidata (Live) ✅');
+    } else if (isCacheOrCatalog) {
+        statusTheme = 'amber';
+        activeLabel = selectedLanguage === 'ru'
+            ? 'Каталог (Резерв) ⚠️'
+            : (selectedLanguage === 'uk' ? 'Каталог (Резерв) ⚠️' : 'Offline Catalog (Reserve) ⚠️');
+    } else {
+        statusTheme = 'amber';
+        activeLabel = selectedLanguage === 'ru'
+            ? 'Каталог (Резерв) ⚠️'
+            : (selectedLanguage === 'uk' ? 'Каталог (Резерв) ⚠️' : 'Catalog Backup ⚠️');
+    }
 
     if (versionBadge) {
-        if (isHealthy) {
-            // Зелёный цвет надписи версии, когда всё как надо
+        if (statusTheme === 'emerald') {
             versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.35)] hover:text-emerald-300';
             versionBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse"></span><span>${verText}</span>`;
             versionBadge.title = selectedLanguage === 'ru' 
-                ? `Источник данных: ${activeLabel} (всё как надо)` 
-                : (selectedLanguage === 'uk' ? `Джерело даних: ${activeLabel} (все гаразд)` : `Data source: ${activeLabel} (healthy)`);
-        } else {
-            // Цвет ближе к красному, если что-то не так с данными
-            versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-rose-500 drop-shadow-[0_0_8px_rgba(244,63,94,0.45)] hover:text-rose-400';
-            versionBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]"></span><span>${verText}</span>`;
+                ? `Источник: ${activeLabel}` 
+                : (selectedLanguage === 'uk' ? `Джерело: ${activeLabel}` : `Source: ${activeLabel}`);
+        } else if (statusTheme === 'amber') {
+            versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.45)] hover:text-amber-400';
+            versionBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]"></span><span>${verText}</span>`;
             versionBadge.title = selectedLanguage === 'ru' 
-                ? `Внимание: ${activeLabel} (проблема с живыми данными)` 
-                : (selectedLanguage === 'uk' ? `Увага: ${activeLabel} (проблема з живими даними)` : `Warning: ${activeLabel} (issue with live data)`);
+                ? `Источник: ${activeLabel} (резервный режим)` 
+                : (selectedLanguage === 'uk' ? `Джерело: ${activeLabel} (резервний режим)` : `Source: ${activeLabel}`);
+        } else {
+            // Slow, calm blinking red when device connection is lost
+            versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-700 mt-8 mb-12 flex items-center justify-center gap-1.5 text-rose-500 drop-shadow-[0_0_12px_rgba(244,63,94,0.6)] animate-pulse';
+            versionBadge.innerHTML = `<span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_#f43f5e] animate-ping opacity-75"></span><span class="font-bold">${verText}</span>`;
+            versionBadge.title = activeLabel;
         }
     }
 
@@ -1550,20 +1566,38 @@ function updateDataSourceIndicator(status, details = '') {
         diagSourceLabel.textContent = selectedLanguage === 'ru' ? 'Источник данных:' : (selectedLanguage === 'uk' ? 'Джерело даних:' : 'Data Source:');
     }
     if (diagSourceBadge && diagSourceText) {
-        if (isHealthy) {
+        if (statusTheme === 'emerald') {
             diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-emerald-400';
             if (diagSourceBadge.firstElementChild) {
                 diagSourceBadge.firstElementChild.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]';
             }
             diagSourceText.textContent = activeLabel;
-        } else {
-            diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-rose-500';
+        } else if (statusTheme === 'amber') {
+            diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-amber-500';
             if (diagSourceBadge.firstElementChild) {
-                diagSourceBadge.firstElementChild.className = 'w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]';
+                diagSourceBadge.firstElementChild.className = 'w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_6px_#f59e0b]';
+            }
+            diagSourceText.textContent = activeLabel;
+        } else {
+            diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-rose-500 animate-pulse';
+            if (diagSourceBadge.firstElementChild) {
+                diagSourceBadge.firstElementChild.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_10px_#f43f5e] animate-ping';
             }
             diagSourceText.textContent = activeLabel;
         }
     }
+}
+
+// Immediate real-time network status listeners for slow red blinking
+if (typeof window !== 'undefined') {
+    window.addEventListener('online', () => {
+        console.log('[NETWORK_STATUS] Network re-established. Switching back to online indicator.');
+        updateDataSourceIndicator('healthy');
+    });
+    window.addEventListener('offline', () => {
+        console.log('[NETWORK_STATUS] Network disconnected. Switching to slow pulsating red indicator.');
+        updateDataSourceIndicator('error');
+    });
 }
 
 // Обновление интерфейса по языку
@@ -1571,8 +1605,13 @@ function updateLanguage() {
     console.log(`[LANGUAGE_UPDATE] Updating language to: ${selectedLanguage}`);
     const texts = translations[selectedLanguage];
     document.getElementById('theme-toggle').textContent = isNight ? texts.themeNight : texts.themeDay;
-    document.getElementById('next-photo-text').textContent = texts.nextPhoto;
-    document.getElementById('next-person').textContent = texts.nextPerson;
+    const nextPersonTextEl = document.getElementById('next-person-text');
+    if (nextPersonTextEl) {
+        nextPersonTextEl.textContent = texts.nextPerson;
+    } else {
+        document.getElementById('next-person').textContent = texts.nextPerson;
+    }
+    document.getElementById('next-person').setAttribute('aria-label', texts.nextPerson);
     document.getElementById('check-btn').textContent = texts.checkBtn;
     if (newGameBtn) newGameBtn.textContent = texts.newGame;
     document.getElementById('stats-attempts-label').textContent = texts.attempts;
@@ -1808,6 +1847,7 @@ function updateModeVisibility() {
     const checkBtnElement = document.getElementById('check-btn');
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
+    const nextPersonWrapper = document.getElementById('next-person-wrapper');
     const nextPersonBtn = document.getElementById('next-person');
 
     const gameIsActive = currentAttempts < maxAttempts;
@@ -1827,22 +1867,27 @@ function updateModeVisibility() {
         } else {
             if (genderButtons) genderButtons.style.display = 'none'; 
         }
+        if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
         if (nextPersonBtn) nextPersonBtn.style.display = 'none';
     } else if (gameIsActive && hasChecked) {
-        // Guess has been made and verified: show Next Person button
+        // Guess has been made and verified: show Next Person button prominently right under result card
         if (statusButtons) statusButtons.style.display = 'none';
         if (genderButtons) genderButtons.style.display = 'none';
         if (checkBtnElement) checkBtnElement.style.display = 'none';
+        if (nextPersonWrapper) nextPersonWrapper.style.display = 'block';
         if (nextPersonBtn) {
-            nextPersonBtn.style.display = 'block';
+            nextPersonBtn.style.display = 'flex';
             const texts = translations[selectedLanguage] || translations.uk;
-            nextPersonBtn.textContent = texts.nextPerson || 'Наступне фото';
+            const textSpan = document.getElementById('next-person-text');
+            if (textSpan) textSpan.textContent = texts.nextPerson || 'Наступне фото';
+            nextPersonBtn.setAttribute('aria-label', texts.nextPerson || 'Наступне фото');
         }
     } else {
         // Game is over: hide all in-game guess controls
         if (statusButtons) statusButtons.style.display = 'none';
         if (genderButtons) genderButtons.style.display = 'none';
         if (checkBtnElement) checkBtnElement.style.display = 'none';
+        if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
         if (nextPersonBtn) nextPersonBtn.style.display = 'none';
     }
 
@@ -2115,20 +2160,24 @@ function isForbiddenImageName(urlOrFilename) {
     const monumentArtKeywords = [
         'statue', 'monument', 'bust', 'sculpture', 'memorial', 'plaque',
         'relief', 'effigy', 'grave', 'tomb', 'cemetery', 'headstone', 'mausoleum',
-        'cenotaph', 'coin', 'stamp', 'banknote', 'medal', 'wax_museum', 'madame_tussaud',
+        'stele', 'cenotaph', 'coin', 'stamp', 'banknote', 'medal', 'wax_museum', 'madame_tussaud',
         'drawing', 'painting', 'sketch', 'cartoon', 'caricature', 'illustration',
         'engraving', 'lithograph', 'fresco', 'mosaic', 'doll', 'action_figure',
         'portrait_painting', 'oil_on_canvas', 'duck', 'mallard', 'bird', 'animal',
-        'equestrian_statue', 'bronze_statue', 'marble_bust'
+        'equestrian_statue', 'bronze_statue', 'marble_bust', 'statua', 'denkmal',
+        'pamjatnik', 'pametnik', 'skulptur', 'scultura'
     ];
 
-    // Multi-person / Team / Group photos
+    // Multi-person / Team / Group photos (including sports matches, hockey, football)
     const groupKeywords = [
-        'team', 'squad', 'squadra', 'roster', 'lineup', 'group', 'band',
+        'team', 'squad', 'squadra', 'roster', 'lineup', 'line-up', 'group', 'band',
         'ensemble', 'delegation', 'chorus', 'orchestra', 'choir', 'cast',
         'family', 'couple', 'duo', 'trio', 'quartet', 'members', 'with_',
         '_and_', 'together', 'meeting', 'conference', 'audience', 'crowd',
-        'national_team', 'football_team', 'olympic_team'
+        'national_team', 'football_team', 'olympic_team', 'hockey', 'ice_hockey',
+        'hockey_club', 'match', 'game', '_vs_', '-vs-', 'versus', 'championship',
+        'tournament', 'derby', 'zsc_lions', 'jersey', 'players', 'substitutes',
+        'bench', 'podium', 'duet'
     ];
 
     for (const kw of nsfwKeywords) {
@@ -2209,6 +2258,10 @@ async function verifySingleFace(imgElement) {
         let rightThirdSkin = 0;
         let centerThirdSkin = 0;
         let upperHalfSkin = 0;
+        let sumX = 0;
+        let sumX2 = 0;
+        let totalSat = 0;
+        const xBins = new Array(10).fill(0);
 
         for (let y = 0; y < sampleH; y++) {
             for (let x = 0; x < sampleW; x++) {
@@ -2225,6 +2278,18 @@ async function verifySingleFace(imgElement) {
                 // Human skin tone standard range (all skin types): Cb in [77, 127], Cr in [133, 173]
                 if (cb >= 77 && cb <= 127 && cr >= 133 && cr <= 173 && yVal > 40) {
                     skinPixels++;
+                    sumX += x;
+                    sumX2 += x * x;
+                    
+                    // Measure saturation to distinguish living human skin from grey/stone statues
+                    const maxCh = Math.max(r, g, b);
+                    const minCh = Math.min(r, g, b);
+                    const sat = maxCh === 0 ? 0 : (maxCh - minCh) / maxCh;
+                    totalSat += sat;
+
+                    const binIdx = Math.min(9, Math.floor((x / sampleW) * 10));
+                    xBins[binIdx]++;
+
                     if (y < sampleH * 0.5) upperHalfSkin++;
                     if (x < sampleW * 0.33) leftThirdSkin++;
                     else if (x > sampleW * 0.67) rightThirdSkin++;
@@ -2242,14 +2307,40 @@ async function verifySingleFace(imgElement) {
             return { valid: false, reason: 'insufficient_human_skin', faceCount: 0 };
         }
 
+        // Check if detected material has near-zero saturation (marble/stone bust/grey statue)
+        const avgSat = skinPixels > 0 ? (totalSat / skinPixels) : 0;
+        if (avgSat < 0.12) {
+            console.warn(`[FACE_CANVAS_REJECT] Extremely low skin saturation (${avgSat.toFixed(2)} < 0.12). Likely monochrome marble bust, bronze sculpture, or stone monument.`);
+            return { valid: false, reason: 'sculpture_low_saturation', faceCount: 0 };
+        }
+
         // Multiple separated skin clusters on opposite borders (team/group bimodal spread)
         if (skinPixels > 100) {
             const leftRatio = leftThirdSkin / skinPixels;
             const rightRatio = rightThirdSkin / skinPixels;
             const centerRatio = centerThirdSkin / skinPixels;
-            if (leftRatio > 0.36 && rightRatio > 0.36 && centerRatio < 0.28) {
+            if (leftRatio > 0.35 && rightRatio > 0.35 && centerRatio < 0.28) {
                 console.warn(`[FACE_CANVAS_REJECT] Bimodal horizontal skin spread (left: ${(leftRatio * 100).toFixed(0)}%, right: ${(rightRatio * 100).toFixed(0)}%). Team/group photo.`);
                 return { valid: false, reason: 'bimodal_team_spread', faceCount: 2 };
+            }
+
+            // Horizontal spatial variance and standard deviation
+            const meanX = sumX / skinPixels;
+            const varianceX = (sumX2 / skinPixels) - (meanX * meanX);
+            const stdDevNorm = Math.sqrt(Math.max(0, varianceX)) / sampleW;
+
+            // Multi-peak detection across horizontal bins (e.g. two athletes side by side)
+            let peakCount = 0;
+            const peakThreshold = skinPixels * 0.13;
+            for (let b = 1; b < 9; b++) {
+                if (xBins[b] > peakThreshold && xBins[b] >= xBins[b - 1] && xBins[b] >= xBins[b + 1]) {
+                    peakCount++;
+                }
+            }
+
+            if (peakCount >= 2 && stdDevNorm > 0.23) {
+                console.warn(`[FACE_CANVAS_REJECT] Detected ${peakCount} horizontal skin peaks with high dispersion (stdDev: ${stdDevNorm.toFixed(2)} > 0.23). Multi-person/sports action photo.`);
+                return { valid: false, reason: 'multi_person_horizontal_peaks', faceCount: peakCount };
             }
         }
 
@@ -2481,12 +2572,12 @@ const offlinePeople = [
         status_string: "deceased"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/Vincent_van_Gogh" },
-        personLabel: { value: "Vincent van Gogh" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg?width=600" },
+        person: { value: "https://en.wikipedia.org/wiki/Alan_Turing" },
+        personLabel: { value: "Alan Turing" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Alan_Turing_Aged_16_c.1928.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1853-03-30T00:00:00Z" },
-        deathDate: { value: "1890-07-29T00:00:00Z" },
+        birthDate: { value: "1912-06-23T00:00:00Z" },
+        deathDate: { value: "1954-06-07T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "male",
         status_string: "deceased"
@@ -2514,23 +2605,23 @@ const offlinePeople = [
         status_string: "deceased"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/Leonardo_da_Vinci" },
-        personLabel: { value: "Leonardo da Vinci" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg?width=600" },
+        person: { value: "https://en.wikipedia.org/wiki/Stephen_Hawking" },
+        personLabel: { value: "Stephen Hawking" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Stephen_Hawking.starchild.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1452-04-15T00:00:00Z" },
-        deathDate: { value: "1519-05-02T00:00:00Z" },
+        birthDate: { value: "1942-01-08T00:00:00Z" },
+        deathDate: { value: "2018-03-14T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "male",
         status_string: "deceased"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/William_Shakespeare" },
-        personLabel: { value: "William Shakespeare" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/William_Shakespeare_1609.jpg?width=600" },
+        person: { value: "https://en.wikipedia.org/wiki/Robin_Williams" },
+        personLabel: { value: "Robin Williams" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Robin_Williams_2011a_(cropped).jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
-        birthDate: { value: "1564-04-26T00:00:00Z" },
-        deathDate: { value: "1616-04-23T00:00:00Z" },
+        birthDate: { value: "1951-07-21T00:00:00Z" },
+        deathDate: { value: "2014-08-11T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "male",
         status_string: "deceased"
@@ -2674,12 +2765,12 @@ const offlinePeople = [
         status_string: "deceased"
     },
     {
-        person: { value: "https://en.wikipedia.org/wiki/Ada_Lovelace" },
-        personLabel: { value: "Ada Lovelace" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Ada_Lovelace_portrait.jpg?width=600" },
+        person: { value: "https://en.wikipedia.org/wiki/Whitney_Houston" },
+        personLabel: { value: "Whitney Houston" },
+        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
-        birthDate: { value: "1815-12-10T00:00:00Z" },
-        deathDate: { value: "1852-11-27T00:00:00Z" },
+        birthDate: { value: "1963-08-09T00:00:00Z" },
+        deathDate: { value: "2012-02-11T00:00:00Z" },
         isOfflineFallback: true,
         gender_string: "female",
         status_string: "deceased"
@@ -3140,9 +3231,40 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     const personLabelForLogs = personDataToDisplay?.personLabel?.value || 'No data or no label';
     console.log(`[LOAD_PERSON] loadPersonFromData called for person: ${personLabelForLogs}`);
     
+    // Always cleanly reset previous round guesses and active buttons for the incoming person
+    userGenderGuess = null;
+    userStatusGuess = null;
+    hasChecked = false;
+
+    const maleBtn = document.getElementById('male-btn');
+    const femaleBtn = document.getElementById('female-btn');
+    const aliveBtn = document.getElementById('alive-btn');
+    const deadBtn = document.getElementById('dead-btn');
+    if (maleBtn) { maleBtn.classList.remove('active'); maleBtn.disabled = false; }
+    if (femaleBtn) { femaleBtn.classList.remove('active'); femaleBtn.disabled = false; }
+    if (aliveBtn) { aliveBtn.classList.remove('active'); aliveBtn.disabled = false; }
+    if (deadBtn) { deadBtn.classList.remove('active'); deadBtn.disabled = false; }
+
+    const personInfo = document.getElementById('person-info');
+    if (personInfo) {
+        personInfo.style.display = 'none';
+        personInfo.classList.add('hidden');
+        personInfo.classList.remove('correct', 'incorrect');
+    }
+    const statusBadge = document.getElementById('person-status-badge');
+    if (statusBadge) statusBadge.classList.add('hidden');
+
+    const nextPersonWrapper = document.getElementById('next-person-wrapper');
+    if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
+    const nextPersonBtn = document.getElementById('next-person');
+    if (nextPersonBtn) nextPersonBtn.style.display = 'none';
+
+    updateCheckButtonState();
+
     const personImage = document.getElementById('person-image');
     const overlay = document.getElementById('overlay');
     const circularProgressContainer = document.getElementById('circular-progress-container');
+    const horizontalProgressBar = document.getElementById('progress-bar');
 
     personImage.onload = null;
     personImage.onerror = null;
@@ -3175,6 +3297,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         console.log('[LOAD_PERSON_SETUP] Open Mode: Overlay OFF');
     }
 
+    // Only show circular progress spinner if image is NOT preloaded and not in memory
     if (!hasCompletePreload) {
         personImage.classList.remove('loaded');
         if (circularProgressContainer) {
@@ -3183,9 +3306,12 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
             const cpBar = document.getElementById('circular-progress-bar');
             if (cpBar) cpBar.style.strokeDashoffset = 100;
         }
+    } else {
+        if (circularProgressContainer) circularProgressContainer.classList.add('hidden');
     }
+    if (horizontalProgressBar) horizontalProgressBar.classList.add('hidden');
 
-    const progressPromise = simulateImageProgress(hasCompletePreload ? 150 : 500);
+    const progressPromise = hasCompletePreload ? Promise.resolve() : simulateImageProgress(400);
 
     if (hasCompletePreload) {
         console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
@@ -3220,6 +3346,9 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 personImage.classList.add('loaded');
                 if (circularProgressContainer) {
                     circularProgressContainer.classList.add('hidden');
+                }
+                if (horizontalProgressBar) {
+                    horizontalProgressBar.classList.add('hidden');
                 }
                 
                 console.log(`[LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: ${preloadedProxyUrl}`);
@@ -3356,7 +3485,8 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     }
 
     await progressPromise; 
-    updateProgressBar(100, true); 
+    if (circularProgressContainer) circularProgressContainer.classList.add('hidden');
+    if (horizontalProgressBar) horizontalProgressBar.classList.add('hidden'); 
 
     if (!successfullyLoadedImage) {
         console.error(`[LOAD_PERSON_CRITICAL_IMAGE_FAIL] Could not load image for slot (intended for ${personLabelForLogs}) after all attempts. Path: ${imageLoadPathDetail}. Handling error.`);
@@ -3451,11 +3581,17 @@ function updateUI(personToDisplay) {
         }
 
         const nextPersonBtn = document.getElementById('next-person');
+        const nextPersonWrapper = document.getElementById('next-person-wrapper');
+        const textSpan = document.getElementById('next-person-text');
         if (nextPersonBtn) {
             if (hasChecked && currentAttempts < maxAttempts) {
-                nextPersonBtn.style.display = 'block';
-                nextPersonBtn.textContent = texts.nextPerson; 
+                if (nextPersonWrapper) nextPersonWrapper.style.display = 'block';
+                nextPersonBtn.style.display = 'flex';
+                if (textSpan) {
+                    textSpan.textContent = texts.nextPerson;
+                }
             } else {
+                if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
                 nextPersonBtn.style.display = 'none';
             }
         }
@@ -3472,7 +3608,11 @@ function updateUI(personToDisplay) {
     });
 }
 
-function handleError() {
+function handleError(force = false) {
+    if (!force && hasChecked && currentPerson) {
+        console.warn('[HANDLE_ERROR_IGNORED] Active round is displaying a checked answer. Ignoring background error.');
+        return;
+    }
     console.error('[HANDLE_ERROR] An error occurred. Displaying placeholder and error message.');
     updateDataSourceIndicator('error', 'Image/Data Error');
     const personImage = document.getElementById('person-image');
@@ -3608,10 +3748,6 @@ async function loadSession() {
                 sessionList.push({ person: personBinding, category: category });
                 loadedCount++;
                 console.log(`[STREAM_QUEUE] Appended streamed candidate #${loadedCount}: ${personBinding.personLabel.value} (${category.gender}-${category.status})`);
-                
-                // Update visual thin horizontal progress bar correctly based on loadedCount
-                const progressPercentage = (loadedCount / settings.sessionPeople) * 100;
-                updateProgressBar(progressPercentage, false);
 
                 // If this is the FIRST person loaded under this session, render them to the screen IMMEDIATELY
                 if (!currentPerson && !firstPersonRendered) {
@@ -3655,6 +3791,47 @@ async function loadSession() {
     // Launch 2 background workers in parallel
     launchNextFetch();
     launchNextFetch();
+}
+
+let isReplenishingBuffer = false;
+
+async function replenishBufferIfNeeded() {
+    if (currentAttempts >= maxAttempts || isStreamingActive || isReplenishingBuffer) {
+        return;
+    }
+    const remainingAttempts = maxAttempts - currentAttempts;
+    // Keep an active reserve of at least 4-5 items while game rounds remain unplayed
+    if (remainingAttempts > 0 && sessionList.length < Math.min(5, remainingAttempts + 1)) {
+        isReplenishingBuffer = true;
+        const countToFetch = Math.min(5, (remainingAttempts + 2) - sessionList.length);
+        console.log(`[BUFFER_PROACTIVE] Reserve low (${sessionList.length} items left for ${remainingAttempts} attempts). Proactively prefetching ${countToFetch} candidates...`);
+
+        const categories = [
+            { gender: 'male', status: 'alive' },
+            { gender: 'female', status: 'alive' },
+            { gender: 'male', status: 'deceased' },
+            { gender: 'female', status: 'deceased' }
+        ];
+
+        try {
+            for (let i = 0; i < countToFetch; i++) {
+                if (currentAttempts >= maxAttempts) break;
+                const cat = categories[i % categories.length];
+                const personBinding = await fetchPersonData(false, cat);
+                if (personBinding && personBinding.personLabel?.value && personBinding.image?.value) {
+                    sessionList.push({ person: personBinding, category: cat });
+                    console.log(`[BUFFER_RESERVE_ADD] Pre-buffered candidate: ${personBinding.personLabel.value}. Reserve count: ${sessionList.length}`);
+                }
+            }
+            if (!isCurrentlyPreloading && !preloadedPersonContainer && sessionList.length > 0) {
+                startPreloadNextAvailablePerson();
+            }
+        } catch (e) {
+            console.warn('[BUFFER_PROACTIVE_WARN] Buffer prefetch error:', e);
+        } finally {
+            isReplenishingBuffer = false;
+        }
+    }
 }
 
 async function loadNextPerson(triggerButton = 'unknown') {
@@ -3727,6 +3904,9 @@ async function loadNextPerson(triggerButton = 'unknown') {
     if (statusBadge) statusBadge.classList.add('hidden');
 
     const nextEntry = sessionList.shift(); 
+    // Proactively replenish buffer in background so player never encounters empty queue
+    replenishBufferIfNeeded();
+
     if (nextEntry && nextEntry.person) { 
         console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${nextEntry.person.personLabel.value}`);
         await loadPersonFromData(nextEntry.person, nextEntry.category);
@@ -4026,7 +4206,10 @@ document.getElementById('check-btn').addEventListener('click', () => {
                 if (statusIconEl) statusIconEl.textContent = 'cancel';
             }
         }
-        document.getElementById('next-person').style.display = 'block'; 
+        const nextPersonWrapper = document.getElementById('next-person-wrapper');
+        const nextPersonBtn = document.getElementById('next-person');
+        if (nextPersonWrapper) nextPersonWrapper.style.display = 'block';
+        if (nextPersonBtn) nextPersonBtn.style.display = 'flex';
         
         document.getElementById('male-btn').disabled = true; 
         document.getElementById('female-btn').disabled = true;
@@ -4054,7 +4237,8 @@ document.getElementById('check-btn').addEventListener('click', () => {
         if (currentAttempts >= maxAttempts) {
             console.log('[GAME_OVER] All attempts used. Game over.');
             document.getElementById('next-photo').disabled = true; 
-            document.getElementById('next-person').style.display = 'none'; 
+            if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
+            if (nextPersonBtn) nextPersonBtn.style.display = 'none'; 
             sendGAEvent('game_over', {
                 total_attempts: maxAttempts,
                 successful_guesses: successfulGuesses,
@@ -4112,7 +4296,7 @@ function reportProgressOnLeave(trigger) {
     lastReportedUnfinishedSessionId = currentSessionId;
     lastReportedUnfinishedTime = now;
 
-    console.log(`[LIFE_CYCLE_REPORT] Unfinished game detected inside ${trigger}. Attempts/max: ${currentAttempts}/${maxAttempts}. Reporting to GA...`);
+    console.log(`[LIFE_CYCLE_REPORT] Unfinished game detected inside ${trigger}. Attempts/max: ${currentAttempts}/${maxAttempts}. Reporting to Google Sheets...`);
     sendGAEvent('game_unfinished_report', {
         session_id: currentSessionId,
         current_attempts: currentAttempts,
@@ -4126,6 +4310,18 @@ function reportProgressOnLeave(trigger) {
         trigger_event: trigger,
         platform: detectClientPlatform()
     });
+
+    // Clear session state so next time app opens it starts completely fresh
+    localStorage.removeItem('currentSessionId');
+    localStorage.removeItem('currentAttempts');
+    localStorage.removeItem('totalGuesses');
+    localStorage.removeItem('successfulGuesses');
+    localStorage.removeItem('failedGuesses');
+    localStorage.removeItem('guessResultsHistory');
+    localStorage.removeItem('attemptDurations');
+    localStorage.removeItem('currentAttemptStartTime');
+    currentSessionId = null;
+    currentAttemptStartTime = null;
 }
 
 // Setup Help / Instructions Modal dialog event listeners
@@ -4565,63 +4761,17 @@ const initApp = () => {
     const statusBadge = document.getElementById('person-status-badge');
     if (statusBadge) statusBadge.classList.add('hidden');
 
-    if (isFirstLaunchOrReset) {
-        console.log("[WINDOW_ONLOAD] First launch or reset detected. Initializing a new game.");
-        updateLanguage(); 
-        startNewGame(); 
-        updateNewGameButtonPosition(); 
-    } else {
-        console.log("[WINDOW_ONLOAD] Resuming existing game state.");
-        updateLanguage(); 
-        
-        if (currentAttempts >= maxAttempts) {
-            console.log("[WINDOW_ONLOAD_GAMEOVER] Game was previously over. UI reflects game over state.");
-            document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
-            document.getElementById('stats-success').textContent = successfulGuesses;
-            document.getElementById('stats-failure').textContent = failedGuesses;
-            const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
-            document.getElementById('stats-success-rate').textContent = `${successRate}%`;
-            
-            document.getElementById('next-photo').disabled = true;
-            document.getElementById('next-person').style.display = 'none';
-            
-            if (currentSessionId || currentAttemptStartTime) {
-                console.warn("[WINDOW_ONLOAD_GAMEOVER_CLEANUP] Game was over, but session ID or start time found in localStorage. Clearing them now.");
-                localStorage.removeItem('currentSessionId');
-                localStorage.removeItem('currentAttemptStartTime');
-                currentSessionId = null;
-                currentAttemptStartTime = null;
-            }
-            preloadedPersonContainer = null;
-            isCurrentlyPreloading = false;
-            console.log("[WINDOW_ONLOAD_GAMEOVER] Press 'New Game' to start.");
-        } else {
-            console.log("[WINDOW_ONLOAD_RESUME] Resuming active game. Attempts:", currentAttempts);
-            document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
-            document.getElementById('stats-success').textContent = successfulGuesses;
-            document.getElementById('stats-failure').textContent = failedGuesses;
-            const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
-            document.getElementById('stats-success-rate').textContent = `${successRate}%`;
-            
-            if (!currentSessionId && currentAttempts > 0 && currentAttempts < maxAttempts) {
-                console.warn("[WINDOW_ONLOAD_RESUME_WARN] Resuming game, but currentSessionId is missing from localStorage. It will be generated on the next new game. GA events for ongoing attempts might miss session_id.");
-            }
-
-            if (!currentPerson) { 
-                console.log("[WINDOW_ONLOAD_RESUME] currentPerson is null. Loading session data to continue/start.");
-                preloadedPersonContainer = null;
-                isCurrentlyPreloading = false;
-                loadSession(); 
-            } else {
-                 console.log("[WINDOW_ONLOAD_RESUME] currentPerson somehow exists. UI should be updated. Preloading next.");
-                 updateUI(currentPerson); 
-                 startPreloadNextAvailablePerson(); 
-            }
-        }
-        updateCheckButtonState();
-        updateGuessHistoryDisplay(); 
-        updateNewGameButtonPosition(true);
+    // If a previous game was left unfinished without reporting (e.g. crash or phone call), send report now
+    if (currentAttempts > 0 && currentAttempts < maxAttempts && currentSessionId) {
+        console.log('[INIT_APP] Found unfinished session from previous launch. Dispatching report to Google Sheets...');
+        reportProgressOnLeave('app_restarted_fresh');
     }
+
+    // Always start a brand new game on every launch/reopen with a fresh session and 0/10 attempts
+    console.log('[INIT_APP] Starting fresh game session on launch (0/10)...');
+    updateLanguage(); 
+    startNewGame(); 
+    updateNewGameButtonPosition(true);
     updateTelegramUserInfoDisplay(); 
 
     // Initialize top controls state based on ongoing game progress or saved preference
