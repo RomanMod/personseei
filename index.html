@@ -264,13 +264,15 @@
         </div>
 
         <!-- 32-Minute Inactivity Session Timeout Banner -->
-        <div id="session-timeout-banner" class="w-full max-w-sm mx-auto p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs shadow-lg backdrop-blur-md hidden transition-all duration-300 select-none">
-            <div class="flex items-start gap-3">
-                <span class="material-symbols-outlined text-amber-400 text-xl shrink-0 mt-0.5">timer</span>
-                <div class="space-y-1">
-                    <p class="font-headline font-bold text-amber-300" id="session-timeout-title">⏱️ Гра призупинена за таймаутом (32 хв)</p>
-                    <p class="font-body text-[11px] text-amber-200/90 leading-relaxed" id="session-timeout-desc">Звіт про зроблені спроби збережено в Google Таблицю. Нижче збережено результати вашої минулої гри. Натисніть «Нова гра», щоб почати заново.</p>
-                </div>
+        <div id="session-timeout-banner" class="w-full max-w-sm mx-auto p-5 rounded-2xl bg-amber-500/15 border-2 border-amber-400/50 text-amber-200 shadow-[0_0_25px_rgba(245,158,11,0.25)] backdrop-blur-xl hidden transition-all duration-300 select-none text-center">
+            <div class="flex flex-col items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-amber-400 text-3xl animate-pulse">timer</span>
+                <p class="font-headline font-bold text-base sm:text-lg text-amber-300 leading-snug tracking-wide" id="session-timeout-title">
+                    ⏱️ Полчаса на раздумывание вышло, начните кнопкой «Новая игра»
+                </p>
+                <p class="font-body text-xs text-amber-200/80 leading-relaxed mt-0.5" id="session-timeout-desc">
+                    Отчёт сохранён в Google Таблицу. Ниже отображены результаты вашей прошлой игры.
+                </p>
             </div>
         </div>
 

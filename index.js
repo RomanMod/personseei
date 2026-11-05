@@ -550,8 +550,8 @@ const translations = {
         gotItBtn: 'Зрозуміло!',
         topControlsSettings: 'Налаштування',
         topControlsCollapse: 'Згорнути',
-        sessionTimeoutTitle: '⏱️ Гра призупинена за таймаутом (32 хв)',
-        sessionTimeoutDesc: 'Минуло понад 32 хвилини без активності. Звіт ({attempts}) збережено в Google Таблицю. Нижче збережено результати вашої минулої гри. Натисніть «Нова гра», щоб почати заново.',
+        sessionTimeoutTitle: '⏱️ Пів години на роздуми вичерпано, почніть кнопкою «Нова гра»',
+        sessionTimeoutDesc: 'Звіт ({attempts}) збережено в Google Таблицю. Нижче збережено результати вашої минулої гри.',
         statsPreviousGameTitle: 'Результати минулої гри'
     },
     en: {
@@ -606,8 +606,8 @@ const translations = {
         gotItBtn: 'Got it!',
         topControlsSettings: 'Settings',
         topControlsCollapse: 'Collapse',
-        sessionTimeoutTitle: '⏱️ Game paused on timeout (32 min)',
-        sessionTimeoutDesc: 'Over 32 minutes of inactivity elapsed. Report ({attempts}) was saved to Google Sheets. Previous game results are displayed below. Tap "New Game" to start fresh.',
+        sessionTimeoutTitle: '⏱️ Half an hour of thinking time has expired, start with "New Game"',
+        sessionTimeoutDesc: 'Report ({attempts}) was saved to Google Sheets. Previous game results are displayed below.',
         statsPreviousGameTitle: 'Previous Game Results'
     },
     de: {
@@ -662,8 +662,8 @@ const translations = {
         gotItBtn: 'Verstanden!',
         topControlsSettings: 'Einstellungen',
         topControlsCollapse: 'Einklappen',
-        sessionTimeoutTitle: '⏱️ Spiel nach Timeout pausiert (32 Min.)',
-        sessionTimeoutDesc: 'Mehr als 32 Minuten Inaktivität. Bericht ({attempts}) wurde in Sheets gespeichert. Frühere Ergebnisse sind unten sichtbar. Klicken Sie auf „Neues Spiel“, um neu zu beginnen.',
+        sessionTimeoutTitle: '⏱️ Die halbe Stunde Bedenkzeit ist abgelaufen, starten Sie mit „Neues Spiel“',
+        sessionTimeoutDesc: 'Bericht ({attempts}) wurde in Sheets gespeichert. Frühere Ergebnisse sind unten sichtbar.',
         statsPreviousGameTitle: 'Ergebnisse des vorherigen Spiels'
     },
     fr: {
@@ -718,8 +718,8 @@ const translations = {
         gotItBtn: 'Compris !',
         topControlsSettings: 'Paramètres',
         topControlsCollapse: 'Réduire',
-        sessionTimeoutTitle: '⏱️ Partie suspendue après expiration (32 min)',
-        sessionTimeoutDesc: 'Plus de 32 minutes d’inactivité. Rapport ({attempts}) enregistré dans Sheets. Les résultats précédents sont affichés ci-dessous. Cliquez sur « Nouvelle partie » pour recommencer.',
+        sessionTimeoutTitle: '⏱️ La demi-heure de réflexion est écoulée, commencez par « Nouvelle partie »',
+        sessionTimeoutDesc: 'Rapport ({attempts}) enregistré dans Sheets. Les résultats précédents sont affichés ci-dessous.',
         statsPreviousGameTitle: 'Résultats de la partie précédente'
     },
     es: {
@@ -774,8 +774,8 @@ const translations = {
         gotItBtn: '¡Entendido!',
         topControlsSettings: 'Ajustes',
         topControlsCollapse: 'Plegar',
-        sessionTimeoutTitle: '⏱️ Partida pausada por tiempo de espera (32 min)',
-        sessionTimeoutDesc: 'Más de 32 minutos de inactividad. Informe ({attempts}) guardado en Sheets. Los resultados anteriores se muestran abajo. Toque «Nueva partida» para reiniciar.',
+        sessionTimeoutTitle: '⏱️ Se acabó la media hora de reflexión, empieza con «Nueva partida»',
+        sessionTimeoutDesc: 'Informe ({attempts}) guardado en Sheets. Los resultados anteriores se muestran abajo.',
         statsPreviousGameTitle: 'Resultados de la partida anterior'
     },
     zh: {
@@ -830,8 +830,8 @@ const translations = {
         gotItBtn: '明白了！',
         topControlsSettings: '设置',
         topControlsCollapse: '收起',
-        sessionTimeoutTitle: '⏱️ 游戏已超时暂停（32 分钟）',
-        sessionTimeoutDesc: '闲置超过 32 分钟。报告（{attempts}）已保存到表格中。下方显示上一局结果。点击“新游戏”重新开始。',
+        sessionTimeoutTitle: '⏱️ 半小时思考时间已到，请点击“新游戏”重新开始',
+        sessionTimeoutDesc: '报告（{attempts}）已保存到表格中。下方显示上一局结果。',
         statsPreviousGameTitle: '上一局比赛结果'
     },
     it: {
@@ -886,8 +886,8 @@ const translations = {
         gotItBtn: 'Capito!',
         topControlsSettings: 'Impostazioni',
         topControlsCollapse: 'Riduci',
-        sessionTimeoutTitle: '⏱️ Partita sospesa per timeout (32 min)',
-        sessionTimeoutDesc: 'Oltre 32 minuti di inattività. Report ({attempts}) salvato su Fogli. I risultati precedenti sono mostrati sotto. Clicca su "Nuova partita" per ricominciare.',
+        sessionTimeoutTitle: '⏱️ La mezz\'ora per pensare è scaduta, inizia con "Nuova partita"',
+        sessionTimeoutDesc: 'Report ({attempts}) salvato su Fogli. I risultati precedenti sono mostrati sotto.',
         statsPreviousGameTitle: 'Risultati partita precedente'
     },
     ru: {
@@ -942,8 +942,8 @@ const translations = {
         gotItBtn: 'Понятно!',
         topControlsSettings: 'Настройки',
         topControlsCollapse: 'Свернуть',
-        sessionTimeoutTitle: '⏱️ Игра приостановлена по таймауту (32 мин)',
-        sessionTimeoutDesc: 'Прошло более 32 минут без активности. Отчёт ({attempts}) сохранён в Google Таблицу. Ниже отображены результаты вашей прошлой игры. Нажмите «Новая игра», чтобы начать заново с 1-й попытки.',
+        sessionTimeoutTitle: '⏱️ Полчаса на раздумывание вышло, начните кнопкой «Новая игра»',
+        sessionTimeoutDesc: 'Отчёт ({attempts}) сохранён в Google Таблицу. Ниже отображены результаты вашей прошлой игры.',
         statsPreviousGameTitle: 'Результаты прошлой игры'
     },
     alien: {
@@ -1685,9 +1685,9 @@ function updateLanguage() {
     if (timeoutBanner && isShowingTimeout) {
         const timeoutTitle = document.getElementById('session-timeout-title');
         const timeoutDesc = document.getElementById('session-timeout-desc');
-        if (timeoutTitle) timeoutTitle.textContent = texts.sessionTimeoutTitle || '⏱️ Гра призупинена за таймаутом (32 хв)';
+        if (timeoutTitle) timeoutTitle.textContent = texts.sessionTimeoutTitle || '⏱️ Полчаса на раздумывание вышло, начните кнопкой «Новая игра»';
         if (timeoutDesc && prevSummaryStored) {
-            const descTmpl = texts.sessionTimeoutDesc || 'Минуло понад 32 хвилини без активності. Звіт ({attempts}) збережено в Google Таблицю. Нижче збережено результати вашої минулої гри. Натисніть «Нова гра», щоб почати заново.';
+            const descTmpl = texts.sessionTimeoutDesc || 'Отчёт ({attempts}) сохранён в Google Таблицу. Ниже отображены результаты вашей прошлой игры.';
             timeoutDesc.textContent = descTmpl.replace('{attempts}', `${prevSummaryStored.attempts}/${prevSummaryStored.maxAttempts}`);
         }
     }
@@ -4432,9 +4432,9 @@ function showSessionTimeoutState(prevSummary) {
     const texts = translations[selectedLanguage] || translations.uk;
 
     if (banner) {
-        if (bannerTitle) bannerTitle.textContent = texts.sessionTimeoutTitle || '⏱️ Гра призупинена за таймаутом (32 хв)';
+        if (bannerTitle) bannerTitle.textContent = texts.sessionTimeoutTitle || '⏱️ Полчаса на раздумывание вышло, начните кнопкой «Новая игра»';
         if (bannerDesc) {
-            const descTmpl = texts.sessionTimeoutDesc || 'Минуло понад 32 хвилини без активності. Звіт ({attempts}) збережено в Google Таблицю. Нижче збережено результати вашої минулої гри. Натисніть «Нова гра», щоб почати заново.';
+            const descTmpl = texts.sessionTimeoutDesc || 'Отчёт ({attempts}) сохранён в Google Таблицу. Ниже отображены результаты вашей прошлой игры.';
             bannerDesc.textContent = descTmpl.replace('{attempts}', `${prevSummary.attempts}/${prevSummary.maxAttempts}`);
         }
         banner.classList.remove('hidden');
