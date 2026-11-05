@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.0';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.1';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2231,7 +2231,7 @@ function isForbiddenImageName(urlOrFilename) {
         'pamjatnik', 'pametnik', 'skulptur', 'scultura'
     ];
 
-    // Multi-person / Team / Group photos (including sports matches, hockey, football)
+    // Multi-person / Team / Group photos (including sports matches, hockey, football, ceremonies, trophies)
     const groupKeywords = [
         'team', 'squad', 'squadra', 'roster', 'lineup', 'line-up', 'group', 'band',
         'ensemble', 'delegation', 'chorus', 'orchestra', 'choir', 'cast',
@@ -2240,7 +2240,9 @@ function isForbiddenImageName(urlOrFilename) {
         'national_team', 'football_team', 'olympic_team', 'hockey', 'ice_hockey',
         'hockey_club', 'match', 'game', '_vs_', '-vs-', 'versus', 'championship',
         'tournament', 'derby', 'zsc_lions', 'jersey', 'players', 'substitutes',
-        'bench', 'podium', 'duet'
+        'bench', 'podium', 'duet', 'trophy', 'ceremony', 'cup', 'presentation',
+        'champions', 'award', 'awardees', 'athletes', 'winners', 'girls', 'three',
+        'triplet', 'relay', 'pair', 'partners'
     ];
 
     for (const kw of nsfwKeywords) {
@@ -2313,7 +2315,33 @@ async function verifySingleFace(imgElement) {
         const ctx = canvas.getContext('2d');
         if (!ctx) return { valid: true, reason: 'canvas_unsupported', faceCount: 1 };
 
-        ctx.drawImage(imgElement, 0, 0, sampleW, sampleH);
+        let canRead = false;
+        try {
+            ctx.drawImage(imgElement, 0, 0, sampleW, sampleH);
+            ctx.getImageData(0, 0, 1, 1);
+            canRead = true;
+        } catch (taintErr) {
+            console.warn('[FACE_VERIFY] Direct canvas tainted by CORS, analyzing via CORS proxy probe...');
+        }
+
+        if (!canRead) {
+            const probe = new Image();
+            probe.crossOrigin = 'anonymous';
+            const rawSrc = imgElement.currentSrc || imgElement.src;
+            if (rawSrc) {
+                probe.src = makeWeservProxyUrl(rawSrc);
+                await new Promise((res) => {
+                    probe.onload = res;
+                    probe.onerror = res;
+                    setTimeout(res, 1200);
+                });
+                if (probe.complete && probe.naturalWidth > 0) {
+                    ctx.clearRect(0, 0, sampleW, sampleH);
+                    ctx.drawImage(probe, 0, 0, sampleW, sampleH);
+                }
+            }
+        }
+
         const imgData = ctx.getImageData(0, 0, sampleW, sampleH).data;
 
         let skinPixels = 0;
@@ -2504,6 +2532,7 @@ async function loadImageWithFallback(url, element) {
                 reject(new Error(`Direct and proxy image load failed for ${url}`));
             };
             
+            element.crossOrigin = 'anonymous';
             element.src = proxyUrl;
             if (element.complete && element.naturalWidth > 0) {
                 if (isCompleted) return;
@@ -2534,6 +2563,7 @@ async function loadImageWithFallback(url, element) {
             tryProxy('ERROR');
         };
         
+        element.crossOrigin = 'anonymous';
         element.src = url;
         if (element.complete && element.naturalWidth > 0) {
             if (isCompleted) return;
@@ -3000,7 +3030,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
         // Strict SPARQL query: ?person wdt:P31 wd:Q5 enforces Human (eliminates animals/ducks, monuments, objects)
-        query = `#TOOL: iPersonSeeTrivia/2.4.0 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        query = `#TOOL: iPersonSeeTrivia/2.4.1 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
                 ?person wdt:P31 wd:Q5;

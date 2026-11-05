@@ -1,6 +1,6 @@
 /**
  * PersonSeeI - Google Sheets Analytics & Real-Time Webhook Engine
- * Version: 2.4.0
+ * Version: 2.4.1
  * 
  * Настройка записи:
  * Новые игры и события теперь добавляются СВЕРХУ (на 2-ю строчку, сразу под шапкой)!
@@ -141,7 +141,7 @@ function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'ok',
     app: 'PersonSeeI Trivia Webhook',
-    version: '2.4.0',
+    version: '2.4.1',
     rows_position: NEW_ROWS_POSITION,
     sheets: ['Общая', 'Подробности'],
     timestamp: new Date().toISOString()
