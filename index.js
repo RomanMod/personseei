@@ -101,10 +101,12 @@ function getFormattedPlayerLocalTime(d = new Date()) {
 
 let currentSessionLocalStartTime = getFormattedPlayerLocalTime();
 
-function formatGuessHistoryString() {
-    if (!guessResultsHistory || guessResultsHistory.length === 0) return '';
-    return guessResultsHistory.map((res, idx) => {
-        const dur = (attemptDurations && attemptDurations[idx] !== undefined) ? attemptDurations[idx] : 0;
+function formatGuessHistoryString(history = null, durations = null) {
+    const list = Array.isArray(history) ? history : guessResultsHistory;
+    const durs = Array.isArray(durations) ? durations : attemptDurations;
+    if (!list || list.length === 0) return '';
+    return list.map((res, idx) => {
+        const dur = (durs && durs[idx] !== undefined) ? durs[idx] : 0;
         const icon = res === 1 ? '✅' : '❌';
         return `${icon}(${dur}s)`;
     }).join(' ');
@@ -547,7 +549,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>Чоловік / Жінка / Живий / Померлий</strong> — варіанти відповідей.',
         gotItBtn: 'Зрозуміло!',
         topControlsSettings: 'Налаштування',
-        topControlsCollapse: 'Згорнути'
+        topControlsCollapse: 'Згорнути',
+        sessionTimeoutTitle: '⏱️ Гра призупинена за таймаутом (32 хв)',
+        sessionTimeoutDesc: 'Минуло понад 32 хвилини без активності. Звіт ({attempts}) збережено в Google Таблицю. Нижче збережено результати вашої минулої гри. Натисніть «Нова гра», щоб почати заново.',
+        statsPreviousGameTitle: 'Результати минулої гри'
     },
     en: {
         themeNight: '🌙 Night',
@@ -600,7 +605,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>Male / Female / Alive / Deceased</strong> — select your answers.',
         gotItBtn: 'Got it!',
         topControlsSettings: 'Settings',
-        topControlsCollapse: 'Collapse'
+        topControlsCollapse: 'Collapse',
+        sessionTimeoutTitle: '⏱️ Game paused on timeout (32 min)',
+        sessionTimeoutDesc: 'Over 32 minutes of inactivity elapsed. Report ({attempts}) was saved to Google Sheets. Previous game results are displayed below. Tap "New Game" to start fresh.',
+        statsPreviousGameTitle: 'Previous Game Results'
     },
     de: {
         themeNight: '🌙 Nacht',
@@ -653,7 +661,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>Mann / Frau / Lebendig / Verstorben</strong> — deine Auswahl.',
         gotItBtn: 'Verstanden!',
         topControlsSettings: 'Einstellungen',
-        topControlsCollapse: 'Einklappen'
+        topControlsCollapse: 'Einklappen',
+        sessionTimeoutTitle: '⏱️ Spiel nach Timeout pausiert (32 Min.)',
+        sessionTimeoutDesc: 'Mehr als 32 Minuten Inaktivität. Bericht ({attempts}) wurde in Sheets gespeichert. Frühere Ergebnisse sind unten sichtbar. Klicken Sie auf „Neues Spiel“, um neu zu beginnen.',
+        statsPreviousGameTitle: 'Ergebnisse des vorherigen Spiels'
     },
     fr: {
         themeNight: '🌙 Nuit',
@@ -706,7 +717,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>Homme / Femme / Vivant / Décédé</strong> — vos choix.',
         gotItBtn: 'Compris !',
         topControlsSettings: 'Paramètres',
-        topControlsCollapse: 'Réduire'
+        topControlsCollapse: 'Réduire',
+        sessionTimeoutTitle: '⏱️ Partie suspendue après expiration (32 min)',
+        sessionTimeoutDesc: 'Plus de 32 minutes d’inactivité. Rapport ({attempts}) enregistré dans Sheets. Les résultats précédents sont affichés ci-dessous. Cliquez sur « Nouvelle partie » pour recommencer.',
+        statsPreviousGameTitle: 'Résultats de la partie précédente'
     },
     es: {
         themeNight: '🌙 Noche',
@@ -759,7 +773,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>Hombre / Mujer / Vivo / Fallecido</strong> — tus respuestas.',
         gotItBtn: '¡Entendido!',
         topControlsSettings: 'Ajustes',
-        topControlsCollapse: 'Plegar'
+        topControlsCollapse: 'Plegar',
+        sessionTimeoutTitle: '⏱️ Partida pausada por tiempo de espera (32 min)',
+        sessionTimeoutDesc: 'Más de 32 minutos de inactividad. Informe ({attempts}) guardado en Sheets. Los resultados anteriores se muestran abajo. Toque «Nueva partida» para reiniciar.',
+        statsPreviousGameTitle: 'Resultados de la partida anterior'
     },
     zh: {
         themeNight: '🌙 夜间',
@@ -812,7 +829,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>男性 / 女性 / 健在 / 已故</strong> — 猜想选项。',
         gotItBtn: '明白了！',
         topControlsSettings: '设置',
-        topControlsCollapse: '收起'
+        topControlsCollapse: '收起',
+        sessionTimeoutTitle: '⏱️ 游戏已超时暂停（32 分钟）',
+        sessionTimeoutDesc: '闲置超过 32 分钟。报告（{attempts}）已保存到表格中。下方显示上一局结果。点击“新游戏”重新开始。',
+        statsPreviousGameTitle: '上一局比赛结果'
     },
     it: {
         themeNight: '🌙 Notte',
@@ -865,7 +885,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>Uomo / Donna / Vivente / Deceduto</strong> — le tue opzioni.',
         gotItBtn: 'Capito!',
         topControlsSettings: 'Impostazioni',
-        topControlsCollapse: 'Riduci'
+        topControlsCollapse: 'Riduci',
+        sessionTimeoutTitle: '⏱️ Partita sospesa per timeout (32 min)',
+        sessionTimeoutDesc: 'Oltre 32 minuti di inattività. Report ({attempts}) salvato su Fogli. I risultati precedenti sono mostrati sotto. Clicca su "Nuova partita" per ricominciare.',
+        statsPreviousGameTitle: 'Risultati partita precedente'
     },
     ru: {
         themeNight: '🌙 Ночь',
@@ -918,7 +941,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>Мужчина / Женщина / Жив / Мертв</strong> — варианты ответа.',
         gotItBtn: 'Понятно!',
         topControlsSettings: 'Настройки',
-        topControlsCollapse: 'Свернуть'
+        topControlsCollapse: 'Свернуть',
+        sessionTimeoutTitle: '⏱️ Игра приостановлена по таймауту (32 мин)',
+        sessionTimeoutDesc: 'Прошло более 32 минут без активности. Отчёт ({attempts}) сохранён в Google Таблицу. Ниже отображены результаты вашей прошлой игры. Нажмите «Новая игра», чтобы начать заново с 1-й попытки.',
+        statsPreviousGameTitle: 'Результаты прошлой игры'
     },
     alien: {
         themeNight: '🌙 ☌⬡☍',
@@ -971,7 +997,10 @@ const translations = {
         helpBtnGenderStatusText: '🔘 <strong>♂/♀ ⚡ ⨀/⨁</strong> — ⬡ ☍Ψ☌.',
         gotItBtn: '👽 ☍Ψ☌!',
         topControlsSettings: '☍Ψ☌ ⚙️',
-        topControlsCollapse: '▲ ☍Ψ☌'
+        topControlsCollapse: '▲ ☍Ψ☌',
+        sessionTimeoutTitle: '⏱️ ☍ΨΩ 32 ⨀/⨁',
+        sessionTimeoutDesc: '32 ⨀/⨁ ☍ΨΩ ({attempts}) ◈◇⬡. ⬡Ψ☌ «👽 ☍Ψ☌».',
+        statsPreviousGameTitle: '◈◇⬡ ☍ΨΩ'
     }
 };
 
@@ -984,6 +1013,17 @@ if (!translations[selectedLanguage]) {
 let gameMode = localStorage.getItem('mode') || 'open';
 if (gameMode !== 'open' && gameMode !== 'closed') {
     gameMode = 'open';
+}
+
+// 32-Minute Inactivity Session Timeout Configuration
+const SESSION_INACTIVITY_TIMEOUT_MS = 32 * 60 * 1000; // 32 minutes (1,920,000 ms)
+const LAST_ACTIVITY_TIMESTAMP_KEY = 'ipersonsee_last_active_time';
+const PREVIOUS_GAME_SUMMARY_KEY = 'ipersonsee_previous_game_summary';
+
+function recordUserActivity() {
+    try {
+        localStorage.setItem(LAST_ACTIVITY_TIMESTAMP_KEY, Date.now().toString());
+    } catch (e) {}
 }
 
 let isTopControlsCollapsed = false;
@@ -1396,7 +1436,7 @@ function updateNewGameButtonPosition(isInitialCall = false) {
     }
 }
 
-function updateGuessHistoryDisplay() {
+function updateGuessHistoryDisplay(customHistory = null, customDurations = null) {
     const historyContainer = document.getElementById('stats-guess-history');
     if (!historyContainer) {
         console.warn('[UI_WARN] Guess history container not found.');
@@ -1405,7 +1445,10 @@ function updateGuessHistoryDisplay() {
 
     historyContainer.innerHTML = '';
 
-    if (guessResultsHistory.length === 0) {
+    const listToRender = Array.isArray(customHistory) ? customHistory : guessResultsHistory;
+    const durationsToRender = Array.isArray(customDurations) ? customDurations : attemptDurations;
+
+    if (!listToRender || listToRender.length === 0) {
         const emptyLabels = {
             uk: 'Немає історії спроб',
             ru: 'Нет истории попыток',
@@ -1431,8 +1474,8 @@ function updateGuessHistoryDisplay() {
         durationSuffix = '秒';
     }
 
-    guessResultsHistory.forEach((result, index) => {
-        const duration = attemptDurations[index] !== undefined ? attemptDurations[index] : 0;
+    listToRender.forEach((result, index) => {
+        const duration = durationsToRender[index] !== undefined ? durationsToRender[index] : 0;
         const column = document.createElement('div');
         column.className = 'flex flex-col items-center justify-center space-y-1';
 
@@ -1627,7 +1670,27 @@ function updateLanguage() {
     const overlayText = document.getElementById('overlay-text');
     if (overlayText) overlayText.textContent = texts.overlayText || 'Void Protocol';
     const statsTitleHeader = document.getElementById('stats-title-header');
-    if (statsTitleHeader) statsTitleHeader.textContent = texts.statsTitleHeader || 'Spiritual Stats';
+    const prevSummaryStored = safeParse(PREVIOUS_GAME_SUMMARY_KEY, null);
+    const timeoutBanner = document.getElementById('session-timeout-banner');
+    const isShowingTimeout = timeoutBanner && !timeoutBanner.classList.contains('hidden');
+
+    if (statsTitleHeader) {
+        if (isShowingTimeout) {
+            statsTitleHeader.textContent = texts.statsPreviousGameTitle || 'Результати минулої гри';
+        } else {
+            statsTitleHeader.textContent = texts.statsTitleHeader || 'Spiritual Stats';
+        }
+    }
+
+    if (timeoutBanner && isShowingTimeout) {
+        const timeoutTitle = document.getElementById('session-timeout-title');
+        const timeoutDesc = document.getElementById('session-timeout-desc');
+        if (timeoutTitle) timeoutTitle.textContent = texts.sessionTimeoutTitle || '⏱️ Гра призупинена за таймаутом (32 хв)';
+        if (timeoutDesc && prevSummaryStored) {
+            const descTmpl = texts.sessionTimeoutDesc || 'Минуло понад 32 хвилини без активності. Звіт ({attempts}) збережено в Google Таблицю. Нижче збережено результати вашої минулої гри. Натисніть «Нова гра», щоб почати заново.';
+            timeoutDesc.textContent = descTmpl.replace('{attempts}', `${prevSummaryStored.attempts}/${prevSummaryStored.maxAttempts}`);
+        }
+    }
 
     const documentTitles = {
         uk: 'Гра: Випадкова людина з Wikidata',
@@ -3959,6 +4022,7 @@ function startNewGame() {
     currentSessionId = `${timestampSeconds}_${randomNumber}`;
     localStorage.setItem('currentSessionId', currentSessionId);
     console.log(`[GAME_FLOW] New game session ID: ${currentSessionId}. Saved to localStorage.`);
+    recordUserActivity();
     
     currentAttemptStartTime = null; 
     localStorage.removeItem('currentAttemptStartTime');
@@ -4021,6 +4085,14 @@ function startNewGame() {
     userGenderGuess = null;
     userStatusGuess = null;
     hasChecked = false;
+
+    const statusButtons = document.querySelector('.status-buttons');
+    const genderButtons = document.querySelector('.gender-buttons');
+    const checkBtnElement = document.getElementById('check-btn');
+    if (statusButtons) statusButtons.style.display = '';
+    if (genderButtons) genderButtons.style.display = '';
+    if (checkBtnElement) checkBtnElement.style.display = '';
+
     document.getElementById('male-btn').classList.remove('active');
     document.getElementById('female-btn').classList.remove('active');
     document.getElementById('alive-btn').classList.remove('active');
@@ -4041,6 +4113,7 @@ function startNewGame() {
 }
 
 document.getElementById('next-photo').addEventListener('click', () => {
+    recordUserActivity();
     autoCollapseControlsOnGameplay();
     sessionFindNewClicks++;
     console.log('[USER_ACTION] "Find New Photo" button clicked.');
@@ -4053,6 +4126,7 @@ document.getElementById('next-photo').addEventListener('click', () => {
 });
 
 document.getElementById('male-btn').addEventListener('click', () => {
+    recordUserActivity();
     autoCollapseControlsOnGameplay();
     userGenderGuess = 'male';
     document.getElementById('male-btn').classList.add('active');
@@ -4062,6 +4136,7 @@ document.getElementById('male-btn').addEventListener('click', () => {
 });
 
 document.getElementById('female-btn').addEventListener('click', () => {
+    recordUserActivity();
     autoCollapseControlsOnGameplay();
     userGenderGuess = 'female';
     document.getElementById('female-btn').classList.add('active');
@@ -4071,6 +4146,7 @@ document.getElementById('female-btn').addEventListener('click', () => {
 });
 
 document.getElementById('alive-btn').addEventListener('click', () => {
+    recordUserActivity();
     autoCollapseControlsOnGameplay();
     userStatusGuess = 'alive';
     document.getElementById('alive-btn').classList.add('active');
@@ -4080,6 +4156,7 @@ document.getElementById('alive-btn').addEventListener('click', () => {
 });
 
 document.getElementById('dead-btn').addEventListener('click', () => {
+    recordUserActivity();
     autoCollapseControlsOnGameplay();
     userStatusGuess = 'dead';
     document.getElementById('dead-btn').classList.add('active');
@@ -4089,6 +4166,7 @@ document.getElementById('dead-btn').addEventListener('click', () => {
 });
 
 document.getElementById('check-btn').addEventListener('click', () => {
+    recordUserActivity();
     autoCollapseControlsOnGameplay();
     console.log('[USER_ACTION] "Check" button clicked.');
     if (!currentPerson || !currentPerson.personLabel || !currentPerson.personLabel.value) { 
@@ -4259,9 +4337,10 @@ document.getElementById('check-btn').addEventListener('click', () => {
 });
 
 document.getElementById('next-person').addEventListener('click', () => {
+    recordUserActivity();
     autoCollapseControlsOnGameplay();
     console.log('[USER_ACTION] "Next Photo" (after guess) button clicked.');
-     requestAnimationFrame(() => { 
+    requestAnimationFrame(() => { 
         document.getElementById('male-btn').disabled = false; 
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false; 
@@ -4272,7 +4351,27 @@ document.getElementById('next-person').addEventListener('click', () => {
 
 document.getElementById('new-game').addEventListener('click', () => {
     console.log('[USER_ACTION] "New Game" button clicked.');
-    reportProgressOnLeave('new_game_reset');
+    recordUserActivity();
+
+    // Hide timeout banner and reset previous game display state
+    const banner = document.getElementById('session-timeout-banner');
+    if (banner) banner.classList.add('hidden');
+
+    try {
+        localStorage.removeItem(PREVIOUS_GAME_SUMMARY_KEY);
+    } catch (e) {}
+
+    // Restore standard stats header title
+    const statsTitleEl = document.getElementById('stats-title-header');
+    const texts = translations[selectedLanguage] || translations.uk;
+    if (statsTitleEl) {
+        statsTitleEl.textContent = texts.statsTitleHeader || 'Духовна статистика';
+    }
+
+    // If an in-progress game was active, report it before starting fresh
+    if (currentAttempts > 0 && currentAttempts < maxAttempts && currentSessionId) {
+        reportProgressOnLeave('new_game_reset');
+    }
     startNewGame();
 });
 
@@ -4286,7 +4385,6 @@ function reportProgressOnLeave(trigger) {
     }
 
     const now = Date.now();
-    // Telegram Mini App closing via "✕" fires both 'visibilitychange' and 'pagehide' within milliseconds.
     // Prevent duplicate notifications within 10 seconds for the same unfinished session:
     if (lastReportedUnfinishedSessionId === currentSessionId && (now - lastReportedUnfinishedTime) < 10000) {
         console.log(`[LIFE_CYCLE_REPORT] Deduplicated leave report for session "${currentSessionId}" from trigger "${trigger}" (already sent ${now - lastReportedUnfinishedTime}ms ago).`);
@@ -4311,7 +4409,7 @@ function reportProgressOnLeave(trigger) {
         platform: detectClientPlatform()
     });
 
-    // Clear session state so next time app opens it starts completely fresh
+    // Clear session state
     localStorage.removeItem('currentSessionId');
     localStorage.removeItem('currentAttempts');
     localStorage.removeItem('totalGuesses');
@@ -4322,6 +4420,184 @@ function reportProgressOnLeave(trigger) {
     localStorage.removeItem('currentAttemptStartTime');
     currentSessionId = null;
     currentAttemptStartTime = null;
+}
+
+function showSessionTimeoutState(prevSummary) {
+    if (!prevSummary) return;
+
+    // Show timeout notification banner
+    const banner = document.getElementById('session-timeout-banner');
+    const bannerTitle = document.getElementById('session-timeout-title');
+    const bannerDesc = document.getElementById('session-timeout-desc');
+    const texts = translations[selectedLanguage] || translations.uk;
+
+    if (banner) {
+        if (bannerTitle) bannerTitle.textContent = texts.sessionTimeoutTitle || '⏱️ Гра призупинена за таймаутом (32 хв)';
+        if (bannerDesc) {
+            const descTmpl = texts.sessionTimeoutDesc || 'Минуло понад 32 хвилини без активності. Звіт ({attempts}) збережено в Google Таблицю. Нижче збережено результати вашої минулої гри. Натисніть «Нова гра», щоб почати заново.';
+            bannerDesc.textContent = descTmpl.replace('{attempts}', `${prevSummary.attempts}/${prevSummary.maxAttempts}`);
+        }
+        banner.classList.remove('hidden');
+    }
+
+    // Keep and display previous game results in Spiritual Stats Deck
+    const attemptsEl = document.getElementById('stats-attempts');
+    if (attemptsEl) attemptsEl.textContent = `${prevSummary.attempts}/${prevSummary.maxAttempts}`;
+    const successEl = document.getElementById('stats-success');
+    if (successEl) successEl.textContent = (prevSummary.successful !== undefined ? prevSummary.successful : 0).toString();
+    const failureEl = document.getElementById('stats-failure');
+    if (failureEl) failureEl.textContent = (prevSummary.failed !== undefined ? prevSummary.failed : 0).toString();
+    const rate = prevSummary.totalGuesses > 0 ? Math.round((prevSummary.successful / prevSummary.totalGuesses) * 100) : 0;
+    const rateEl = document.getElementById('stats-success-rate');
+    if (rateEl) rateEl.textContent = `${rate}%`;
+
+    // Render the exact circles and durations from that previous game
+    updateGuessHistoryDisplay(prevSummary.guessResultsHistory || [], prevSummary.attemptDurations || []);
+
+    // Stats title header indicates previous game results
+    const statsTitleEl = document.getElementById('stats-title-header');
+    if (statsTitleEl) {
+        statsTitleEl.textContent = texts.statsPreviousGameTitle || 'Результати минулої гри';
+    }
+
+    // Hide active in-game guess controls, reveal New Game button prominently
+    const statusButtons = document.querySelector('.status-buttons');
+    const genderButtons = document.querySelector('.gender-buttons');
+    const checkBtnElement = document.getElementById('check-btn');
+    const nextPersonWrapper = document.getElementById('next-person-wrapper');
+    const nextPersonBtn = document.getElementById('next-person');
+    const personInfo = document.getElementById('person-info');
+
+    if (statusButtons) statusButtons.style.display = 'none';
+    if (genderButtons) genderButtons.style.display = 'none';
+    if (checkBtnElement) checkBtnElement.style.display = 'none';
+    if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
+    if (nextPersonBtn) nextPersonBtn.style.display = 'none';
+    if (personInfo) personInfo.style.display = 'none';
+
+    // Move New Game button to prominent location
+    if (newGameBtn && initialNewGameContainer) {
+        if (newGameBtn.parentElement !== initialNewGameContainer) {
+            initialNewGameContainer.appendChild(newGameBtn);
+        }
+        initialNewGameContainer.style.display = 'flex';
+    }
+}
+
+function checkSessionTimeout(isInitialLaunch = false) {
+    const savedAttempts = parseInt(localStorage.getItem('currentAttempts') || '0', 10);
+    const savedSessionId = localStorage.getItem('currentSessionId');
+    const hasActiveSession = savedAttempts > 0 && savedAttempts < maxAttempts && Boolean(savedSessionId);
+
+    const lastActiveStr = localStorage.getItem(LAST_ACTIVITY_TIMESTAMP_KEY);
+    const lastActiveTime = lastActiveStr ? parseInt(lastActiveStr, 10) : 0;
+    const now = Date.now();
+    const elapsedMs = lastActiveTime > 0 ? (now - lastActiveTime) : 0;
+
+    // CASE 1: Active game session in progress
+    if (hasActiveSession) {
+        if (elapsedMs < SESSION_INACTIVITY_TIMEOUT_MS) {
+            // User returned WITHIN 32 minutes! (Screen locked to think in dark, brief phone call, etc.)
+            recordUserActivity();
+            console.log(`[SESSION_LIFECYCLE] Active session "${savedSessionId}" is within 32-minute grace period (${Math.round(elapsedMs / 1000)}s idle). Player continues game!`);
+            
+            if (isInitialLaunch) {
+                // If browser or WebView restarted within 32 min, restore the ongoing session
+                currentAttempts = savedAttempts;
+                currentSessionId = savedSessionId;
+                totalGuesses = parseInt(localStorage.getItem('totalGuesses') || '0', 10);
+                successfulGuesses = parseInt(localStorage.getItem('successfulGuesses') || '0', 10);
+                failedGuesses = parseInt(localStorage.getItem('failedGuesses') || '0', 10);
+                guessResultsHistory = safeParse('guessResultsHistory', []);
+                attemptDurations = safeParse('attemptDurations', []);
+
+                document.getElementById('stats-attempts').textContent = `${currentAttempts}/${maxAttempts}`;
+                document.getElementById('stats-success').textContent = successfulGuesses.toString();
+                document.getElementById('stats-failure').textContent = failedGuesses.toString();
+                const successRate = totalGuesses > 0 ? Math.round((successfulGuesses / totalGuesses) * 100) : 0;
+                document.getElementById('stats-success-rate').textContent = `${successRate}%`;
+                updateGuessHistoryDisplay();
+
+                const timeoutBanner = document.getElementById('session-timeout-banner');
+                if (timeoutBanner) timeoutBanner.classList.add('hidden');
+
+                // Continue current session
+                loadNextPerson('session_resumed');
+                return true;
+            }
+            return false;
+        } else {
+            // 32 MINUTES OR MORE HAVE PASSED! (Inactivity timeout reached)
+            const elapsedMinutes = Math.round(elapsedMs / 60000);
+            console.log(`[SESSION_TIMEOUT] Inactivity timeout reached! (${elapsedMinutes} min >= 32 min). Finalizing session "${savedSessionId}" (${savedAttempts}/${maxAttempts})...`);
+
+            const prevSummary = {
+                sessionId: savedSessionId,
+                attempts: savedAttempts,
+                maxAttempts: maxAttempts,
+                successful: successfulGuesses || parseInt(localStorage.getItem('successfulGuesses') || '0', 10),
+                failed: failedGuesses || parseInt(localStorage.getItem('failedGuesses') || '0', 10),
+                totalGuesses: totalGuesses || parseInt(localStorage.getItem('totalGuesses') || '0', 10),
+                guessResultsHistory: (guessResultsHistory && guessResultsHistory.length > 0) ? [...guessResultsHistory] : safeParse('guessResultsHistory', []),
+                attemptDurations: (attemptDurations && attemptDurations.length > 0) ? [...attemptDurations] : safeParse('attemptDurations', []),
+                timedOutAt: now,
+                elapsedMinutes: elapsedMinutes
+            };
+            try {
+                localStorage.setItem(PREVIOUS_GAME_SUMMARY_KEY, JSON.stringify(prevSummary));
+            } catch (e) {}
+
+            // Send unfinished game report to Google Sheets
+            sendGAEvent('game_unfinished_report', {
+                session_id: savedSessionId,
+                current_attempts: savedAttempts,
+                total_attempts_max: maxAttempts,
+                successful_guesses: prevSummary.successful,
+                failed_guesses: prevSummary.failed,
+                success_rate: `${prevSummary.totalGuesses > 0 ? Math.round((prevSummary.successful / prevSummary.totalGuesses) * 100) : 0}%`,
+                new_language: selectedLanguage,
+                game_mode: gameMode,
+                current_theme: isNight ? 'night' : 'day',
+                trigger_event: 'inactivity_timeout_32m',
+                status: `unfinished (таймаут ${elapsedMinutes} мин)`,
+                attempts_history_string: formatGuessHistoryString(prevSummary.guessResultsHistory, prevSummary.attemptDurations),
+                platform: detectClientPlatform()
+            });
+
+            // Clear in-progress session data from localStorage so next game starts clean
+            localStorage.removeItem('currentSessionId');
+            localStorage.removeItem('currentAttempts');
+            localStorage.removeItem('totalGuesses');
+            localStorage.removeItem('successfulGuesses');
+            localStorage.removeItem('failedGuesses');
+            localStorage.removeItem('guessResultsHistory');
+            localStorage.removeItem('attemptDurations');
+            localStorage.removeItem('currentAttemptStartTime');
+            currentSessionId = null;
+            currentAttempts = 0;
+
+            // Display previous results and show timeout state
+            showSessionTimeoutState(prevSummary);
+            return true;
+        }
+    }
+
+    // CASE 2: No active session currently, but check if we have a saved previousGameSummary to display
+    if (isInitialLaunch) {
+        const storedPrevSummary = safeParse(PREVIOUS_GAME_SUMMARY_KEY, null);
+        if (storedPrevSummary && storedPrevSummary.attempts > 0) {
+            console.log('[INIT_APP] Found previous game summary in storage. Showing past game results...');
+            showSessionTimeoutState(storedPrevSummary);
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function handleAppResumeOrWakeup() {
+    console.log('[LIFE_CYCLE] App resumed / screen turned on / window focused.');
+    checkSessionTimeout(false);
 }
 
 // Setup Help / Instructions Modal dialog event listeners
@@ -4761,18 +5037,19 @@ const initApp = () => {
     const statusBadge = document.getElementById('person-status-badge');
     if (statusBadge) statusBadge.classList.add('hidden');
 
-    // If a previous game was left unfinished without reporting (e.g. crash or phone call), send report now
-    if (currentAttempts > 0 && currentAttempts < maxAttempts && currentSessionId) {
-        console.log('[INIT_APP] Found unfinished session from previous launch. Dispatching report to Google Sheets...');
-        reportProgressOnLeave('app_restarted_fresh');
-    }
-
-    // Always start a brand new game on every launch/reopen with a fresh session and 0/10 attempts
-    console.log('[INIT_APP] Starting fresh game session on launch (0/10)...');
     updateLanguage(); 
-    startNewGame(); 
-    updateNewGameButtonPosition(true);
     updateTelegramUserInfoDisplay(); 
+
+    // Check for 32-minute inactivity timeout or ongoing game session resume
+    const wasSessionHandled = checkSessionTimeout(true);
+    if (!wasSessionHandled) {
+        console.log('[INIT_APP] Starting fresh game session on launch (0/10)...');
+        startNewGame(); 
+        updateNewGameButtonPosition(true);
+    } else {
+        console.log('[INIT_APP] Active game resumed or previous game timeout state restored.');
+        updateNewGameButtonPosition(true);
+    }
 
     // Initialize top controls state based on ongoing game progress or saved preference
     const storedTopControls = localStorage.getItem('top_controls_collapsed');
@@ -4794,23 +5071,36 @@ const initApp = () => {
         runSystemDiagnostics();
     }
 
-    // Setup lifecycle event listeners
+    // Setup lifecycle event listeners with 32-minute inactivity grace period
     window.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
-            console.log('[LIFE_CYCLE] Page became hidden (app backgrounded or closed).');
-            reportProgressOnLeave('visibility_hidden');
+            console.log('[LIFE_CYCLE] Page became hidden (screen turned off or app minimized). Storing last active timestamp for 32-min timeout.');
+            recordUserActivity();
+        } else if (document.visibilityState === 'visible') {
+            console.log('[LIFE_CYCLE] Page became visible (screen turned on or app foregrounded). Checking 32-minute inactivity timeout...');
+            handleAppResumeOrWakeup();
         }
     });
 
     window.addEventListener('pagehide', () => {
-        console.log('[LIFE_CYCLE] pagehide event fired.');
-        reportProgressOnLeave('pagehide');
+        console.log('[LIFE_CYCLE] pagehide event fired. Recording last active timestamp.');
+        recordUserActivity();
+    });
+
+    window.addEventListener('focus', () => {
+        console.log('[LIFE_CYCLE] Window focused. Checking inactivity timeout...');
+        handleAppResumeOrWakeup();
     });
 
     window.addEventListener('freeze', () => {
-        console.log('[LIFE_CYCLE] freeze event fired (app suspended).');
-        reportProgressOnLeave('freeze');
+        console.log('[LIFE_CYCLE] freeze event fired (app suspended). Recording activity timestamp.');
+        recordUserActivity();
     });
+
+    // Periodic check every 30 seconds for active idle screen timeout (32 minutes)
+    setInterval(() => {
+        checkSessionTimeout(false);
+    }, 30000);
 
     console.log('[WINDOW_ONLOAD] Page load sequence finished.');
 };
