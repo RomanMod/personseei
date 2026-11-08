@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.2';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.3';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -448,6 +448,9 @@ function safeParse(key, defaultValue) {
 // Кэш и состояние
 const rgbHslCache = safeParse('rgbHslCache', {});
 const wikidataCache = safeParse('wikidataCache', {});
+let localOfflineReserve = safeParse('personsee_local_offline_reserve_20', []);
+if (!Array.isArray(localOfflineReserve)) localOfflineReserve = [];
+let isBackgroundPhotoFetching = false;
 let sessionList = [];
 let isStreamingActive = false;
 let currentStreamId = 0;
@@ -2479,6 +2482,38 @@ async function getCommonsImageUrl(fileName) {
 }
 
 async function loadImageWithFallback(url, element) {
+    if (!url) {
+        return Promise.reject(new Error('Empty image URL in loadImageWithFallback'));
+    }
+
+    // Instant local data URL handling (base64 offline reserve or offline vector SVG)
+    if (url.startsWith('data:')) {
+        return new Promise((resolve) => {
+            element.crossOrigin = 'anonymous';
+            element.onload = () => {
+                element.style.opacity = '';
+                element.classList.add('loaded');
+                resolve();
+            };
+            element.onerror = () => {
+                element.style.opacity = '';
+                element.classList.add('loaded');
+                resolve();
+            };
+            element.src = url;
+            if (element.complete && element.naturalWidth > 0) {
+                element.style.opacity = '';
+                element.classList.add('loaded');
+                resolve();
+            }
+        });
+    }
+
+    // If device is offline, fail external URL immediately so offline local reserve/catalog activates with 0 delay
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        return Promise.reject(new Error('Device is offline, external image fetch aborted immediately'));
+    }
+
     console.log(`[IMAGE_LOAD] Attempting to load image directly: ${url}`);
     element.classList.remove('loaded');
         
@@ -2925,8 +2960,192 @@ function getNextCatalogPerson(category) {
     return candidate;
 }
 
+function generateOfflineAvatarSvg(name = 'Unknown', gender = 'unknown', status = 'alive') {
+    const isFemale = gender === 'female';
+    const isDead = status === 'deceased' || status === 'dead';
+    const statusText = isDead ? 'DECEASED' : 'ALIVE';
+    const accentColor = isFemale ? '#d946ef' : '#00f0ff';
+    const safeName = String(name).replace(/[<>&"']/g, '');
+
+    const silhouettePath = isFemale
+        ? 'M300 240 C340 240 370 270 370 310 C370 350 340 380 300 380 C260 380 230 350 230 310 C230 270 260 240 300 240 Z M200 520 C200 440 240 410 300 410 C360 410 400 440 400 520 Z'
+        : 'M300 230 C345 230 375 265 375 310 C375 355 345 385 300 385 C255 385 225 355 225 310 C225 265 255 230 300 230 Z M190 520 C190 435 235 410 300 410 C365 410 410 435 410 520 Z';
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="600" height="750">
+        <defs>
+            <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0c101b"/>
+                <stop offset="50%" stop-color="#070a10"/>
+                <stop offset="100%" stop-color="#040508"/>
+            </linearGradient>
+            <radialGradient id="aura" cx="50%" cy="45%" r="40%">
+                <stop offset="0%" stop-color="${accentColor}" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="${accentColor}" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="cardBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="${accentColor}" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.2"/>
+            </linearGradient>
+        </defs>
+        <rect width="600" height="750" fill="url(#bgGrad)"/>
+        <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+            <line x1="0" y1="150" x2="600" y2="150"/>
+            <line x1="0" y1="300" x2="600" y2="300"/>
+            <line x1="0" y1="450" x2="600" y2="450"/>
+            <line x1="0" y1="600" x2="600" y2="600"/>
+            <line x1="150" y1="0" x2="150" y2="750"/>
+            <line x1="300" y1="0" x2="300" y2="750"/>
+            <line x1="450" y1="0" x2="450" y2="750"/>
+        </g>
+        <circle cx="300" cy="340" r="220" fill="url(#aura)"/>
+        <circle cx="300" cy="340" r="170" fill="none" stroke="${accentColor}" stroke-opacity="0.2" stroke-width="2" stroke-dasharray="6,8"/>
+        <circle cx="300" cy="340" r="195" fill="none" stroke="${accentColor}" stroke-opacity="0.1" stroke-width="1"/>
+        <path d="${silhouettePath}" fill="#161e31" stroke="${accentColor}" stroke-opacity="0.4" stroke-width="3"/>
+        <path d="M 35 65 L 35 35 L 65 35" stroke="${accentColor}" stroke-width="3" fill="none"/>
+        <path d="M 565 65 L 565 35 L 535 35" stroke="${accentColor}" stroke-width="3" fill="none"/>
+        <path d="M 35 685 L 35 715 L 65 715" stroke="${accentColor}" stroke-width="3" fill="none"/>
+        <path d="M 565 685 L 565 715 L 535 715" stroke="${accentColor}" stroke-width="3" fill="none"/>
+        <rect x="170" y="48" width="260" height="26" rx="13" fill="rgba(0,0,0,0.6)" stroke="${accentColor}" stroke-opacity="0.3" stroke-width="1"/>
+        <text x="300" y="65" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="${accentColor}" letter-spacing="2">OFFLINE DEMO ARCHIVE</text>
+        <rect x="50" y="585" width="500" height="95" rx="16" fill="rgba(11, 15, 25, 0.85)" stroke="url(#cardBorder)" stroke-width="1.5"/>
+        <text x="300" y="628" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#ffffff" letter-spacing="0.5">${safeName}</text>
+        <text x="300" y="658" text-anchor="middle" font-family="monospace" font-size="11" font-weight="600" fill="rgba(255,255,255,0.5)" letter-spacing="1.5">INTUITION TRIAL CARD</text>
+    </svg>`;
+
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+function saveToOfflineReserve(person, imgElement) {
+    if (!person || !person.personLabel?.value) return;
+    const name = person.personLabel.value;
+    
+    // Do not save demo catalog or placeholder/SVG cards into the real photo reserve
+    if (person.isCatalogPerson || person.isOfflineReserve) return;
+    if (person.image?.value && person.image.value.startsWith('data:image/svg')) return;
+    
+    // Check if already in reserve
+    if (localOfflineReserve.some(item => item && item.personLabel && item.personLabel.value === name)) {
+        return;
+    }
+
+    try {
+        let base64 = null;
+        if (imgElement && imgElement.naturalWidth > 0 && imgElement.naturalHeight > 0) {
+            const canvas = document.createElement('canvas');
+            const maxDim = 460;
+            let w = imgElement.naturalWidth;
+            let h = imgElement.naturalHeight;
+            if (w > maxDim || h > maxDim) {
+                if (w > h) {
+                    h = Math.round((h * maxDim) / w);
+                    w = maxDim;
+                } else {
+                    w = Math.round((w * maxDim) / h);
+                    h = maxDim;
+                }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                ctx.drawImage(imgElement, 0, 0, w, h);
+                base64 = canvas.toDataURL('image/jpeg', 0.72);
+            }
+        }
+
+        if (!base64 && person.dataUrl && person.dataUrl.startsWith('data:image/jpeg')) {
+            base64 = person.dataUrl;
+        }
+
+        if (!base64) return;
+
+        const reserveEntry = {
+            person: person.person || { value: `offline:${name}` },
+            personLabel: person.personLabel,
+            gender: person.gender || { value: person.gender_string === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
+            birthDate: person.birthDate || { value: "1980-01-01T00:00:00Z" },
+            deathDate: person.deathDate,
+            gender_string: person.gender_string || (person.gender?.value?.includes('Q6581072') ? 'female' : 'male'),
+            status_string: person.status_string || (person.deathDate ? 'deceased' : 'alive'),
+            dataUrl: base64,
+            image: { value: base64 },
+            isOfflineReserve: true,
+            isOfflineFallback: true,
+            dataSource: 'Offline Local Reserve',
+            savedAt: Date.now()
+        };
+
+        localOfflineReserve.push(reserveEntry);
+        // Keep strictly up to 20 real photos in offline reserve
+        while (localOfflineReserve.length > 20) {
+            localOfflineReserve.shift();
+        }
+
+        localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
+        console.log(`[OFFLINE_RESERVE] Saved real photo for "${name}". Reserve stock: ${localOfflineReserve.length}/20`);
+    } catch (e) {
+        console.warn('[OFFLINE_RESERVE_SAVE_WARN] Could not save to offline reserve:', e.message);
+    }
+}
+
+function getOfflineCandidate(category) {
+    console.log(`[OFFLINE_MANAGER] Device offline. Checking local 20-photo reserve (Current: ${localOfflineReserve.length}/20)...`);
+
+    // 1. Try local reserve first (up to 20 real cached photos)
+    let availableReserve = localOfflineReserve.filter(p => 
+        p && p.personLabel?.value && !sessionShownNames.has(p.personLabel.value) && (p.dataUrl || p.image?.value)
+    );
+
+    if (availableReserve.length > 0 && category) {
+        const matched = availableReserve.filter(p => 
+            (!category.gender || p.gender_string === category.gender) &&
+            (!category.status || p.status_string === category.status)
+        );
+        if (matched.length > 0) {
+            availableReserve = matched;
+        }
+    }
+
+    if (availableReserve.length > 0) {
+        const chosen = availableReserve[Math.floor(Math.random() * availableReserve.length)];
+        sessionShownNames.add(chosen.personLabel.value);
+        console.log(`[OFFLINE_MANAGER] Serving real photo from LOCAL RESERVE (20): ${chosen.personLabel.value}`);
+        updateDataSourceIndicator('cache', 'Offline Local Reserve');
+        return {
+            ...chosen,
+            isOfflineReserve: true,
+            isOfflineFallback: true,
+            dataSource: 'Offline Local Reserve (20)',
+            image: { value: chosen.dataUrl || chosen.image.value }
+        };
+    }
+
+    // 2. If 20 real photos are depleted or empty, smoothly transition to 100 demo catalog cards
+    console.log('[OFFLINE_MANAGER] Local 20-photo reserve depleted/empty. Transitioning to 100 DEMO CATALOG cards.');
+    updateDataSourceIndicator('fallback', 'Offline Demo (100)');
+    const catalogCandidate = getNextCatalogPerson(category);
+    if (catalogCandidate) {
+        catalogCandidate.isOfflineFallback = true;
+        catalogCandidate.isCatalogPerson = true;
+        catalogCandidate.dataSource = 'Offline Demo Catalog';
+        // When device is offline, ensure the image is an offline SVG avatar so it NEVER fails to load!
+        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+            const svgUrl = generateOfflineAvatarSvg(
+                catalogCandidate.personLabel.value,
+                catalogCandidate.gender_string || 'unknown',
+                catalogCandidate.status_string || 'alive'
+            );
+            catalogCandidate.dataUrl = svgUrl;
+            catalogCandidate.image = { value: svgUrl };
+        }
+        return catalogCandidate;
+    }
+
+    return null;
+}
+
 function getOfflineFallbackPerson(category) {
-    return getNextCatalogPerson(category);
+    return getOfflineCandidate(category);
 }
 
 function removePersonFromCache(personToRemove) {
@@ -3076,16 +3295,13 @@ async function fetchPersonData(useRandom = false, category = null) {
     const categoryKey = `${category?.gender || 'any'}-${category?.status || 'any'}`;
     const isExplicitlyOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
 
-    // The 100 celebrity demo cards (peopleCatalog) are STRICTLY reserved for true offline demo mode
+    // When offline: serve from 20-photo local reserve first, then 100 demo catalog cards
     if (isExplicitlyOffline) {
-        console.log(`[OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.`);
-        updateDataSourceIndicator('fallback', 'Offline Backup');
-        const fallbackPerson = getOfflineFallbackPerson(category);
-        if (fallbackPerson) {
-            fallbackPerson.isOfflineFallback = true;
-            fallbackPerson.dataSource = 'Offline Catalog';
+        console.log(`[OFFLINE_MODE] Device has no internet (navigator.onLine === false). Routing to offline manager.`);
+        const offlinePerson = getOfflineFallbackPerson(category);
+        if (offlinePerson) {
+            return offlinePerson;
         }
-        return fallbackPerson;
     }
 
     try {
@@ -3109,9 +3325,10 @@ async function fetchPersonData(useRandom = false, category = null) {
             return await fetchPersonDataInner(true, category);
         } catch (retryErr) {
             console.error(`[WIKIDATA_FINAL_ERROR] All live & proxy attempts failed for ${categoryKey}: ${retryErr.message}`);
-            // Check if device lost connection mid-game
-            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-                return getOfflineFallbackPerson(category);
+            // If connection was lost mid-game or queries failed, switch to offline reserve / demo catalog
+            const offlineCandidate = getOfflineFallbackPerson(category);
+            if (offlineCandidate) {
+                return offlineCandidate;
             }
             throw retryErr;
         }
@@ -3344,7 +3561,13 @@ async function startPreloadNextAvailablePerson() {
                     if (isCompleted) return;
                     isCompleted = true;
                     cleanup();
-                    const faceCheck = await verifySingleFace(proxyImage);
+                    let faceCheck = { valid: true };
+                    if (!personBindingForPreload.isOfflineReserve && 
+                        !personBindingForPreload.isCatalogPerson && 
+                        !personBindingForPreload.isOfflineFallback && 
+                        !commonsUrl.startsWith('data:image/svg')) {
+                        faceCheck = await verifySingleFace(proxyImage);
+                    }
                     if (!faceCheck.valid) {
                         console.warn(`[PRELOAD_FACE_REJECT] Proxy preload face check failed (${faceCheck.reason}, faces: ${faceCheck.faceCount}) for ${personBindingForPreload.personLabel.value}`);
                         removePersonFromCache(personBindingForPreload);
@@ -3383,7 +3606,13 @@ async function startPreloadNextAvailablePerson() {
                 if (isCompleted) return;
                 isCompleted = true;
                 cleanup();
-                const faceCheck = await verifySingleFace(preloadedImage);
+                let faceCheck = { valid: true };
+                if (!personBindingForPreload.isOfflineReserve && 
+                    !personBindingForPreload.isCatalogPerson && 
+                    !personBindingForPreload.isOfflineFallback && 
+                    !commonsUrl.startsWith('data:image/svg')) {
+                    faceCheck = await verifySingleFace(preloadedImage);
+                }
                 if (!faceCheck.valid) {
                     console.warn(`[PRELOAD_FACE_REJECT] Direct preload face check failed (${faceCheck.reason}, faces: ${faceCheck.faceCount}) for ${personBindingForPreload.personLabel.value}`);
                     removePersonFromCache(personBindingForPreload);
@@ -3487,8 +3716,11 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     }
 
     // Only show circular progress spinner if image is NOT preloaded and not in memory
-    if (!hasCompletePreload) {
-        personImage.classList.remove('loaded');
+    const isImageInstantlyAvailable = hasCompletePreload || 
+        Boolean(currentPersonCandidate?.dataUrl) || 
+        Boolean(currentPersonCandidate?.image?.value?.startsWith('data:'));
+
+    if (!isImageInstantlyAvailable) {
         if (circularProgressContainer) {
             circularProgressContainer.classList.remove('hidden');
             circularProgressContainer.setAttribute('aria-valuenow', '0');
@@ -3500,7 +3732,7 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     }
     if (horizontalProgressBar) horizontalProgressBar.classList.add('hidden');
 
-    const progressPromise = hasCompletePreload ? Promise.resolve() : simulateImageProgress(400);
+    const progressPromise = Promise.resolve();
 
     if (hasCompletePreload) {
         console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
@@ -3603,7 +3835,9 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 }
 
                 let commonsUrl;
-                if (currentPersonCandidate.isOfflineFallback || currentPersonCandidate.isCatalogPerson) {
+                if (currentPersonCandidate.dataUrl) {
+                    commonsUrl = currentPersonCandidate.dataUrl;
+                } else if (currentPersonCandidate.isOfflineFallback || currentPersonCandidate.isCatalogPerson) {
                     commonsUrl = currentPersonCandidate.image.value;
                 } else {
                     const fileName = decodeURIComponent(currentPersonCandidate.image.value.split('/').pop());
@@ -3633,8 +3867,15 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 
                 await loadImageWithFallback(commonsUrl, personImage); 
                 
-                // Verify that loaded photo contains strictly ONE human face
-                const faceCheck = await verifySingleFace(personImage);
+                // Verify that loaded photo contains strictly ONE human face (bypass for verified offline reserve / catalog / SVG)
+                let faceCheck = { valid: true };
+                if (!currentPersonCandidate.isOfflineReserve && 
+                    !currentPersonCandidate.isCatalogPerson && 
+                    !currentPersonCandidate.isOfflineFallback &&
+                    !commonsUrl.startsWith('data:image/svg')) {
+                    faceCheck = await verifySingleFace(personImage);
+                }
+
                 if (!faceCheck.valid) {
                     console.warn(`[LOAD_PERSON_FACE_REJECT] Single face verification failed (${faceCheck.reason}, faces: ${faceCheck.faceCount}) for ${currentPersonCandidate.personLabel.value}. Discarding and retrying...`);
                     removePersonFromCache(currentPersonCandidate);
@@ -3655,16 +3896,10 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 if (attempts < maxImageLoadAttempts) {
                      console.log("[LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.");
                      currentPersonCandidate = await fetchPersonData(true, category); 
-                     personImage.classList.remove('loaded');
                      if (gameMode === 'closed') {
                          personImage.style.opacity = '0';
                      } else {
                          personImage.style.opacity = '';
-                     }
-                     if (circularProgressContainer) {
-                         circularProgressContainer.classList.remove('hidden');
-                         const cpBarSub = document.getElementById('circular-progress-bar');
-                         if (cpBarSub) cpBarSub.style.strokeDashoffset = 100;
                      }
                 } else {
                     console.error(`[LOAD_PERSON_FAILURE] Max image fetch attempts (${maxImageLoadAttempts}) reached for this slot. No image loaded.`);
@@ -3678,31 +3913,47 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     if (horizontalProgressBar) horizontalProgressBar.classList.add('hidden'); 
 
     if (!successfullyLoadedImage) {
-        console.warn(`[LOAD_PERSON_IMAGE_FAIL] Could not load image for ${personLabelForLogs}. Auto-skipping to next candidate in reserve...`);
-        if (currentPersonCandidate) {
-            removePersonFromCache(currentPersonCandidate);
-        }
-        if (sessionList.length > 0) {
-            const nextEntry = sessionList.shift();
-            ensureBufferStock();
-            await loadPersonFromData(nextEntry.person, nextEntry.category);
-            return;
-        }
-        // If sessionList was momentarily empty, try fetching one candidate on the fly
-        const fallbackCat = category || { gender: 'male', status: 'alive' };
-        try {
-            const freshPerson = await fetchPersonData(true, fallbackCat);
-            if (freshPerson) {
-                await loadPersonFromData(freshPerson, fallbackCat);
+        console.warn(`[LOAD_PERSON_IMAGE_FAIL] Could not load image for ${personLabelForLogs}.`);
+        
+        // OFFLINE RESCUE: If device is offline or candidate is from catalog / fallback, RESCUE immediately with SVG avatar!
+        // NEVER cascade skips in a rapid loop or show a black screen!
+        if ((typeof navigator !== 'undefined' && navigator.onLine === false) || 
+            currentPersonCandidate?.isCatalogPerson || 
+            currentPersonCandidate?.isOfflineFallback) {
+            
+            console.log(`[LOAD_PERSON_OFFLINE_RESCUE] Rescuing "${personLabelForLogs}" with offline vector avatar.`);
+            const svgAvatar = generateOfflineAvatarSvg(
+                currentPersonCandidate?.personLabel?.value || 'Unknown',
+                currentPersonCandidate?.gender_string || 'unknown',
+                currentPersonCandidate?.status_string || 'alive'
+            );
+            personImage.src = svgAvatar;
+            personImage.classList.add('loaded');
+            if (gameMode !== 'closed') {
+                personImage.style.opacity = '';
+                personImage.style.visibility = '';
+            }
+            successfullyLoadedImage = true;
+        } else {
+            if (currentPersonCandidate) {
+                removePersonFromCache(currentPersonCandidate);
+            }
+            if (sessionList.length > 0) {
+                const nextEntry = sessionList.shift();
                 ensureBufferStock();
+                await loadPersonFromData(nextEntry.person, nextEntry.category);
                 return;
             }
-        } catch (e) {
-            console.error('[LOAD_PERSON_RECOVERY_FAILED]', e);
+            // If buffer is empty, switch to offline candidate immediately
+            const offlineCandidate = getOfflineFallbackPerson(category);
+            if (offlineCandidate) {
+                await loadPersonFromData(offlineCandidate, category);
+                return;
+            }
+            handleError(); 
+            startPreloadNextAvailablePerson(); 
+            return;
         }
-        handleError(); 
-        startPreloadNextAvailablePerson(); 
-        return;
     }
 
     if (!currentPersonCandidate || 
@@ -3736,8 +3987,15 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     } else {
         updateDataSourceIndicator('healthy', currentPerson.dataSource);
     }
-    console.log(`[LOAD_PERSON_SUCCESS] Successfully loaded person: ${currentPerson.personLabel.value} (Source: ${currentPerson.dataSource}, Path: ${imageLoadPathDetail})`);
     updateUI(currentPerson); 
+    
+    // Automatically save successfully verified real photo to 20-photo local offline reserve
+    if (!currentPersonCandidate.isOfflineReserve && 
+        !currentPersonCandidate.isCatalogPerson && 
+        personImage && personImage.src && 
+        !personImage.src.startsWith('data:image/svg')) {
+        saveToOfflineReserve(currentPersonCandidate, personImage);
+    }
     
     currentAttemptStartTime = Date.now(); 
     localStorage.setItem('currentAttemptStartTime', currentAttemptStartTime.toString());
@@ -4201,17 +4459,269 @@ function startNewGame() {
     console.log('[GAME_FLOW] New game started successfully.');
 }
 
-document.getElementById('next-photo').addEventListener('click', () => {
+async function preloadCandidateImageOffscreen(candidate) {
+    if (!candidate) return null;
+
+    // 1. If it already has base64 dataUrl (from offline reserve or catalog)
+    if (candidate.dataUrl && candidate.dataUrl.startsWith('data:')) {
+        return candidate.dataUrl;
+    }
+    if (candidate.image?.value && candidate.image.value.startsWith('data:')) {
+        return candidate.image.value;
+    }
+
+    // 2. If device is offline
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        const svg = generateOfflineAvatarSvg(
+            candidate.personLabel?.value || 'Unknown',
+            candidate.gender_string || 'unknown',
+            candidate.status_string || 'alive'
+        );
+        candidate.dataUrl = svg;
+        return svg;
+    }
+
+    // 3. Resolve Commons URL
+    let commonsUrl;
+    if (candidate.isOfflineFallback || candidate.isCatalogPerson) {
+        commonsUrl = candidate.image.value;
+    } else {
+        const fileName = decodeURIComponent(candidate.image.value.split('/').pop());
+        commonsUrl = await getCommonsImageUrl(fileName);
+    }
+
+    if (!commonsUrl) {
+        throw new Error('No commons URL for candidate');
+    }
+
+    // 4. Preload in background offscreen Image element
+    const bgImg = new Image();
+    bgImg.crossOrigin = 'anonymous';
+
+    await new Promise((resolve, reject) => {
+        let isDone = false;
+        const timer = setTimeout(() => {
+            if (isDone) return;
+            isDone = true;
+            // Try proxy on slow response
+            const proxyUrl = makeWeservProxyUrl(commonsUrl);
+            const proxyImg = new Image();
+            proxyImg.crossOrigin = 'anonymous';
+            const proxyTimer = setTimeout(() => {
+                if (isDone) return;
+                isDone = true;
+                reject(new Error('Background preload timed out'));
+            }, 4500);
+            proxyImg.onload = () => {
+                if (isDone) return;
+                isDone = true;
+                clearTimeout(proxyTimer);
+                commonsUrl = proxyUrl;
+                resolve();
+            };
+            proxyImg.onerror = () => {
+                if (isDone) return;
+                isDone = true;
+                clearTimeout(proxyTimer);
+                reject(new Error('Background proxy preload failed'));
+            };
+            proxyImg.src = proxyUrl;
+        }, 3500);
+
+        bgImg.onload = () => {
+            if (isDone) return;
+            isDone = true;
+            clearTimeout(timer);
+            resolve();
+        };
+        bgImg.onerror = () => {
+            if (isDone) return;
+            isDone = true;
+            clearTimeout(timer);
+            // Try proxy
+            const proxyUrl = makeWeservProxyUrl(commonsUrl);
+            const proxyImg = new Image();
+            proxyImg.crossOrigin = 'anonymous';
+            proxyImg.onload = () => {
+                commonsUrl = proxyUrl;
+                resolve();
+            };
+            proxyImg.onerror = () => {
+                reject(new Error('Direct and proxy failed in background'));
+            };
+            proxyImg.src = proxyUrl;
+        };
+        bgImg.src = commonsUrl;
+    });
+
+    // 5. Verify single face (bypass for verified offline reserve / catalog / SVG)
+    if (!candidate.isOfflineReserve && !candidate.isCatalogPerson && !candidate.isOfflineFallback) {
+        const faceCheck = await verifySingleFace(bgImg);
+        if (!faceCheck.valid) {
+            removePersonFromCache(candidate);
+            throw new Error(`Face verification failed in background: ${faceCheck.reason}`);
+        }
+    }
+
+    return commonsUrl;
+}
+
+async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
+    const personImage = document.getElementById('person-image');
+    if (!personImage) return;
+
+    // Reset round guesses for the newly arrived person
+    userGenderGuess = null;
+    userStatusGuess = null;
+    hasChecked = false;
+
+    const maleBtn = document.getElementById('male-btn');
+    const femaleBtn = document.getElementById('female-btn');
+    const aliveBtn = document.getElementById('alive-btn');
+    const deadBtn = document.getElementById('dead-btn');
+    if (maleBtn) { maleBtn.classList.remove('active'); maleBtn.disabled = false; }
+    if (femaleBtn) { femaleBtn.classList.remove('active'); femaleBtn.disabled = false; }
+    if (aliveBtn) { aliveBtn.classList.remove('active'); aliveBtn.disabled = false; }
+    if (deadBtn) { deadBtn.classList.remove('active'); deadBtn.disabled = false; }
+
+    const personInfo = document.getElementById('person-info');
+    if (personInfo) {
+        personInfo.style.display = 'none';
+        personInfo.classList.add('hidden');
+        personInfo.classList.remove('correct', 'incorrect');
+    }
+    const statusBadge = document.getElementById('person-status-badge');
+    if (statusBadge) statusBadge.classList.add('hidden');
+
+    const nextPersonWrapper = document.getElementById('next-person-wrapper');
+    if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
+    const nextPersonBtn = document.getElementById('next-person');
+    if (nextPersonBtn) nextPersonBtn.style.display = 'none';
+
+    updateCheckButtonState();
+
+    const isCandidateFallback = Boolean(nextCandidate.isOfflineFallback || nextCandidate.dataSource === 'Offline Catalog');
+    currentPerson = {
+        personLabel: nextCandidate.personLabel,
+        gender: nextCandidate.gender,
+        deathDate: nextCandidate.deathDate,
+        birthDate: nextCandidate.birthDate,
+        person: nextCandidate.person,
+        category: nextCandidate.category,
+        image: { value: readyImgSrc },
+        dataUrl: nextCandidate.dataUrl || readyImgSrc,
+        isOfflineReserve: nextCandidate.isOfflineReserve,
+        isCatalogPerson: nextCandidate.isCatalogPerson,
+        dataSource: isCandidateFallback ? (nextCandidate.dataSource || 'Offline Catalog') : (nextCandidate.dataSource || 'Wikidata Live')
+    };
+
+    updateUI(currentPerson);
+
+    personImage.src = readyImgSrc;
+    personImage.classList.add('loaded');
+
+    if (gameMode === 'closed') {
+        const overlay = document.getElementById('overlay');
+        if (overlay) overlay.classList.remove('hidden');
+        personImage.style.opacity = '0';
+        personImage.style.visibility = 'hidden';
+    } else {
+        const overlay = document.getElementById('overlay');
+        if (overlay) overlay.classList.add('hidden');
+        personImage.style.opacity = '';
+        personImage.style.visibility = '';
+    }
+
+    // Save to 20-photo offline reserve if online real photo
+    if (!nextCandidate.isOfflineReserve && !nextCandidate.isCatalogPerson && !readyImgSrc.startsWith('data:image/svg')) {
+        saveToOfflineReserve(nextCandidate, personImage);
+    }
+
+    currentAttemptStartTime = Date.now();
+    localStorage.setItem('currentAttemptStartTime', currentAttemptStartTime.toString());
+
+    console.log(`[BACKGROUND_PHOTO_SWAP_COMPLETE] Smoothly transitioned to new photo: ${nextCandidate.personLabel.value}`);
+}
+
+async function requestBackgroundNewPhoto() {
     recordUserActivity();
     autoCollapseControlsOnGameplay();
     sessionFindNewClicks++;
-    console.log('[USER_ACTION] "Find New Photo" button clicked.');
-    if (isCurrentlyPreloading) {
-        console.log("[PRELOAD_CANCEL] User clicked 'Find New Photo', cancelling current preload if any.");
-        isCurrentlyPreloading = false; 
+    console.log('[USER_ACTION] "Find New Photo" button clicked (non-blocking background fetch).');
+
+    if (isBackgroundPhotoFetching) {
+        console.log('[BACKGROUND_PHOTO] Fetch already active in background, ignoring duplicate click.');
+        return;
     }
-    preloadedPersonContainer = null; 
-    loadNextPerson('find_new');
+
+    if (currentAttempts >= maxAttempts) {
+        console.log('[BACKGROUND_PHOTO] Max attempts reached, cannot fetch new photo.');
+        updateNewGameButtonPosition();
+        return;
+    }
+
+    const nextPhotoBtn = document.getElementById('next-photo');
+    const refreshIcon = nextPhotoBtn ? nextPhotoBtn.querySelector('.material-symbols-outlined') : null;
+    if (refreshIcon) {
+        refreshIcon.classList.add('animate-spin');
+    }
+
+    isBackgroundPhotoFetching = true;
+
+    try {
+        let candidate = null;
+        let readySrc = null;
+
+        // 1. If preloaded container already has a completed image, use it directly!
+        if (preloadedPersonContainer && 
+            preloadedPersonContainer.data && 
+            preloadedPersonContainer.imageElement && 
+            preloadedPersonContainer.imageElement.complete && 
+            preloadedPersonContainer.imageElement.naturalWidth > 0) {
+            
+            console.log('[BACKGROUND_PHOTO] Using existing completed preloaded container.');
+            candidate = preloadedPersonContainer.data.person;
+            readySrc = preloadedPersonContainer.proxyUrl || preloadedPersonContainer.imageElement.src;
+            preloadedPersonContainer = null;
+        } else {
+            // 2. Fetch candidate from buffer or fallback
+            let candidateEntry = sessionList.shift();
+            if (!candidateEntry) {
+                const fallbackCat = {
+                    gender: Math.random() > 0.5 ? 'male' : 'female',
+                    status: Math.random() > 0.5 ? 'alive' : 'deceased'
+                };
+                const fetched = await fetchPersonData(true, fallbackCat);
+                if (fetched) {
+                    candidateEntry = { person: fetched, category: fallbackCat };
+                }
+            }
+
+            if (!candidateEntry || !candidateEntry.person) {
+                throw new Error('No candidate available for background new photo');
+            }
+
+            candidate = candidateEntry.person;
+            readySrc = await preloadCandidateImageOffscreen(candidate);
+        }
+
+        if (candidate && readySrc) {
+            console.log(`[BACKGROUND_PHOTO] Candidate image ready in memory: ${candidate.personLabel.value}. Swapping seamlessly.`);
+            await applyNewPhotoSwap(candidate, readySrc);
+            ensureBufferStock();
+        }
+    } catch (err) {
+        console.warn('[BACKGROUND_PHOTO_WARN] Background fetch failed, user remains on current photo uninterrupted:', err.message);
+    } finally {
+        isBackgroundPhotoFetching = false;
+        if (refreshIcon) {
+            refreshIcon.classList.remove('animate-spin');
+        }
+    }
+}
+
+document.getElementById('next-photo').addEventListener('click', () => {
+    requestBackgroundNewPhoto();
 });
 
 document.getElementById('male-btn').addEventListener('click', () => {

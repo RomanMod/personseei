@@ -141,7 +141,7 @@ function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'ok',
     app: 'PersonSeeI Trivia Webhook',
-    version: '2.4.1',
+    version: '2.4.3',
     rows_position: NEW_ROWS_POSITION,
     sheets: ['Общая', 'Подробности'],
     timestamp: new Date().toISOString()

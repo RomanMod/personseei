@@ -1,0 +1,250 @@
+[16:18:29.86] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[16:18:29.89] [WARN] [LOAD_PERSON_IMAGE_FAIL] Could not load image for Amy Winehouse. Auto-skipping to next candidate in reserve...
+[16:18:29.91] [LOG] [BUFFER_STOCK] Current buffer: 7/8. Replenishing reserve in background...
+[16:18:29.94] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:29.97] [LOG] [CATALOG_DECK] Dealt candidate: Marie Curie (female-deceased). Remaining in deck: 21
+[16:18:30.00] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Edith Piaf
+[16:18:30.02] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[16:18:30.05] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[16:18:30.08] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Edith Piaf. Reason: fetch_no_preload_match
+[16:18:30.10] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Edith Piaf
+[16:18:30.13] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://commons.wikimedia.org/wiki/Special:FilePath/Edith_Piaf.jpg?width=600
+[16:18:30.15] [LOG] [BUFFER_STOCK_ADD] Buffered: Marie Curie (female-deceased). Total stock: 8
+[16:18:30.18] [LOG] [SESSION_LIFECYCLE] Active session "1794154581_9243" is within 32-minute grace period (30s idle). Player continues game!
+[16:18:30.21] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://commons.wikimedia.org/wiki/Special:FilePath/Edith_Piaf.jpg?width=600. Trying proxy fallback...
+[16:18:30.24] [LOG] [PRELOAD] Starting preload for: Princess Diana
+[16:18:30.29] [LOG] [BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: 8
+[16:18:30.33] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FSpecial%3AFilePath%2FEdith_Piaf.jpg%3Fwidth%3D600. Falling back to placeholder.
+[16:18:30.36] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 1/3): Direct and proxy image load failed for https://commons.wikimedia.org/wiki/Special:FilePath/Edith_Piaf.jpg?width=600
+[16:18:30.38] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:30.40] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:30.43] [LOG] [CATALOG_DECK] Dealt candidate: Indira Gandhi (female-deceased). Remaining in deck: 20
+[16:18:30.46] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Indira Gandhi
+[16:18:30.48] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Indira_Gandhi_official_portrait.png/960px-Indira_Gandhi_official_portrait.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:30.51] [WARN] [PRELOAD_DIRECT_FAILED] Direct image preload FAILED for https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:30.53] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[16:18:30.56] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Indira_Gandhi_official_portrait.png/960px-Indira_Gandhi_official_portrait.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:30.59] [ERROR] [PRELOAD_ERROR] Both direct and proxy preloads failed for: https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled (person: Princess Diana)
+[16:18:30.61] [ERROR] [PRELOAD_ERROR] Error during preload process for Princess Diana: Preload failed for https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:30.64] [LOG] [PRELOAD] Preloading process attempt finished.
+[16:18:30.66] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fthumb.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fa%2Fa1%2FIndira_Gandhi_official_portrait.png%2F960px-Indira_Gandhi_official_portrait.png%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail. Falling back to placeholder.
+[16:18:30.69] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Indira_Gandhi_official_portrait.png/960px-Indira_Gandhi_official_portrait.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:30.72] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:30.75] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:30.77] [LOG] [CATALOG_DECK] Dealt candidate: Mother Teresa (female-deceased). Remaining in deck: 19
+[16:18:30.79] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Mother Teresa
+[16:18:30.82] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Mother_Teresa_1.jpg/960px-Mother_Teresa_1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:30.85] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Mother_Teresa_1.jpg/960px-Mother_Teresa_1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:30.88] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fthumb.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fd%2Fd6%2FMother_Teresa_1.jpg%2F960px-Mother_Teresa_1.jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail. Falling back to placeholder.
+[16:18:30.90] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 3/3): Direct and proxy image load failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Mother_Teresa_1.jpg/960px-Mother_Teresa_1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:30.92] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[16:18:30.95] [WARN] [LOAD_PERSON_IMAGE_FAIL] Could not load image for Edith Piaf. Auto-skipping to next candidate in reserve...
+[16:18:30.97] [LOG] [BUFFER_STOCK] Current buffer: 7/8. Replenishing reserve in background...
+[16:18:30.99] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:31.02] [LOG] [CATALOG_DECK] Dealt candidate: Queen Elizabeth II (female-deceased). Remaining in deck: 18
+[16:18:31.04] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Princess Diana
+[16:18:31.06] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[16:18:31.08] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[16:18:31.11] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Princess Diana. Reason: fetch_no_preload_match
+[16:18:31.13] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Princess Diana
+[16:18:31.15] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:31.17] [LOG] [BUFFER_STOCK_ADD] Buffered: Queen Elizabeth II (female-deceased). Total stock: 8
+[16:18:31.20] [ERROR] [IMAGE_LOAD_PROXY_TIMEOUT] Proxy image load timed out for https://images.weserv.nl/?url=https%3A%2F%2Fthumb.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F7%2F71%2FRafael_Nadal_en_2024_(cropped).jpg%2F960px-Rafael_Nadal_en_2024_(cropped).jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail.
+[16:18:31.22] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 3/3): Direct and proxy image load timed out for https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Rafael_Nadal_en_2024_%28cropped%29.jpg/960px-Rafael_Nadal_en_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:31.25] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[16:18:31.27] [WARN] [LOAD_PERSON_IMAGE_FAIL] Could not load image for Serhii Plokhy. Auto-skipping to next candidate in reserve...
+[16:18:31.29] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Aretha Franklin
+[16:18:31.31] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[16:18:31.33] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[16:18:31.35] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Aretha Franklin. Reason: fetch_no_preload_match
+[16:18:31.38] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Aretha Franklin
+[16:18:31.40] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://commons.wikimedia.org/wiki/Special:FilePath/Aretha_Franklin_1968.jpg?width=600
+[16:18:31.42] [LOG] [PRELOAD] Starting preload for: Lesya Ukrainka
+[16:18:31.45] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:31.47] [LOG] [CATALOG_DECK] Dealt candidate: Edith Piaf (female-deceased). Remaining in deck: 17
+[16:18:31.49] [LOG] [BUFFER_STOCK_ADD] Buffered: Edith Piaf (female-deceased). Total stock: 8
+[16:18:31.52] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://commons.wikimedia.org/wiki/Special:FilePath/Aretha_Franklin_1968.jpg?width=600. Trying proxy fallback...
+[16:18:31.54] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[16:18:31.57] [WARN] [PRELOAD_DIRECT_FAILED] Direct image preload FAILED for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Lesya_Ukrainka_portrait.jpg/960px-Lesya_Ukrainka_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:31.60] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FSpecial%3AFilePath%2FAretha_Franklin_1968.jpg%3Fwidth%3D600. Falling back to placeholder.
+[16:18:31.62] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 1/3): Direct and proxy image load failed for https://commons.wikimedia.org/wiki/Special:FilePath/Aretha_Franklin_1968.jpg?width=600
+[16:18:31.64] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:31.67] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:31.69] [LOG] [CATALOG_DECK] Dealt candidate: Anna Akhmatova (female-deceased). Remaining in deck: 16
+[16:18:31.71] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Anna Akhmatova
+[16:18:31.73] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://upload.wikimedia.org/wikipedia/commons/5/50/%D0%90%D0%BD%D0%BD%D0%B0_%D0%90%D1%85%D0%BC%D0%B0%D1%82%D0%BE%D0%B2%D0%B0_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:31.76] [LOG] [BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: 8
+[16:18:31.78] [ERROR] [PRELOAD_ERROR] Both direct and proxy preloads failed for: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Lesya_Ukrainka_portrait.jpg/960px-Lesya_Ukrainka_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail (person: Lesya Ukrainka)
+[16:18:31.80] [ERROR] [PRELOAD_ERROR] Error during preload process for Lesya Ukrainka: Preload failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Lesya_Ukrainka_portrait.jpg/960px-Lesya_Ukrainka_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:31.83] [LOG] [PRELOAD] Preloading process attempt finished.
+[16:18:31.85] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[16:18:31.88] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://upload.wikimedia.org/wikipedia/commons/5/50/%D0%90%D0%BD%D0%BD%D0%B0_%D0%90%D1%85%D0%BC%D0%B0%D1%82%D0%BE%D0%B2%D0%B0_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:31.91] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F5%2F50%2F%D0%90%D0%BD%D0%BD%D0%B0_%D0%90%D1%85%D0%BC%D0%B0%D1%82%D0%BE%D0%B2%D0%B0_(cropped).png%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:31.93] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/5/50/%D0%90%D0%BD%D0%BD%D0%B0_%D0%90%D1%85%D0%BC%D0%B0%D1%82%D0%BE%D0%B2%D0%B0_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:31.95] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:31.97] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:31.99] [LOG] [CATALOG_DECK] Dealt candidate: Florence Nightingale (female-deceased). Remaining in deck: 15
+[16:18:32.02] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Florence Nightingale
+[16:18:32.04] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Florence_Nightingale_%28H_Hering_NPG_x82368%29.jpg/960px-Florence_Nightingale_%28H_Hering_NPG_x82368%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:32.08] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://upload.wikimedia.org/wikipedia/commons/8/8d/Maria_Zankovetska_%28before_1917%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:32.12] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F8%2F8d%2FMaria_Zankovetska_(before_1917).jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:32.15] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/8/8d/Maria_Zankovetska_%28before_1917%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:32.17] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:32.20] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:32.24] [LOG] [CATALOG_DECK] Dealt candidate: Whitney Houston (female-deceased). Remaining in deck: 14
+[16:18:32.28] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Whitney Houston
+[16:18:32.33] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600
+[16:18:32.36] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600. Trying proxy fallback...
+[16:18:32.40] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FSpecial%3AFilePath%2FWhitney_Houston_Welcome_Heroes_cropped.jpg%3Fwidth%3D600. Falling back to placeholder.
+[16:18:32.43] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 3/3): Direct and proxy image load failed for https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600
+[16:18:32.45] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[16:18:32.47] [WARN] [LOAD_PERSON_IMAGE_FAIL] Could not load image for Audrey Hepburn. Auto-skipping to next candidate in reserve...
+[16:18:32.50] [LOG] [BUFFER_STOCK] Current buffer: 7/8. Replenishing reserve in background...
+[16:18:32.52] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:32.54] [LOG] [CATALOG_DECK] Dealt candidate: Solomiya Krushelnytska (female-deceased). Remaining in deck: 13
+[16:18:32.56] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Lesya Ukrainka
+[16:18:32.59] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[16:18:32.61] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[16:18:32.63] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Lesya Ukrainka. Reason: fetch_no_preload_match
+[16:18:32.65] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Lesya Ukrainka
+[16:18:32.67] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Lesya_Ukrainka_portrait.jpg/960px-Lesya_Ukrainka_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:32.69] [LOG] [BUFFER_STOCK_ADD] Buffered: Solomiya Krushelnytska (female-deceased). Total stock: 8
+[16:18:32.72] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://upload.wikimedia.org/wikipedia/commons/3/3d/Margaret_Thatcher_stock_portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:32.75] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F3%2F3d%2FMargaret_Thatcher_stock_portrait_(cropped).jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:32.78] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 1/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/3/3d/Margaret_Thatcher_stock_portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:32.80] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:32.82] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:32.84] [LOG] [CATALOG_DECK] Dealt candidate: Rosa Parks (female-deceased). Remaining in deck: 12
+[16:18:32.86] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Rosa Parks
+[16:18:32.89] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:32.92] [LOG] [PRELOAD] Starting preload for: Whitney Houston
+[16:18:32.94] [LOG] [BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: 8
+[16:18:32.97] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:32.99] [WARN] [PRELOAD_DIRECT_FAILED] Direct image preload FAILED for https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600. Trying proxy fallback...
+[16:18:33.02] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fthumb.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fb%2Fb1%2FRosa_Parks%2C_November_1956_(cropped).jpg%2F960px-Rosa_Parks%2C_November_1956_(cropped).jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail. Falling back to placeholder.
+[16:18:33.04] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:33.07] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:33.09] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:33.11] [LOG] [CATALOG_DECK] Dealt candidate: Marilyn Monroe (female-deceased). Remaining in deck: 11
+[16:18:33.14] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Marilyn Monroe
+[16:18:33.16] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Monroecirca1953.jpg/960px-Monroecirca1953.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:33.19] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://upload.wikimedia.org/wikipedia/commons/5/50/%D0%90%D0%BD%D0%BD%D0%B0_%D0%90%D1%85%D0%BC%D0%B0%D1%82%D0%BE%D0%B2%D0%B0_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:33.21] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[16:18:33.24] [ERROR] [PRELOAD_ERROR] Both direct and proxy preloads failed for: https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600 (person: Whitney Houston)
+[16:18:33.26] [ERROR] [PRELOAD_ERROR] Error during preload process for Whitney Houston: Preload failed for https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600
+[16:18:33.28] [LOG] [PRELOAD] Preloading process attempt finished.
+[16:18:33.31] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F5%2F50%2F%D0%90%D0%BD%D0%BD%D0%B0_%D0%90%D1%85%D0%BC%D0%B0%D1%82%D0%BE%D0%B2%D0%B0_(cropped).png%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:33.33] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 1/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/5/50/%D0%90%D0%BD%D0%BD%D0%B0_%D0%90%D1%85%D0%BC%D0%B0%D1%82%D0%BE%D0%B2%D0%B0_%28cropped%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:33.35] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:33.38] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:33.40] [LOG] [CATALOG_DECK] Dealt candidate: Maria Zankovetska (female-deceased). Remaining in deck: 10
+[16:18:33.43] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Maria Zankovetska
+[16:18:33.45] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://upload.wikimedia.org/wikipedia/commons/8/8d/Maria_Zankovetska_%28before_1917%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:33.48] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://upload.wikimedia.org/wikipedia/commons/8/8d/Maria_Zankovetska_%28before_1917%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:33.51] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F8%2F8d%2FMaria_Zankovetska_(before_1917).jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:33.54] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/8/8d/Maria_Zankovetska_%28before_1917%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:33.56] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:33.58] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:33.60] [LOG] [CATALOG_DECK] Dealt candidate: Margaret Thatcher (female-deceased). Remaining in deck: 9
+[16:18:33.63] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Margaret Thatcher
+[16:18:33.65] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://upload.wikimedia.org/wikipedia/commons/3/3d/Margaret_Thatcher_stock_portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:33.68] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://upload.wikimedia.org/wikipedia/commons/3/3d/Margaret_Thatcher_stock_portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:33.71] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F3%2F3d%2FMargaret_Thatcher_stock_portrait_(cropped).jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:33.74] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 3/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/3/3d/Margaret_Thatcher_stock_portrait_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:33.76] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[16:18:33.78] [WARN] [LOAD_PERSON_IMAGE_FAIL] Could not load image for Anna Akhmatova. Auto-skipping to next candidate in reserve...
+[16:18:33.80] [LOG] [BUFFER_STOCK] Current buffer: 7/8. Replenishing reserve in background...
+[16:18:33.83] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:33.85] [LOG] [CATALOG_DECK] Dealt candidate: Frida Kahlo (female-deceased). Remaining in deck: 8
+[16:18:33.87] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Whitney Houston
+[16:18:33.89] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[16:18:33.91] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[16:18:33.93] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Whitney Houston. Reason: fetch_no_preload_match
+[16:18:33.96] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Whitney Houston
+[16:18:33.98] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600
+[16:18:34.00] [LOG] [BUFFER_STOCK_ADD] Buffered: Frida Kahlo (female-deceased). Total stock: 8
+[16:18:34.03] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600. Trying proxy fallback...
+[16:18:34.06] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FSpecial%3AFilePath%2FWhitney_Houston_Welcome_Heroes_cropped.jpg%3Fwidth%3D600. Falling back to placeholder.
+[16:18:34.08] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 1/3): Direct and proxy image load failed for https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600
+[16:18:34.10] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:34.13] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:34.15] [LOG] [CATALOG_DECK] Dealt candidate: Lesya Ukrainka (female-deceased). Remaining in deck: 7
+[16:18:34.17] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Lesya Ukrainka
+[16:18:34.19] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Lesya_Ukrainka_portrait.jpg/960px-Lesya_Ukrainka_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:34.22] [LOG] [PRELOAD] Starting preload for: Marie Curie
+[16:18:34.24] [LOG] [BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: 8
+[16:18:34.27] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Lesya_Ukrainka_portrait.jpg/960px-Lesya_Ukrainka_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:34.30] [WARN] [PRELOAD_DIRECT_FAILED] Direct image preload FAILED for https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/960px-Marie_Curie_c._1920s.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:34.32] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fthumb.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fd%2Fd5%2FLesya_Ukrainka_portrait.jpg%2F960px-Lesya_Ukrainka_portrait.jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail. Falling back to placeholder.
+[16:18:34.35] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Lesya_Ukrainka_portrait.jpg/960px-Lesya_Ukrainka_portrait.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:34.37] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:34.39] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:34.41] [LOG] [CATALOG_DECK] Dealt candidate: Kateryna Bilokur (female-deceased). Remaining in deck: 6
+[16:18:34.44] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Kateryna Bilokur
+[16:18:34.46] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://upload.wikimedia.org/wikipedia/commons/9/97/Bogdanivka_Jagotyn_%28Bilokur%29_0084.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:34.49] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[16:18:34.51] [ERROR] [PRELOAD_ERROR] Both direct and proxy preloads failed for: https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/960px-Marie_Curie_c._1920s.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail (person: Marie Curie)
+[16:18:34.53] [ERROR] [PRELOAD_ERROR] Error during preload process for Marie Curie: Preload failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/960px-Marie_Curie_c._1920s.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:34.55] [LOG] [PRELOAD] Preloading process attempt finished.
+[16:18:34.58] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://upload.wikimedia.org/wikipedia/commons/9/97/Bogdanivka_Jagotyn_%28Bilokur%29_0084.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:34.62] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F97%2FBogdanivka_Jagotyn_(Bilokur)_0084.JPG%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:34.64] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 3/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/9/97/Bogdanivka_Jagotyn_%28Bilokur%29_0084.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:34.66] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[16:18:34.68] [WARN] [LOAD_PERSON_IMAGE_FAIL] Could not load image for Whitney Houston. Auto-skipping to next candidate in reserve...
+[16:18:34.71] [LOG] [BUFFER_STOCK] Current buffer: 7/8. Replenishing reserve in background...
+[16:18:34.73] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:34.75] [LOG] [CATALOG_DECK] Dealt candidate: Betty White (female-deceased). Remaining in deck: 5
+[16:18:34.78] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Marie Curie
+[16:18:34.80] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[16:18:34.82] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[16:18:34.84] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Marie Curie. Reason: fetch_no_preload_match
+[16:18:34.86] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Marie Curie
+[16:18:34.88] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/960px-Marie_Curie_c._1920s.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:34.91] [LOG] [BUFFER_STOCK_ADD] Buffered: Betty White (female-deceased). Total stock: 8
+[16:18:34.94] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/960px-Marie_Curie_c._1920s.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:34.96] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fthumb.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2Fc%2Fc8%2FMarie_Curie_c._1920s.jpg%2F960px-Marie_Curie_c._1920s.jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail. Falling back to placeholder.
+[16:18:34.99] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 1/3): Direct and proxy image load failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/960px-Marie_Curie_c._1920s.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:35.01] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:35.03] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:35.06] [LOG] [CATALOG_DECK] Dealt candidate: Agatha Christie (female-deceased). Remaining in deck: 4
+[16:18:35.08] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Agatha Christie
+[16:18:35.10] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Agatha_Christie_in_Nederland_%28detectiveschrijfster%29%2C_bij_aankomst_op_Schiphol_me%2C_Bestanddeelnr_916-8898_%28cropped%29.jpg/960px-Agatha_Christie_in_Nederland_%28detectiveschrijfster%29%2C_bij_aankomst_op_Schiphol_me%2C_Bestanddeelnr_916-8898_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:35.14] [LOG] [PRELOAD] Starting preload for: Rosa Parks
+[16:18:35.16] [LOG] [BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: 8
+[16:18:35.19] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/George_Charles_Beresford_-_Virginia_Woolf_in_1902_-_Restoration.jpg/960px-George_Charles_Beresford_-_Virginia_Woolf_in_1902_-_Restoration.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:35.21] [WARN] [PRELOAD_DIRECT_FAILED] Direct image preload FAILED for https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:35.24] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fthumb.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F0%2F0b%2FGeorge_Charles_Beresford_-_Virginia_Woolf_in_1902_-_Restoration.jpg%2F960px-George_Charles_Beresford_-_Virginia_Woolf_in_1902_-_Restoration.jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail. Falling back to placeholder.
+[16:18:35.26] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 3/3): Direct and proxy image load failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/George_Charles_Beresford_-_Virginia_Woolf_in_1902_-_Restoration.jpg/960px-George_Charles_Beresford_-_Virginia_Woolf_in_1902_-_Restoration.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:35.29] [ERROR] [LOAD_PERSON_FAILURE] Max image fetch attempts (3) reached for this slot. No image loaded.
+[16:18:35.31] [WARN] [LOAD_PERSON_IMAGE_FAIL] Could not load image for Carrie Fisher. Auto-skipping to next candidate in reserve...
+[16:18:35.33] [LOG] [BUFFER_STOCK] Current buffer: 7/8. Replenishing reserve in background...
+[16:18:35.35] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:35.37] [LOG] [CATALOG_DECK] Dealt candidate: Amy Winehouse (female-deceased). Remaining in deck: 3
+[16:18:35.40] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Rosa Parks
+[16:18:35.42] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[16:18:35.44] [LOG] [IMAGE_LOAD] Starting image loading simulation.
+[16:18:35.46] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Rosa Parks. Reason: fetch_no_preload_match
+[16:18:35.48] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Rosa Parks
+[16:18:35.50] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:35.53] [LOG] [BUFFER_STOCK_ADD] Buffered: Amy Winehouse (female-deceased). Total stock: 8
+[16:18:35.56] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[16:18:35.58] [ERROR] [PRELOAD_ERROR] Both direct and proxy preloads failed for: https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail (person: Rosa Parks)
+[16:18:35.60] [ERROR] [PRELOAD_ERROR] Error during preload process for Rosa Parks: Preload failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:35.63] [LOG] [PRELOAD] Preloading process attempt finished.
+[16:18:35.65] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b1/Rosa_Parks%2C_November_1956_%28cropped%29.jpg/960px-Rosa_Parks%2C_November_1956_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:35.67] [LOG] [PRELOAD] Starting preload for: Mother Teresa
+[16:18:35.70] [LOG] [BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: 8
+[16:18:35.73] [WARN] [IMAGE_LOAD_DIRECT_TIMEOUT] Direct image load TIMEOUT for https://upload.wikimedia.org/wikipedia/commons/2/22/Coco_Chanel_in_Los_Angeles%2C_1931_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled. Trying proxy fallback...
+[16:18:35.75] [WARN] [PRELOAD_DIRECT_FAILED] Direct image preload FAILED for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Mother_Teresa_1.jpg/960px-Mother_Teresa_1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
+[16:18:35.78] [ERROR] [IMAGE_LOAD_PROXY_ERROR] Proxy image load also failed: https://images.weserv.nl/?url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F2%2F22%2FCoco_Chanel_in_Los_Angeles%2C_1931_(cropped).jpg%3Futm_source%3Den.wikipedia.org%26utm_campaign%3Dapi%26utm_content%3Dthumbnail_unscaled. Falling back to placeholder.
+[16:18:35.80] [ERROR] [LOAD_PERSON_ERROR] Error processing person/image (fetch attempt 2/3): Direct and proxy image load failed for https://upload.wikimedia.org/wikipedia/commons/2/22/Coco_Chanel_in_Los_Angeles%2C_1931_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[16:18:35.82] [LOG] [LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.
+[16:18:35.85] [LOG] [OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.
+[16:18:35.87] [LOG] [CATALOG_DECK] Dealt candidate: Audrey Hepburn (female-deceased). Remaining in deck: 2
+[16:18:35.89] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 3/3 for person: Audrey Hepburn
+[16:18:35.91] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/AudreyKHepburn.jpg/960px-AudreyKHepburn.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:35.95] [LOG] [IMAGE_LOAD] Image loading simulation reached 99%.
+[16:18:35.98] [ERROR] [PRELOAD_ERROR] Both direct and proxy preloads failed for: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Mother_Teresa_1.jpg/960px-Mother_Teresa_1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail (person: Mother Teresa)
+[16:18:36.01] [ERROR] [PRELOAD_ERROR] Error during preload process for Mother Teresa: Preload failed for https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/Mother_Teresa_1.jpg/960px-Mother_Teresa_1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[16:18:36.03] [LOG] [PRELOAD] Preloading process attempt finished.
+[16:18:36.06] [WARN] [IMAGE_LOAD_DIRECT_ERROR] Direct image load ERROR for https://thumb.wikimedia.org/wikipedia/commons/thumb/7/74/AudreyKHepburn.jpg/960px-AudreyKHepburn.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail. Trying proxy fallback...
