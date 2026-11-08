@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.3';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.4';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -404,6 +404,11 @@ function runSystemDiagnostics() {
         console.log(`[DIAG] Google Sheets Webhook URL Prefix: ${activeWebhookUrl.substring(0, 48)}...`);
     } else {
         console.log('[DIAG] Google Sheets Webhook URL: NOT CONFIGURED');
+    }
+    
+    // Candidate Reserves Diagnostics
+    if (typeof logReserveStatus === 'function') {
+        logReserveStatus('DIAGNOSTICS');
     }
     
     console.log('--- END DIAGNOSTICS ---');
@@ -2007,6 +2012,9 @@ function logPhotoStatus() {
                                 ? preloadedPersonContainer.data.person.personLabel.value
                                 : 'None or no label';
     console.log(`[PHOTO_STATUS] Loaded photos in session: ${loadedPhotos}, Remaining in sessionList: ${sessionList.length}, Preloaded: ${preloadedPersonName}`);
+    if (typeof logReserveStatus === 'function') {
+        logReserveStatus('photo_status');
+    }
 }
 
 
@@ -3075,10 +3083,15 @@ function saveToOfflineReserve(person, imgElement) {
             savedAt: Date.now()
         };
 
-        localOfflineReserve.push(reserveEntry);
-        // Keep strictly up to 20 real photos in offline reserve
-        while (localOfflineReserve.length > 20) {
-            localOfflineReserve.shift();
+        // If we have seed placeholders, replace the first seed placeholder with the real photo!
+        const seedIndex = localOfflineReserve.findIndex(item => item && item.isSeedFallback);
+        if (seedIndex !== -1) {
+            localOfflineReserve[seedIndex] = reserveEntry;
+        } else {
+            localOfflineReserve.push(reserveEntry);
+            while (localOfflineReserve.length > 20) {
+                localOfflineReserve.shift();
+            }
         }
 
         localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
@@ -3146,6 +3159,140 @@ function getOfflineCandidate(category) {
 
 function getOfflineFallbackPerson(category) {
     return getOfflineCandidate(category);
+}
+
+function seedOfflineReserveIfNeeded() {
+    if (!Array.isArray(localOfflineReserve)) {
+        localOfflineReserve = [];
+    }
+    if (localOfflineReserve.length >= 20) {
+        return;
+    }
+    const needed = 20 - localOfflineReserve.length;
+    console.log(`[OFFLINE_RESERVE] Seeding initial offline reserve with ${needed} baseline candidates...`);
+    const pool = (Array.isArray(peopleCatalog) && peopleCatalog.length > 0) ? peopleCatalog : offlinePeople;
+    for (let i = 0; i < pool.length && localOfflineReserve.length < 20; i++) {
+        const item = pool[i];
+        if (!item || !item.personLabel?.value) continue;
+        if (localOfflineReserve.some(r => r && r.personLabel && r.personLabel.value === item.personLabel.value)) continue;
+        const svgUrl = generateOfflineAvatarSvg(
+            item.personLabel.value,
+            item.gender_string || 'unknown',
+            item.status_string || 'alive'
+        );
+        localOfflineReserve.push({
+            person: item.person || { value: `seed:${item.personLabel.value}` },
+            personLabel: item.personLabel,
+            gender: item.gender || { value: item.gender_string === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
+            birthDate: item.birthDate || { value: "1980-01-01T00:00:00Z" },
+            deathDate: item.deathDate || null,
+            gender_string: item.gender_string || 'male',
+            status_string: item.status_string || 'alive',
+            dataUrl: svgUrl,
+            image: { value: svgUrl },
+            isOfflineReserve: true,
+            isOfflineFallback: true,
+            isSeedFallback: true,
+            dataSource: 'Initial Reserve (Seed)',
+            savedAt: Date.now()
+        });
+    }
+    try {
+        localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
+        console.log(`[OFFLINE_RESERVE] Reserve seeded successfully. Current count: ${localOfflineReserve.length}/20`);
+    } catch (e) {}
+}
+
+// Ensure offline reserve is immediately seeded on script execution
+seedOfflineReserveIfNeeded();
+
+function getInstantReserveCandidate(category = null) {
+    // 1. Try localOfflineReserve (instant 0ms)
+    let availableReserve = Array.isArray(localOfflineReserve) ? localOfflineReserve.filter(p => 
+        p && p.personLabel?.value && !sessionShownNames.has(p.personLabel.value)
+    ) : [];
+
+    if (availableReserve.length > 0 && category) {
+        const matched = availableReserve.filter(p => 
+            (!category.gender || p.gender_string === category.gender) &&
+            (!category.status || p.status_string === category.status)
+        );
+        if (matched.length > 0) availableReserve = matched;
+    }
+
+    if (availableReserve.length > 0) {
+        const chosen = availableReserve[Math.floor(Math.random() * availableReserve.length)];
+        sessionShownNames.add(chosen.personLabel.value);
+        console.log(`[INSTANT_CANDIDATE] Serving from Local Offline Reserve (0ms): ${chosen.personLabel.value}`);
+        return {
+            person: {
+                ...chosen,
+                image: { value: chosen.dataUrl || chosen.image?.value }
+            },
+            category: category || { gender: chosen.gender_string, status: chosen.status_string }
+        };
+    }
+
+    // 2. Try from wikidataCache
+    const cached = getAnyCachedWikidataPerson(category);
+    if (cached) {
+        console.log(`[INSTANT_CANDIDATE] Serving from Wikidata Cache (0ms): ${cached.personLabel.value}`);
+        return {
+            person: cached,
+            category: category || { gender: cached.gender_string || 'male', status: cached.status_string || 'alive' }
+        };
+    }
+
+    // 3. Fallback to Catalog
+    const catalogItem = getNextCatalogPerson(category);
+    if (catalogItem) {
+        console.log(`[INSTANT_CANDIDATE] Serving from 100 Demo Catalog (0ms): ${catalogItem.personLabel.value}`);
+        if (!navigator.onLine || !catalogItem.image?.value || catalogItem.image.value.startsWith('http')) {
+            const svgUrl = generateOfflineAvatarSvg(
+                catalogItem.personLabel.value,
+                catalogItem.gender_string || 'unknown',
+                catalogItem.status_string || 'alive'
+            );
+            catalogItem.dataUrl = svgUrl;
+            catalogItem.image = { value: svgUrl };
+        }
+        return {
+            person: catalogItem,
+            category: category || { gender: catalogItem.gender_string, status: catalogItem.status_string }
+        };
+    }
+
+    return null;
+}
+
+function logReserveStatus(context = 'STATUS') {
+    let wikidataCacheCount = 0;
+    try {
+        if (wikidataCache && typeof wikidataCache === 'object') {
+            for (const k of Object.keys(wikidataCache)) {
+                if (Array.isArray(wikidataCache[k])) {
+                    wikidataCacheCount += wikidataCache[k].length;
+                }
+            }
+        }
+    } catch (e) {}
+
+    let catalogRemaining = 0;
+    try {
+        if (typeof categoryDecks === 'object') {
+            for (const k of Object.keys(categoryDecks)) {
+                if (Array.isArray(categoryDecks[k])) {
+                    catalogRemaining += categoryDecks[k].length;
+                }
+            }
+        }
+    } catch (e) {}
+
+    const realPhotosCount = Array.isArray(localOfflineReserve) ? localOfflineReserve.filter(p => p && !p.isSeedFallback).length : 0;
+    const reserveTotal = Array.isArray(localOfflineReserve) ? localOfflineReserve.length : 0;
+    const statusLine = `[RESERVE_STOCK] [${context}] Buffer (sessionList): ${sessionList.length}/${TARGET_BUFFER_RESERVE} | Local Reserve: ${reserveTotal}/20 (${realPhotosCount} real photos) | Wikidata Cache: ${wikidataCacheCount} | Catalog Backup: ${catalogRemaining}/100`;
+    console.log(statusLine);
+    return statusLine;
 }
 
 function removePersonFromCache(personToRemove) {
@@ -4154,11 +4301,23 @@ async function ensureBufferStock() {
     const desiredStock = Math.min(TARGET_BUFFER_RESERVE, remainingAttempts + 2);
 
     if (sessionList.length >= desiredStock) {
+        logReserveStatus('buffer_full');
         return;
     }
 
     isReplenishingBuffer = true;
-    console.log(`[BUFFER_STOCK] Current buffer: ${sessionList.length}/${desiredStock}. Replenishing reserve in background...`);
+    logReserveStatus('replenish_start');
+
+    // Fast-backfill if buffer is critical (< 2) so buffer is NEVER 0 while network queries run
+    while (sessionList.length < 2 && sessionList.length < desiredStock) {
+        const instant = getInstantReserveCandidate();
+        if (instant && instant.person) {
+            sessionList.push(instant);
+            console.log(`[BUFFER_FAST_BACKFILL] Fast-buffered candidate: ${instant.person.personLabel.value}. Buffer: ${sessionList.length}/${desiredStock}`);
+        } else {
+            break;
+        }
+    }
 
     const categories = [
         { gender: 'male', status: 'alive' },
@@ -4174,11 +4333,16 @@ async function ensureBufferStock() {
                 const personBinding = await fetchPersonData(false, cat);
                 if (personBinding && personBinding.personLabel?.value && personBinding.image?.value) {
                     sessionList.push({ person: personBinding, category: cat });
-                    console.log(`[BUFFER_STOCK_ADD] Buffered: ${personBinding.personLabel.value} (${cat.gender}-${cat.status}). Total stock: ${sessionList.length}`);
+                    console.log(`[BUFFER_STOCK_ADD] Buffered: ${personBinding.personLabel.value} (${cat.gender}-${cat.status}). Total stock: ${sessionList.length}/${desiredStock}`);
                 }
             } catch (err) {
-                console.warn(`[BUFFER_STOCK_ITEM_ERROR] Failed item: ${err.message}`);
-                await new Promise(r => setTimeout(r, 350));
+                console.warn(`[BUFFER_STOCK_ITEM_ERROR] Live fetch issue: ${err.message}. Taking reserve fallback.`);
+                const reserveFallback = getInstantReserveCandidate(cat);
+                if (reserveFallback && reserveFallback.person) {
+                    sessionList.push(reserveFallback);
+                    console.log(`[BUFFER_STOCK_ADD_FALLBACK] Reserve-buffered: ${reserveFallback.person.personLabel.value}`);
+                }
+                await new Promise(r => setTimeout(r, 200));
             }
 
             // Yield to browser UI thread
@@ -4191,7 +4355,7 @@ async function ensureBufferStock() {
         }
     } finally {
         isReplenishingBuffer = false;
-        console.log(`[BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: ${sessionList.length}`);
+        logReserveStatus('replenish_finish');
     }
 }
 
@@ -4202,7 +4366,10 @@ async function replenishBufferIfNeeded() {
 async function loadSession() {
     const startTime = performance.now();
     console.log('[LOAD_SESSION] Starting game session with instant candidate render and background buffer...');
-    sessionList = [];
+    seedOfflineReserveIfNeeded();
+    logReserveStatus('loadSession_init');
+
+    if (!Array.isArray(sessionList)) sessionList = [];
     preloadedPersonContainer = null;
     isCurrentlyPreloading = false;
     currentStreamId++;
@@ -4210,40 +4377,54 @@ async function loadSession() {
 
     updateProgressBar(0, false);
 
-    const categories = [
-        { gender: 'male', status: 'alive' },
-        { gender: 'female', status: 'alive' },
-        { gender: 'male', status: 'deceased' },
-        { gender: 'female', status: 'deceased' }
-    ];
-    const initialCategory = categories[Math.floor(Math.random() * categories.length)];
+    // Instant 1st person render from queue or reserve so the screen is NEVER black!
+    let firstCandidate = sessionList.length > 0 ? sessionList.shift() : getInstantReserveCandidate();
 
-    // Fetch and display 1st person immediately
-    try {
-        const firstPersonBinding = await fetchPersonData(false, initialCategory);
-        if (firstPersonBinding && firstPersonBinding.personLabel?.value) {
-            hasChecked = false;
-            await loadPersonFromData(firstPersonBinding, initialCategory);
-            requestAnimationFrame(() => {
-                document.getElementById('male-btn').disabled = false;
-                document.getElementById('female-btn').disabled = false;
-                document.getElementById('alive-btn').disabled = false;
-                document.getElementById('dead-btn').disabled = false;
-                document.getElementById('next-person').style.display = 'none';
-                document.getElementById('next-photo').disabled = false; 
-                updateCheckButtonState();
-            });
-            console.log(`[LOAD_SESSION_INSTANT] First candidate rendered in ${(performance.now() - startTime).toFixed(0)}ms: ${firstPersonBinding.personLabel.value}`);
+    if (firstCandidate && firstCandidate.person) {
+        console.log(`[LOAD_SESSION_INSTANT] Rendering first person immediately from reserve in ${(performance.now() - startTime).toFixed(0)}ms: ${firstCandidate.person.personLabel.value}`);
+        hasChecked = false;
+        await loadPersonFromData(firstCandidate.person, firstCandidate.category);
+        requestAnimationFrame(() => {
+            document.getElementById('male-btn').disabled = false;
+            document.getElementById('female-btn').disabled = false;
+            document.getElementById('alive-btn').disabled = false;
+            document.getElementById('dead-btn').disabled = false;
+            document.getElementById('next-person').style.display = 'none';
+            document.getElementById('next-photo').disabled = false; 
+            updateCheckButtonState();
+        });
+    } else {
+        try {
+            const firstPersonBinding = await fetchPersonData(false, { gender: 'male', status: 'alive' });
+            if (firstPersonBinding && firstPersonBinding.personLabel?.value) {
+                hasChecked = false;
+                await loadPersonFromData(firstPersonBinding, { gender: 'male', status: 'alive' });
+                requestAnimationFrame(() => {
+                    document.getElementById('male-btn').disabled = false;
+                    document.getElementById('female-btn').disabled = false;
+                    document.getElementById('alive-btn').disabled = false;
+                    document.getElementById('dead-btn').disabled = false;
+                    document.getElementById('next-person').style.display = 'none';
+                    document.getElementById('next-photo').disabled = false; 
+                    updateCheckButtonState();
+                });
+            }
+        } catch (err) {
+            console.error('[LOAD_SESSION_INIT_ERR] Initial candidate load error:', err);
+            const emergency = getInstantReserveCandidate();
+            if (emergency && emergency.person) {
+                await loadPersonFromData(emergency.person, emergency.category);
+            }
         }
-    } catch (err) {
-        console.error('[LOAD_SESSION_INIT_ERR] Initial candidate load error:', err);
     }
 
     // Continuously fill the buffer up to 8 candidates in background
     ensureBufferStock();
+    logReserveStatus('loadSession_ready');
 }
 
 async function loadNextPerson(triggerButton = 'unknown') {
+    logReserveStatus(`loadNextPerson_${triggerButton}`);
     console.log(`[LOAD_NEXT_PERSON] Called. Trigger: ${triggerButton}. Current attempts: ${currentAttempts}/${maxAttempts}`);
     sendGAEvent('next_photo_requested', {
         session_id: currentSessionId, 
@@ -4261,41 +4442,14 @@ async function loadNextPerson(triggerButton = 'unknown') {
         return;
     }
 
+    // If buffer is momentarily empty, instantly pull candidate from reserve with 0 delay (NO blocking spinner!)
     if (sessionList.length === 0) {
-        console.log('[LOAD_NEXT_PERSON] Buffer momentarily empty. Waiting for buffer stock...');
-        const circularProgressContainer = document.getElementById('circular-progress-container');
-        if (circularProgressContainer) {
-            circularProgressContainer.classList.remove('hidden');
-            updateProgressBar(50, true);
+        console.log('[LOAD_NEXT_PERSON] Buffer was 0. Instantly serving reserve candidate without delay.');
+        const instantCandidate = getInstantReserveCandidate();
+        if (instantCandidate && instantCandidate.person) {
+            sessionList.push(instantCandidate);
         }
-
-        // Trigger buffer fetch immediately
         ensureBufferStock();
-
-        let checkCount = 0;
-        while (sessionList.length === 0 && checkCount < 15) {
-            await new Promise(resolve => setTimeout(resolve, 300));
-            checkCount++;
-        }
-
-        if (circularProgressContainer) {
-            circularProgressContainer.classList.add('hidden');
-        }
-
-        if (sessionList.length === 0) {
-            console.warn('[LOAD_NEXT_PERSON_FETCH] Fetching direct emergency candidate...');
-            const categories = [
-                { gender: 'male', status: 'alive' },
-                { gender: 'female', status: 'alive' },
-                { gender: 'male', status: 'deceased' },
-                { gender: 'female', status: 'deceased' }
-            ];
-            const cat = categories[Math.floor(Math.random() * categories.length)];
-            const direct = await fetchPersonData(true, cat);
-            if (direct) {
-                sessionList.push({ person: direct, category: cat });
-            }
-        }
     }
 
     userGenderGuess = null;
@@ -4683,17 +4837,22 @@ async function requestBackgroundNewPhoto() {
             candidate = preloadedPersonContainer.data.person;
             readySrc = preloadedPersonContainer.proxyUrl || preloadedPersonContainer.imageElement.src;
             preloadedPersonContainer = null;
-        } else {
-            // 2. Fetch candidate from buffer or fallback
+            // 2. Fetch candidate from buffer or reserve
+            logReserveStatus('requestBackgroundNewPhoto');
             let candidateEntry = sessionList.shift();
             if (!candidateEntry) {
-                const fallbackCat = {
-                    gender: Math.random() > 0.5 ? 'male' : 'female',
-                    status: Math.random() > 0.5 ? 'alive' : 'deceased'
-                };
-                const fetched = await fetchPersonData(true, fallbackCat);
-                if (fetched) {
-                    candidateEntry = { person: fetched, category: fallbackCat };
+                const instant = getInstantReserveCandidate();
+                if (instant && instant.person) {
+                    candidateEntry = instant;
+                } else {
+                    const fallbackCat = {
+                        gender: Math.random() > 0.5 ? 'male' : 'female',
+                        status: Math.random() > 0.5 ? 'alive' : 'deceased'
+                    };
+                    const fetched = await fetchPersonData(true, fallbackCat);
+                    if (fetched) {
+                        candidateEntry = { person: fetched, category: fallbackCat };
+                    }
                 }
             }
 
