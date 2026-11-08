@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.1';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.2';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2958,13 +2958,127 @@ function removePersonFromCache(personToRemove) {
     }
 }
 
+// Strict serialized promise queue to guarantee Wikidata SPARQL requests never overlap and honor rate limits
+let sparqlQueue = Promise.resolve();
+let lastSparqlRequestTimestamp = 0;
+const MIN_SPARQL_INTERVAL_MS = 380; // 380ms pacing prevents HTTP 429 rate limits
+
+async function executeThrottledSparqlQuery(query, controller) {
+    return new Promise((resolve, reject) => {
+        sparqlQueue = sparqlQueue.then(async () => {
+            const now = performance.now();
+            const elapsed = now - lastSparqlRequestTimestamp;
+            if (elapsed < MIN_SPARQL_INTERVAL_MS) {
+                await new Promise(r => setTimeout(r, MIN_SPARQL_INTERVAL_MS - elapsed));
+            }
+            lastSparqlRequestTimestamp = performance.now();
+
+            const endpoint = 'https://query.wikidata.org/sparql';
+            const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&origin=*`;
+
+            let response = null;
+            let usedProxy = false;
+
+            try {
+                // Direct SPARQL query with standard headers
+                response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/sparql-results+json'
+                    },
+                    signal: controller.signal
+                });
+            } catch (directErr) {
+                console.warn(`[WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (${directErr.message}). Attempting CORS proxy fallback...`);
+            }
+
+            // If direct request failed, returned 429 (rate-limit), or was blocked:
+            if (!response || !response.ok) {
+                const proxyEndpoints = [
+                    (targetUrl) => `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
+                    (targetUrl) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                    (targetUrl) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+                ];
+                for (const buildProxyUrl of proxyEndpoints) {
+                    try {
+                        const proxyUrl = buildProxyUrl(url);
+                        const proxyController = new AbortController();
+                        const proxyTimer = setTimeout(() => proxyController.abort(), 6500);
+                        const proxyRes = await fetch(proxyUrl, {
+                            method: 'GET',
+                            signal: proxyController.signal
+                        });
+                        clearTimeout(proxyTimer);
+                        if (proxyRes && proxyRes.ok) {
+                            response = proxyRes;
+                            usedProxy = true;
+                            console.log(`[WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded via ${new URL(proxyUrl).hostname}.`);
+                            break;
+                        }
+                    } catch (proxyErr) {}
+                }
+            }
+
+            if (!response || !response.ok) {
+                const status = response ? response.status : 'network failure';
+                throw new Error(`Wikidata API error: ${status}`);
+            }
+
+            const data = await response.json();
+            return { data, usedProxy };
+        }).then(resolve).catch(reject);
+    });
+}
+
+function getAnyCachedWikidataPerson(category) {
+    const keys = Object.keys(wikidataCache);
+    const targetTag = category ? `${category.gender}-${category.status}` : null;
+    
+    // First try to match preferred category from cache
+    if (targetTag) {
+        for (const k of keys) {
+            if (k.includes(targetTag) && Array.isArray(wikidataCache[k])) {
+                const available = wikidataCache[k].filter(p => 
+                    p && p.personLabel?.value && 
+                    p.image?.value && 
+                    !sessionShownNames.has(p.personLabel.value) &&
+                    !isForbiddenImageName(p.image.value)
+                );
+                if (available.length > 0) {
+                    const picked = available[Math.floor(Math.random() * available.length)];
+                    sessionShownNames.add(picked.personLabel.value);
+                    return picked;
+                }
+            }
+        }
+    }
+
+    // Otherwise find any available cached person across all cached batches
+    for (const k of keys) {
+        if (Array.isArray(wikidataCache[k])) {
+            const available = wikidataCache[k].filter(p => 
+                p && p.personLabel?.value && 
+                p.image?.value && 
+                !sessionShownNames.has(p.personLabel.value) &&
+                !isForbiddenImageName(p.image.value)
+            );
+            if (available.length > 0) {
+                const picked = available[Math.floor(Math.random() * available.length)];
+                sessionShownNames.add(picked.personLabel.value);
+                return picked;
+            }
+        }
+    }
+    return null;
+}
+
 async function fetchPersonData(useRandom = false, category = null) {
     const categoryKey = `${category?.gender || 'any'}-${category?.status || 'any'}`;
-    try {
-        // Query live Wikidata database directly for fresh, ordinary, diverse historical/modern figures
-        return await fetchPersonDataInner(useRandom, category);
-    } catch (err) {
-        console.warn(`[WIKIDATA_FETCH_ERROR_FALLBACK] Wikidata live fetch failed for ${categoryKey}: ${err.message}. Invoking backup fallback...`);
+    const isExplicitlyOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+
+    // The 100 celebrity demo cards (peopleCatalog) are STRICTLY reserved for true offline demo mode
+    if (isExplicitlyOffline) {
+        console.log(`[OFFLINE_MODE] Device has no internet (navigator.onLine === false). Using offline demo catalog.`);
         updateDataSourceIndicator('fallback', 'Offline Backup');
         const fallbackPerson = getOfflineFallbackPerson(category);
         if (fallbackPerson) {
@@ -2972,6 +3086,35 @@ async function fetchPersonData(useRandom = false, category = null) {
             fallbackPerson.dataSource = 'Offline Catalog';
         }
         return fallbackPerson;
+    }
+
+    try {
+        // Query live Wikidata database directly for fresh, diverse historical/modern figures
+        return await fetchPersonDataInner(useRandom, category);
+    } catch (err) {
+        console.warn(`[WIKIDATA_FETCH_ERROR] Live fetch failed for ${categoryKey}: ${err.message}. Checking cached pool...`);
+        
+        // In online mode: NEVER deal from celebrity deck! Use cached Wikidata people
+        const cachedPerson = getAnyCachedWikidataPerson(category);
+        if (cachedPerson) {
+            console.log(`[WIKIDATA_CACHE_FALLBACK] Serving cached Wikidata person: ${cachedPerson.personLabel.value}`);
+            cachedPerson.dataSource = 'Wikidata Cache';
+            updateDataSourceIndicator('cache', 'Wikidata Cache');
+            return cachedPerson;
+        }
+
+        // Retry query once after brief spacing
+        try {
+            await new Promise(r => setTimeout(r, 600));
+            return await fetchPersonDataInner(true, category);
+        } catch (retryErr) {
+            console.error(`[WIKIDATA_FINAL_ERROR] All live & proxy attempts failed for ${categoryKey}: ${retryErr.message}`);
+            // Check if device lost connection mid-game
+            if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+                return getOfflineFallbackPerson(category);
+            }
+            throw retryErr;
+        }
     }
 }
 
@@ -3007,7 +3150,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
                 }
             }
         }
-        delete wikidataCache[cacheKey]; 
+        // Retain cache without deleting it so other rounds can benefit from remaining candidates
     }
 
     console.log(`[WIKIDATA_FETCH] No valid cache hit for ${cacheKey}, querying Wikidata.`);
@@ -3030,7 +3173,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
         // Strict SPARQL query: ?person wdt:P31 wd:Q5 enforces Human (eliminates animals/ducks, monuments, objects)
-        query = `#TOOL: iPersonSeeTrivia/2.4.1 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        query = `#TOOL: iPersonSeeTrivia/2.4.2 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
                 ?person wdt:P31 wd:Q5;
@@ -3048,9 +3191,6 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             LIMIT ${settings.maxPeople}
         `;
 
-        const endpoint = 'https://query.wikidata.org/sparql';
-        const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&origin=*`;
-
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
             console.warn(`[WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} is taking too long and will be aborted.`);
@@ -3058,53 +3198,9 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         }, WIKIDATA_QUERY_TIMEOUT_MS);
 
         try {
-            let response = null;
-            let usedProxy = false;
-            try {
-                // Simple CORS GET: keep headers safelisted (no custom headers) to eliminate browser OPTIONS preflight failures
-                response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/sparql-results+json'
-                    },
-                    signal: controller.signal
-                });
-            } catch (directErr) {
-                console.warn(`[WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (${directErr.message}). Attempting CORS proxy fallback...`);
-            }
-
-            if (!response || !response.ok) {
-                // Secondary resilient fallback: query through high-speed CORS proxies
-                const proxyEndpoints = [
-                    (targetUrl) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    (targetUrl) => `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
-                    (targetUrl) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
-                ];
-                for (const buildProxyUrl of proxyEndpoints) {
-                    try {
-                        const proxyUrl = buildProxyUrl(url);
-                        const proxyController = new AbortController();
-                        const proxyTimer = setTimeout(() => proxyController.abort(), 6000);
-                        const proxyRes = await fetch(proxyUrl, {
-                            method: 'GET',
-                            signal: proxyController.signal
-                        });
-                        clearTimeout(proxyTimer);
-                        if (proxyRes && proxyRes.ok) {
-                            response = proxyRes;
-                            usedProxy = true;
-                            console.log(`[WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded via ${new URL(proxyUrl).hostname} for category ${categoryKey}.`);
-                            break;
-                        }
-                    } catch (proxyErr) {
-                        // Continue to next proxy
-                    }
-                }
-            }
-
+            const { data, usedProxy } = await executeThrottledSparqlQuery(query, controller);
             clearTimeout(timeoutId);
-            if (!response || !response.ok) throw new Error(`Wikidata API error: ${response ? response.status : 'network failure'}`);
-            const data = await response.json();
+
             const rawList = data.results && data.results.bindings; 
             const list = Array.isArray(rawList) ? rawList.filter(p => p && p.image?.value && !isForbiddenImageName(p.image.value)) : [];
             const duration = (performance.now() - start).toFixed(0);
@@ -3582,7 +3678,28 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
     if (horizontalProgressBar) horizontalProgressBar.classList.add('hidden'); 
 
     if (!successfullyLoadedImage) {
-        console.error(`[LOAD_PERSON_CRITICAL_IMAGE_FAIL] Could not load image for slot (intended for ${personLabelForLogs}) after all attempts. Path: ${imageLoadPathDetail}. Handling error.`);
+        console.warn(`[LOAD_PERSON_IMAGE_FAIL] Could not load image for ${personLabelForLogs}. Auto-skipping to next candidate in reserve...`);
+        if (currentPersonCandidate) {
+            removePersonFromCache(currentPersonCandidate);
+        }
+        if (sessionList.length > 0) {
+            const nextEntry = sessionList.shift();
+            ensureBufferStock();
+            await loadPersonFromData(nextEntry.person, nextEntry.category);
+            return;
+        }
+        // If sessionList was momentarily empty, try fetching one candidate on the fly
+        const fallbackCat = category || { gender: 'male', status: 'alive' };
+        try {
+            const freshPerson = await fetchPersonData(true, fallbackCat);
+            if (freshPerson) {
+                await loadPersonFromData(freshPerson, fallbackCat);
+                ensureBufferStock();
+                return;
+            }
+        } catch (e) {
+            console.error('[LOAD_PERSON_RECOVERY_FAILED]', e);
+        }
         handleError(); 
         startPreloadNextAvailablePerson(); 
         return;
@@ -3593,7 +3710,13 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         !currentPersonCandidate.gender || !currentPersonCandidate.gender.value ||
         !currentPersonCandidate.birthDate || !currentPersonCandidate.birthDate.value ||
         !currentPersonCandidate.person || !currentPersonCandidate.person.value) {
-        console.error("[LOAD_PERSON_CRITICAL] Final currentPersonCandidate is invalid before assigning to currentPerson. Handling error. Candidate:", currentPersonCandidate);
+        console.warn("[LOAD_PERSON_INVALID_CANDIDATE] Candidate invalid, skipping to next candidate in reserve...");
+        if (sessionList.length > 0) {
+            const nextEntry = sessionList.shift();
+            ensureBufferStock();
+            await loadPersonFromData(nextEntry.person, nextEntry.category);
+            return;
+        }
         handleError(); 
         startPreloadNextAvailablePerson();
         return;
@@ -3762,22 +3885,23 @@ function handleError(force = false) {
     });
 }
 
-async function loadSession() {
-    const startTime = performance.now();
-    console.log('[LOAD_SESSION] Starting dynamic background streaming session...');
-    sessionList = [];
-    
-    preloadedPersonContainer = null;
-    isCurrentlyPreloading = false;
-    console.log('[PRELOAD_RESET] Preload state reset for new session.');
+const TARGET_BUFFER_RESERVE = 8;
+let isReplenishingBuffer = false;
 
-    updateProgressBar(0, false); 
+async function ensureBufferStock() {
+    if (isReplenishingBuffer || currentAttempts >= maxAttempts) {
+        return;
+    }
+    const remainingAttempts = maxAttempts - currentAttempts;
+    const desiredStock = Math.min(TARGET_BUFFER_RESERVE, remainingAttempts + 2);
 
-    currentStreamId++;
-    const streamId = currentStreamId;
-    isStreamingActive = true;
+    if (sessionList.length >= desiredStock) {
+        return;
+    }
 
-    // Define categories to interleave
+    isReplenishingBuffer = true;
+    console.log(`[BUFFER_STOCK] Current buffer: ${sessionList.length}/${desiredStock}. Replenishing reserve in background...`);
+
     const categories = [
         { gender: 'male', status: 'alive' },
         { gender: 'female', status: 'alive' },
@@ -3785,146 +3909,80 @@ async function loadSession() {
         { gender: 'female', status: 'deceased' }
     ];
 
-    const targets = [];
-    const peoplePerCategory = Math.ceil(settings.sessionPeople / categories.length);
-    for (let j = 0; j < peoplePerCategory; j++) {
-        for (const cat of categories) {
-            if (targets.length < settings.sessionPeople) {
-                targets.push(cat);
-            }
-        }
-    }
-
-    console.log(`[STREAM_QUEUE] Scheduled highly interleaved queue of ${targets.length} candidates. Starting parallel stream worker pool.`);
-
-    let targetIndex = 0;
-    let activePromisesCount = 0;
-    let loadedCount = 0;
-    let firstPersonRendered = false;
-
-    async function launchNextFetch() {
-        if (streamId !== currentStreamId) {
-            console.log(`[STREAM_QUEUE] Stream ID mismatch (${currentStreamId} vs task ${streamId}). Halting active worker.`);
-            return;
-        }
-
-        if (targetIndex >= targets.length || loadedCount >= settings.sessionPeople) {
-            if (activePromisesCount === 0 && isStreamingActive) {
-                isStreamingActive = false;
-                console.log(`[STREAM_QUEUE_COMPLETE] Background stream queue finished. Cached or loaded ${loadedCount} total items.`);
-                updateProgressBar(100, false);
-                console.log(`[LOAD_SESSION_TIMING] Total stream load elapsed (since launch): ${(performance.now() - startTime).toFixed(0)}ms`);
-            }
-            return;
-        }
-
-        const category = targets[targetIndex++];
-        activePromisesCount++;
-
-        try {
-            // Defensive delay to prevent browser thread freeze on rapid consecutive cache hits
-            await new Promise(resolve => setTimeout(resolve, 50));
-            const personBinding = await fetchPersonData(false, category);
-            
-            if (streamId !== currentStreamId) {
-                console.log('[STREAM_QUEUE] Stream ID changed mid-fetch. Discarded entry.');
-                return;
-            }
-
-            if (personBinding && 
-                personBinding.personLabel && personBinding.personLabel.value &&
-                personBinding.image && personBinding.image.value &&
-                personBinding.gender && personBinding.gender.value &&
-                personBinding.birthDate && personBinding.birthDate.value &&
-                personBinding.person && personBinding.person.value) {
-                
-                sessionList.push({ person: personBinding, category: category });
-                loadedCount++;
-                console.log(`[STREAM_QUEUE] Appended streamed candidate #${loadedCount}: ${personBinding.personLabel.value} (${category.gender}-${category.status})`);
-
-                // If this is the FIRST person loaded under this session, render them to the screen IMMEDIATELY
-                if (!currentPerson && !firstPersonRendered) {
-                    firstPersonRendered = true;
-                    const firstEntry = sessionList.shift();
-                    console.log(`[STREAM_QUEUE_FIRST_ENTRY] Rendering first candidate instantly on screen: ${firstEntry.person.personLabel.value}`);
-                    
-                    hasChecked = false;
-                    await loadPersonFromData(firstEntry.person, firstEntry.category);
-                    
-                    requestAnimationFrame(() => {
-                        document.getElementById('male-btn').disabled = false;
-                        document.getElementById('female-btn').disabled = false;
-                        document.getElementById('alive-btn').disabled = false;
-                        document.getElementById('dead-btn').disabled = false;
-                        document.getElementById('next-person').style.display = 'none';
-                        document.getElementById('next-photo').disabled = false; 
-                        updateCheckButtonState();
-                        console.log('[STREAM_QUEUE_UI] Screen initialized with first streaming candidate.');
-                    });
-                } else {
-                    // Preload next image if idle and list has targets
-                    if (!isCurrentlyPreloading && !preloadedPersonContainer && sessionList.length > 0) {
-                        startPreloadNextAvailablePerson();
-                    }
-                }
-            } else {
-                console.warn('[STREAM_QUEUE_WARN] fetchPersonData returned invalid details or null bind.');
-            }
-        } catch (error) {
-            console.error(`[STREAM_QUEUE_ERROR] Fetch error details: ${error.message}`);
-        } finally {
-            activePromisesCount--;
-            // Recursively execute the next queue item in the next tick of the event loop to yield to the browser
-            setTimeout(() => {
-                launchNextFetch();
-            }, 10);
-        }
-    }
-
-    // Launch 2 background workers in parallel
-    launchNextFetch();
-    launchNextFetch();
-}
-
-let isReplenishingBuffer = false;
-
-async function replenishBufferIfNeeded() {
-    if (currentAttempts >= maxAttempts || isStreamingActive || isReplenishingBuffer) {
-        return;
-    }
-    const remainingAttempts = maxAttempts - currentAttempts;
-    // Keep an active reserve of at least 4-5 items while game rounds remain unplayed
-    if (remainingAttempts > 0 && sessionList.length < Math.min(5, remainingAttempts + 1)) {
-        isReplenishingBuffer = true;
-        const countToFetch = Math.min(5, (remainingAttempts + 2) - sessionList.length);
-        console.log(`[BUFFER_PROACTIVE] Reserve low (${sessionList.length} items left for ${remainingAttempts} attempts). Proactively prefetching ${countToFetch} candidates...`);
-
-        const categories = [
-            { gender: 'male', status: 'alive' },
-            { gender: 'female', status: 'alive' },
-            { gender: 'male', status: 'deceased' },
-            { gender: 'female', status: 'deceased' }
-        ];
-
-        try {
-            for (let i = 0; i < countToFetch; i++) {
-                if (currentAttempts >= maxAttempts) break;
-                const cat = categories[i % categories.length];
+    try {
+        while (sessionList.length < desiredStock && currentAttempts < maxAttempts) {
+            const cat = categories[sessionList.length % categories.length];
+            try {
                 const personBinding = await fetchPersonData(false, cat);
                 if (personBinding && personBinding.personLabel?.value && personBinding.image?.value) {
                     sessionList.push({ person: personBinding, category: cat });
-                    console.log(`[BUFFER_RESERVE_ADD] Pre-buffered candidate: ${personBinding.personLabel.value}. Reserve count: ${sessionList.length}`);
+                    console.log(`[BUFFER_STOCK_ADD] Buffered: ${personBinding.personLabel.value} (${cat.gender}-${cat.status}). Total stock: ${sessionList.length}`);
                 }
+            } catch (err) {
+                console.warn(`[BUFFER_STOCK_ITEM_ERROR] Failed item: ${err.message}`);
+                await new Promise(r => setTimeout(r, 350));
             }
+
+            // Yield to browser UI thread
+            await new Promise(r => setTimeout(r, 60));
+
+            // Start preloading image for next queued candidate if preloader is idle
             if (!isCurrentlyPreloading && !preloadedPersonContainer && sessionList.length > 0) {
                 startPreloadNextAvailablePerson();
             }
-        } catch (e) {
-            console.warn('[BUFFER_PROACTIVE_WARN] Buffer prefetch error:', e);
-        } finally {
-            isReplenishingBuffer = false;
         }
+    } finally {
+        isReplenishingBuffer = false;
+        console.log(`[BUFFER_STOCK_FINISH] Buffer replenishment finished. Total available: ${sessionList.length}`);
     }
+}
+
+async function replenishBufferIfNeeded() {
+    return ensureBufferStock();
+}
+
+async function loadSession() {
+    const startTime = performance.now();
+    console.log('[LOAD_SESSION] Starting game session with instant candidate render and background buffer...');
+    sessionList = [];
+    preloadedPersonContainer = null;
+    isCurrentlyPreloading = false;
+    currentStreamId++;
+    isStreamingActive = false;
+
+    updateProgressBar(0, false);
+
+    const categories = [
+        { gender: 'male', status: 'alive' },
+        { gender: 'female', status: 'alive' },
+        { gender: 'male', status: 'deceased' },
+        { gender: 'female', status: 'deceased' }
+    ];
+    const initialCategory = categories[Math.floor(Math.random() * categories.length)];
+
+    // Fetch and display 1st person immediately
+    try {
+        const firstPersonBinding = await fetchPersonData(false, initialCategory);
+        if (firstPersonBinding && firstPersonBinding.personLabel?.value) {
+            hasChecked = false;
+            await loadPersonFromData(firstPersonBinding, initialCategory);
+            requestAnimationFrame(() => {
+                document.getElementById('male-btn').disabled = false;
+                document.getElementById('female-btn').disabled = false;
+                document.getElementById('alive-btn').disabled = false;
+                document.getElementById('dead-btn').disabled = false;
+                document.getElementById('next-person').style.display = 'none';
+                document.getElementById('next-photo').disabled = false; 
+                updateCheckButtonState();
+            });
+            console.log(`[LOAD_SESSION_INSTANT] First candidate rendered in ${(performance.now() - startTime).toFixed(0)}ms: ${firstPersonBinding.personLabel.value}`);
+        }
+    } catch (err) {
+        console.error('[LOAD_SESSION_INIT_ERR] Initial candidate load error:', err);
+    }
+
+    // Continuously fill the buffer up to 8 candidates in background
+    ensureBufferStock();
 }
 
 async function loadNextPerson(triggerButton = 'unknown') {
@@ -3932,7 +3990,7 @@ async function loadNextPerson(triggerButton = 'unknown') {
     sendGAEvent('next_photo_requested', {
         session_id: currentSessionId, 
         trigger_button: triggerButton,
-        new_language: selectedLanguage, // Changed from new_lang
+        new_language: selectedLanguage,
         game_mode: gameMode,
         remaining_in_session: sessionList.length,
         is_preloading: isCurrentlyPreloading,
@@ -3946,38 +4004,39 @@ async function loadNextPerson(triggerButton = 'unknown') {
     }
 
     if (sessionList.length === 0) {
-        if (isStreamingActive) {
-            console.log('[LOAD_NEXT_PERSON] Session list is empty but background streaming is still active. Showing spinner and waiting for stream item...');
-            const circularProgressContainer = document.getElementById('circular-progress-container');
-            if (circularProgressContainer) {
-                circularProgressContainer.classList.remove('hidden');
-                updateProgressBar(50, true);
-            }
+        console.log('[LOAD_NEXT_PERSON] Buffer momentarily empty. Waiting for buffer stock...');
+        const circularProgressContainer = document.getElementById('circular-progress-container');
+        if (circularProgressContainer) {
+            circularProgressContainer.classList.remove('hidden');
+            updateProgressBar(50, true);
+        }
 
-            let checkCount = 0;
-            while (sessionList.length === 0 && isStreamingActive && checkCount < 30) {
-                await new Promise(resolve => setTimeout(resolve, 500));
-                checkCount++;
-                console.log(`[LOAD_NEXT_PERSON_POLL] Polling for next person from stream queue (attempt ${checkCount}/30)...`);
-            }
+        // Trigger buffer fetch immediately
+        ensureBufferStock();
 
-            if (circularProgressContainer) {
-                circularProgressContainer.classList.add('hidden');
-            }
+        let checkCount = 0;
+        while (sessionList.length === 0 && checkCount < 15) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            checkCount++;
+        }
 
-            if (sessionList.length === 0) {
-                console.warn('[LOAD_NEXT_PERSON_TIMEOUT] Timed out waiting for streaming item. Initiating a fresh session load.');
-                currentPerson = null;
-                await loadSession();
-                return;
-            } else {
-                console.log('[LOAD_NEXT_PERSON] Successfully received next person from background streaming queue!');
+        if (circularProgressContainer) {
+            circularProgressContainer.classList.add('hidden');
+        }
+
+        if (sessionList.length === 0) {
+            console.warn('[LOAD_NEXT_PERSON_FETCH] Fetching direct emergency candidate...');
+            const categories = [
+                { gender: 'male', status: 'alive' },
+                { gender: 'female', status: 'alive' },
+                { gender: 'male', status: 'deceased' },
+                { gender: 'female', status: 'deceased' }
+            ];
+            const cat = categories[Math.floor(Math.random() * categories.length)];
+            const direct = await fetchPersonData(true, cat);
+            if (direct) {
+                sessionList.push({ person: direct, category: cat });
             }
-        } else {
-            console.log('[LOAD_NEXT_PERSON] Session list is empty and streaming is inactive. Loading new session.');
-            currentPerson = null;
-            await loadSession(); 
-            return; 
         }
     }
 
@@ -3997,14 +4056,14 @@ async function loadNextPerson(triggerButton = 'unknown') {
     if (statusBadge) statusBadge.classList.add('hidden');
 
     const nextEntry = sessionList.shift(); 
-    // Proactively replenish buffer in background so player never encounters empty queue
-    replenishBufferIfNeeded();
+    // Proactively replenish buffer in background so player always has a queue of 6-8 candidates
+    ensureBufferStock();
 
     if (nextEntry && nextEntry.person) { 
-        console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${nextEntry.person.personLabel.value}`);
+        console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${nextEntry.person.personLabel.value}. Remaining stock: ${sessionList.length}`);
         await loadPersonFromData(nextEntry.person, nextEntry.category);
     } else {
-        console.warn("[LOAD_NEXT_PERSON_WARN] Encountered null or invalid person entry in session list, trying next or reloading session.");
+        console.warn("[LOAD_NEXT_PERSON_WARN] Encountered empty entry, retrying next.");
         await loadNextPerson(triggerButton); 
         return;
     }
@@ -4016,7 +4075,7 @@ async function loadNextPerson(triggerButton = 'unknown') {
         document.getElementById('dead-btn').disabled = false;
         document.getElementById('next-person').style.display = 'none'; 
         document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; 
-         console.log('[LOAD_NEXT_PERSON_UI] UI reset for the next person.');
+        console.log('[LOAD_NEXT_PERSON_UI] UI reset for the next person.');
     });
 }
 

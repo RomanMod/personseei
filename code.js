@@ -1,6 +1,6 @@
 /**
  * PersonSeeI - Google Sheets Analytics & Real-Time Webhook Engine
- * Version: 2.4.1
+ * Version: 2.4.2
  * 
  * Настройка записи:
  * Новые игры и события теперь добавляются СВЕРХУ (на 2-ю строчку, сразу под шапкой)!
