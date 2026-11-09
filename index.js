@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.5';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.6';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2532,6 +2532,7 @@ async function loadImageWithFallback(url, element) {
     }
 
     console.log(`[IMAGE_LOAD] Attempting to load image directly: ${url}`);
+    element.crossOrigin = 'anonymous';
     element.classList.remove('loaded');
         
     return new Promise((resolve, reject) => {
@@ -3066,6 +3067,23 @@ function saveToOfflineReserve(person, imgElement) {
             const ctx = canvas.getContext('2d');
             if (ctx) {
                 ctx.drawImage(imgElement, 0, 0, w, h);
+                try {
+                    const sample = ctx.getImageData(0, 0, Math.min(20, w), Math.min(20, h)).data;
+                    let isAllBlack = true;
+                    for (let i = 0; i < sample.length; i += 4) {
+                        if (sample[i] > 10 || sample[i + 1] > 10 || sample[i + 2] > 10) {
+                            isAllBlack = false;
+                            break;
+                        }
+                    }
+                    if (isAllBlack) {
+                        console.warn(`[OFFLINE_RESERVE_SAVE_WARN] Canvas for "${name}" is solid black/blank, skipping save.`);
+                        return;
+                    }
+                } catch (taintErr) {
+                    console.warn(`[OFFLINE_RESERVE_SAVE_WARN] Canvas tainted for "${name}":`, taintErr.message);
+                    return;
+                }
                 base64 = canvas.toDataURL('image/jpeg', 0.72);
             }
         }
@@ -3212,8 +3230,35 @@ function seedOfflineReserveIfNeeded() {
     } catch (e) {}
 }
 
-// Ensure offline reserve is immediately seeded on script execution
+function sanitizeOfflineReserve() {
+    if (!Array.isArray(localOfflineReserve)) return;
+    let modified = false;
+    for (let i = 0; i < localOfflineReserve.length; i++) {
+        const item = localOfflineReserve[i];
+        if (!item || !item.personLabel?.value) continue;
+        if (!item.dataUrl || (item.dataUrl.startsWith('data:image/jpeg') && item.dataUrl.length < 900)) {
+            const svgUrl = generateOfflineAvatarSvg(
+                item.personLabel.value,
+                item.gender_string || 'unknown',
+                item.status_string || 'alive'
+            );
+            item.dataUrl = svgUrl;
+            item.image = { value: svgUrl };
+            item.isSeedFallback = true;
+            modified = true;
+        }
+    }
+    if (modified) {
+        try {
+            localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
+            console.log('[OFFLINE_RESERVE] Sanitized reserve data.');
+        } catch (e) {}
+    }
+}
+
+// Ensure offline reserve is immediately seeded and sanitized on script execution
 seedOfflineReserveIfNeeded();
+sanitizeOfflineReserve();
 
 function getInstantReserveCandidate(category = null) {
     // 1. Try localOfflineReserve (instant 0ms)
@@ -4857,7 +4902,8 @@ async function requestBackgroundNewPhoto() {
             candidate = preloadedPersonContainer.data.person;
             readySrc = preloadedPersonContainer.proxyUrl || preloadedPersonContainer.imageElement.src;
             preloadedPersonContainer = null;
-            // 2. Fetch candidate from buffer or reserve
+        } else {
+            // 2. Fetch candidate from buffer, reserve, or catalog
             logReserveStatus('requestBackgroundNewPhoto');
             let candidateEntry = sessionList.shift();
             if (!candidateEntry) {
@@ -4869,9 +4915,9 @@ async function requestBackgroundNewPhoto() {
                         gender: Math.random() > 0.5 ? 'male' : 'female',
                         status: Math.random() > 0.5 ? 'alive' : 'deceased'
                     };
-                    const fetched = await fetchPersonData(true, fallbackCat);
-                    if (fetched) {
-                        candidateEntry = { person: fetched, category: fallbackCat };
+                    const fallbackPerson = getOfflineFallbackPerson(fallbackCat);
+                    if (fallbackPerson) {
+                        candidateEntry = { person: fallbackPerson, category: fallbackCat };
                     }
                 }
             }
