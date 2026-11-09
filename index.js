@@ -435,7 +435,7 @@ function runSystemDiagnostics() {
 const settings = {
     superRandomPeople: true,
     dynamicOffset: true,
-    maxOffset: 80,
+    maxOffset: 30,
     maxPeople: 25,
     sessionPeople: 10,
     genderRatio: { male: 50, female: 50 },
@@ -1578,12 +1578,14 @@ function updateDataSourceIndicator(status, details = '') {
     const prefix = versionPrefixes[selectedLanguage] || 'Version v';
     const verText = `${prefix}${CURRENT_APP_VERSION}`;
 
-    const isLive = currentDataSourceStatus === 'healthy' || currentDataSourceStatus === 'live';
-    const isCacheOrCatalog = currentDataSourceStatus === 'cache' || currentDataSourceStatus === 'fallback';
     const isDeviceOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+    const isLive = currentDataSourceStatus === 'healthy' || currentDataSourceStatus === 'live';
+    const isCache = currentDataSourceStatus === 'cache';
+    const isReserve = currentDataSourceStatus === 'reserve';
+    const isCatalog = currentDataSourceStatus === 'catalog' || currentDataSourceStatus === 'fallback';
 
     let activeLabel = 'Wikidata (Онлайн) ✅';
-    let statusTheme = 'emerald'; // 'emerald' | 'amber' | 'rose'
+    let statusTheme = 'emerald'; // 'emerald' | 'cyan' | 'amber' | 'rose'
 
     if (isDeviceOffline) {
         statusTheme = 'rose';
@@ -1595,22 +1597,36 @@ function updateDataSourceIndicator(status, details = '') {
         activeLabel = selectedLanguage === 'ru'
             ? 'Wikidata (Онлайн) ✅'
             : (selectedLanguage === 'uk' ? 'Wikidata (Онлайн) ✅' : 'Wikidata (Live) ✅');
-    } else if (isCacheOrCatalog) {
+    } else if (isCache) {
+        statusTheme = 'emerald';
+        activeLabel = selectedLanguage === 'ru'
+            ? 'Wikidata (Кэш) ⚡'
+            : (selectedLanguage === 'uk' ? 'Wikidata (Кеш) ⚡' : 'Wikidata (Cache) ⚡');
+    } else if (isReserve) {
+        statusTheme = 'cyan';
+        activeLabel = selectedLanguage === 'ru'
+            ? 'Локальный резерв 📸'
+            : (selectedLanguage === 'uk' ? 'Локальний резерв 📸' : 'Local Reserve 📸');
+    } else if (isCatalog) {
         statusTheme = 'amber';
         activeLabel = selectedLanguage === 'ru'
-            ? 'Каталог (Резерв) ⚠️'
-            : (selectedLanguage === 'uk' ? 'Каталог (Резерв) ⚠️' : 'Offline Catalog (Reserve) ⚠️');
+            ? 'Демо-каталог ⚠️'
+            : (selectedLanguage === 'uk' ? 'Демо-каталог ⚠️' : 'Demo Catalog ⚠️');
     } else {
-        statusTheme = 'amber';
-        activeLabel = selectedLanguage === 'ru'
-            ? 'Каталог (Резерв) ⚠️'
-            : (selectedLanguage === 'uk' ? 'Каталог (Резерв) ⚠️' : 'Catalog Backup ⚠️');
+        statusTheme = 'emerald';
+        activeLabel = 'Wikidata (Онлайн) ✅';
     }
 
     if (versionBadge) {
         if (statusTheme === 'emerald') {
             versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.35)] hover:text-emerald-300';
             versionBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse"></span><span>${verText}</span>`;
+            versionBadge.title = selectedLanguage === 'ru' 
+                ? `Источник: ${activeLabel}` 
+                : (selectedLanguage === 'uk' ? `Джерело: ${activeLabel}` : `Source: ${activeLabel}`);
+        } else if (statusTheme === 'cyan') {
+            versionBadge.className = 'font-mono text-[9px] tracking-[0.25em] uppercase cursor-pointer select-none transition-all duration-300 mt-8 mb-12 flex items-center justify-center gap-1.5 text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.35)] hover:text-cyan-300';
+            versionBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#06b6d4]"></span><span>${verText}</span>`;
             versionBadge.title = selectedLanguage === 'ru' 
                 ? `Источник: ${activeLabel}` 
                 : (selectedLanguage === 'uk' ? `Джерело: ${activeLabel}` : `Source: ${activeLabel}`);
@@ -1636,6 +1652,12 @@ function updateDataSourceIndicator(status, details = '') {
             diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-emerald-400';
             if (diagSourceBadge.firstElementChild) {
                 diagSourceBadge.firstElementChild.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]';
+            }
+            diagSourceText.textContent = activeLabel;
+        } else if (statusTheme === 'cyan') {
+            diagSourceBadge.className = 'font-bold flex items-center gap-1.5 text-cyan-400';
+            if (diagSourceBadge.firstElementChild) {
+                diagSourceBadge.firstElementChild.className = 'w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#06b6d4]';
             }
             diagSourceText.textContent = activeLabel;
         } else if (statusTheme === 'amber') {
@@ -3165,7 +3187,6 @@ function getOfflineCandidate(category) {
         const chosen = availableReserve[Math.floor(Math.random() * availableReserve.length)];
         sessionShownNames.add(chosen.personLabel.value);
         console.log(`[OFFLINE_MANAGER] Serving real photo from LOCAL RESERVE (20): ${chosen.personLabel.value}`);
-        updateDataSourceIndicator('cache', 'Offline Local Reserve');
         return {
             ...chosen,
             isOfflineReserve: true,
@@ -3177,7 +3198,6 @@ function getOfflineCandidate(category) {
 
     // 2. If 20 real photos are depleted or empty, smoothly transition to 100 demo catalog cards
     console.log('[OFFLINE_MANAGER] Local 20-photo reserve depleted/empty. Transitioning to 100 DEMO CATALOG cards.');
-    updateDataSourceIndicator('fallback', 'Offline Demo (100)');
     const catalogCandidate = getNextCatalogPerson(category);
     if (catalogCandidate) {
         catalogCandidate.isOfflineFallback = true;
@@ -3536,7 +3556,6 @@ async function fetchPersonData(useRandom = false, category = null) {
         if (cachedPerson) {
             console.log(`[WIKIDATA_CACHE_FALLBACK] Serving cached Wikidata person: ${cachedPerson.personLabel.value}`);
             cachedPerson.dataSource = 'Wikidata Cache';
-            updateDataSourceIndicator('cache', 'Wikidata Cache');
             return cachedPerson;
         }
 
@@ -3576,7 +3595,6 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
                 if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
                     sessionShownNames.add(cachedPerson.personLabel.value);
                     cachedPerson.dataSource = 'Wikidata Cache';
-                    updateDataSourceIndicator('cache', 'Wikidata Cache');
                     console.log(`[WIKIDATA_FETCH_CACHE] Using valid cached data for ${cacheKey}. Person: ${cachedPerson.personLabel.value}`);
                     return cachedPerson;
                 }
@@ -3587,9 +3605,13 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
 
     console.log(`[WIKIDATA_FETCH] No valid cache hit for ${cacheKey}, querying Wikidata.`);
 
-    const genderFilter = category?.gender === 'male' ? 'FILTER(?gender = wd:Q6581097)' :
-                         category?.gender === 'female' ? 'FILTER(?gender = wd:Q6581072)' :
-                         'FILTER(?gender IN (wd:Q6581097, wd:Q6581072))';
+    let genderClause = '?person wdt:P21 ?gender. FILTER(?gender IN (wd:Q6581097, wd:Q6581072)).';
+    if (category?.gender === 'male') {
+        genderClause = '?person wdt:P21 wd:Q6581097. BIND(wd:Q6581097 AS ?gender).';
+    } else if (category?.gender === 'female') {
+        genderClause = '?person wdt:P21 wd:Q6581072. BIND(wd:Q6581072 AS ?gender).';
+    }
+
     const statusFilter = category?.status === 'alive' ? 'FILTER NOT EXISTS { ?person wdt:P570 ?deathDate }' :
                          category?.status === 'deceased' ? '?person wdt:P570 ?deathDate.' :
                          'OPTIONAL { ?person wdt:P570 ?deathDate }';
@@ -3605,14 +3627,13 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
         // Strict SPARQL query: ?person wdt:P31 wd:Q5 enforces Human (eliminates animals/ducks, monuments, objects)
-        query = `#TOOL: iPersonSeeTrivia/2.4.2 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        query = `#TOOL: iPersonSeeTrivia/2.4.7 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
                 ?person wdt:P31 wd:Q5;
                         wdt:P18 ?image;
-                        wdt:P21 ?gender;
                         wdt:P569 ?birthDate.
-                ${genderFilter}
+                ${genderClause}
                 ${statusFilter}
                 ${birthDateFilter}
                 ${settings.selectedCountries !== 'all' && settings.strictCountryFilter ? countryFilter : ''}
@@ -3656,12 +3677,11 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
                 sessionShownNames.add(randomPerson.personLabel.value);
                 randomPerson.dataSource = usedProxy ? 'Wikidata Proxy' : 'Wikidata Live';
-                updateDataSourceIndicator('healthy', randomPerson.dataSource);
                 return randomPerson;
             } else {
-                 console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
-                 if (attempts === maxQueryAttempts) throw new Error(`Selected invalid person on final attempt for category ${categoryKey}.`);
-                 continue; 
+                console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
+                if (attempts === maxQueryAttempts) throw new Error(`Selected invalid person on final attempt for category ${categoryKey}.`);
+                continue;
             }
 
         } catch (error) {
@@ -4191,20 +4211,33 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         return;
     }
 
-    const isCandidateFallback = Boolean(currentPersonCandidate.isOfflineFallback || currentPersonCandidate.dataSource === 'Offline Catalog');
+    let determinedStatus = 'live';
+    let determinedLabel = 'Wikidata Live';
+    if (currentPersonCandidate.isCatalogPerson) {
+        determinedStatus = 'catalog';
+        determinedLabel = 'Offline Catalog';
+    } else if (currentPersonCandidate.isOfflineReserve) {
+        determinedStatus = 'reserve';
+        determinedLabel = 'Offline Local Reserve';
+    } else if (currentPersonCandidate.dataSource === 'Wikidata Cache' || currentPersonCandidate.isCached) {
+        determinedStatus = 'cache';
+        determinedLabel = 'Wikidata Cache';
+    } else {
+        determinedStatus = 'live';
+        determinedLabel = currentPersonCandidate.dataSource || 'Wikidata Live';
+    }
+
     currentPerson = { 
         personLabel: currentPersonCandidate.personLabel,
         gender: currentPersonCandidate.gender,
         deathDate: currentPersonCandidate.deathDate,
         birthDate: currentPersonCandidate.birthDate,
         person: currentPersonCandidate.person,
-        dataSource: isCandidateFallback ? 'Offline Catalog' : (currentPersonCandidate.dataSource || 'Wikidata Live')
+        isOfflineReserve: currentPersonCandidate.isOfflineReserve,
+        isCatalogPerson: currentPersonCandidate.isCatalogPerson,
+        dataSource: determinedLabel
     };
-    if (isCandidateFallback) {
-        updateDataSourceIndicator('fallback', 'Offline Backup');
-    } else {
-        updateDataSourceIndicator('healthy', currentPerson.dataSource);
-    }
+    updateDataSourceIndicator(determinedStatus, determinedLabel);
     updateUI(currentPerson); 
     
     // Automatically save successfully verified real photo to 20-photo local offline reserve
@@ -4836,7 +4869,22 @@ async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
 
     updateCheckButtonState();
 
-    const isCandidateFallback = Boolean(nextCandidate.isOfflineFallback || nextCandidate.dataSource === 'Offline Catalog');
+    let determinedStatus = 'live';
+    let determinedLabel = 'Wikidata Live';
+    if (nextCandidate.isCatalogPerson) {
+        determinedStatus = 'catalog';
+        determinedLabel = 'Offline Catalog';
+    } else if (nextCandidate.isOfflineReserve) {
+        determinedStatus = 'reserve';
+        determinedLabel = 'Offline Local Reserve';
+    } else if (nextCandidate.dataSource === 'Wikidata Cache' || nextCandidate.isCached) {
+        determinedStatus = 'cache';
+        determinedLabel = 'Wikidata Cache';
+    } else {
+        determinedStatus = 'live';
+        determinedLabel = nextCandidate.dataSource || 'Wikidata Live';
+    }
+
     currentPerson = {
         personLabel: nextCandidate.personLabel,
         gender: nextCandidate.gender,
@@ -4848,9 +4896,10 @@ async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
         dataUrl: nextCandidate.dataUrl || readyImgSrc,
         isOfflineReserve: nextCandidate.isOfflineReserve,
         isCatalogPerson: nextCandidate.isCatalogPerson,
-        dataSource: isCandidateFallback ? (nextCandidate.dataSource || 'Offline Catalog') : (nextCandidate.dataSource || 'Wikidata Live')
+        dataSource: determinedLabel
     };
 
+    updateDataSourceIndicator(determinedStatus, determinedLabel);
     updateUI(currentPerson);
 
     personImage.src = readyImgSrc;
