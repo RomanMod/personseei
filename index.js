@@ -3,16 +3,31 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.6';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.7';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
-// Detect app version upgrade: automatically clear stale cache to prevent broken images and photo loops
+// Detect app version upgrade: sanitize and preserve valid cached people so offline/reserve stock is never lost
 try {
     const installedVer = safeGetItem('app_installed_version');
     if (installedVer !== CURRENT_APP_VERSION) {
         if (typeof window !== 'undefined' && 'localStorage' in window && window.localStorage !== null) {
-            window.localStorage.removeItem('wikidataCache');
+            try {
+                const rawCache = window.localStorage.getItem('wikidataCache');
+                if (rawCache) {
+                    const parsed = JSON.parse(rawCache);
+                    if (parsed && typeof parsed === 'object') {
+                        for (const k of Object.keys(parsed)) {
+                            if (Array.isArray(parsed[k])) {
+                                parsed[k] = parsed[k].filter(p => 
+                                    p && p.personLabel && p.personLabel.value && p.image && p.image.value && p.gender && p.birthDate
+                                );
+                            }
+                        }
+                        window.localStorage.setItem('wikidataCache', JSON.stringify(parsed));
+                    }
+                }
+            } catch (cacheErr) {}
             window.localStorage.removeItem('appLogs_persistent');
         }
         safeSetItem('app_installed_version', CURRENT_APP_VERSION);
@@ -2629,7 +2644,7 @@ async function loadImageWithFallback(url, element) {
     });
 }
 
-const WIKIDATA_QUERY_TIMEOUT_MS = 25000; 
+const WIKIDATA_QUERY_TIMEOUT_MS = 3500; // Strict 3.5s timeout prevents blocking UI and buffer starvation on spotty connections
 
 const offlinePeople = [
     // Male, Alive
@@ -3266,6 +3281,11 @@ function getInstantReserveCandidate(category = null) {
         p && p.personLabel?.value && !sessionShownNames.has(p.personLabel.value)
     ) : [];
 
+    // If all reserve cards were shown, cycle through reserve so player never runs out
+    if (availableReserve.length === 0 && Array.isArray(localOfflineReserve) && localOfflineReserve.length > 0) {
+        availableReserve = localOfflineReserve.filter(p => p && p.personLabel?.value);
+    }
+
     if (availableReserve.length > 0 && category) {
         const matched = availableReserve.filter(p => 
             (!category.gender || p.gender_string === category.gender) &&
@@ -3422,29 +3442,21 @@ async function executeThrottledSparqlQuery(query, controller) {
 
             // If direct request failed, returned 429 (rate-limit), or was blocked:
             if (!response || !response.ok) {
-                const proxyEndpoints = [
-                    (targetUrl) => `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`,
-                    (targetUrl) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                    (targetUrl) => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
-                ];
-                for (const buildProxyUrl of proxyEndpoints) {
-                    try {
-                        const proxyUrl = buildProxyUrl(url);
-                        const proxyController = new AbortController();
-                        const proxyTimer = setTimeout(() => proxyController.abort(), 6500);
-                        const proxyRes = await fetch(proxyUrl, {
-                            method: 'GET',
-                            signal: proxyController.signal
-                        });
-                        clearTimeout(proxyTimer);
-                        if (proxyRes && proxyRes.ok) {
-                            response = proxyRes;
-                            usedProxy = true;
-                            console.log(`[WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded via ${new URL(proxyUrl).hostname}.`);
-                            break;
-                        }
-                    } catch (proxyErr) {}
-                }
+                const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
+                try {
+                    const proxyController = new AbortController();
+                    const proxyTimer = setTimeout(() => proxyController.abort(), 2500);
+                    const proxyRes = await fetch(proxyUrl, {
+                        method: 'GET',
+                        signal: proxyController.signal
+                    });
+                    clearTimeout(proxyTimer);
+                    if (proxyRes && proxyRes.ok) {
+                        response = proxyRes;
+                        usedProxy = true;
+                        console.log(`[WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded via corsproxy.io.`);
+                    }
+                } catch (proxyErr) {}
             }
 
             if (!response || !response.ok) {
@@ -3519,7 +3531,7 @@ async function fetchPersonData(useRandom = false, category = null) {
     } catch (err) {
         console.warn(`[WIKIDATA_FETCH_ERROR] Live fetch failed for ${categoryKey}: ${err.message}. Checking cached pool...`);
         
-        // In online mode: NEVER deal from celebrity deck! Use cached Wikidata people
+        // 1. Try cached Wikidata people (0ms)
         const cachedPerson = getAnyCachedWikidataPerson(category);
         if (cachedPerson) {
             console.log(`[WIKIDATA_CACHE_FALLBACK] Serving cached Wikidata person: ${cachedPerson.personLabel.value}`);
@@ -3528,19 +3540,13 @@ async function fetchPersonData(useRandom = false, category = null) {
             return cachedPerson;
         }
 
-        // Retry query once after brief spacing
-        try {
-            await new Promise(r => setTimeout(r, 600));
-            return await fetchPersonDataInner(true, category);
-        } catch (retryErr) {
-            console.error(`[WIKIDATA_FINAL_ERROR] All live & proxy attempts failed for ${categoryKey}: ${retryErr.message}`);
-            // If connection was lost mid-game or queries failed, switch to offline reserve / demo catalog
-            const offlineCandidate = getOfflineFallbackPerson(category);
-            if (offlineCandidate) {
-                return offlineCandidate;
-            }
-            throw retryErr;
+        // 2. Immediate instant offline reserve / demo catalog fallback (0ms) - never hang on slow retries
+        const offlineCandidate = getOfflineFallbackPerson(category);
+        if (offlineCandidate) {
+            console.log(`[WIKIDATA_OFFLINE_FALLBACK] Serving instant offline reserve/catalog candidate for ${categoryKey}: ${offlineCandidate.personLabel?.value}`);
+            return offlineCandidate;
         }
+        throw err;
     }
 }
 
@@ -3548,7 +3554,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
     const start = performance.now();
     let query;
     let attempts = 0;
-    const maxQueryAttempts = 2;
+    const maxQueryAttempts = 1;
     const categoryKey = `${category?.gender || 'any'}-${category?.status || 'any'}`;
     const cacheKey = `${useRandom}-${categoryKey}`;
     
@@ -4373,8 +4379,9 @@ async function ensureBufferStock() {
     isReplenishingBuffer = true;
     logReserveStatus('replenish_start');
 
-    // Fast-backfill if buffer is critical (< 2) so buffer is NEVER 0 while network queries run
-    while (sessionList.length < 2 && sessionList.length < desiredStock) {
+    // 1. Immediately backfill sessionList to full desiredStock (6-8 items) in 0ms from reserve & catalog!
+    // This guarantees the player NEVER encounters a 0 buffer or hang!
+    while (sessionList.length < desiredStock && currentAttempts < maxAttempts) {
         const instant = getInstantReserveCandidate();
         if (instant && instant.person) {
             sessionList.push(instant);
@@ -4384,41 +4391,45 @@ async function ensureBufferStock() {
         }
     }
 
-    const categories = [
-        { gender: 'male', status: 'alive' },
-        { gender: 'female', status: 'alive' },
-        { gender: 'male', status: 'deceased' },
-        { gender: 'female', status: 'deceased' }
-    ];
+    // 2. Start preloading image for next queued candidate immediately if idle
+    if (!isCurrentlyPreloading && !preloadedPersonContainer && sessionList.length > 0) {
+        startPreloadNextAvailablePerson();
+    }
 
-    try {
-        while (sessionList.length < desiredStock && currentAttempts < maxAttempts) {
-            const cat = categories[sessionList.length % categories.length];
-            try {
-                const personBinding = await fetchPersonData(false, cat);
-                if (personBinding && personBinding.personLabel?.value && personBinding.image?.value) {
-                    sessionList.push({ person: personBinding, category: cat });
-                    console.log(`[BUFFER_STOCK_ADD] Buffered: ${personBinding.personLabel.value} (${cat.gender}-${cat.status}). Total stock: ${sessionList.length}/${desiredStock}`);
+    // 3. If online, attempt to upgrade fallback/catalog candidates to live Wikidata figures in background
+    const isOnline = typeof navigator === 'undefined' || navigator.onLine !== false;
+    if (isOnline) {
+        const categories = [
+            { gender: 'male', status: 'alive' },
+            { gender: 'female', status: 'alive' },
+            { gender: 'male', status: 'deceased' },
+            { gender: 'female', status: 'deceased' }
+        ];
+
+        try {
+            for (let i = 0; i < sessionList.length && currentAttempts < maxAttempts; i++) {
+                const entry = sessionList[i];
+                if (entry && entry.person && (entry.person.isOfflineFallback || entry.person.isCatalogPerson)) {
+                    const cat = entry.category || categories[i % categories.length];
+                    try {
+                        const personBinding = await fetchPersonData(false, cat);
+                        if (personBinding && personBinding.personLabel?.value && personBinding.image?.value && !isForbiddenImageName(personBinding.image.value)) {
+                            sessionList[i] = { person: personBinding, category: cat };
+                            console.log(`[BUFFER_UPGRADE_LIVE] Upgraded slot ${i + 1} to live Wikidata figure: ${personBinding.personLabel.value}`);
+                        }
+                    } catch (err) {
+                        console.warn(`[BUFFER_UPGRADE_SKIP] Live upgrade skipped (${err.message}). Retaining instant candidate.`);
+                        // Network/Wikidata is slow or failing; stop further live attempts this cycle
+                        break;
+                    }
+                    await new Promise(r => setTimeout(r, 60));
                 }
-            } catch (err) {
-                console.warn(`[BUFFER_STOCK_ITEM_ERROR] Live fetch issue: ${err.message}. Taking reserve fallback.`);
-                const reserveFallback = getInstantReserveCandidate(cat);
-                if (reserveFallback && reserveFallback.person) {
-                    sessionList.push(reserveFallback);
-                    console.log(`[BUFFER_STOCK_ADD_FALLBACK] Reserve-buffered: ${reserveFallback.person.personLabel.value}`);
-                }
-                await new Promise(r => setTimeout(r, 200));
             }
-
-            // Yield to browser UI thread
-            await new Promise(r => setTimeout(r, 60));
-
-            // Start preloading image for next queued candidate if preloader is idle
-            if (!isCurrentlyPreloading && !preloadedPersonContainer && sessionList.length > 0) {
-                startPreloadNextAvailablePerson();
-            }
+        } finally {
+            isReplenishingBuffer = false;
+            logReserveStatus('replenish_finish');
         }
-    } finally {
+    } else {
         isReplenishingBuffer = false;
         logReserveStatus('replenish_finish');
     }
@@ -4507,14 +4518,14 @@ async function loadNextPerson(triggerButton = 'unknown') {
         return;
     }
 
-    // If buffer is momentarily empty, instantly pull candidate from reserve with 0 delay (NO blocking spinner!)
-    if (sessionList.length === 0) {
-        console.log('[LOAD_NEXT_PERSON] Buffer was 0. Instantly serving reserve candidate without delay.');
+    // If buffer is low (< 4), instantly pull candidates from reserve so buffer is always healthy!
+    while (sessionList.length < 4 && currentAttempts < maxAttempts) {
         const instantCandidate = getInstantReserveCandidate();
         if (instantCandidate && instantCandidate.person) {
             sessionList.push(instantCandidate);
+        } else {
+            break;
         }
-        ensureBufferStock();
     }
 
     userGenderGuess = null;
@@ -4526,14 +4537,19 @@ async function loadNextPerson(triggerButton = 'unknown') {
     document.getElementById('alive-btn').classList.remove('active');
     document.getElementById('dead-btn').classList.remove('active');
     
+    // Hide previous result and "Next Photo" button immediately with zero lag
     const personInfo = document.getElementById('person-info');
     personInfo.style.display = 'none';
     personInfo.classList.remove('correct', 'incorrect');
     const statusBadge = document.getElementById('person-status-badge');
     if (statusBadge) statusBadge.classList.add('hidden');
+    const nextPerson = document.getElementById('next-person');
+    if (nextPerson) nextPerson.style.display = 'none';
+    const nextPersonWrapper = document.getElementById('next-person-wrapper');
+    if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
 
     const nextEntry = sessionList.shift(); 
-    // Proactively replenish buffer in background so player always has a queue of 6-8 candidates
+    // Proactively replenish buffer in background so player always has a full queue
     ensureBufferStock();
 
     if (nextEntry && nextEntry.person) { 
@@ -4550,7 +4566,8 @@ async function loadNextPerson(triggerButton = 'unknown') {
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false;
         document.getElementById('dead-btn').disabled = false;
-        document.getElementById('next-person').style.display = 'none'; 
+        if (nextPerson) nextPerson.style.display = 'none'; 
+        if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
         document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; 
         console.log('[LOAD_NEXT_PERSON_UI] UI reset for the next person.');
     });
