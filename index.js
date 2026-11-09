@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.4';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.5';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2125,6 +2125,9 @@ async function isBlackAndWhite(imageUrl) {
     if (!settings.excludeBlackAndWhite) {
         return false;
     }
+    if (!imageUrl || imageUrl.startsWith('data:')) {
+        return false;
+    }
 
     const cacheKey = imageUrl;
     if (rgbHslCache[cacheKey] !== undefined) {
@@ -2215,11 +2218,17 @@ async function isBlackAndWhite(imageUrl) {
 // Inspect filename/URL to filter out 18+ (NSFW), monuments, statues, art drawings, animals, and teams/groups
 function isForbiddenImageName(urlOrFilename) {
     if (!urlOrFilename) return false;
+    const rawStr = String(urlOrFilename).trim();
+    // CRITICAL: Internal generated SVG data URIs, base64 cached offline photos, blob URIs, and local app assets
+    // are trusted local assets and must never be blocked by filename/keyword filters!
+    if (rawStr.startsWith('data:') || rawStr.startsWith('blob:') || rawStr.startsWith('/') || rawStr.startsWith('./')) {
+        return false;
+    }
     let clean = '';
     try {
-        clean = decodeURIComponent(String(urlOrFilename)).toLowerCase();
+        clean = decodeURIComponent(rawStr).toLowerCase();
     } catch (e) {
-        clean = String(urlOrFilename).toLowerCase();
+        clean = rawStr.toLowerCase();
     }
 
     // 18+ / NSFW keywords
@@ -3016,7 +3025,7 @@ function generateOfflineAvatarSvg(name = 'Unknown', gender = 'unknown', status =
         <rect x="170" y="48" width="260" height="26" rx="13" fill="rgba(0,0,0,0.6)" stroke="${accentColor}" stroke-opacity="0.3" stroke-width="1"/>
         <text x="300" y="65" text-anchor="middle" font-family="monospace" font-size="11" font-weight="bold" fill="${accentColor}" letter-spacing="2">OFFLINE DEMO ARCHIVE</text>
         <rect x="50" y="585" width="500" height="95" rx="16" fill="rgba(11, 15, 25, 0.85)" stroke="url(#cardBorder)" stroke-width="1.5"/>
-        <text x="300" y="628" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="#ffffff" letter-spacing="0.5">${safeName}</text>
+        <text x="300" y="628" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="700" fill="#ffffff" letter-spacing="0.5">${safeName}</text>
         <text x="300" y="658" text-anchor="middle" font-family="monospace" font-size="11" font-weight="600" fill="rgba(255,255,255,0.5)" letter-spacing="1.5">INTUITION TRIAL CARD</text>
     </svg>`;
 
@@ -3221,12 +3230,20 @@ function getInstantReserveCandidate(category = null) {
     }
 
     if (availableReserve.length > 0) {
-        const chosen = availableReserve[Math.floor(Math.random() * availableReserve.length)];
+        // Prioritize candidates that already have a real JPEG photo in base64!
+        const withRealPhotos = availableReserve.filter(p => 
+            (p.dataUrl && !p.dataUrl.startsWith('data:image/svg')) || 
+            (p.image?.value && !p.image.value.startsWith('data:image/svg'))
+        );
+        const pool = withRealPhotos.length > 0 ? withRealPhotos : availableReserve;
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
         sessionShownNames.add(chosen.personLabel.value);
-        console.log(`[INSTANT_CANDIDATE] Serving from Local Offline Reserve (0ms): ${chosen.personLabel.value}`);
+        console.log(`[INSTANT_CANDIDATE] Serving from Local Offline Reserve (0ms): ${chosen.personLabel.value} (${withRealPhotos.length > 0 ? 'real photo' : 'seed/svg'})`);
         return {
             person: {
                 ...chosen,
+                isOfflineReserve: true,
+                isOfflineFallback: true,
                 image: { value: chosen.dataUrl || chosen.image?.value }
             },
             category: category || { gender: chosen.gender_string, status: chosen.status_string }
@@ -3984,7 +4001,10 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
                 let commonsUrl;
                 if (currentPersonCandidate.dataUrl) {
                     commonsUrl = currentPersonCandidate.dataUrl;
-                } else if (currentPersonCandidate.isOfflineFallback || currentPersonCandidate.isCatalogPerson) {
+                } else if (currentPersonCandidate.isOfflineFallback || 
+                           currentPersonCandidate.isCatalogPerson || 
+                           currentPersonCandidate.isOfflineReserve || 
+                           (currentPersonCandidate.image?.value && currentPersonCandidate.image.value.startsWith('data:'))) {
                     commonsUrl = currentPersonCandidate.image.value;
                 } else {
                     const fileName = decodeURIComponent(currentPersonCandidate.image.value.split('/').pop());
@@ -4637,7 +4657,7 @@ async function preloadCandidateImageOffscreen(candidate) {
 
     // 3. Resolve Commons URL
     let commonsUrl;
-    if (candidate.isOfflineFallback || candidate.isCatalogPerson) {
+    if (candidate.isOfflineFallback || candidate.isCatalogPerson || candidate.isOfflineReserve || (candidate.image?.value && candidate.image.value.startsWith('data:'))) {
         commonsUrl = candidate.image.value;
     } else {
         const fileName = decodeURIComponent(candidate.image.value.split('/').pop());

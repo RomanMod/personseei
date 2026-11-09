@@ -1,0 +1,250 @@
+[18:59:38.37] [LOG] [DIAG] User Agent: Mozilla/5.0 (Linux; Android 12; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.47 Mobile Safari/537.36 Telegram-Android/13.2.0 (Doogee S98Pro; Android 12; SDK 31; AVERAGE)
+[18:59:38.37] [LOG] [DIAG] Platform (Navigator): Linux aarch64
+[18:59:38.38] [LOG] [DIAG] window.Telegram: Present
+[18:59:38.38] [LOG] [DIAG] Telegram.WebApp: Present
+[18:59:38.38] [LOG] [DIAG] WebApp Platform: android
+[18:59:38.39] [LOG] [DIAG] WebApp Version: 9.6
+[18:59:38.39] [LOG] [DIAG] WebApp ColorScheme: dark
+[18:59:38.39] [LOG] [DIAG] WebApp IsExpanded: false
+[18:59:38.40] [LOG] [DIAG] WebApp User ID: 399251099
+[18:59:38.40] [LOG] [DIAG] WebApp Username: cyber0lll
+[18:59:38.40] [LOG] [DIAG] WebApp LangCode: ru
+[18:59:38.41] [LOG] [DIAG] LocalStorage write check: SUCCESS
+[18:59:38.41] [LOG] [DIAG] Cookies write check: ALLOWED
+[18:59:38.41] [LOG] [DIAG] GTM elements found in DOM: 1
+[18:59:38.42] [LOG]   [GTM-Script #0] SRC: https://www.googletagmanager.com/gtag/js?id=G-WDPB825TVX, ASYNC: true
+[18:59:38.42] [LOG] [DIAG] typeof gtag: function
+[18:59:38.43] [LOG] [DIAG] typeof window.gtag: function
+[18:59:38.43] [LOG] [DIAG] window.google_tag_manager present: false
+[18:59:38.43] [LOG] [DIAG] window.dataLayer present: true
+[18:59:38.44] [LOG] [DIAG] window.dataLayer length: 5
+[18:59:38.44] [LOG] [DIAG] window.dataLayer events list: [{"0":"js","1":"2026-11-08T18:59:37.910Z"},{"0":"config","1":"G-WDPB825TVX","2":{"cookie_flags":"SameSite=None;Secure","cookie_domain":"auto","transport_type":"xhr","debug_mode":true,"client_id":"1091107307.1793291413"}},{"0":"set","1":"user_id","2":"usr_2d375f9f"},{"0":"event","1":"telegram_user_identified","2":{"t_user_id_available":true,"t_user_name_available":true,"debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794163187_3241","session_id":"1794163187_3241","language":"ru","new_language":"ru","current_theme":"night"}},{"0":"event","1":"next_photo_requested","2":{"session_id":"1794163187_3241","trigger_button":"session_resumed","new_language":"ru","game_mode":"open","remaining_in_session":0,"is_preloading":false,"preloaded_person_name":null,"debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794163187_3241","language":"ru","current_theme":"night"}}]
+[18:59:38.44] [LOG] [DIAG] Google Sheets Webhook Configured: true
+[18:59:38.45] [LOG] [DIAG] Google Sheets Webhook URL Prefix: https://script.google.com/macros/s/AKfycbzZwEUME...
+[18:59:38.45] [LOG] [RESERVE_STOCK] [DIAGNOSTICS] Buffer (sessionList): 1/8 | Local Reserve: 20/20 (3 real photos) | Wikidata Cache: 0 | Catalog Backup: 0/100
+[18:59:38.46] [LOG] --- END DIAGNOSTICS ---
+[18:59:38.46] [LOG] [WINDOW_ONLOAD] Page load sequence finished.
+[18:59:38.46] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"SGE9b3P9Hnzw8zoL","method":"getStorageValues","params":{"keys":["theme","language","mode","totalGuesses","successfulGuesses","failedGuesses","currentAttempts","guessResultsHistory","attemptDurations","currentSessionId","currentAttemptStartTime","top_controls_collapsed"]}}
+[18:59:38.47] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[18:59:38.49] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:59:38.50] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 1, Preloaded: None or no label
+[18:59:38.51] [LOG] [RESERVE_STOCK] [photo_status] Buffer (sessionList): 1/8 | Local Reserve: 20/20 (3 real photos) | Wikidata Cache: 0 | Catalog Backup: 0/100
+[18:59:38.53] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":793.7255,"is_state_stable":false,"is_expanded":false}
+[18:59:38.54] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":793.3334,"is_state_stable":false,"is_expanded":false}
+[18:59:38.55] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":793.3334,"is_state_stable":true,"is_expanded":true}
+[18:59:38.57] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"SGE9b3P9Hnzw8zoL","result":{"theme":"night","language":"ru","mode":"open","totalGuesses":"1","successfulGuesses":"1","failedGuesses":"0","currentAttempts":"1","guessResultsHistory":"[1]","attemptDurations":"[3]","currentSessionId":"1794163187_3241","currentAttemptStartTime":"1794163286294","top_controls_collapsed":"true"}}
+[18:59:38.59] [LOG] [BOOTSTRAP] Background loaded keys from Telegram CloudStorage: {"theme":"night","language":"ru","mode":"open","totalGuesses":"1","successfulGuesses":"1","failedGuesses":"0","currentAttempts":"1","guessResultsHistory":"[1]","attemptDurations":"[3]","currentSessionId":"1794163187_3241","currentAttemptStartTime":"1794163286294","top_controls_collapsed":"true"}
+[18:59:48.14] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":781.56866,"is_state_stable":false,"is_expanded":true}
+[18:59:48.22] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":745.8824,"is_state_stable":false,"is_expanded":true}
+[18:59:48.24] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":702.7451,"is_state_stable":false,"is_expanded":true}
+[18:59:48.28] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":666.27454,"is_state_stable":false,"is_expanded":true}
+[18:59:48.30] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":657.6471,"is_state_stable":false,"is_expanded":true}
+[18:59:48.32] [LOG] [Telegram.WebView] < receiveEvent visibility_changed {"is_visible":false}
+[18:59:48.34] [LOG] [LIFE_CYCLE] Page became hidden (screen turned off or app minimized). Storing last active timestamp for 32-min timeout.
+[18:59:48.35] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":597.6471,"is_state_stable":true,"is_expanded":false}
+[18:59:48.53] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":597.6471,"is_state_stable":false,"is_expanded":false}
+[18:59:49.79] [WARN] [SILENT_CORS_ERROR] Cross-origin script error ignored during lifecycle transition: Script error.
+[18:59:49.80] [ERROR] [UNCAUGHT_ERROR] Got uncaught exception in window: Script error. at :0:0
+[18:59:49.81] [LOG] [Telegram.WebView] < receiveEvent visibility_changed {"is_visible":true}
+[18:59:49.83] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":81.176476,"is_state_stable":false,"is_expanded":false}
+[18:59:49.86] [LOG] [LIFE_CYCLE] Page became visible (screen turned on or app foregrounded). Checking 32-minute inactivity timeout...
+[18:59:49.87] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[18:59:49.88] [LOG] [SESSION_LIFECYCLE] Active session "1794163187_3241" is within 32-minute grace period (2s idle). Player continues game!
+[18:59:50.37] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":874.5098,"is_state_stable":true,"is_expanded":false}
+[18:59:50.39] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":81.176476,"is_state_stable":false,"is_expanded":false}
+[18:59:50.43] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":81.176476,"is_state_stable":true,"is_expanded":false}
+[18:59:50.45] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":81.176476,"is_state_stable":false,"is_expanded":false}
+[18:59:50.47] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":105.882355,"is_state_stable":false,"is_expanded":false}
+[18:59:50.48] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":180.78432,"is_state_stable":false,"is_expanded":false}
+[18:59:50.50] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":335.29413,"is_state_stable":false,"is_expanded":false}
+[18:59:50.52] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":443.92157,"is_state_stable":false,"is_expanded":false}
+[18:59:50.56] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":558.4314,"is_state_stable":false,"is_expanded":false}
+[18:59:50.57] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":896.86273,"is_state_stable":false,"is_expanded":false}
+[18:59:50.59] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":894.902,"is_state_stable":false,"is_expanded":false}
+[18:59:50.62] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":892.15686,"is_state_stable":false,"is_expanded":false}
+[18:59:50.68] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":888.2353,"is_state_stable":false,"is_expanded":false}
+[18:59:50.70] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":883.13727,"is_state_stable":false,"is_expanded":false}
+[18:59:50.73] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":880.39215,"is_state_stable":false,"is_expanded":false}
+[18:59:50.77] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":879.2157,"is_state_stable":false,"is_expanded":false}
+[18:59:50.82] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":877.25494,"is_state_stable":false,"is_expanded":false}
+[18:59:50.83] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":875.6863,"is_state_stable":false,"is_expanded":false}
+[18:59:50.85] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":874.902,"is_state_stable":false,"is_expanded":false}
+[18:59:50.87] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":874.1177,"is_state_stable":false,"is_expanded":false}
+[18:59:50.89] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":873.7255,"is_state_stable":false,"is_expanded":false}
+[18:59:50.91] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":874.1177,"is_state_stable":false,"is_expanded":false}
+[18:59:50.94] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":874.5098,"is_state_stable":false,"is_expanded":false}
+[18:59:52.05] [LOG] [Telegram.WebView] < receiveEvent viewport_changed {"height":793.3334,"is_state_stable":false,"is_expanded":false}
+[18:59:56.60] [LOG] [LIFE_CYCLE] Window focused. Checking inactivity timeout...
+[18:59:56.63] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[18:59:56.66] [LOG] [SESSION_LIFECYCLE] Active session "1794163187_3241" is within 32-minute grace period (7s idle). Player continues game!
+[18:59:56.68] [LOG] [LIFE_CYCLE] Window focused. Checking inactivity timeout...
+[18:59:56.71] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[18:59:56.73] [LOG] [SESSION_LIFECYCLE] Active session "1794163187_3241" is within 32-minute grace period (0s idle). Player continues game!
+[18:59:56.76] [LOG] [USER_ACTION] "New Game" button clicked.
+[18:59:56.79] [LOG] [LIFE_CYCLE_REPORT] Unfinished game detected inside new_game_reset. Attempts/max: 1/10. Reporting to Google Sheets...
+[18:59:56.91] [LOG] [GA_EVENT_SENT] Name: game_unfinished_report, Params: {"session_id":"1794163187_3241","current_attempts":1,"total_attempts_max":10,"successful_guesses":1,"failed_guesses":0,"success_rate":"100%","new_language":"ru","game_mode":"open","current_theme":"night","trigger_event":"new_game_reset","platform":"android","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794163187_3241","language":"ru"}
+[18:59:56.94] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"PLXgVv4IgU5KIWeg","method":"deleteStorageValues","params":{"keys":["currentSessionId"]}}
+[18:59:56.97] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"d9D1R8UC8KXyIMh7","method":"deleteStorageValues","params":{"keys":["currentAttempts"]}}
+[18:59:56.99] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"Quq0twKgBZfAH3CC","method":"deleteStorageValues","params":{"keys":["totalGuesses"]}}
+[18:59:57.02] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"KK7bDVjLCwwMnjvj","method":"deleteStorageValues","params":{"keys":["successfulGuesses"]}}
+[18:59:57.04] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"zR9LSKJuQKNCaoKq","method":"deleteStorageValues","params":{"keys":["failedGuesses"]}}
+[18:59:57.07] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"vhgD0QAB0icTdxwl","method":"deleteStorageValues","params":{"keys":["guessResultsHistory"]}}
+[18:59:57.09] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"55Rdvjr0ob70c4BQ","method":"deleteStorageValues","params":{"keys":["attemptDurations"]}}
+[18:59:57.12] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"wF2gVh3SBjN61juM","method":"deleteStorageValues","params":{"keys":["currentAttemptStartTime"]}}
+[18:59:57.14] [LOG] [GAME_FLOW] Starting new game...
+[18:59:57.15] [LOG] [GAME_FLOW] Game statistics and current person reset.
+[18:59:57.16] [LOG] [PRELOAD_RESET] Preload state reset for new game.
+[18:59:57.18] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"gkNevhchjEYQluQF","method":"saveStorageValue","params":{"key":"currentSessionId","value":"1794164397_6218"}}
+[18:59:57.19] [LOG] [GAME_FLOW] New game session ID: 1794164397_6218. Saved to localStorage.
+[18:59:57.20] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"jjA3SBvWyEEte7Jd","method":"deleteStorageValues","params":{"keys":["currentAttemptStartTime"]}}
+[18:59:57.22] [LOG] [GAME_FLOW] currentAttemptStartTime reset and removed from localStorage.
+[18:59:57.23] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"q2EEeSi2kH0wKMHi","method":"saveStorageValue","params":{"key":"currentAttempts","value":"0"}}
+[18:59:57.24] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"J6OtsyYnkhAKz7Eq","method":"saveStorageValue","params":{"key":"totalGuesses","value":"0"}}
+[18:59:57.26] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"BUNHpaOnvvvXMQ8m","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"0"}}
+[18:59:57.27] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"VAU56IMoliUKadtd","method":"saveStorageValue","params":{"key":"failedGuesses","value":"0"}}
+[18:59:57.29] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"SpCmsxbRf4BBKI9o","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[]"}}
+[18:59:57.30] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"aoKpwJN5PtDQc24y","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[]"}}
+[18:59:57.32] [LOG] [GAME_FLOW] Reset game state saved to localStorage.
+[18:59:57.33] [LOG] [GAME_FLOW] Player local start time for GA: 2026-11-08 20:59:57 UTC+02:00
+[18:59:57.34] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "new_game_started" in 1-Game=1-Row summary mode.
+[18:59:57.37] [LOG] [GA_EVENT_SENT] Name: new_game_started, Params: {"new_language":"ru","game_mode":"open","session_id":"1794164397_6218","player_local_start_time":"2026-11-08 20:59:57 UTC+02:00","current_theme":"night","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794164397_6218","language":"ru"}
+[18:59:57.38] [LOG] [UI_UPDATE] updateUI called for person: No person
+[18:59:57.40] [LOG] [GAME_FLOW_UI] Statistics display and general UI reset.
+[18:59:57.42] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 0 Max: 10 IsInitialCall: false
+[18:59:57.43] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[18:59:57.45] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[18:59:57.46] [LOG] [LOAD_SESSION] Starting game session with instant candidate render and background buffer...
+[18:59:57.48] [LOG] [RESERVE_STOCK] [loadSession_init] Buffer (sessionList): 1/8 | Local Reserve: 20/20 (3 real photos) | Wikidata Cache: 0 | Catalog Backup: 0/100
+[18:59:57.49] [LOG] [LOAD_SESSION_INSTANT] Rendering first person immediately from reserve in 30ms: Paul McCartney
+[18:59:57.51] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Paul McCartney
+[18:59:57.52] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[18:59:57.54] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Paul McCartney. Reason: fetch_no_preload_match
+[18:59:57.55] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Paul McCartney
+[18:59:57.57] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "family" in: data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20750%22%20width%3D%22600%22%20height%3D%22750%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bgGrad%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230c101b%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23070a10%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23040508%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3CradialGradient%20id%3D%22aura%22%20cx%3D%2250%25%22%20cy%3D%2245%25%22%20r%3D%2240%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2300f0ff%22%20stop-opacity%3D%220.25%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2300f0ff%22%20stop-opacity%3D%220%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2FradialGradient%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22cardBorder%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2300f0ff%22%20stop-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233b82f6%22%20stop-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22600%22%20height%3D%22750%22%20fill%3D%22url(%23bgGrad)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cg%20stroke%3D%22rgba(255%2C255%2C255%2C0.03)%22%20stroke-width%3D%221%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22150%22%20x2%3D%22600%22%20y2%3D%22150%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22300%22%20x2%3D%22600%22%20y2%3D%22300%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22450%22%20x2%3D%22600%22%20y2%3D%22450%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22600%22%20x2%3D%22600%22%20y2%3D%22600%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22150%22%20y1%3D%220%22%20x2%3D%22150%22%20y2%3D%22750%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22300%22%20y1%3D%220%22%20x2%3D%22300%22%20y2%3D%22750%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22450%22%20y1%3D%220%22%20x2%3D%22450%22%20y2%3D%22750%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22340%22%20r%3D%22220%22%20fill%3D%22url(%23aura)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22340%22%20r%3D%22170%22%20fill%3D%22none%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%222%22%20stroke-dasharray%3D%226%2C8%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22340%22%20r%3D%22195%22%20fill%3D%22none%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.1%22%20stroke-width%3D%221%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M300%20230%20C345%20230%20375%20265%20375%20310%20C375%20355%20345%20385%20300%20385%20C255%20385%20225%20355%20225%20310%20C225%20265%20255%20230%20300%20230%20Z%20M190%20520%20C190%20435%20235%20410%20300%20410%20C365%20410%20410%20435%20410%20520%20Z%22%20fill%3D%22%23161e31%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.4%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%2035%2065%20L%2035%2035%20L%2065%2035%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20565%2065%20L%20565%2035%20L%20535%2035%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%2035%20685%20L%2035%20715%20L%2065%20715%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20565%20685%20L%20565%20715%20L%20535%20715%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%2248%22%20width%3D%22260%22%20height%3D%2226%22%20rx%3D%2213%22%20fill%3D%22rgba(0%2C0%2C0%2C0.6)%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.3%22%20stroke-width%3D%221%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22300%22%20y%3D%2265%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2211%22%20font-weight%3D%22bold%22%20fill%3D%22%2300f0ff%22%20letter-spacing%3D%222%22%3EOFFLINE%20DEMO%20ARCHIVE%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2250%22%20y%3D%22585%22%20width%3D%22500%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22rgba(11%2C%2015%2C%2025%2C%200.85)%22%20stroke%3D%22url(%23cardBorder)%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22300%22%20y%3D%22628%22%20text-anchor%3D%22middle%22%20font-family%3D%22system-ui%2C%20sans-serif%22%20font-size%3D%2222%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20letter-spacing%3D%220.5%22%3EPaul%20McCartney%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22300%22%20y%3D%22658%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2211%22%20font-weight%3D%22600%22%20fill%3D%22rgba(255%2C255%2C255%2C0.5)%22%20letter-spacing%3D%221.5%22%3EINTUITION%20TRIAL%20CARD%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E
+[18:59:57.59] [WARN] [LOAD_PERSON_FORBIDDEN_SKIP] Skipping forbidden/monument/team/18+ image for Paul McCartney. Fetching new person.
+[18:59:57.60] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: true, Category: male-alive, CacheKey: true-male-alive
+[18:59:57.62] [LOG] [WIKIDATA_FETCH] No valid cache hit for true-male-alive, querying Wikidata.
+[18:59:57.64] [LOG] [GAME_FLOW] New game started successfully.
+[18:59:57.66] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[18:59:57.68] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:59:57.70] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 0, Preloaded: None or no label
+[18:59:57.71] [LOG] [RESERVE_STOCK] [photo_status] Buffer (sessionList): 0/8 | Local Reserve: 20/20 (3 real photos) | Wikidata Cache: 0 | Catalog Backup: 0/100
+[18:59:57.74] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"PLXgVv4IgU5KIWeg","result":true}
+[18:59:57.76] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentSessionId" from Telegram cloud storage.
+[18:59:57.78] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"d9D1R8UC8KXyIMh7","result":true}
+[18:59:57.81] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttempts" from Telegram cloud storage.
+[18:59:57.82] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"Quq0twKgBZfAH3CC","result":true}
+[18:59:57.85] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "totalGuesses" from Telegram cloud storage.
+[18:59:57.87] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"KK7bDVjLCwwMnjvj","result":true}
+[18:59:57.89] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "successfulGuesses" from Telegram cloud storage.
+[18:59:57.91] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"zR9LSKJuQKNCaoKq","result":true}
+[18:59:57.93] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "failedGuesses" from Telegram cloud storage.
+[18:59:57.95] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"vhgD0QAB0icTdxwl","result":true}
+[18:59:57.96] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "guessResultsHistory" from Telegram cloud storage.
+[18:59:57.99] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"55Rdvjr0ob70c4BQ","result":true}
+[18:59:58.01] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "attemptDurations" from Telegram cloud storage.
+[18:59:58.03] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"wF2gVh3SBjN61juM","result":true}
+[18:59:58.04] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttemptStartTime" from Telegram cloud storage.
+[18:59:58.06] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"gkNevhchjEYQluQF","result":true}
+[18:59:58.08] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentSessionId" to Telegram cloud storage.
+[18:59:58.10] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"jjA3SBvWyEEte7Jd","result":true}
+[18:59:58.12] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttemptStartTime" from Telegram cloud storage.
+[18:59:58.14] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"q2EEeSi2kH0wKMHi","result":true}
+[18:59:58.16] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[18:59:58.18] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"J6OtsyYnkhAKz7Eq","result":true}
+[18:59:58.20] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[18:59:58.22] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"BUNHpaOnvvvXMQ8m","result":true}
+[18:59:58.24] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[18:59:58.28] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"VAU56IMoliUKadtd","result":true}
+[18:59:58.31] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[18:59:58.35] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"SpCmsxbRf4BBKI9o","result":true}
+[18:59:58.37] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[18:59:58.40] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"aoKpwJN5PtDQc24y","result":true}
+[18:59:58.44] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[19:00:00.60] [LOG] [SHEETS_SENT] Dispatched anonymized event "game_unfinished_report" to Google Sheets (Spam: false)
+[19:00:03.30] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/2 for category male-deceased is taking too long and will be aborted.
+[19:00:03.46] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[19:00:03.55] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/2 for category male-alive is taking too long and will be aborted.
+[19:00:16.91] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[19:00:16.98] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[19:00:17.04] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[19:00:20.35] [LOG] [SHEETS_MODE] Switched Google Sheets logging mode to: DETAILED (all micro-events logged to «Подробности»)
+[19:00:22.64] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/2 for category male-alive is taking too long and will be aborted.
+[19:00:26.53] [LOG] [USER_ACTION] "New Game" button clicked.
+[19:00:26.58] [LOG] [GAME_FLOW] Starting new game...
+[19:00:26.63] [LOG] [ANTI_SPAM] Empty game restart count: 1
+[19:00:26.67] [LOG] [GAME_FLOW] Game statistics and current person reset.
+[19:00:26.70] [LOG] [PRELOAD_RESET] Preload state reset for new game.
+[19:00:26.72] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"burBR7jUYxxZfZY4","method":"saveStorageValue","params":{"key":"currentSessionId","value":"1794164426_6346"}}
+[19:00:26.75] [LOG] [GAME_FLOW] New game session ID: 1794164426_6346. Saved to localStorage.
+[19:00:26.77] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"mFljRWkcKdLTIHhk","method":"deleteStorageValues","params":{"keys":["currentAttemptStartTime"]}}
+[19:00:26.79] [LOG] [GAME_FLOW] currentAttemptStartTime reset and removed from localStorage.
+[19:00:26.81] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"AYaV1AqajRshUNfw","method":"saveStorageValue","params":{"key":"currentAttempts","value":"0"}}
+[19:00:26.83] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"jDJxBEVqeJLG12eM","method":"saveStorageValue","params":{"key":"totalGuesses","value":"0"}}
+[19:00:26.85] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"swhXzMa4EMgBjuVq","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"0"}}
+[19:00:26.87] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"PzFXeYMjXdmITygo","method":"saveStorageValue","params":{"key":"failedGuesses","value":"0"}}
+[19:00:26.90] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"cQKqelkdusIwBryA","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[]"}}
+[19:00:26.92] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"mxkYdXrgNG0S6e39","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[]"}}
+[19:00:26.94] [LOG] [GAME_FLOW] Reset game state saved to localStorage.
+[19:00:26.96] [LOG] [GAME_FLOW] Player local start time for GA: 2026-11-08 21:00:26 UTC+02:00
+[19:00:27.00] [LOG] [GA_EVENT_SENT] Name: new_game_started, Params: {"new_language":"ru","game_mode":"open","session_id":"1794164426_6346","player_local_start_time":"2026-11-08 21:00:26 UTC+02:00","current_theme":"night","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794164426_6346","language":"ru"}
+[19:00:27.02] [LOG] [UI_UPDATE] updateUI called for person: No person
+[19:00:27.05] [LOG] [GAME_FLOW_UI] Statistics display and general UI reset.
+[19:00:27.07] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 0 Max: 10 IsInitialCall: false
+[19:00:27.09] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[19:00:27.11] [LOG] [TOP_CONTROLS] Collapsed state: false (manual: false)
+[19:00:27.14] [LOG] [LOAD_SESSION] Starting game session with instant candidate render and background buffer...
+[19:00:27.16] [LOG] [RESERVE_STOCK] [loadSession_init] Buffer (sessionList): 0/8 | Local Reserve: 20/20 (3 real photos) | Wikidata Cache: 0 | Catalog Backup: 0/100
+[19:00:27.18] [LOG] [INSTANT_CANDIDATE] Serving from Local Offline Reserve (0ms): Jeff Bezos
+[19:00:27.21] [LOG] [LOAD_SESSION_INSTANT] Rendering first person immediately from reserve in 70ms: Jeff Bezos
+[19:00:27.23] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Jeff Bezos
+[19:00:27.25] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[19:00:27.27] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Jeff Bezos. Reason: fetch_no_preload_match
+[19:00:27.29] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Jeff Bezos
+[19:00:27.32] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "family" in: data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20600%20750%22%20width%3D%22600%22%20height%3D%22750%22%3E%0A%20%20%20%20%20%20%20%20%3Cdefs%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22bgGrad%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%230c101b%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%2250%25%22%20stop-color%3D%22%23070a10%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%23040508%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3CradialGradient%20id%3D%22aura%22%20cx%3D%2250%25%22%20cy%3D%2245%25%22%20r%3D%2240%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2300f0ff%22%20stop-opacity%3D%220.25%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%2300f0ff%22%20stop-opacity%3D%220%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2FradialGradient%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3ClinearGradient%20id%3D%22cardBorder%22%20x1%3D%220%25%22%20y1%3D%220%25%22%20x2%3D%22100%25%22%20y2%3D%22100%25%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%220%25%22%20stop-color%3D%22%2300f0ff%22%20stop-opacity%3D%220.6%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%3Cstop%20offset%3D%22100%25%22%20stop-color%3D%22%233b82f6%22%20stop-opacity%3D%220.2%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3C%2FlinearGradient%3E%0A%20%20%20%20%20%20%20%20%3C%2Fdefs%3E%0A%20%20%20%20%20%20%20%20%3Crect%20width%3D%22600%22%20height%3D%22750%22%20fill%3D%22url(%23bgGrad)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cg%20stroke%3D%22rgba(255%2C255%2C255%2C0.03)%22%20stroke-width%3D%221%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22150%22%20x2%3D%22600%22%20y2%3D%22150%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22300%22%20x2%3D%22600%22%20y2%3D%22300%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22450%22%20x2%3D%22600%22%20y2%3D%22450%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%220%22%20y1%3D%22600%22%20x2%3D%22600%22%20y2%3D%22600%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22150%22%20y1%3D%220%22%20x2%3D%22150%22%20y2%3D%22750%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22300%22%20y1%3D%220%22%20x2%3D%22300%22%20y2%3D%22750%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Cline%20x1%3D%22450%22%20y1%3D%220%22%20x2%3D%22450%22%20y2%3D%22750%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22340%22%20r%3D%22220%22%20fill%3D%22url(%23aura)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22340%22%20r%3D%22170%22%20fill%3D%22none%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.2%22%20stroke-width%3D%222%22%20stroke-dasharray%3D%226%2C8%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%22300%22%20cy%3D%22340%22%20r%3D%22195%22%20fill%3D%22none%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.1%22%20stroke-width%3D%221%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M300%20230%20C345%20230%20375%20265%20375%20310%20C375%20355%20345%20385%20300%20385%20C255%20385%20225%20355%20225%20310%20C225%20265%20255%20230%20300%20230%20Z%20M190%20520%20C190%20435%20235%20410%20300%20410%20C365%20410%20410%20435%20410%20520%20Z%22%20fill%3D%22%23161e31%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.4%22%20stroke-width%3D%223%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%2035%2065%20L%2035%2035%20L%2065%2035%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20565%2065%20L%20565%2035%20L%20535%2035%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%2035%20685%20L%2035%20715%20L%2065%20715%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cpath%20d%3D%22M%20565%20685%20L%20565%20715%20L%20535%20715%22%20stroke%3D%22%2300f0ff%22%20stroke-width%3D%223%22%20fill%3D%22none%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%22170%22%20y%3D%2248%22%20width%3D%22260%22%20height%3D%2226%22%20rx%3D%2213%22%20fill%3D%22rgba(0%2C0%2C0%2C0.6)%22%20stroke%3D%22%2300f0ff%22%20stroke-opacity%3D%220.3%22%20stroke-width%3D%221%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22300%22%20y%3D%2265%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2211%22%20font-weight%3D%22bold%22%20fill%3D%22%2300f0ff%22%20letter-spacing%3D%222%22%3EOFFLINE%20DEMO%20ARCHIVE%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Crect%20x%3D%2250%22%20y%3D%22585%22%20width%3D%22500%22%20height%3D%2295%22%20rx%3D%2216%22%20fill%3D%22rgba(11%2C%2015%2C%2025%2C%200.85)%22%20stroke%3D%22url(%23cardBorder)%22%20stroke-width%3D%221.5%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22300%22%20y%3D%22628%22%20text-anchor%3D%22middle%22%20font-family%3D%22system-ui%2C%20sans-serif%22%20font-size%3D%2222%22%20font-weight%3D%22700%22%20fill%3D%22%23ffffff%22%20letter-spacing%3D%220.5%22%3EJeff%20Bezos%3C%2Ftext%3E%0A%20%20%20%20%20%20%20%20%3Ctext%20x%3D%22300%22%20y%3D%22658%22%20text-anchor%3D%22middle%22%20font-family%3D%22monospace%22%20font-size%3D%2211%22%20font-weight%3D%22600%22%20fill%3D%22rgba(255%2C255%2C255%2C0.5)%22%20letter-spacing%3D%221.5%22%3EINTUITION%20TRIAL%20CARD%3C%2Ftext%3E%0A%20%20%20%20%3C%2Fsvg%3E
+[19:00:27.34] [WARN] [LOAD_PERSON_FORBIDDEN_SKIP] Skipping forbidden/monument/team/18+ image for Jeff Bezos. Fetching new person.
+[19:00:27.37] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: true, Category: male-alive, CacheKey: true-male-alive
+[19:00:27.39] [LOG] [WIKIDATA_FETCH] No valid cache hit for true-male-alive, querying Wikidata.
+[19:00:27.41] [LOG] [GAME_FLOW] New game started successfully.
+[19:00:27.44] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, mode=open
+[19:00:27.47] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:00:27.49] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 0, Preloaded: None or no label
+[19:00:27.51] [LOG] [RESERVE_STOCK] [photo_status] Buffer (sessionList): 0/8 | Local Reserve: 20/20 (3 real photos) | Wikidata Cache: 0 | Catalog Backup: 0/100
+[19:00:27.55] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"burBR7jUYxxZfZY4","result":true}
+[19:00:27.58] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentSessionId" to Telegram cloud storage.
+[19:00:27.60] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"jDJxBEVqeJLG12eM","result":true}
+[19:00:27.63] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[19:00:27.66] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"PzFXeYMjXdmITygo","result":true}
+[19:00:27.69] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[19:00:27.71] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"swhXzMa4EMgBjuVq","result":true}
+[19:00:27.73] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[19:00:27.76] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"AYaV1AqajRshUNfw","result":true}
+[19:00:27.78] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[19:00:27.81] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"mFljRWkcKdLTIHhk","result":true}
+[19:00:27.83] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttemptStartTime" from Telegram cloud storage.
+[19:00:27.86] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"cQKqelkdusIwBryA","result":true}
+[19:00:27.88] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[19:00:27.90] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"mxkYdXrgNG0S6e39","result":true}
+[19:00:27.93] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[19:00:30.12] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[19:00:30.15] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[19:00:30.18] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[19:00:31.58] [LOG] [SHEETS_SENT] Dispatched anonymized event "new_game_started" to Google Sheets (Spam: false)
+[19:00:31.70] [LOG] [AUTO_COLLAPSE] Auto-collapsing top controls as gameplay is active.
+[19:00:31.76] [LOG] [TOP_CONTROLS] Collapsed state: true (manual: false)
+[19:00:31.81] [LOG] [USER_ACTION] "Find New Photo" button clicked (non-blocking background fetch).
+[19:00:42.04] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 2/2 for category male-deceased is taking too long and will be aborted.
+[19:00:43.33] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[19:00:43.39] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[19:00:43.41] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[19:00:50.22] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[19:00:50.25] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[19:00:50.28] [WARN] [WIKIDATA_FETCH_ERROR] Live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure. Checking cached pool...
+[19:00:50.90] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: true, Category: male-deceased, CacheKey: true-male-deceased
+[19:00:50.98] [LOG] [WIKIDATA_FETCH] No valid cache hit for true-male-deceased, querying Wikidata.
+[19:00:52.41] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/2 for category male-alive is taking too long and will be aborted.
+[19:00:52.53] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[19:00:55.18] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 2/2 for category male-alive is taking too long and will be aborted.
+[19:01:05.84] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[19:01:05.91] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[19:01:05.97] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
