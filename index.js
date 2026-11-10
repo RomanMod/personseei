@@ -5935,6 +5935,19 @@ const initApp = () => {
     } else {
         console.log('[TELEGRAM_INIT] Telegram WebApp script not loaded or not in Telegram environment.');
     }
+
+    if (!telegramUserId) {
+        let savedGuestId = safeGetItem('persistent_player_id');
+        if (!savedGuestId) {
+            savedGuestId = 'player_' + Math.random().toString(36).substring(2, 10);
+            safeSetItem('persistent_player_id', savedGuestId);
+        }
+        telegramUserId = savedGuestId;
+        if (!telegramUserName) {
+            telegramUserName = 'Player ' + savedGuestId.slice(-4).toUpperCase();
+        }
+        console.log(`[USER_INIT] Persistent Standalone Player ID: ${telegramUserId}`);
+    }
     
     // Refresh all global state variables from localStorage after potential pre-load from Telegram CloudStorage
     isNight = localStorage.getItem('theme') !== 'day';

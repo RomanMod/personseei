@@ -39,11 +39,8 @@ const PLAYER_PALETTE = [
  * Получение персонального стиля для игрока по его Telegram ID
  */
 function getPlayerStyle(userId) {
-  if (!userId || userId === 'anon_guest') {
-    return { bg: '#F8F9FA', text: '#212529', name: 'базовый' };
-  }
+  var str = String(userId || 'player_default');
   var hash = 0;
-  var str = String(userId);
   for (var i = 0; i < str.length; i++) {
     hash = ((hash << 5) - hash) + str.charCodeAt(i);
     hash |= 0;
