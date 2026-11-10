@@ -1,9 +1,15 @@
 /**
  * PersonSeeI - Google Sheets Analytics & Real-Time Webhook Engine
- * Version: 2.4.2
+ * Version: 2.4.9
  * 
- * Настройка записи:
- * Новые игры и события теперь добавляются СВЕРХУ (на 2-ю строчку, сразу под шапкой)!
+ * Ключевые возможности:
+ * 1. 🟢 Яркая изумрудно-зеленая строка-разделитель при нажатии «Новая игра» (new_game_started).
+ * 2. 🎨 Уникальный цвет для каждого игрока:
+ *    Автоматически генерирует индивидуальный пастельный цвет для каждого Telegram ID.
+ *    Когда играют одновременно 2 или больше игроков — их строки четко различаются по цветам.
+ * 3. 🏁 Элегантная строка завершения игры (game_over).
+ * 4. ✅❌ Четкая подсветка верных (мягкий зеленый) и неверных (мягкий коралловый) ответов.
+ * 5. 🚫 Полное устранение унаследованных черных строк (явная установка цвета ячеек).
  */
 
 const DEBUG = false;
@@ -12,6 +18,39 @@ const SPREADSHEET_ID = "17vi2Ya6CfOhFpQcCKlebCa5-QAPYlCUQ2QdQIf3yzYo";
 
 // Положение новых записей: 'top' — сверху (строка 2, сразу под шапкой), 'bottom' — снизу (в конец)
 const NEW_ROWS_POSITION = 'top';
+
+// Палитра из 12 гармоничных пастельных оттенков для игроков (с гарантированной контрастностью)
+const PLAYER_PALETTE = [
+  { bg: '#E3F2FD', text: '#0D47A1', name: 'голубой' },       // 1. Soft Blue
+  { bg: '#FFF3E0', text: '#E65100', name: 'персиковый' },     // 2. Soft Peach / Orange
+  { bg: '#F3E5F5', text: '#4A148C', name: 'сиреневый' },      // 3. Soft Lilac / Purple
+  { bg: '#E0F2F1', text: '#004D40', name: 'мятный' },         // 4. Soft Mint / Teal
+  { bg: '#FFFDE7', text: '#F57F17', name: 'кремовый' },       // 5. Soft Lemon / Cream
+  { bg: '#FCE4EC', text: '#880E4F', name: 'нежно-розовый' },  // 6. Soft Pink / Rose
+  { bg: '#EDE7F6', text: '#311B92', name: 'лавандовый' },     // 7. Lavender
+  { bg: '#E0F7FA', text: '#006064', name: 'аквамарин' },      // 8. Pale Ice / Cyan
+  { bg: '#FFF8E1', text: '#BF360C', name: 'янтарный' },       // 9. Soft Amber
+  { bg: '#FBE9E7', text: '#D84315', name: 'терракотовый' },   // 10. Soft Terracotta
+  { bg: '#F1F8E9', text: '#33691E', name: 'фисташковый' },    // 11. Soft Pistachio
+  { bg: '#ECEFF1', text: '#263238', name: 'дымчатый' }        // 12. Soft Slate Gray
+];
+
+/**
+ * Получение персонального стиля для игрока по его Telegram ID
+ */
+function getPlayerStyle(userId) {
+  if (!userId || userId === 'anon_guest') {
+    return { bg: '#F8F9FA', text: '#212529', name: 'базовый' };
+  }
+  var hash = 0;
+  var str = String(userId);
+  for (var i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  var index = Math.abs(hash) % PLAYER_PALETTE.length;
+  return PLAYER_PALETTE[index];
+}
 
 // Шапка «Общая» (с колонкой «Платформа»)
 const SUMMARY_HEADERS = [
@@ -62,29 +101,60 @@ const DETAILS_HEADERS = [
 ];
 
 /**
- * Вставка строки данных:
- * Если NEW_ROWS_POSITION === 'top', вставляет строку СВЕРХУ (на 2-ю строчку, сразу под шапкой).
- * Очищает унаследованный стиль шапки (убирает зеленую заливку и белый жирный шрифт).
+ * Вставка строки данных с явным форматированием и цветовой схемой.
+ * Полностью предотвращает появление темных строк (наследуемых от темной шапки).
  */
-function addRowToSheet(sheet, rowValues) {
-  if (NEW_ROWS_POSITION === 'top') {
+function addRowToSheet(sheet, rowValues, options) {
+  options = options || {};
+  var rowPosition = options.position || NEW_ROWS_POSITION;
+  var rowIdx = 2;
+
+  if (rowPosition === 'top') {
     sheet.insertRowAfter(1);
-    var targetRange = sheet.getRange(2, 1, 1, rowValues.length);
-    targetRange.setValues([rowValues]);
-    try {
-      targetRange.setBackground(null);
-      targetRange.setFontColor('#000000');
-      targetRange.setFontWeight('normal');
-      targetRange.setFontStyle('normal');
-      targetRange.setVerticalAlignment('middle');
-    } catch (e) {}
+    rowIdx = 2;
   } else {
     sheet.appendRow(rowValues);
+    rowIdx = sheet.getLastRow();
+  }
+
+  var targetRange = sheet.getRange(rowIdx, 1, 1, rowValues.length);
+  if (rowPosition === 'top') {
+    targetRange.setValues([rowValues]);
+  }
+
+  try {
+    var bg = options.backgroundColor || '#FFFFFF';
+    var fontColor = options.fontColor || '#111827';
+    var fontWeight = options.fontWeight || 'normal';
+
+    // Явно задаем фоновый цвет на всю строку (не оставляем null)
+    targetRange.setBackground(bg);
+    targetRange.setFontColor(fontColor);
+    targetRange.setFontWeight(fontWeight);
+    targetRange.setFontStyle('normal');
+    targetRange.setVerticalAlignment('middle');
+
+    // Если переданы индивидуальные стили для конкретных колонок (например, Результат 1/0)
+    if (options.cellFormats) {
+      for (var colKey in options.cellFormats) {
+        if (options.cellFormats.hasOwnProperty(colKey)) {
+          var colIdx = parseInt(colKey, 10);
+          var fmt = options.cellFormats[colKey];
+          var cell = sheet.getRange(rowIdx, colIdx);
+          if (fmt.backgroundColor) cell.setBackground(fmt.backgroundColor);
+          if (fmt.fontColor) cell.setFontColor(fmt.fontColor);
+          if (fmt.fontWeight) cell.setFontWeight(fmt.fontWeight);
+          if (fmt.horizontalAlignment) cell.setHorizontalAlignment(fmt.horizontalAlignment);
+        }
+      }
+    }
+  } catch (e) {
+    Logger.log('Formatting error in addRowToSheet: ' + e.toString());
   }
 }
 
 /**
- * Запустите эту функцию прямо в Apps Script, чтобы обновить шапки с колонкой «Платформа»!
+ * Запустите эту функцию прямо в Apps Script, чтобы обновить шапки!
  */
 function createTabsManually() {
   let ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -107,7 +177,6 @@ function getOrCreateSheet(spreadsheet, sheetName, headers, headerBgColor) {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(headers);
   } else {
-    // Автоматически обновляем первую строку шапки, если добавились новые колонки
     sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
 
@@ -141,7 +210,7 @@ function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'ok',
     app: 'PersonSeeI Trivia Webhook',
-    version: '2.4.4',
+    version: '2.4.9',
     rows_position: NEW_ROWS_POSITION,
     sheets: ['Общая', 'Подробности'],
     timestamp: new Date().toISOString()
@@ -169,6 +238,8 @@ function doPost(e) {
     const summarySheet = getOrCreateSheet(ss, 'Общая', SUMMARY_HEADERS, '#1b5e20');
     const detailsSheet = getOrCreateSheet(ss, 'Подробности', DETAILS_HEADERS, '#0b192c');
 
+    const playerStyle = getPlayerStyle(data.telegram_user_id);
+
     // 1. Запись на лист «Общая» (СВЕРХУ на строку 2)
     if (isSummaryEvent || data.target_sheet === 'summary' || data.target_sheet === 'both') {
       const statusLabel = data.status || (eventName === 'game_over' ? 'game_completed' : eventName);
@@ -195,7 +266,11 @@ function doPost(e) {
         formatDuration((data.active_time_seconds || 0) * 1000)
       ];
 
-      addRowToSheet(summarySheet, summaryRow);
+      addRowToSheet(summarySheet, summaryRow, {
+        backgroundColor: playerStyle.bg,
+        fontColor: '#111827',
+        fontWeight: 'normal'
+      });
     }
 
     // 2. Запись на лист «Подробности» (СВЕРХУ на строку 2)
@@ -205,6 +280,59 @@ function doPost(e) {
       const responseTimeSec = data.time_for_attempt_seconds !== undefined ? data.time_for_attempt_seconds : (data.duration_seconds || '');
       const attemptNum = data.attempt_number_in_session !== undefined ? data.attempt_number_in_session : (data.attempt_number || '');
 
+      let eventDisplay = eventName;
+      let personNameDisplay = data.person_name || '';
+      let resultDisplay = '';
+
+      if (data.is_correct === 1 || data.is_correct === '1') {
+        resultDisplay = '1 (Верно)';
+      } else if (data.is_correct === 0 || data.is_correct === '0') {
+        resultDisplay = '0 (Неверно)';
+      } else if (data.is_correct !== undefined && data.is_correct !== '') {
+        resultDisplay = String(data.is_correct);
+      }
+
+      var rowOptions = {
+        backgroundColor: playerStyle.bg,
+        fontColor: '#111827',
+        fontWeight: 'normal',
+        cellFormats: {}
+      };
+
+      // 🟢 1. Зелёная строка-разделитель при начале новой игры
+      if (eventName === 'new_game_started') {
+        eventDisplay = '🟢 НОВАЯ ИГРА';
+        personNameDisplay = '🟢 --- СТАРТ НОВОЙ ИГРЫ ---';
+        rowOptions.backgroundColor = '#2E7D32'; // Насыщенный изумрудно-зеленый
+        rowOptions.fontColor = '#FFFFFF';       // Белый яркий текст
+        rowOptions.fontWeight = 'bold';
+      } 
+      // 🏁 2. Выделение завершения игры
+      else if (eventName === 'game_over') {
+        eventDisplay = '🏁 ИГРА ЗАВЕРШЕНА';
+        resultDisplay = `${data.successful_guesses !== undefined ? data.successful_guesses : ''}/${MAX_GAME_ATTEMPTS}`;
+        rowOptions.backgroundColor = '#1565C0'; // Королевский синий
+        rowOptions.fontColor = '#FFFFFF';
+        rowOptions.fontWeight = 'bold';
+      }
+
+      // ✅❌ 3. Подсветка ответа в колонке 16 «Результат (1/0)»
+      if (data.is_correct === 1 || data.is_correct === '1') {
+        rowOptions.cellFormats[16] = {
+          backgroundColor: '#A5D6A7', // Мягкий зеленый
+          fontColor: '#1B5E20',       // Темно-зеленый текст
+          fontWeight: 'bold',
+          horizontalAlignment: 'center'
+        };
+      } else if (data.is_correct === 0 || data.is_correct === '0') {
+        rowOptions.cellFormats[16] = {
+          backgroundColor: '#FFCDD2', // Мягкий кораллово-красный
+          fontColor: '#B71C1C',       // Темно-красный текст
+          fontWeight: 'bold',
+          horizontalAlignment: 'center'
+        };
+      }
+
       const detailsRow = [
         data.timestamp_iso || new Date().toISOString(),
         data.local_time_string || new Date().toLocaleString(),
@@ -213,15 +341,15 @@ function doPost(e) {
         data.device_lang || '',
         data.telegram_lang || '',
         data.screen_res || '',
-        eventName,
+        eventDisplay,
         data.telegram_user_id || '',
         data.telegram_user_name || '',
         data.session_id || '',
-        data.person_name || '',
+        personNameDisplay,
         data.person_id || '',
         genderDisplay,
         statusDisplay,
-        data.is_correct !== undefined ? data.is_correct : '',
+        resultDisplay,
         responseTimeSec,
         attemptNum,
         data.success_rate || '',
@@ -230,10 +358,15 @@ function doPost(e) {
         data.user_agent || ''
       ];
 
-      addRowToSheet(detailsSheet, detailsRow);
+      addRowToSheet(detailsSheet, detailsRow, rowOptions);
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success', event: eventName, position: NEW_ROWS_POSITION })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ 
+      status: 'success', 
+      event: eventName, 
+      position: NEW_ROWS_POSITION,
+      player_color: playerStyle.bg 
+    })).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
   }
