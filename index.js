@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.7';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.8';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -493,8 +493,7 @@ let currentSessionId = localStorage.getItem('currentSessionId') || null;
 let currentAttemptStartTime = localStorage.getItem('currentAttemptStartTime') ? parseInt(localStorage.getItem('currentAttemptStartTime')) : null;
 let telegramUserId = null; // Telegram User ID
 let telegramUserName = null; // Telegram User Name
-
-
+let currentLoadGenerationId = 0; // Monotonic counter to discard stale asynchronous person loads and avoid race conditions
 // DOM element references for New Game button positioning
 let newGameBtn = null;
 let initialNewGameContainer = null;
@@ -1957,13 +1956,31 @@ function updateModeVisibility() {
     const overlay = document.getElementById('overlay');
     const nextPersonWrapper = document.getElementById('next-person-wrapper');
     const nextPersonBtn = document.getElementById('next-person');
+    const personInfo = document.getElementById('person-info');
 
     const gameIsActive = currentAttempts < maxAttempts;
-    const canMakeGuess = !hasChecked;
+    const isResultVisible = Boolean(
+        hasChecked || 
+        (personInfo && personInfo.style.display === 'block' && !personInfo.classList.contains('hidden'))
+    );
+    const canMakeGuess = !isResultVisible;
 
-    console.log(`[UI_UPDATE_MODE] updateModeVisibility: gameIsActive=${gameIsActive}, canMakeGuess=${canMakeGuess}, mode=${gameMode}`);
+    console.log(`[UI_UPDATE_MODE] updateModeVisibility: gameIsActive=${gameIsActive}, canMakeGuess=${canMakeGuess}, isResultVisible=${isResultVisible}, mode=${gameMode}`);
 
-    if (gameIsActive && canMakeGuess) {
+    if (gameIsActive && isResultVisible) {
+        // Guess has been made and verified (or result card is shown): show Next Person button prominently right under result card
+        if (statusButtons) statusButtons.style.display = 'none';
+        if (genderButtons) genderButtons.style.display = 'none';
+        if (checkBtnElement) checkBtnElement.style.display = 'none';
+        if (nextPersonWrapper) nextPersonWrapper.style.display = 'block';
+        if (nextPersonBtn) {
+            nextPersonBtn.style.display = 'flex';
+            const texts = translations[selectedLanguage] || translations.uk;
+            const textSpan = document.getElementById('next-person-text');
+            if (textSpan) textSpan.textContent = texts.nextPerson || 'Наступне фото';
+            nextPersonBtn.setAttribute('aria-label', texts.nextPerson || 'Наступне фото');
+        }
+    } else if (gameIsActive && canMakeGuess) {
         if (statusButtons) statusButtons.style.display = 'flex';
         if (checkBtnElement) {
             checkBtnElement.style.display = 'inline-block';
@@ -1977,19 +1994,6 @@ function updateModeVisibility() {
         }
         if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
         if (nextPersonBtn) nextPersonBtn.style.display = 'none';
-    } else if (gameIsActive && hasChecked) {
-        // Guess has been made and verified: show Next Person button prominently right under result card
-        if (statusButtons) statusButtons.style.display = 'none';
-        if (genderButtons) genderButtons.style.display = 'none';
-        if (checkBtnElement) checkBtnElement.style.display = 'none';
-        if (nextPersonWrapper) nextPersonWrapper.style.display = 'block';
-        if (nextPersonBtn) {
-            nextPersonBtn.style.display = 'flex';
-            const texts = translations[selectedLanguage] || translations.uk;
-            const textSpan = document.getElementById('next-person-text');
-            if (textSpan) textSpan.textContent = texts.nextPerson || 'Наступне фото';
-            nextPersonBtn.setAttribute('aria-label', texts.nextPerson || 'Наступне фото');
-        }
     } else {
         // Game is over: hide all in-game guess controls
         if (statusButtons) statusButtons.style.display = 'none';
@@ -2301,6 +2305,15 @@ function isForbiddenImageName(urlOrFilename) {
         'champions', 'award', 'awardees', 'athletes', 'winners', 'girls', 'three',
         'triplet', 'relay', 'pair', 'partners'
     ];
+
+    // Emblems, Insignias, Military ranks, Badges, Coats of Arms, Flags, Logos, and Wikimedia SVG vector graphics
+    if (clean.includes('.svg') || clean.includes('general_de_brigada') || clean.includes('insignia') || 
+        clean.includes('coat_of_arms') || clean.includes('flag_of') || clean.includes('emblem') || 
+        clean.includes('badge') || clean.includes('logo') || clean.includes('epaulet') || 
+        clean.includes('roundel') || clean.includes('chevron') || clean.includes('ribbon')) {
+        console.warn(`[IMAGE_FILTER_REJECT] Rejected non-portrait SVG/insignia/emblem/flag: ${urlOrFilename}`);
+        return true;
+    }
 
     for (const kw of nsfwKeywords) {
         if (clean.includes(kw)) {
@@ -3627,7 +3640,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
         // Strict SPARQL query: ?person wdt:P31 wd:Q5 enforces Human (eliminates animals/ducks, monuments, objects)
-        query = `#TOOL: iPersonSeeTrivia/2.4.7 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        query = `#TOOL: iPersonSeeTrivia/2.4.8 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
                 ?person wdt:P31 wd:Q5;
@@ -3880,10 +3893,21 @@ async function startPreloadNextAvailablePerson() {
     }
 }
 
-async function loadPersonFromData(personDataToDisplay, category = null) {
+async function loadPersonFromData(personDataToDisplay, category = null, loadToken = ++currentLoadGenerationId, boundSessionId = currentSessionId) {
     const personLabelForLogs = personDataToDisplay?.personLabel?.value || 'No data or no label';
-    console.log(`[LOAD_PERSON] loadPersonFromData called for person: ${personLabelForLogs}`);
+    console.log(`[LOAD_PERSON] loadPersonFromData called for person: ${personLabelForLogs} (gen: ${loadToken})`);
     
+    const isSuperseded = () => {
+        if (loadToken !== currentLoadGenerationId) return true;
+        if (boundSessionId && currentSessionId && boundSessionId !== currentSessionId) return true;
+        return false;
+    };
+
+    if (isSuperseded()) {
+        console.warn(`[LOAD_PERSON_SUPERSEDED] Aborting stale call at start for "${personLabelForLogs}" (gen: ${loadToken} !== current ${currentLoadGenerationId}).`);
+        return;
+    }
+
     // Always cleanly reset previous round guesses and active buttons for the incoming person
     userGenderGuess = null;
     userStatusGuess = null;
@@ -4179,19 +4203,24 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
             if (sessionList.length > 0) {
                 const nextEntry = sessionList.shift();
                 ensureBufferStock();
-                await loadPersonFromData(nextEntry.person, nextEntry.category);
+                await loadPersonFromData(nextEntry.person, nextEntry.category, loadToken, boundSessionId);
                 return;
             }
             // If buffer is empty, switch to offline candidate immediately
             const offlineCandidate = getOfflineFallbackPerson(category);
             if (offlineCandidate) {
-                await loadPersonFromData(offlineCandidate, category);
+                await loadPersonFromData(offlineCandidate, category, loadToken, boundSessionId);
                 return;
             }
             handleError(); 
             startPreloadNextAvailablePerson(); 
             return;
         }
+    }
+
+    if (isSuperseded()) {
+        console.warn(`[LOAD_PERSON_SUPERSEDED] Aborting stale candidate before setting currentPerson for "${personLabelForLogs}" (gen: ${loadToken} !== current ${currentLoadGenerationId}).`);
+        return;
     }
 
     if (!currentPersonCandidate || 
@@ -4203,11 +4232,16 @@ async function loadPersonFromData(personDataToDisplay, category = null) {
         if (sessionList.length > 0) {
             const nextEntry = sessionList.shift();
             ensureBufferStock();
-            await loadPersonFromData(nextEntry.person, nextEntry.category);
+            await loadPersonFromData(nextEntry.person, nextEntry.category, loadToken, boundSessionId);
             return;
         }
         handleError(); 
         startPreloadNextAvailablePerson();
+        return;
+    }
+
+    if (isSuperseded()) {
+        console.warn(`[LOAD_PERSON_SUPERSEDED] Aborting candidate apply for "${personLabelForLogs}" (gen: ${loadToken} !== current ${currentLoadGenerationId}).`);
         return;
     }
 
@@ -4473,8 +4507,10 @@ async function replenishBufferIfNeeded() {
 }
 
 async function loadSession() {
+    const thisLoadToken = ++currentLoadGenerationId;
+    const thisSessionId = currentSessionId;
     const startTime = performance.now();
-    console.log('[LOAD_SESSION] Starting game session with instant candidate render and background buffer...');
+    console.log(`[LOAD_SESSION] Starting game session with instant candidate render and background buffer... (gen: ${thisLoadToken})`);
     seedOfflineReserveIfNeeded();
     logReserveStatus('loadSession_init');
 
@@ -4492,37 +4528,40 @@ async function loadSession() {
     if (firstCandidate && firstCandidate.person) {
         console.log(`[LOAD_SESSION_INSTANT] Rendering first person immediately from reserve in ${(performance.now() - startTime).toFixed(0)}ms: ${firstCandidate.person.personLabel.value}`);
         hasChecked = false;
-        await loadPersonFromData(firstCandidate.person, firstCandidate.category);
+        await loadPersonFromData(firstCandidate.person, firstCandidate.category, thisLoadToken, thisSessionId);
+        if (thisLoadToken !== currentLoadGenerationId || (thisSessionId && thisSessionId !== currentSessionId)) return;
         requestAnimationFrame(() => {
             document.getElementById('male-btn').disabled = false;
             document.getElementById('female-btn').disabled = false;
             document.getElementById('alive-btn').disabled = false;
             document.getElementById('dead-btn').disabled = false;
-            document.getElementById('next-person').style.display = 'none';
             document.getElementById('next-photo').disabled = false; 
             updateCheckButtonState();
+            updateModeVisibility();
         });
     } else {
         try {
             const firstPersonBinding = await fetchPersonData(false, { gender: 'male', status: 'alive' });
+            if (thisLoadToken !== currentLoadGenerationId || (thisSessionId && thisSessionId !== currentSessionId)) return;
             if (firstPersonBinding && firstPersonBinding.personLabel?.value) {
                 hasChecked = false;
-                await loadPersonFromData(firstPersonBinding, { gender: 'male', status: 'alive' });
+                await loadPersonFromData(firstPersonBinding, { gender: 'male', status: 'alive' }, thisLoadToken, thisSessionId);
+                if (thisLoadToken !== currentLoadGenerationId || (thisSessionId && thisSessionId !== currentSessionId)) return;
                 requestAnimationFrame(() => {
                     document.getElementById('male-btn').disabled = false;
                     document.getElementById('female-btn').disabled = false;
                     document.getElementById('alive-btn').disabled = false;
                     document.getElementById('dead-btn').disabled = false;
-                    document.getElementById('next-person').style.display = 'none';
                     document.getElementById('next-photo').disabled = false; 
                     updateCheckButtonState();
+                    updateModeVisibility();
                 });
             }
         } catch (err) {
             console.error('[LOAD_SESSION_INIT_ERR] Initial candidate load error:', err);
             const emergency = getInstantReserveCandidate();
-            if (emergency && emergency.person) {
-                await loadPersonFromData(emergency.person, emergency.category);
+            if (emergency && emergency.person && thisLoadToken === currentLoadGenerationId) {
+                await loadPersonFromData(emergency.person, emergency.category, thisLoadToken, thisSessionId);
             }
         }
     }
@@ -4533,8 +4572,10 @@ async function loadSession() {
 }
 
 async function loadNextPerson(triggerButton = 'unknown') {
+    const thisLoadToken = ++currentLoadGenerationId;
+    const thisSessionId = currentSessionId;
     logReserveStatus(`loadNextPerson_${triggerButton}`);
-    console.log(`[LOAD_NEXT_PERSON] Called. Trigger: ${triggerButton}. Current attempts: ${currentAttempts}/${maxAttempts}`);
+    console.log(`[LOAD_NEXT_PERSON] Called. Trigger: ${triggerButton}. Current attempts: ${currentAttempts}/${maxAttempts} (gen: ${thisLoadToken})`);
     sendGAEvent('next_photo_requested', {
         session_id: currentSessionId, 
         trigger_button: triggerButton,
@@ -4587,27 +4628,33 @@ async function loadNextPerson(triggerButton = 'unknown') {
 
     if (nextEntry && nextEntry.person) { 
         console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${nextEntry.person.personLabel.value}. Remaining stock: ${sessionList.length}`);
-        await loadPersonFromData(nextEntry.person, nextEntry.category);
+        await loadPersonFromData(nextEntry.person, nextEntry.category, thisLoadToken, thisSessionId);
     } else {
         console.warn("[LOAD_NEXT_PERSON_WARN] Encountered empty entry, retrying next.");
         await loadNextPerson(triggerButton); 
         return;
     }
+
+    if (thisLoadToken !== currentLoadGenerationId || (thisSessionId && currentSessionId && thisSessionId !== currentSessionId)) {
+        console.warn(`[LOAD_NEXT_PERSON_SUPERSEDED] Stale loadNextPerson execution discarded (token: ${thisLoadToken} !== current: ${currentLoadGenerationId}).`);
+        return;
+    }
+
     requestAnimationFrame(() => {
         updateCheckButtonState(); 
         document.getElementById('male-btn').disabled = false;
         document.getElementById('female-btn').disabled = false;
         document.getElementById('alive-btn').disabled = false;
         document.getElementById('dead-btn').disabled = false;
-        if (nextPerson) nextPerson.style.display = 'none'; 
-        if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
         document.getElementById('next-photo').disabled = currentAttempts >= maxAttempts; 
+        updateModeVisibility();
         console.log('[LOAD_NEXT_PERSON_UI] UI reset for the next person.');
     });
 }
 
 function startNewGame() {
     console.log('[GAME_FLOW] Starting new game...');
+    currentLoadGenerationId++; // Invalidate any running async loads from previous games
     if (currentAttempts === 0 && currentSessionId) {
         consecutiveEmptyNewGames++;
         console.log(`[ANTI_SPAM] Empty game restart count: ${consecutiveEmptyNewGames}`);
@@ -4621,6 +4668,7 @@ function startNewGame() {
     guessResultsHistory = []; 
     attemptDurations = [];
     currentPerson = null; 
+    sessionList = []; // Clean slate for new game candidates
     loadedPhotos = 0; 
     console.log('[GAME_FLOW] Game statistics and current person reset.');
 
@@ -4838,6 +4886,8 @@ async function preloadCandidateImageOffscreen(candidate) {
 async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
     const personImage = document.getElementById('person-image');
     if (!personImage) return;
+
+    currentLoadGenerationId++; // Invalidate any lingering async loads from previous candidates
 
     // Reset round guesses for the newly arrived person
     userGenderGuess = null;
