@@ -2715,7 +2715,7 @@ async function loadImageWithFallback(url, element) {
     });
 }
 
-const WIKIDATA_QUERY_TIMEOUT_MS = 5500; // 5.5s timeout gives SPARQL enough time under load while preventing hangs
+const WIKIDATA_QUERY_TIMEOUT_MS = 8500; // 8.5s gives Wikidata enough time under load without premature timeouts
 
 const offlinePeople = [
     // Male, Alive
@@ -3294,7 +3294,9 @@ function seedCategoryReservesIfNeeded() {
         }
     }
 
-    // 2. Ensure each category has SHELF_TARGET_PER_CATEGORY (15) cards
+    // 2. Ensure each category has cards ONLY if completely empty (0 cards).
+    // During gameplay, categories naturally deplete (15 -> 14 -> 13 -> 12 -> 11 -> 10).
+    // Never add dummy cards during active gameplay!
     const pool = (Array.isArray(peopleCatalog) && peopleCatalog.length > 0) ? peopleCatalog : offlinePeople;
 
     for (const catKey of CATEGORY_KEYS) {
@@ -3304,7 +3306,8 @@ function seedCategoryReservesIfNeeded() {
         // Remove cards already played in history
         categoryReserves[catKey] = categoryReserves[catKey].filter(p => p && p.personLabel?.value && !isCardAlreadyUsed(p.personLabel.value));
 
-        if (categoryReserves[catKey].length < SHELF_TARGET_PER_CATEGORY) {
+        // Cold-start seed only if category shelf is completely empty
+        if (categoryReserves[catKey].length === 0) {
             const matchingPool = pool.filter(item => {
                 if (!item || !item.personLabel?.value || isCardAlreadyUsed(item.personLabel.value)) return false;
                 const itemCat = normalizeCategoryKey(item);
@@ -3313,45 +3316,22 @@ function seedCategoryReservesIfNeeded() {
 
             for (const item of matchingPool) {
                 if (categoryReserves[catKey].length >= SHELF_TARGET_PER_CATEGORY) break;
-                const svgUrl = generateOfflineAvatarSvg(item.personLabel.value, gender, status);
+                const imgVal = (item.image?.value && !item.image.value.startsWith('data:')) ? item.image.value : null;
                 categoryReserves[catKey].push({
-                    person: item.person || { value: `seed:${item.personLabel.value}` },
+                    person: item.person || { value: `catalog:${item.personLabel.value}` },
                     personLabel: item.personLabel,
                     gender: item.gender || { value: gender === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
                     birthDate: item.birthDate || { value: "1980-01-01T00:00:00Z" },
                     deathDate: status === 'deceased' ? (item.deathDate || { value: "2010-01-01T00:00:00Z" }) : null,
                     gender_string: gender,
                     status_string: status,
-                    imageUrl: item.image?.value && !item.image.value.startsWith('data:') ? item.image.value : null,
-                    dataUrl: svgUrl,
-                    image: { value: item.image?.value || svgUrl },
+                    imageUrl: imgVal,
+                    dataUrl: item.dataUrl || null,
+                    image: { value: imgVal || item.image?.value },
                     isOfflineReserve: true,
-                    isOfflineFallback: true,
-                    isSeedFallback: true,
-                    dataSource: `Initial Reserve (${catKey})`,
-                    savedAt: Date.now()
-                });
-                modified = true;
-            }
-
-            let seedCounter = 1;
-            while (categoryReserves[catKey].length < SHELF_TARGET_PER_CATEGORY) {
-                const label = `${gender === 'female' ? 'Card F' : 'Card M'}-${status === 'alive' ? 'A' : 'D'} #${categoryReserves[catKey].length + 1}`;
-                const svgUrl = generateOfflineAvatarSvg(label, gender, status);
-                categoryReserves[catKey].push({
-                    person: { value: `seed:${catKey}:${Date.now()}_${seedCounter++}` },
-                    personLabel: { value: label },
-                    gender: { value: gender === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
-                    birthDate: { value: "1985-01-01T00:00:00Z" },
-                    deathDate: status === 'deceased' ? { value: "2015-01-01T00:00:00Z" } : null,
-                    gender_string: gender,
-                    status_string: status,
-                    dataUrl: svgUrl,
-                    image: { value: svgUrl },
-                    isOfflineReserve: true,
-                    isOfflineFallback: true,
-                    isSeedFallback: true,
-                    dataSource: `Initial Reserve (${catKey})`,
+                    isCatalogPerson: true,
+                    isSeedFallback: false,
+                    dataSource: `Catalog Reserve (${catKey})`,
                     savedAt: Date.now()
                 });
                 modified = true;
@@ -3361,7 +3341,8 @@ function seedCategoryReservesIfNeeded() {
 
     if (modified) {
         saveCategoryReserves();
-        console.log(`[CATEGORY_RESERVES] All 4 categories seeded to ${SHELF_TARGET_PER_CATEGORY} cards each. Total stock: 60/60.`);
+        const total = Object.values(categoryReserves).reduce((a, b) => a + (b ? b.length : 0), 0);
+        console.log(`[CATEGORY_RESERVES] Seeded empty category shelves from catalog. Total stock: ${total}/60.`);
     }
 }
 
@@ -3370,34 +3351,38 @@ function seedOfflineReserveIfNeeded() {
 }
 
 function sanitizeOfflineReserve() {
-    seedCategoryReservesIfNeeded();
     let modified = false;
 
+    // Purge any synthetic dummy cards (e.g. "Card M-A #15" or dummy SVG seed placeholders)
     for (const catKey of CATEGORY_KEYS) {
-        if (!Array.isArray(categoryReserves[catKey])) continue;
-        for (let i = 0; i < categoryReserves[catKey].length; i++) {
-            const item = categoryReserves[catKey][i];
-            if (!item || !item.personLabel?.value) continue;
-            if (!item.dataUrl || (item.dataUrl.startsWith('data:image/jpeg') && item.dataUrl.length < 900)) {
-                const { gender, status } = parseCategoryKey(catKey);
-                const svgUrl = generateOfflineAvatarSvg(item.personLabel.value, gender, status);
-                item.dataUrl = svgUrl;
-                item.image = { value: svgUrl };
-                item.isSeedFallback = true;
-                modified = true;
-            }
+        if (!Array.isArray(categoryReserves[catKey])) {
+            categoryReserves[catKey] = [];
+            continue;
         }
-        // Filter out old low-resolution 460px entries so fresh 960px HD cards take their place
-        const hadOldLowRes = categoryReserves[catKey].some(item => item && !item.isSeedFallback && !item.imageUrl && item.dataUrl && item.dataUrl.length < 40000);
-        if (hadOldLowRes) {
-            categoryReserves[catKey] = categoryReserves[catKey].filter(item => item && (item.isSeedFallback || item.imageUrl || (item.dataUrl && item.dataUrl.length >= 40000)));
+
+        const initialLength = categoryReserves[catKey].length;
+        categoryReserves[catKey] = categoryReserves[catKey].filter(item => {
+            if (!item || !item.personLabel?.value) return false;
+            const name = item.personLabel.value;
+            if (isCardAlreadyUsed(name)) return false;
+            // Purge synthetic names generated by old loops
+            if (/^Card [MF]-[AD] #\d+/.test(name)) return false;
+            // Purge pure SVG seed placeholders without a real photo URL
+            if (item.isSeedFallback && (!item.imageUrl || item.imageUrl.startsWith('data:'))) return false;
+            return true;
+        });
+
+        if (categoryReserves[catKey].length !== initialLength) {
             modified = true;
         }
     }
 
+    // If any shelf is now completely empty, seed it with real figures from peopleCatalog
+    seedCategoryReservesIfNeeded();
+
     if (modified) {
         saveCategoryReserves();
-        console.log('[CATEGORY_RESERVES] Sanitized and upgraded category reserves.');
+        console.log('[CATEGORY_RESERVES] Sanitized category reserves (purged synthetic cards).');
     }
 }
 
@@ -3598,7 +3583,11 @@ let shelfCategoryRoundRobinIndex = 0;
  * и если в этой категории осталось <= 10 карточек (зазор 5), запускает пополнение категории!
  */
 function takePersonFromShelf(category = null) {
-    seedCategoryReservesIfNeeded();
+    // Only run initial seed if all categories are completely empty
+    const isTotallyEmpty = CATEGORY_KEYS.every(k => !Array.isArray(categoryReserves[k]) || categoryReserves[k].length === 0);
+    if (isTotallyEmpty) {
+        seedCategoryReservesIfNeeded();
+    }
 
     let targetCatKey = normalizeCategoryKey(category);
 
@@ -3640,8 +3629,20 @@ function takePersonFromShelf(category = null) {
     categoryReserves[targetCatKey] = shelf.filter(p => p && p.personLabel?.value && !isCardAlreadyUsed(p.personLabel.value));
     shelf = categoryReserves[targetCatKey];
 
-    // Отдаем приоритет реальным скачанным фото над начальными заглушками
-    const realIndex = shelf.findIndex(p => p && !p.isSeedFallback && p.dataUrl && !p.dataUrl.startsWith('data:image/svg'));
+    if (!Array.isArray(shelf) || shelf.length === 0) {
+        const catalogItem = getNextCatalogPerson(category);
+        if (catalogItem) {
+            recordUsedCard(catalogItem.personLabel?.value);
+            return {
+                person: catalogItem,
+                category: category || { gender: catalogItem.gender_string, status: catalogItem.status_string }
+            };
+        }
+        return null;
+    }
+
+    // Отдаем приоритет реальным скачанным/каталожным фото над начальными заглушками
+    const realIndex = shelf.findIndex(p => p && !p.isSeedFallback && (p.imageUrl || (p.dataUrl && !p.dataUrl.startsWith('data:image/svg'))));
     const chosenIndex = realIndex !== -1 ? realIndex : 0;
 
     // 💥 БЕРЕМ КАРТОЧКУ И НАВСЕГДА УДАЛЯЕМ С ПОЛОЧКИ!
@@ -3814,7 +3815,7 @@ async function executeThrottledSparqlQuery(query, controller) {
 
 function getAnyCachedWikidataPerson(category) {
     const keys = Object.keys(wikidataCache);
-    const targetTag = category ? `${category.gender}-${category.status}` : null;
+    const targetTag = (category?.gender && category?.status) ? `${category.gender}-${category.status}` : null;
     
     // First try to match preferred category from cache
     if (targetTag) {
@@ -3833,9 +3834,11 @@ function getAnyCachedWikidataPerson(category) {
                 }
             }
         }
+        // Strict category isolation: Never return a wrong gender/status candidate if a category was requested!
+        return null;
     }
 
-    // Otherwise find any available cached person across all cached batches
+    // Otherwise (only when no specific category was requested) find any available cached person
     for (const k of keys) {
         if (Array.isArray(wikidataCache[k])) {
             const available = wikidataCache[k].filter(p => 
@@ -4776,7 +4779,7 @@ function handleError(force = false) {
     });
 }
 
-const TARGET_BUFFER_RESERVE = 8;
+const TARGET_BUFFER_RESERVE = 1;
 let isReplenishingBuffer = false;
 
 async function ensureBufferStock() {
@@ -4784,9 +4787,12 @@ async function ensureBufferStock() {
         return;
     }
     const remainingAttempts = maxAttempts - currentAttempts;
-    const desiredStock = Math.min(TARGET_BUFFER_RESERVE, remainingAttempts + 2);
+    if (remainingAttempts <= 1) return;
 
-    if (sessionList.length >= desiredStock) {
+    if (sessionList.length >= TARGET_BUFFER_RESERVE) {
+        if (!isCurrentlyPreloading && !preloadedPersonContainer && sessionList.length > 0) {
+            startPreloadNextAvailablePerson();
+        }
         logReserveStatus('buffer_full');
         return;
     }
@@ -4794,57 +4800,16 @@ async function ensureBufferStock() {
     isReplenishingBuffer = true;
     logReserveStatus('replenish_start');
 
-    // 1. Immediately backfill sessionList to full desiredStock (6-8 items) in 0ms from reserve & catalog!
-    // This guarantees the player NEVER encounters a 0 buffer or hang!
-    while (sessionList.length < desiredStock && currentAttempts < maxAttempts) {
-        const instant = getInstantReserveCandidate();
-        if (instant && instant.person) {
-            sessionList.push(instant);
-            console.log(`[BUFFER_FAST_BACKFILL] Fast-buffered candidate: ${instant.person.personLabel.value}. Buffer: ${sessionList.length}/${desiredStock}`);
-        } else {
-            break;
-        }
-    }
-
-    // 2. Start preloading image for next queued candidate immediately if idle
-    if (!isCurrentlyPreloading && !preloadedPersonContainer && sessionList.length > 0) {
-        startPreloadNextAvailablePerson();
-    }
-
-    // 3. If online, attempt to upgrade fallback/catalog candidates to live Wikidata figures in background
-    const isOnline = typeof navigator === 'undefined' || navigator.onLine !== false;
-    if (isOnline) {
-        const categories = [
-            { gender: 'male', status: 'alive' },
-            { gender: 'female', status: 'alive' },
-            { gender: 'male', status: 'deceased' },
-            { gender: 'female', status: 'deceased' }
-        ];
-
-        try {
-            for (let i = 0; i < sessionList.length && currentAttempts < maxAttempts; i++) {
-                const entry = sessionList[i];
-                if (entry && entry.person && (entry.person.isOfflineFallback || entry.person.isCatalogPerson)) {
-                    const cat = entry.category || categories[i % categories.length];
-                    try {
-                        const personBinding = await fetchPersonData(false, cat);
-                        if (personBinding && personBinding.personLabel?.value && personBinding.image?.value && !isForbiddenImageName(personBinding.image.value)) {
-                            sessionList[i] = { person: personBinding, category: cat };
-                            console.log(`[BUFFER_UPGRADE_LIVE] Upgraded slot ${i + 1} to live Wikidata figure: ${personBinding.personLabel.value}`);
-                        }
-                    } catch (err) {
-                        console.warn(`[BUFFER_UPGRADE_SKIP] Live upgrade skipped (${err.message}). Retaining instant candidate.`);
-                        // Network/Wikidata is slow or failing; stop further live attempts this cycle
-                        break;
-                    }
-                    await new Promise(r => setTimeout(r, 60));
-                }
+    try {
+        const nextCard = takePersonFromShelf();
+        if (nextCard && nextCard.person) {
+            sessionList.push(nextCard);
+            console.log(`[BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: ${nextCard.person.personLabel?.value}. Buffer: ${sessionList.length}/${TARGET_BUFFER_RESERVE}`);
+            if (!isCurrentlyPreloading && !preloadedPersonContainer) {
+                startPreloadNextAvailablePerson();
             }
-        } finally {
-            isReplenishingBuffer = false;
-            logReserveStatus('replenish_finish');
         }
-    } else {
+    } finally {
         isReplenishingBuffer = false;
         logReserveStatus('replenish_finish');
     }
@@ -4970,12 +4935,17 @@ async function loadNextPerson(triggerButton = 'unknown') {
     const nextPersonWrapper = document.getElementById('next-person-wrapper');
     if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
 
-    // 🏷️ ВСЕГДА БЕРЕМ ГОТОВУЮ КАРТОЧКУ С ПОЛОЧКИ (0 МС ЗАДЕРЖКИ!)
-    // Использованная карточка удаляется с полочки навсегда и больше никогда не повторится!
-    const nextEntry = takePersonFromShelf();
+    // 🏷️ Берём следующую карточку: если она была в буфере предзагрузки sessionList — берем её, иначе с полочки
+    let nextEntry = null;
+    if (sessionList.length > 0) {
+        nextEntry = sessionList.shift();
+    } else {
+        nextEntry = takePersonFromShelf();
+    }
 
     if (nextEntry && nextEntry.person) { 
-        console.log(`[LOAD_NEXT_PERSON] Показываем карточку с полочки: ${nextEntry.person.personLabel.value}. Осталось на полочках: ${localOfflineReserve.length}/60`);
+        const totalCards = Object.values(categoryReserves).reduce((a, b) => a + (b ? b.length : 0), 0);
+        console.log(`[LOAD_NEXT_PERSON] Показываем карточку: ${nextEntry.person.personLabel.value}. Осталось на полочках: ${totalCards}/60`);
         await loadPersonFromData(nextEntry.person, nextEntry.category, thisLoadToken, thisSessionId);
     } else {
         console.warn("[LOAD_NEXT_PERSON_WARN] Полочка временно пуста, используем резервный каталог.");
@@ -4984,6 +4954,9 @@ async function loadNextPerson(triggerButton = 'unknown') {
             await loadPersonFromData(emergency, null, thisLoadToken, thisSessionId);
         }
     }
+
+    // Подготавливаем следующую 1 карточку в буфер предзагрузки в фоне
+    ensureBufferStock();
 
     if (thisLoadToken !== currentLoadGenerationId || (thisSessionId && currentSessionId && thisSessionId !== currentSessionId)) {
         console.warn(`[LOAD_NEXT_PERSON_SUPERSEDED] Stale loadNextPerson execution discarded (token: ${thisLoadToken} !== current: ${currentLoadGenerationId}).`);
@@ -6241,6 +6214,7 @@ function setupDiagnosticsPanel() {
 
 const initApp = () => {
     console.log('[WINDOW_ONLOAD] Page loaded. Initializing application state.');
+    sanitizeOfflineReserve();
 
     if (window.Telegram && window.Telegram.WebApp) {
         try {
