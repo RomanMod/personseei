@@ -1,6 +1,6 @@
 /**
  * PersonSeeI - Google Sheets Analytics & Real-Time Webhook Engine
- * Version: 2.4.9
+ * Version: 2.5.0
  * 
  * Ключевые возможности:
  * 1. 🟢 Яркая изумрудно-зеленая строка-разделитель при нажатии «Новая игра» (new_game_started).
@@ -291,7 +291,7 @@ function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'ok',
     app: 'PersonSeeI Trivia Webhook',
-    version: '2.4.9',
+    version: '2.5.0',
     rows_position: NEW_ROWS_POSITION,
     sheets: ['Общая', 'Подробности'],
     timestamp: new Date().toISOString()

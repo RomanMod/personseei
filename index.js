@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.4.9';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.0';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2515,15 +2515,15 @@ async function verifySingleFace(imgElement) {
 async function getCommonsImageUrl(fileName) {
     if (!fileName) return null;
     const cleanFileName = decodeURIComponent(fileName).replace(/^File:/i, '').trim();
-    const fallbackUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(cleanFileName)}?width=600`;
+    const fallbackUrl = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(cleanFileName)}?width=960`;
     const start = performance.now();
-    console.log(`[COMMONS_API] Fetching image URL for file: ${cleanFileName}`);
+    console.log(`[COMMONS_API] Fetching high-definition (960px) image URL for file: ${cleanFileName}`);
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
-        const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(cleanFileName)}&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`, {
+        const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(cleanFileName)}&prop=imageinfo&iiprop=url&iiurlwidth=960&format=json&origin=*`, {
             headers: {
-                'Api-User-Agent': 'iPersonSeeTrivia/2.3.4 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com) WebApp'
+                'Api-User-Agent': 'iPersonSeeTrivia/2.5.0 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com) WebApp'
             },
             signal: controller.signal
         });
@@ -2538,9 +2538,9 @@ async function getCommonsImageUrl(fileName) {
             console.warn(`[COMMONS_API_WARN] No imageinfo found for file: ${cleanFileName}. API Time: ${duration}ms. Using Special:FilePath fallback.`);
             return fallbackUrl;
         }
-        // Prefer 600px CDN thumbnail over multi-megabyte camera original
+        // Prefer 960px high-resolution CDN thumbnail over multi-megabyte camera original
         const imageUrl = page.imageinfo[0].thumburl || page.imageinfo[0].url || fallbackUrl;
-        console.log(`[COMMONS_API_SUCCESS] Got image URL (width ~600px): ${imageUrl}. API Time: ${duration}ms`);
+        console.log(`[COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): ${imageUrl}. API Time: ${duration}ms`);
         return imageUrl;
     } catch (error) {
         console.warn(`[COMMONS_API_FALLBACK] Commons API failed or timed out for ${cleanFileName} (${error.message}). Falling back to Special:FilePath directly.`);
@@ -2553,23 +2553,29 @@ async function loadImageWithFallback(url, element) {
         return Promise.reject(new Error('Empty image URL in loadImageWithFallback'));
     }
 
+    // Always ensure CSS blur and filters are completely reset
+    element.style.filter = '';
+
     // Instant local data URL handling (base64 offline reserve or offline vector SVG)
     if (url.startsWith('data:')) {
         return new Promise((resolve) => {
             element.crossOrigin = 'anonymous';
             element.onload = () => {
                 element.style.opacity = '';
+                element.style.filter = '';
                 element.classList.add('loaded');
                 resolve();
             };
             element.onerror = () => {
                 element.style.opacity = '';
+                element.style.filter = '';
                 element.classList.add('loaded');
                 resolve();
             };
             element.src = url;
             if (element.complete && element.naturalWidth > 0) {
                 element.style.opacity = '';
+                element.style.filter = '';
                 element.classList.add('loaded');
                 resolve();
             }
@@ -2642,6 +2648,7 @@ async function loadImageWithFallback(url, element) {
                 if (isCompleted) return;
                 isCompleted = true;
                 element.style.opacity = '';
+                element.style.filter = '';
                 element.classList.add('loaded');
                 cleanup();
                 resolve();
@@ -2674,6 +2681,7 @@ async function loadImageWithFallback(url, element) {
             if (isCompleted) return;
             isCompleted = true;
             element.style.opacity = '';
+            element.style.filter = '';
             element.classList.add('loaded');
             cleanup();
             resolve();
@@ -3102,7 +3110,7 @@ function saveToOfflineReserve(person, imgElement) {
         let base64 = null;
         if (imgElement && imgElement.naturalWidth > 0 && imgElement.naturalHeight > 0) {
             const canvas = document.createElement('canvas');
-            const maxDim = 460;
+            const maxDim = 960;
             let w = imgElement.naturalWidth;
             let h = imgElement.naturalHeight;
             if (w > maxDim || h > maxDim) {
@@ -3136,7 +3144,7 @@ function saveToOfflineReserve(person, imgElement) {
                     console.warn(`[OFFLINE_RESERVE_SAVE_WARN] Canvas tainted for "${name}":`, taintErr.message);
                     return;
                 }
-                base64 = canvas.toDataURL('image/jpeg', 0.72);
+                base64 = canvas.toDataURL('image/jpeg', 0.85);
             }
         }
 
@@ -3146,6 +3154,10 @@ function saveToOfflineReserve(person, imgElement) {
 
         if (!base64) return;
 
+        const originalUrl = (person.imageUrl && !person.imageUrl.startsWith('data:')) ? person.imageUrl : 
+                            (person.image?.value && !person.image.value.startsWith('data:') ? person.image.value : 
+                            (imgElement && imgElement.src && !imgElement.src.startsWith('data:') ? imgElement.src : null));
+
         const reserveEntry = {
             person: person.person || { value: `offline:${name}` },
             personLabel: person.personLabel,
@@ -3154,8 +3166,9 @@ function saveToOfflineReserve(person, imgElement) {
             deathDate: person.deathDate,
             gender_string: person.gender_string || (person.gender?.value?.includes('Q6581072') ? 'female' : 'male'),
             status_string: person.status_string || (person.deathDate ? 'deceased' : 'alive'),
+            imageUrl: originalUrl,
             dataUrl: base64,
-            image: { value: base64 },
+            image: { value: originalUrl || base64 },
             isOfflineReserve: true,
             isOfflineFallback: true,
             dataSource: 'Offline Local Reserve',
@@ -3298,10 +3311,16 @@ function sanitizeOfflineReserve() {
             modified = true;
         }
     }
+    // Filter out old low-resolution 460px entries from previous version so fresh 960px HD cards are restocked
+    const hadOldLowRes = localOfflineReserve.some(item => item && !item.isSeedFallback && !item.imageUrl && item.dataUrl && item.dataUrl.length < 40000);
+    if (hadOldLowRes) {
+        localOfflineReserve = localOfflineReserve.filter(item => item && (item.isSeedFallback || item.imageUrl || (item.dataUrl && item.dataUrl.length >= 40000)));
+        modified = true;
+    }
     if (modified) {
         try {
             localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
-            console.log('[OFFLINE_RESERVE] Sanitized reserve data.');
+            console.log('[OFFLINE_RESERVE] Sanitized reserve data (upgraded to high-definition).');
         } catch (e) {}
     }
 }
@@ -3430,11 +3449,11 @@ async function fetchAndStoreReservePerson(category) {
             return false;
         }
 
-        // Отрисовка на canvas и сжатие в компактный JPEG base64 (макс 460px)
+        // Отрисовка на canvas и сохранение в высоком качестве (HD 960px, JPEG 0.85)
         const canvas = document.createElement('canvas');
-        const maxDim = 460;
-        let w = img.naturalWidth || 400;
-        let h = img.naturalHeight || 500;
+        const maxDim = 960;
+        let w = img.naturalWidth || 600;
+        let h = img.naturalHeight || 800;
         if (w > maxDim || h > maxDim) {
             if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
             else { w = Math.round((w * maxDim) / h); h = maxDim; }
@@ -3444,7 +3463,7 @@ async function fetchAndStoreReservePerson(category) {
         const ctx = canvas.getContext('2d');
         if (!ctx) return false;
         ctx.drawImage(img, 0, 0, w, h);
-        const base64 = canvas.toDataURL('image/jpeg', 0.72);
+        const base64 = canvas.toDataURL('image/jpeg', 0.85);
         if (!base64 || base64.length < 1000) return false;
 
         const reserveEntry = {
@@ -3455,8 +3474,9 @@ async function fetchAndStoreReservePerson(category) {
             deathDate: personBinding.deathDate || null,
             gender_string: personBinding.gender_string || (personBinding.gender?.value?.includes('Q6581072') ? 'female' : 'male'),
             status_string: personBinding.status_string || (personBinding.deathDate ? 'deceased' : 'alive'),
+            imageUrl: imageUrl,
             dataUrl: base64,
-            image: { value: base64 },
+            image: { value: imageUrl || base64 },
             isOfflineReserve: true,
             isOfflineFallback: true,
             dataSource: 'Offline Local Reserve',
@@ -4187,13 +4207,12 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
     } else { 
         overlay.classList.add('hidden');    
         personImage.style.visibility = '';
+        personImage.style.filter = '';
         if (hasCompletePreload) {
             personImage.style.opacity = '';
-            personImage.style.filter = '';
         } else {
-            // Give clear visual feedback that next photo is loading, so previous photo doesn't look frozen
-            personImage.style.opacity = '0.35';
-            personImage.style.filter = 'blur(6px) grayscale(30%)';
+            // Subtle transition without any blur filter
+            personImage.style.opacity = '0.5';
         }
         console.log('[LOAD_PERSON_SETUP] Open Mode: Overlay OFF');
     }
@@ -4320,7 +4339,10 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 }
 
                 let commonsUrl;
-                if (currentPersonCandidate.dataUrl) {
+                // Prefer pristine 960px CDN image if available and online
+                if (typeof navigator !== 'undefined' && navigator.onLine !== false && currentPersonCandidate.imageUrl && !currentPersonCandidate.imageUrl.startsWith('data:')) {
+                    commonsUrl = currentPersonCandidate.imageUrl;
+                } else if (currentPersonCandidate.dataUrl) {
                     commonsUrl = currentPersonCandidate.dataUrl;
                 } else if (currentPersonCandidate.isOfflineFallback || 
                            currentPersonCandidate.isCatalogPerson || 
@@ -4354,6 +4376,8 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 }
                 
                 await loadImageWithFallback(commonsUrl, personImage); 
+                personImage.style.filter = '';
+                personImage.style.opacity = ''; 
                 
                 // Verify that loaded photo contains strictly ONE human face (bypass for verified offline reserve / catalog / SVG)
                 let faceCheck = { valid: true };
