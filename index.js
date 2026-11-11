@@ -2618,6 +2618,7 @@ async function loadImageWithFallback(url, element) {
                 if (isCompleted) return;
                 isCompleted = true;
                 element.style.opacity = ''; 
+                element.style.filter = '';
                 element.classList.add('loaded'); 
                 console.log(`[IMAGE_LOAD_PROXY_SUCCESS] Image loaded successfully via proxy: ${proxyUrl}`);
                 cleanup();
@@ -2652,15 +2653,16 @@ async function loadImageWithFallback(url, element) {
             tryProxy('TIMEOUT');
         }, 6500);
 
-        element.onload = () => {
-            if (isCompleted) return;
-            isCompleted = true;
-            element.style.opacity = ''; 
-            element.classList.add('loaded'); 
-            console.log(`[IMAGE_LOAD_SUCCESS] Image loaded successfully: ${url}`);
-            cleanup();
-            resolve();
-        };
+            element.onload = () => {
+                if (isCompleted) return;
+                isCompleted = true;
+                element.style.opacity = ''; 
+                element.style.filter = '';
+                element.classList.add('loaded'); 
+                console.log(`[IMAGE_LOAD_SUCCESS] Image loaded successfully: ${url}`);
+                cleanup();
+                resolve();
+            };
 
         element.onerror = () => {
             tryProxy('ERROR');
@@ -3951,6 +3953,32 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
     let imageLoadPathDetail = "unknown"; 
     let gaLoadSource = "unknown"; 
 
+    // If preload for this exact candidate is currently in-flight (downloading in background),
+    // wait up to 2.2s for it to finish instead of throwing it away and restarting from scratch!
+    if (preloadedPersonContainer && 
+        preloadedPersonContainer.data && 
+        preloadedPersonContainer.data.person &&
+        currentPersonCandidate && currentPersonCandidate.person && 
+        preloadedPersonContainer.data.person.person.value === currentPersonCandidate.person.value &&
+        preloadedPersonContainer.imageElement && 
+        !preloadedPersonContainer.imageElement.complete) {
+        
+        console.log(`[LOAD_PERSON_PRELOAD_AWAIT] In-flight preload for ${currentPersonCandidate.personLabel.value} is actively streaming, awaiting finish...`);
+        await new Promise((resolveWait) => {
+            const waitTimer = setTimeout(resolveWait, 2200);
+            const onDone = () => {
+                clearTimeout(waitTimer);
+                resolveWait();
+            };
+            if (preloadedPersonContainer.imageElement.complete) {
+                onDone();
+            } else {
+                preloadedPersonContainer.imageElement.addEventListener('load', onDone, { once: true });
+                preloadedPersonContainer.imageElement.addEventListener('error', onDone, { once: true });
+            }
+        });
+    }
+
     const hasCompletePreload = Boolean(
         preloadedPersonContainer && 
         preloadedPersonContainer.data && 
@@ -3969,8 +3997,15 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
         console.log('[LOAD_PERSON_SETUP] Closed Mode: Overlay ON, Image Opacity 0');
     } else { 
         overlay.classList.add('hidden');    
-        personImage.style.opacity = '';     
         personImage.style.visibility = '';
+        if (hasCompletePreload) {
+            personImage.style.opacity = '';
+            personImage.style.filter = '';
+        } else {
+            // Give clear visual feedback that next photo is loading, so previous photo doesn't look frozen
+            personImage.style.opacity = '0.35';
+            personImage.style.filter = 'blur(6px) grayscale(30%)';
+        }
         console.log('[LOAD_PERSON_SETUP] Open Mode: Overlay OFF');
     }
 
@@ -4016,6 +4051,7 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 clearTimeout(assignTimeout);
                 personImage.onload = null;
                 personImage.onerror = null;
+                personImage.style.filter = '';
                 if (gameMode === 'closed') {
                     personImage.style.opacity = '0';
                     personImage.style.visibility = 'hidden';
@@ -4045,6 +4081,7 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 personImage.onload = null;
                 personImage.onerror = null;
                 personImage.style.opacity = ''; 
+                personImage.style.filter = '';
                 console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
                 preloadedPersonContainer = null; 
                 imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
@@ -4622,9 +4659,34 @@ async function loadNextPerson(triggerButton = 'unknown') {
     const nextPersonWrapper = document.getElementById('next-person-wrapper');
     if (nextPersonWrapper) nextPersonWrapper.style.display = 'none';
 
-    const nextEntry = sessionList.shift(); 
+    let nextEntry = sessionList.shift(); 
     // Proactively replenish buffer in background so player always has a full queue
     ensureBufferStock();
+
+    // SMART ZERO-LAG DISPATCH:
+    // If the next candidate's photo is NOT preloaded in memory and would require a network download (which causes lag),
+    // immediately serve an instant photo from the 20-photo Local Reserve (0ms), and let the network candidate preload in background!
+    const isCandidatePreloaded = Boolean(
+        preloadedPersonContainer && 
+        preloadedPersonContainer.data?.person?.person?.value === nextEntry?.person?.person?.value &&
+        preloadedPersonContainer.imageElement?.complete
+    );
+    const hasInstantDataUrl = Boolean(
+        nextEntry?.person?.dataUrl || 
+        nextEntry?.person?.image?.value?.startsWith('data:')
+    );
+
+    if (!isCandidatePreloaded && !hasInstantDataUrl) {
+        const instantReserve = getInstantReserveCandidate(nextEntry?.category);
+        if (instantReserve && instantReserve.person && instantReserve.person.dataUrl) {
+            console.log(`[INSTANT_ZERO_LAG_DISPATCH] Live candidate "${nextEntry?.person?.personLabel?.value}" is not yet downloaded. Instantly serving 0ms photo from 20-photo Reserve: "${instantReserve.person.personLabel.value}".`);
+            if (nextEntry) {
+                // Re-queue the live candidate so it finishes downloading in background for the next attempt
+                sessionList.unshift(nextEntry);
+            }
+            nextEntry = instantReserve;
+        }
+    }
 
     if (nextEntry && nextEntry.person) { 
         console.log(`[LOAD_NEXT_PERSON] Loading next person from session: ${nextEntry.person.personLabel.value}. Remaining stock: ${sessionList.length}`);

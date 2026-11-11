@@ -165,6 +165,90 @@ function createTabsManually() {
   Logger.log('Шапки успешно обновлены!');
 }
 
+/**
+ * 🎨 Запустите эту функцию прямо в Apps Script, чтобы за 1 секунду
+ * АВТОМАТИЧЕСКИ РАСКРАСИТЬ ВСЕ СТАРЫЕ СТРОКИ в таблице по цветам игроков,
+ * убрать все темные полосы и выделить правильные (зеленый) и неверные (красный) ответы!
+ */
+function colorizeExistingRows() {
+  let ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) {
+    try {
+      ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    } catch (e) {}
+  }
+  if (!ss) {
+    Logger.log('Таблица не найдена.');
+    return;
+  }
+
+  // 1. Раскраска листа «Подробности»
+  var detailsSheet = ss.getSheetByName('Подробности');
+  if (detailsSheet && detailsSheet.getLastRow() > 1) {
+    var lastRow = detailsSheet.getLastRow();
+    var lastCol = Math.max(detailsSheet.getLastColumn(), DETAILS_HEADERS.length);
+    var data = detailsSheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
+
+    for (var i = 0; i < data.length; i++) {
+      var rowIdx = i + 2;
+      var row = data[i];
+      var eventName = String(row[7] || '').trim(); // Колонка 8: Событие
+      var userId = String(row[8] || '').trim();    // Колонка 9: Telegram ID
+      var isCorrect = row[15];                     // Колонка 16: Результат (1/0)
+
+      var rowRange = detailsSheet.getRange(rowIdx, 1, 1, lastCol);
+
+      if (eventName === 'new_game_started' || eventName.indexOf('НОВАЯ ИГРА') !== -1) {
+        rowRange.setBackground('#2E7D32');
+        rowRange.setFontColor('#FFFFFF');
+        rowRange.setFontWeight('bold');
+      } else if (eventName === 'game_over' || eventName.indexOf('ЗАВЕРШЕНА') !== -1) {
+        rowRange.setBackground('#1565C0');
+        rowRange.setFontColor('#FFFFFF');
+        rowRange.setFontWeight('bold');
+      } else {
+        var style = getPlayerStyle(userId);
+        rowRange.setBackground(style.bg);
+        rowRange.setFontColor('#111827');
+        rowRange.setFontWeight('normal');
+
+        var resultCell = detailsSheet.getRange(rowIdx, 16);
+        if (isCorrect === 1 || isCorrect === '1' || String(isCorrect).indexOf('Верно') !== -1) {
+          resultCell.setBackground('#A5D6A7');
+          resultCell.setFontColor('#1B5E20');
+          resultCell.setFontWeight('bold');
+          resultCell.setHorizontalAlignment('center');
+        } else if (isCorrect === 0 || isCorrect === '0' || String(isCorrect).indexOf('Неверно') !== -1) {
+          resultCell.setBackground('#FFCDD2');
+          resultCell.setFontColor('#B71C1C');
+          resultCell.setFontWeight('bold');
+          resultCell.setHorizontalAlignment('center');
+        }
+      }
+    }
+    Logger.log('Лист «Подробности» успешно раскрашен: ' + (lastRow - 1) + ' строк.');
+  }
+
+  // 2. Раскраска листа «Общая»
+  var summarySheet = ss.getSheetByName('Общая');
+  if (summarySheet && summarySheet.getLastRow() > 1) {
+    var sLastRow = summarySheet.getLastRow();
+    var sLastCol = Math.max(summarySheet.getLastColumn(), SUMMARY_HEADERS.length);
+    var sData = summarySheet.getRange(2, 1, sLastRow - 1, sLastCol).getValues();
+
+    for (var j = 0; j < sData.length; j++) {
+      var sRowIdx = j + 2;
+      var sUserId = String(sData[j][2] || '').trim(); // Колонка 3: Telegram ID
+      var sStyle = getPlayerStyle(sUserId);
+      var sRange = summarySheet.getRange(sRowIdx, 1, 1, sLastCol);
+      sRange.setBackground(sStyle.bg);
+      sRange.setFontColor('#111827');
+      sRange.setFontWeight('normal');
+    }
+    Logger.log('Лист «Общая» успешно раскрашен: ' + (sLastRow - 1) + ' строк.');
+  }
+}
+
 function getOrCreateSheet(spreadsheet, sheetName, headers, headerBgColor) {
   var sheet = spreadsheet.getSheetByName(sheetName);
   if (!sheet) {
