@@ -468,8 +468,34 @@ function safeParse(key, defaultValue) {
 // Кэш и состояние
 const rgbHslCache = safeParse('rgbHslCache', {});
 const wikidataCache = safeParse('wikidataCache', {});
-let localOfflineReserve = safeParse('personsee_local_offline_reserve_20', []);
-if (!Array.isArray(localOfflineReserve)) localOfflineReserve = [];
+const CATEGORY_KEYS = ['male-alive', 'male-deceased', 'female-alive', 'female-deceased'];
+const SHELF_TARGET_PER_CATEGORY = 15;
+const SHELF_RESTOCK_THRESHOLD = 10;
+const SHELF_RESTOCK_BATCH = 5;
+
+let categoryReserves = safeParse('personsee_category_reserves_15', null);
+if (!categoryReserves || typeof categoryReserves !== 'object') {
+    categoryReserves = {
+        'male-alive': [],
+        'male-deceased': [],
+        'female-alive': [],
+        'female-deceased': []
+    };
+}
+for (const k of CATEGORY_KEYS) {
+    if (!Array.isArray(categoryReserves[k])) categoryReserves[k] = [];
+}
+
+let localOfflineReserve = [];
+function syncFlatLocalOfflineReserve() {
+    localOfflineReserve = [];
+    for (const k of CATEGORY_KEYS) {
+        if (Array.isArray(categoryReserves[k])) {
+            localOfflineReserve.push(...categoryReserves[k]);
+        }
+    }
+}
+syncFlatLocalOfflineReserve();
 let isBackgroundPhotoFetching = false;
 let sessionList = [];
 let isStreamingActive = false;
@@ -2573,7 +2599,7 @@ async function loadImageWithFallback(url, element) {
                 resolve();
             };
             element.src = url;
-            if (element.complete && element.naturalWidth > 0) {
+            if (element.complete && element.naturalWidth > 0 && (element.currentSrc === url || element.src === url)) {
                 element.style.opacity = '';
                 element.style.filter = '';
                 element.classList.add('loaded');
@@ -2644,7 +2670,7 @@ async function loadImageWithFallback(url, element) {
             
             element.crossOrigin = 'anonymous';
             element.src = proxyUrl;
-            if (element.complete && element.naturalWidth > 0) {
+            if (element.complete && element.naturalWidth > 0 && (element.currentSrc === proxyUrl || element.src === proxyUrl)) {
                 if (isCompleted) return;
                 isCompleted = true;
                 element.style.opacity = '';
@@ -2677,7 +2703,7 @@ async function loadImageWithFallback(url, element) {
         
         element.crossOrigin = 'anonymous';
         element.src = url;
-        if (element.complete && element.naturalWidth > 0) {
+        if (element.complete && element.naturalWidth > 0 && (element.currentSrc === url || element.src === url)) {
             if (isCompleted) return;
             isCompleted = true;
             element.style.opacity = '';
@@ -2689,7 +2715,7 @@ async function loadImageWithFallback(url, element) {
     });
 }
 
-const WIKIDATA_QUERY_TIMEOUT_MS = 3500; // Strict 3.5s timeout prevents blocking UI and buffer starvation on spotty connections
+const WIKIDATA_QUERY_TIMEOUT_MS = 5500; // 5.5s timeout gives SPARQL enough time under load while preventing hangs
 
 const offlinePeople = [
     // Male, Alive
@@ -3093,6 +3119,44 @@ function generateOfflineAvatarSvg(name = 'Unknown', gender = 'unknown', status =
     return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
 
+function normalizeCategoryKey(catOrPerson) {
+    if (!catOrPerson) return null;
+    let gender = catOrPerson.gender;
+    if (gender && typeof gender === 'object' && gender.value) {
+        gender = gender.value.includes('Q6581072') ? 'female' : 'male';
+    } else if (catOrPerson.gender_string) {
+        gender = catOrPerson.gender_string;
+    }
+    let status = catOrPerson.status;
+    if (catOrPerson.deathDate !== undefined) {
+        status = catOrPerson.deathDate ? 'deceased' : 'alive';
+    } else if (catOrPerson.status_string) {
+        status = catOrPerson.status_string;
+    }
+    gender = (gender === 'female') ? 'female' : 'male';
+    status = (status === 'deceased' || status === 'dead') ? 'deceased' : 'alive';
+    return `${gender}-${status}`;
+}
+
+function parseCategoryKey(catKey) {
+    if (!catKey) return { gender: 'male', status: 'alive' };
+    const parts = catKey.split('-');
+    return {
+        gender: parts[0] === 'female' ? 'female' : 'male',
+        status: parts[1] === 'deceased' ? 'deceased' : 'alive'
+    };
+}
+
+function saveCategoryReserves() {
+    try {
+        localStorage.setItem('personsee_category_reserves_15', JSON.stringify(categoryReserves));
+        syncFlatLocalOfflineReserve();
+        localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
+    } catch (e) {
+        console.warn('[CATEGORY_RESERVE_SAVE_WARN] Could not save category reserves:', e.message);
+    }
+}
+
 function saveToOfflineReserve(person, imgElement) {
     if (!person || !person.personLabel?.value) return;
     const name = person.personLabel.value;
@@ -3101,8 +3165,11 @@ function saveToOfflineReserve(person, imgElement) {
     if (person.isCatalogPerson || person.isOfflineReserve) return;
     if (person.image?.value && person.image.value.startsWith('data:image/svg')) return;
     
-    // Check if already in reserve
-    if (localOfflineReserve.some(item => item && item.personLabel && item.personLabel.value === name)) {
+    const catKey = normalizeCategoryKey(person) || 'male-alive';
+    if (!Array.isArray(categoryReserves[catKey])) categoryReserves[catKey] = [];
+
+    // Check if already in this category reserve
+    if (categoryReserves[catKey].some(item => item && item.personLabel && item.personLabel.value === name)) {
         return;
     }
 
@@ -3158,174 +3225,182 @@ function saveToOfflineReserve(person, imgElement) {
                             (person.image?.value && !person.image.value.startsWith('data:') ? person.image.value : 
                             (imgElement && imgElement.src && !imgElement.src.startsWith('data:') ? imgElement.src : null));
 
+        const { gender, status } = parseCategoryKey(catKey);
+
         const reserveEntry = {
             person: person.person || { value: `offline:${name}` },
             personLabel: person.personLabel,
-            gender: person.gender || { value: person.gender_string === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
+            gender: person.gender || { value: gender === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
             birthDate: person.birthDate || { value: "1980-01-01T00:00:00Z" },
             deathDate: person.deathDate,
-            gender_string: person.gender_string || (person.gender?.value?.includes('Q6581072') ? 'female' : 'male'),
-            status_string: person.status_string || (person.deathDate ? 'deceased' : 'alive'),
+            gender_string: gender,
+            status_string: status,
             imageUrl: originalUrl,
             dataUrl: base64,
             image: { value: originalUrl || base64 },
             isOfflineReserve: true,
             isOfflineFallback: true,
-            dataSource: 'Offline Local Reserve',
+            dataSource: `Offline Reserve (${catKey})`,
             savedAt: Date.now()
         };
 
-        // If we have seed placeholders, replace the first seed placeholder with the real photo!
-        const seedIndex = localOfflineReserve.findIndex(item => item && item.isSeedFallback);
+        // If we have seed placeholders in this category, replace the first seed placeholder!
+        const seedIndex = categoryReserves[catKey].findIndex(item => item && item.isSeedFallback);
         if (seedIndex !== -1) {
-            localOfflineReserve[seedIndex] = reserveEntry;
+            categoryReserves[catKey][seedIndex] = reserveEntry;
         } else {
-            localOfflineReserve.push(reserveEntry);
-            while (localOfflineReserve.length > 20) {
-                localOfflineReserve.shift();
+            categoryReserves[catKey].push(reserveEntry);
+            while (categoryReserves[catKey].length > SHELF_TARGET_PER_CATEGORY) {
+                categoryReserves[catKey].shift();
             }
         }
 
-        localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
-        console.log(`[OFFLINE_RESERVE] Saved real photo for "${name}". Reserve stock: ${localOfflineReserve.length}/20`);
+        saveCategoryReserves();
+        console.log(`[OFFLINE_RESERVE] Saved real photo for "${name}" into [${catKey}]. Stock: ${categoryReserves[catKey].length}/${SHELF_TARGET_PER_CATEGORY}`);
     } catch (e) {
         console.warn('[OFFLINE_RESERVE_SAVE_WARN] Could not save to offline reserve:', e.message);
     }
 }
 
 function getOfflineCandidate(category) {
-    console.log(`[OFFLINE_MANAGER] Device offline. Checking local 20-photo reserve (Current: ${localOfflineReserve.length}/20)...`);
-
-    // 1. Try local reserve first (up to 20 real cached photos)
-    let availableReserve = localOfflineReserve.filter(p => 
-        p && p.personLabel?.value && !sessionShownNames.has(p.personLabel.value) && (p.dataUrl || p.image?.value)
-    );
-
-    if (availableReserve.length > 0 && category) {
-        const matched = availableReserve.filter(p => 
-            (!category.gender || p.gender_string === category.gender) &&
-            (!category.status || p.status_string === category.status)
-        );
-        if (matched.length > 0) {
-            availableReserve = matched;
-        }
+    const catKey = normalizeCategoryKey(category);
+    console.log(`[OFFLINE_MANAGER] Device offline. Checking local shelf for category "${catKey || 'any'}"...`);
+    const res = takePersonFromShelf(category);
+    if (res && res.person) {
+        return res.person;
     }
-
-    if (availableReserve.length > 0) {
-        const chosen = availableReserve[Math.floor(Math.random() * availableReserve.length)];
-        sessionShownNames.add(chosen.personLabel.value);
-        console.log(`[OFFLINE_MANAGER] Serving real photo from LOCAL RESERVE (20): ${chosen.personLabel.value}`);
-        return {
-            ...chosen,
-            isOfflineReserve: true,
-            isOfflineFallback: true,
-            dataSource: 'Offline Local Reserve (20)',
-            image: { value: chosen.dataUrl || chosen.image.value }
-        };
-    }
-
-    // 2. If 20 real photos are depleted or empty, smoothly transition to 100 demo catalog cards
-    console.log('[OFFLINE_MANAGER] Local 20-photo reserve depleted/empty. Transitioning to 100 DEMO CATALOG cards.');
-    const catalogCandidate = getNextCatalogPerson(category);
-    if (catalogCandidate) {
-        catalogCandidate.isOfflineFallback = true;
-        catalogCandidate.isCatalogPerson = true;
-        catalogCandidate.dataSource = 'Offline Demo Catalog';
-        // When device is offline, ensure the image is an offline SVG avatar so it NEVER fails to load!
-        if (typeof navigator !== 'undefined' && navigator.onLine === false) {
-            const svgUrl = generateOfflineAvatarSvg(
-                catalogCandidate.personLabel.value,
-                catalogCandidate.gender_string || 'unknown',
-                catalogCandidate.status_string || 'alive'
-            );
-            catalogCandidate.dataUrl = svgUrl;
-            catalogCandidate.image = { value: svgUrl };
-        }
-        return catalogCandidate;
-    }
-
-    return null;
+    return getNextCatalogPerson(category);
 }
 
 function getOfflineFallbackPerson(category) {
     return getOfflineCandidate(category);
 }
 
-function seedOfflineReserveIfNeeded() {
-    if (!Array.isArray(localOfflineReserve)) {
-        localOfflineReserve = [];
+function seedCategoryReservesIfNeeded() {
+    let modified = false;
+
+    // 1. Migrate existing cards from old 20-photo flat reserve if categoryReserves is empty
+    const oldFlat = safeParse('personsee_local_offline_reserve_20', []);
+    if (Array.isArray(oldFlat) && oldFlat.length > 0) {
+        for (const item of oldFlat) {
+            if (!item || !item.personLabel?.value || isCardAlreadyUsed(item.personLabel.value)) continue;
+            const k = normalizeCategoryKey(item);
+            if (k && categoryReserves[k] && categoryReserves[k].length < SHELF_TARGET_PER_CATEGORY) {
+                if (!categoryReserves[k].some(existing => existing && existing.personLabel?.value === item.personLabel.value)) {
+                    categoryReserves[k].push(item);
+                    modified = true;
+                }
+            }
+        }
     }
-    if (localOfflineReserve.length >= 20) {
-        return;
-    }
-    const needed = 20 - localOfflineReserve.length;
-    console.log(`[OFFLINE_RESERVE] Seeding initial offline reserve with ${needed} baseline candidates...`);
+
+    // 2. Ensure each category has SHELF_TARGET_PER_CATEGORY (15) cards
     const pool = (Array.isArray(peopleCatalog) && peopleCatalog.length > 0) ? peopleCatalog : offlinePeople;
-    for (let i = 0; i < pool.length && localOfflineReserve.length < 20; i++) {
-        const item = pool[i];
-        if (!item || !item.personLabel?.value) continue;
-        if (localOfflineReserve.some(r => r && r.personLabel && r.personLabel.value === item.personLabel.value)) continue;
-        const svgUrl = generateOfflineAvatarSvg(
-            item.personLabel.value,
-            item.gender_string || 'unknown',
-            item.status_string || 'alive'
-        );
-        localOfflineReserve.push({
-            person: item.person || { value: `seed:${item.personLabel.value}` },
-            personLabel: item.personLabel,
-            gender: item.gender || { value: item.gender_string === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
-            birthDate: item.birthDate || { value: "1980-01-01T00:00:00Z" },
-            deathDate: item.deathDate || null,
-            gender_string: item.gender_string || 'male',
-            status_string: item.status_string || 'alive',
-            dataUrl: svgUrl,
-            image: { value: svgUrl },
-            isOfflineReserve: true,
-            isOfflineFallback: true,
-            isSeedFallback: true,
-            dataSource: 'Initial Reserve (Seed)',
-            savedAt: Date.now()
-        });
+
+    for (const catKey of CATEGORY_KEYS) {
+        const { gender, status } = parseCategoryKey(catKey);
+        if (!Array.isArray(categoryReserves[catKey])) categoryReserves[catKey] = [];
+
+        // Remove cards already played in history
+        categoryReserves[catKey] = categoryReserves[catKey].filter(p => p && p.personLabel?.value && !isCardAlreadyUsed(p.personLabel.value));
+
+        if (categoryReserves[catKey].length < SHELF_TARGET_PER_CATEGORY) {
+            const matchingPool = pool.filter(item => {
+                if (!item || !item.personLabel?.value || isCardAlreadyUsed(item.personLabel.value)) return false;
+                const itemCat = normalizeCategoryKey(item);
+                return itemCat === catKey && !categoryReserves[catKey].some(c => c && c.personLabel?.value === item.personLabel.value);
+            });
+
+            for (const item of matchingPool) {
+                if (categoryReserves[catKey].length >= SHELF_TARGET_PER_CATEGORY) break;
+                const svgUrl = generateOfflineAvatarSvg(item.personLabel.value, gender, status);
+                categoryReserves[catKey].push({
+                    person: item.person || { value: `seed:${item.personLabel.value}` },
+                    personLabel: item.personLabel,
+                    gender: item.gender || { value: gender === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
+                    birthDate: item.birthDate || { value: "1980-01-01T00:00:00Z" },
+                    deathDate: status === 'deceased' ? (item.deathDate || { value: "2010-01-01T00:00:00Z" }) : null,
+                    gender_string: gender,
+                    status_string: status,
+                    imageUrl: item.image?.value && !item.image.value.startsWith('data:') ? item.image.value : null,
+                    dataUrl: svgUrl,
+                    image: { value: item.image?.value || svgUrl },
+                    isOfflineReserve: true,
+                    isOfflineFallback: true,
+                    isSeedFallback: true,
+                    dataSource: `Initial Reserve (${catKey})`,
+                    savedAt: Date.now()
+                });
+                modified = true;
+            }
+
+            let seedCounter = 1;
+            while (categoryReserves[catKey].length < SHELF_TARGET_PER_CATEGORY) {
+                const label = `${gender === 'female' ? 'Card F' : 'Card M'}-${status === 'alive' ? 'A' : 'D'} #${categoryReserves[catKey].length + 1}`;
+                const svgUrl = generateOfflineAvatarSvg(label, gender, status);
+                categoryReserves[catKey].push({
+                    person: { value: `seed:${catKey}:${Date.now()}_${seedCounter++}` },
+                    personLabel: { value: label },
+                    gender: { value: gender === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
+                    birthDate: { value: "1985-01-01T00:00:00Z" },
+                    deathDate: status === 'deceased' ? { value: "2015-01-01T00:00:00Z" } : null,
+                    gender_string: gender,
+                    status_string: status,
+                    dataUrl: svgUrl,
+                    image: { value: svgUrl },
+                    isOfflineReserve: true,
+                    isOfflineFallback: true,
+                    isSeedFallback: true,
+                    dataSource: `Initial Reserve (${catKey})`,
+                    savedAt: Date.now()
+                });
+                modified = true;
+            }
+        }
     }
-    try {
-        localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
-        console.log(`[OFFLINE_RESERVE] Reserve seeded successfully. Current count: ${localOfflineReserve.length}/20`);
-    } catch (e) {}
+
+    if (modified) {
+        saveCategoryReserves();
+        console.log(`[CATEGORY_RESERVES] All 4 categories seeded to ${SHELF_TARGET_PER_CATEGORY} cards each. Total stock: 60/60.`);
+    }
+}
+
+function seedOfflineReserveIfNeeded() {
+    seedCategoryReservesIfNeeded();
 }
 
 function sanitizeOfflineReserve() {
-    if (!Array.isArray(localOfflineReserve)) return;
+    seedCategoryReservesIfNeeded();
     let modified = false;
-    for (let i = 0; i < localOfflineReserve.length; i++) {
-        const item = localOfflineReserve[i];
-        if (!item || !item.personLabel?.value) continue;
-        if (!item.dataUrl || (item.dataUrl.startsWith('data:image/jpeg') && item.dataUrl.length < 900)) {
-            const svgUrl = generateOfflineAvatarSvg(
-                item.personLabel.value,
-                item.gender_string || 'unknown',
-                item.status_string || 'alive'
-            );
-            item.dataUrl = svgUrl;
-            item.image = { value: svgUrl };
-            item.isSeedFallback = true;
+
+    for (const catKey of CATEGORY_KEYS) {
+        if (!Array.isArray(categoryReserves[catKey])) continue;
+        for (let i = 0; i < categoryReserves[catKey].length; i++) {
+            const item = categoryReserves[catKey][i];
+            if (!item || !item.personLabel?.value) continue;
+            if (!item.dataUrl || (item.dataUrl.startsWith('data:image/jpeg') && item.dataUrl.length < 900)) {
+                const { gender, status } = parseCategoryKey(catKey);
+                const svgUrl = generateOfflineAvatarSvg(item.personLabel.value, gender, status);
+                item.dataUrl = svgUrl;
+                item.image = { value: svgUrl };
+                item.isSeedFallback = true;
+                modified = true;
+            }
+        }
+        // Filter out old low-resolution 460px entries so fresh 960px HD cards take their place
+        const hadOldLowRes = categoryReserves[catKey].some(item => item && !item.isSeedFallback && !item.imageUrl && item.dataUrl && item.dataUrl.length < 40000);
+        if (hadOldLowRes) {
+            categoryReserves[catKey] = categoryReserves[catKey].filter(item => item && (item.isSeedFallback || item.imageUrl || (item.dataUrl && item.dataUrl.length >= 40000)));
             modified = true;
         }
     }
-    // Filter out old low-resolution 460px entries from previous version so fresh 960px HD cards are restocked
-    const hadOldLowRes = localOfflineReserve.some(item => item && !item.isSeedFallback && !item.imageUrl && item.dataUrl && item.dataUrl.length < 40000);
-    if (hadOldLowRes) {
-        localOfflineReserve = localOfflineReserve.filter(item => item && (item.isSeedFallback || item.imageUrl || (item.dataUrl && item.dataUrl.length >= 40000)));
-        modified = true;
-    }
+
     if (modified) {
-        try {
-            localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
-            console.log('[OFFLINE_RESERVE] Sanitized reserve data (upgraded to high-definition).');
-        } catch (e) {}
+        saveCategoryReserves();
+        console.log('[CATEGORY_RESERVES] Sanitized and upgraded category reserves.');
     }
 }
 
-// Ensure offline reserve is immediately seeded and sanitized on script execution
 // Persistent history of used cards so they are NEVER used or re-downloaded again!
 let usedCardsHistory = safeParse('personsee_used_cards_history', []);
 if (!Array.isArray(usedCardsHistory)) usedCardsHistory = [];
@@ -3334,7 +3409,7 @@ function recordUsedCard(name) {
     if (!name) return;
     if (!usedCardsHistory.includes(name)) {
         usedCardsHistory.push(name);
-        if (usedCardsHistory.length > 500) {
+        if (usedCardsHistory.length > 800) {
             usedCardsHistory.shift();
         }
         try {
@@ -3348,77 +3423,84 @@ function isCardAlreadyUsed(name) {
     return usedCardsHistory.includes(name);
 }
 
-let isRestockingReserve = false;
+let isCategoryRestocking = {};
 
 /**
- * 📦 Фоновый помощник пополнения полочки:
- * Срабатывает ТОЛЬКО когда с полочки взято 5 или более карточек (осталось <= 15).
- * Постепенно и тихо скачивает из Викиданных партию из 5 свежих фото с лицами
- * и пополняет полочку обратно до 20!
+ * 📦 Фоновый помощник пополнения полочки по категориям:
+ * Проверяет категорию: если осталось <= 10 карточек (зазор 5 израсходован),
+ * скачивает партию из 5 свежих HD-фото с лицами для ЭТОЙ категории и возвращает запас до 15!
  */
-async function checkAndRestockReserveShelf() {
-    if (isRestockingReserve) return;
-    const currentCount = Array.isArray(localOfflineReserve) ? localOfflineReserve.length : 0;
-    const missing = 20 - currentCount;
-
-    // ПРАВИЛО: Пополнять ТОЛЬКО когда не хватает 5 или более карточек (осталось 15 или меньше)
-    if (missing < 5) {
-        console.log(`[RESERVE_HELPER] 📊 На полочке ${currentCount}/20 карточек. Израсходовано ${missing}/5. Пополнение пока не требуется.`);
-        return;
-    }
-
+async function checkAndRestockCategory(targetCatKey = null) {
     const isOnline = typeof navigator === 'undefined' || navigator.onLine !== false;
     if (!isOnline) {
-        console.log(`[RESERVE_HELPER] Устройство офлайн, фоновое пополнение отложено. На полочке: ${currentCount}/20`);
+        console.log('[RESERVE_HELPER] Устройство офлайн, фоновое пополнение отложено.');
         return;
     }
 
-    isRestockingReserve = true;
-    console.log(`[RESERVE_HELPER] 📦 Израсходовано ${missing} карточек (осталось ${currentCount}/20). Запускаем фоновое пополнение партии из 5 карточек...`);
+    const keysToRestock = targetCatKey ? [targetCatKey] : CATEGORY_KEYS;
 
-    const categories = [
-        { gender: 'male', status: 'alive' },
-        { gender: 'female', status: 'alive' },
-        { gender: 'male', status: 'deceased' },
-        { gender: 'female', status: 'deceased' }
-    ];
+    for (const catKey of keysToRestock) {
+        if (!CATEGORY_KEYS.includes(catKey)) continue;
+        if (isCategoryRestocking[catKey]) continue;
 
-    try {
-        let added = 0;
-        let attempts = 0;
-        // Пополняем ровно 5 свежих карточек
-        while (added < 5 && localOfflineReserve.length < 20 && attempts < 16) {
-            attempts++;
-            const cat = categories[(added + attempts) % categories.length];
-            const ok = await fetchAndStoreReservePerson(cat);
-            if (ok) {
-                added++;
-                console.log(`[RESERVE_HELPER] ✅ Добавлена карточка ${added}/5 на полочку (Всего на полочке: ${localOfflineReserve.length}/20).`);
-            }
-            // Мягкая пауза 600 мс между запросами, чтобы не спамить сеть и не греть процессор
-            await new Promise(r => setTimeout(r, 600));
+        const currentCount = Array.isArray(categoryReserves[catKey]) ? categoryReserves[catKey].length : 0;
+        const missing = SHELF_TARGET_PER_CATEGORY - currentCount;
+
+        // Пополняем ТОЛЬКО когда в категории не хватает 5 или более карточек (осталось <= 10)
+        if (missing < (SHELF_TARGET_PER_CATEGORY - SHELF_RESTOCK_THRESHOLD)) {
+            console.log(`[RESERVE_HELPER] 📊 Категория "${catKey}": ${currentCount}/${SHELF_TARGET_PER_CATEGORY} карточек. Пополнение пока не требуется.`);
+            continue;
         }
-        console.log(`[RESERVE_HELPER] 🏁 Партия пополнения завершена: добавлено ${added} свежих фото. На полочке теперь: ${localOfflineReserve.length}/20`);
-    } catch (err) {
-        console.warn('[RESERVE_HELPER_WARN] Ошибка фонового пополнения:', err.message);
-    } finally {
-        isRestockingReserve = false;
-        logReserveStatus('restock_batch_complete');
+
+        isCategoryRestocking[catKey] = true;
+        const { gender, status } = parseCategoryKey(catKey);
+        const catFilter = { gender, status };
+
+        console.log(`[RESERVE_HELPER] 📦 Категория "${catKey}": осталось ${currentCount}/${SHELF_TARGET_PER_CATEGORY} (зазор 5 сработал). Скачиваем партию из ${SHELF_RESTOCK_BATCH} фото...`);
+
+        try {
+            let added = 0;
+            let attempts = 0;
+            const maxAttempts = 14;
+
+            while (added < SHELF_RESTOCK_BATCH && categoryReserves[catKey].length < SHELF_TARGET_PER_CATEGORY && attempts < maxAttempts) {
+                attempts++;
+                const ok = await fetchAndStoreReservePerson(catFilter);
+                if (ok) {
+                    added++;
+                    console.log(`[RESERVE_HELPER] ✅ Категория "${catKey}": добавлена карточка ${added}/${SHELF_RESTOCK_BATCH} (В категории: ${categoryReserves[catKey].length}/${SHELF_TARGET_PER_CATEGORY}).`);
+                }
+                await new Promise(r => setTimeout(r, 600));
+            }
+            console.log(`[RESERVE_HELPER] 🏁 Категория "${catKey}": партия завершена (+${added} свежих фото). Всего: ${categoryReserves[catKey].length}/${SHELF_TARGET_PER_CATEGORY}`);
+        } catch (err) {
+            console.warn(`[RESERVE_HELPER_WARN] Ошибка пополнения категории "${catKey}":`, err.message);
+        } finally {
+            isCategoryRestocking[catKey] = false;
+        }
     }
+
+    saveCategoryReserves();
+    logReserveStatus('category_restock_complete');
+}
+
+async function checkAndRestockReserveShelf() {
+    await checkAndRestockCategory();
 }
 
 /**
- * Скачивание 1 новой карточки из Викиданных в фоне, проверка лица и сохранение в base64 на полочку
+ * Скачивание 1 новой карточки из Викиданных в фоне, проверка лица и сохранение в base64 на полочку нужной категории
  */
 async function fetchAndStoreReservePerson(category) {
     try {
+        const catKey = normalizeCategoryKey(category) || 'male-alive';
         const personBinding = await fetchPersonData(false, category);
         if (!personBinding || !personBinding.personLabel?.value || !personBinding.image?.value) return false;
         const name = personBinding.personLabel.value;
         
-        // Никогда не кладем на полочку то, что уже было использовано или уже лежит на полочке!
+        // Никогда не кладем на полочку то, что уже было использовано или уже лежит в этой категории!
         if (isCardAlreadyUsed(name)) return false;
-        if (localOfflineReserve.some(item => item && item.personLabel?.value === name)) return false;
+        if (categoryReserves[catKey] && categoryReserves[catKey].some(item => item && item.personLabel?.value === name)) return false;
         if (isForbiddenImageName(personBinding.image.value)) return false;
 
         const fileName = decodeURIComponent(personBinding.image.value.split('/').pop());
@@ -3466,88 +3548,83 @@ async function fetchAndStoreReservePerson(category) {
         const base64 = canvas.toDataURL('image/jpeg', 0.85);
         if (!base64 || base64.length < 1000) return false;
 
+        const { gender, status } = parseCategoryKey(catKey);
+
         const reserveEntry = {
             person: personBinding.person || { value: `offline:${name}` },
             personLabel: personBinding.personLabel,
-            gender: personBinding.gender || { value: personBinding.gender_string === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
+            gender: personBinding.gender || { value: gender === 'female' ? "http://www.wikidata.org/entity/Q6581072" : "http://www.wikidata.org/entity/Q6581097" },
             birthDate: personBinding.birthDate || { value: "1980-01-01T00:00:00Z" },
-            deathDate: personBinding.deathDate || null,
-            gender_string: personBinding.gender_string || (personBinding.gender?.value?.includes('Q6581072') ? 'female' : 'male'),
-            status_string: personBinding.status_string || (personBinding.deathDate ? 'deceased' : 'alive'),
+            deathDate: personBinding.deathDate || (status === 'deceased' ? { value: "2010-01-01T00:00:00Z" } : null),
+            gender_string: gender,
+            status_string: status,
             imageUrl: imageUrl,
             dataUrl: base64,
             image: { value: imageUrl || base64 },
             isOfflineReserve: true,
             isOfflineFallback: true,
-            dataSource: 'Offline Local Reserve',
+            dataSource: `Offline Reserve (${catKey})`,
             savedAt: Date.now()
         };
 
-        // Если на полочке есть карточки-заглушки (seed), заменяем первую попавшуюся заглушку!
-        const seedIndex = localOfflineReserve.findIndex(item => item && item.isSeedFallback);
-        if (seedIndex !== -1) {
-            localOfflineReserve[seedIndex] = reserveEntry;
-        } else {
-            localOfflineReserve.push(reserveEntry);
+        if (!Array.isArray(categoryReserves[catKey])) {
+            categoryReserves[catKey] = [];
         }
 
-        localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
+        // Если в категории есть карточки-заглушки (seed), заменяем первую попавшуюся заглушку!
+        const seedIndex = categoryReserves[catKey].findIndex(item => item && item.isSeedFallback);
+        if (seedIndex !== -1) {
+            categoryReserves[catKey][seedIndex] = reserveEntry;
+        } else {
+            categoryReserves[catKey].push(reserveEntry);
+            while (categoryReserves[catKey].length > SHELF_TARGET_PER_CATEGORY) {
+                categoryReserves[catKey].shift();
+            }
+        }
+
+        saveCategoryReserves();
         return true;
     } catch (e) {
         return false;
     }
 }
 
+let shelfCategoryRoundRobinIndex = 0;
+
 /**
  * 🏷️ Взятие готовой карточки с полочки:
- * ВСЕГДА берет 1 готовую карточку с полочки (0 мс задержки),
+ * ВСЕГДА берет 1 готовую карточку с полочки нужной категории (0 мс задержки),
  * НАВСЕГДА удаляет её с полочки (она больше никогда не понадобится),
- * и запускает проверку: если не хватает 5 карточек — запускает фоновое пополнение!
+ * и если в этой категории осталось <= 10 карточек (зазор 5), запускает пополнение категории!
  */
 function takePersonFromShelf(category = null) {
-    if (!Array.isArray(localOfflineReserve)) {
-        localOfflineReserve = [];
-    }
+    seedCategoryReservesIfNeeded();
 
-    // Отфильтровываем карточки, которые уже были использованы
-    localOfflineReserve = localOfflineReserve.filter(p => p && p.personLabel?.value && !isCardAlreadyUsed(p.personLabel.value));
+    let targetCatKey = normalizeCategoryKey(category);
 
-    // Если полочка совсем пуста — засеиваем начальными кандидатами
-    if (localOfflineReserve.length === 0) {
-        seedOfflineReserveIfNeeded();
-    }
-
-    let candidateIndex = -1;
-
-    // Отдаем приоритет реальным скачанным фото над начальными заглушками
-    const realPhotos = localOfflineReserve.map((p, idx) => ({ p, idx })).filter(item => 
-        item.p && !item.p.isSeedFallback && item.p.dataUrl && !item.p.dataUrl.startsWith('data:image/svg')
-    );
-
-    if (category) {
-        const realMatched = realPhotos.find(item => 
-            (!category.gender || item.p.gender_string === category.gender) &&
-            (!category.status || item.p.status_string === category.status)
-        );
-        if (realMatched) {
-            candidateIndex = realMatched.idx;
+    // Если категория не задана (открытый режим без фильтра), берем категорию по балансу (round-robin)
+    if (!targetCatKey) {
+        const availableKeys = CATEGORY_KEYS.filter(k => Array.isArray(categoryReserves[k]) && categoryReserves[k].length > 0);
+        if (availableKeys.length > 0) {
+            shelfCategoryRoundRobinIndex = (shelfCategoryRoundRobinIndex + 1) % availableKeys.length;
+            targetCatKey = availableKeys[shelfCategoryRoundRobinIndex];
         } else {
-            candidateIndex = localOfflineReserve.findIndex(p => 
-                p && (!category.gender || p.gender_string === category.gender) &&
-                     (!category.status || p.status_string === category.status)
-            );
+            targetCatKey = CATEGORY_KEYS[0];
         }
     }
 
-    if (candidateIndex === -1 && realPhotos.length > 0) {
-        candidateIndex = realPhotos[0].idx;
+    let shelf = categoryReserves[targetCatKey];
+    if (!Array.isArray(shelf) || shelf.length === 0) {
+        for (const k of CATEGORY_KEYS) {
+            if (Array.isArray(categoryReserves[k]) && categoryReserves[k].length > 0) {
+                targetCatKey = k;
+                shelf = categoryReserves[k];
+                break;
+            }
+        }
     }
 
-    if (candidateIndex === -1 && localOfflineReserve.length > 0) {
-        candidateIndex = 0;
-    }
-
-    if (candidateIndex === -1) {
+    if (!Array.isArray(shelf) || shelf.length === 0) {
         const catalogItem = getNextCatalogPerson(category);
         if (catalogItem) {
             recordUsedCard(catalogItem.personLabel?.value);
@@ -3559,30 +3636,41 @@ function takePersonFromShelf(category = null) {
         return null;
     }
 
+    // Отфильтровываем карточки, которые уже были использованы
+    categoryReserves[targetCatKey] = shelf.filter(p => p && p.personLabel?.value && !isCardAlreadyUsed(p.personLabel.value));
+    shelf = categoryReserves[targetCatKey];
+
+    // Отдаем приоритет реальным скачанным фото над начальными заглушками
+    const realIndex = shelf.findIndex(p => p && !p.isSeedFallback && p.dataUrl && !p.dataUrl.startsWith('data:image/svg'));
+    const chosenIndex = realIndex !== -1 ? realIndex : 0;
+
     // 💥 БЕРЕМ КАРТОЧКУ И НАВСЕГДА УДАЛЯЕМ С ПОЛОЧКИ!
-    const [chosen] = localOfflineReserve.splice(candidateIndex, 1);
-    try {
-        localStorage.setItem('personsee_local_offline_reserve_20', JSON.stringify(localOfflineReserve));
-    } catch (e) {}
+    const [chosen] = shelf.splice(chosenIndex, 1);
+    saveCategoryReserves();
 
     // Фиксируем, что эта карточка использована и больше никогда не должна повториться
     recordUsedCard(chosen.personLabel?.value);
     sessionShownNames.add(chosen.personLabel?.value);
 
-    console.log(`[SHELF_DISPATCH] 🏷️ Взяли карточку с полочки (0 мс): "${chosen.personLabel?.value}". Осталось на полочке: ${localOfflineReserve.length}/20`);
+    console.log(`[SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "${targetCatKey}": "${chosen.personLabel?.value}". Осталось в категории: ${shelf.length}/${SHELF_TARGET_PER_CATEGORY}`);
 
-    // Проверяем: если не хватает 5 карточек — запускаем помощника пополнить запас на 5 штук!
-    checkAndRestockReserveShelf();
+    // ЗАЗОР 5 КАРТОЧЕК: если в категории осталось <= 10 карточек — запускаем фоновое пополнение ЭТОЙ категории!
+    if (shelf.length <= SHELF_RESTOCK_THRESHOLD) {
+        console.log(`[SHELF_THRESHOLD] В категории "${targetCatKey}" осталось ${shelf.length}/${SHELF_TARGET_PER_CATEGORY} (зазор 5 сработал). Запускаем пополнение категории...`);
+        checkAndRestockCategory(targetCatKey);
+    }
+
+    const { gender, status } = parseCategoryKey(targetCatKey);
 
     return {
         person: {
             ...chosen,
             isOfflineReserve: true,
             isOfflineFallback: true,
-            dataSource: 'Offline Local Reserve',
-            image: { value: chosen.dataUrl || chosen.image?.value }
+            dataSource: `Offline Reserve (${targetCatKey})`,
+            image: { value: (chosen.imageUrl && !chosen.imageUrl.startsWith('data:') && navigator.onLine !== false) ? chosen.imageUrl : (chosen.dataUrl || chosen.image?.value) }
         },
-        category: category || { gender: chosen.gender_string, status: chosen.status_string }
+        category: category || { gender: chosen.gender_string || gender, status: chosen.status_string || status }
     };
 }
 
@@ -3614,9 +3702,19 @@ function logReserveStatus(context = 'STATUS') {
         }
     } catch (e) {}
 
-    const realPhotosCount = Array.isArray(localOfflineReserve) ? localOfflineReserve.filter(p => p && !p.isSeedFallback).length : 0;
-    const reserveTotal = Array.isArray(localOfflineReserve) ? localOfflineReserve.length : 0;
-    const statusLine = `[RESERVE_STOCK] [${context}] Buffer (sessionList): ${sessionList.length}/${TARGET_BUFFER_RESERVE} | Local Reserve: ${reserveTotal}/20 (${realPhotosCount} real photos) | Wikidata Cache: ${wikidataCacheCount} | Catalog Backup: ${catalogRemaining}/100`;
+    const ma = categoryReserves['male-alive']?.length || 0;
+    const md = categoryReserves['male-deceased']?.length || 0;
+    const fa = categoryReserves['female-alive']?.length || 0;
+    const fd = categoryReserves['female-deceased']?.length || 0;
+    const total = ma + md + fa + fd;
+    let realCount = 0;
+    for (const k of CATEGORY_KEYS) {
+        if (Array.isArray(categoryReserves[k])) {
+            realCount += categoryReserves[k].filter(p => p && !p.isSeedFallback).length;
+        }
+    }
+
+    const statusLine = `[RESERVE_STOCK] [${context}] Buffer: ${sessionList.length}/${TARGET_BUFFER_RESERVE} | Shelf (Total: ${total}/60): MA: ${ma}/15, MD: ${md}/15, FA: ${fa}/15, FD: ${fd}/15 (Real photos: ${realCount}) | Cache: ${wikidataCacheCount} | Catalog: ${catalogRemaining}/100`;
     console.log(statusLine);
     return statusLine;
 }
@@ -3851,7 +3949,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
         
         // Strict SPARQL query: ?person wdt:P31 wd:Q5 enforces Human (eliminates animals/ducks, monuments, objects)
-        query = `#TOOL: iPersonSeeTrivia/2.4.8 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        query = `#TOOL: iPersonSeeTrivia/2.5.0 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
                 ?person wdt:P31 wd:Q5;
@@ -4877,7 +4975,7 @@ async function loadNextPerson(triggerButton = 'unknown') {
     const nextEntry = takePersonFromShelf();
 
     if (nextEntry && nextEntry.person) { 
-        console.log(`[LOAD_NEXT_PERSON] Показываем карточку с полочки: ${nextEntry.person.personLabel.value}. Осталось на полочке: ${localOfflineReserve.length}/20`);
+        console.log(`[LOAD_NEXT_PERSON] Показываем карточку с полочки: ${nextEntry.person.personLabel.value}. Осталось на полочках: ${localOfflineReserve.length}/60`);
         await loadPersonFromData(nextEntry.person, nextEntry.category, thisLoadToken, thisSessionId);
     } else {
         console.warn("[LOAD_NEXT_PERSON_WARN] Полочка временно пуста, используем резервный каталог.");
