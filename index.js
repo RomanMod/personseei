@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.1';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.2';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -1579,6 +1579,8 @@ function updateTelegramUserInfoDisplay() {
 // === DATA SOURCE HEALTH & INDICATOR STATE ===
 let currentDataSourceStatus = 'healthy'; // 'healthy' (green) | 'fallback' (closer to red) | 'error' (red)
 let currentDataSourceDetails = 'Wikidata Live';
+let lastLoggedBadgeTheme = null;
+let lastLoggedBadgeStatus = null;
 
 function updateDataSourceIndicator(status, details = '') {
     if (status) currentDataSourceStatus = status;
@@ -1640,6 +1642,22 @@ function updateDataSourceIndicator(status, details = '') {
     } else {
         statusTheme = 'emerald';
         activeLabel = 'Wikidata (Онлайн) ✅';
+    }
+
+    if (statusTheme !== lastLoggedBadgeTheme || currentDataSourceStatus !== lastLoggedBadgeStatus) {
+        const themeNamesRu = {
+            emerald: 'зелёный (Wikidata / Кэш)',
+            cyan: 'синий/голубой (Полочка / Резерв)',
+            amber: 'жёлтый (Демо-каталог)',
+            rose: 'красный (Офлайн / Ошибка)'
+        };
+        const prevColor = lastLoggedBadgeTheme ? `${themeNamesRu[lastLoggedBadgeTheme] || lastLoggedBadgeTheme} -> ` : '';
+        const newColor = themeNamesRu[statusTheme] || statusTheme;
+        const personNote = currentPerson?.personLabel?.value ? ` | Персона: "${currentPerson.personLabel.value}"` : '';
+        const detailsNote = details ? ` | Источник: ${details}` : '';
+        console.log(`[VERSION_BADGE_COLOR] Индикатор версии: ${prevColor}${newColor} | Статус: "${activeLabel}" (status=${currentDataSourceStatus})${detailsNote}${personNote}`);
+        lastLoggedBadgeTheme = statusTheme;
+        lastLoggedBadgeStatus = currentDataSourceStatus;
     }
 
     if (versionBadge) {
@@ -4016,7 +4034,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         const mainSubjectClause = attempts === 1 ? `?person wdt:P106 ${randomOcc};` : '?person wdt:P31 wd:Q5;';
         
         // Fast, indexed SPARQL query with occupation-based lookup (150-400ms on Wikidata)
-        query = `#TOOL: iPersonSeeTrivia/2.5.1 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        query = `#TOOL: iPersonSeeTrivia/${CURRENT_APP_VERSION} (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
                 ${mainSubjectClause}
