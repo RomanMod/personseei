@@ -139,7 +139,7 @@ try {
         const savedLogsString = safeGetItem('appLogs_persistent');
         if (savedLogsString) {
             window.appLogs = JSON.parse(savedLogsString);
-            window.appLogs.push(`[${new Date().toISOString().split('T')[1].slice(0, 11)}] [SYSTEM] --- APPLICATION RESTARTED (PREVIOUS LOGS PRESERVED) ---`);
+            window.appLogs.push(`[${new Date().toISOString().split('T')[1].slice(0, 11)}] [SYSTEM] --- APPLICATION RESTARTED v${APP_VERSION_FALLBACK} (PREVIOUS LOGS PRESERVED) ---`);
             if (window.appLogs.length > 250) {
                 window.appLogs.shift();
             }
@@ -1412,7 +1412,7 @@ const initialControlsCollapsed = localStorage.getItem('top_controls_collapsed') 
 setTopControlsCollapsed(initialControlsCollapsed, false);
 
 // Логирование инициализации
-console.log('[APP_INIT] Initializing application...');
+console.log(`[APP_INIT] Initializing application... (App Version: v${APP_VERSION_FALLBACK})`);
 console.log('[APP_INIT] Current theme:', isNight ? 'night' : 'day');
 const rgbCount = Object.keys(rgbHslCache || {}).length;
 console.log(`[APP_INIT] RGB HSL Cache from localStorage: (${rgbCount} entries)`);
@@ -3180,6 +3180,11 @@ function saveToOfflineReserve(person, imgElement) {
     const catKey = normalizeCategoryKey(person) || 'male-alive';
     if (!Array.isArray(categoryReserves[catKey])) categoryReserves[catKey] = [];
 
+    // Never put an already-played card onto the reserve shelf for future rounds
+    if (isCardAlreadyUsed(name)) {
+        return;
+    }
+
     // Check if already in this category reserve
     if (categoryReserves[catKey].some(item => item && item.personLabel && item.personLabel.value === name)) {
         return;
@@ -4686,12 +4691,10 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
     updateDataSourceIndicator(determinedStatus, determinedLabel);
     updateUI(currentPerson); 
     
-    // Automatically save successfully verified real photo to 20-photo local offline reserve
-    if (!currentPersonCandidate.isOfflineReserve && 
-        !currentPersonCandidate.isCatalogPerson && 
-        personImage && personImage.src && 
-        !personImage.src.startsWith('data:image/svg')) {
-        saveToOfflineReserve(currentPersonCandidate, personImage);
+    // Record displayed card as used so it never repeats in future rounds or re-enters reserve shelf
+    if (currentPersonCandidate?.personLabel?.value) {
+        recordUsedCard(currentPersonCandidate.personLabel.value);
+        sessionShownNames.add(currentPersonCandidate.personLabel.value);
     }
     
     currentAttemptStartTime = Date.now(); 
@@ -5342,9 +5345,10 @@ async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
         personImage.style.visibility = '';
     }
 
-    // Save to 20-photo offline reserve if online real photo
-    if (!nextCandidate.isOfflineReserve && !nextCandidate.isCatalogPerson && !readyImgSrc.startsWith('data:image/svg')) {
-        saveToOfflineReserve(nextCandidate, personImage);
+    // Record displayed card as used so it never repeats in future rounds or re-enters reserve shelf
+    if (nextCandidate?.personLabel?.value) {
+        recordUsedCard(nextCandidate.personLabel.value);
+        sessionShownNames.add(nextCandidate.personLabel.value);
     }
 
     currentAttemptStartTime = Date.now();
@@ -6176,7 +6180,8 @@ function setupDiagnosticsPanel() {
     const copyBtn = document.getElementById('copy-logs-btn');
     if (copyBtn) {
         copyBtn.addEventListener('click', () => {
-            const logsText = window.appLogs.join('\n');
+            const buildTag = typeof __BUILD_TIME__ !== 'undefined' ? ` (${__BUILD_TIME__})` : '';
+            const logsText = `=== App Version: v${APP_VERSION_FALLBACK}${buildTag} ===\n` + window.appLogs.join('\n');
             navigator.clipboard.writeText(logsText).then(() => {
                 const originalText = copyBtn.textContent;
                 const copiedLabels = {
