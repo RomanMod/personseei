@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.2';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.3';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -3539,17 +3539,29 @@ async function fetchAndStoreReservePerson(category) {
         const name = personBinding.personLabel.value;
         
         // Никогда не кладем на полочку то, что уже было использовано или уже лежит в этой категории!
-        if (isCardAlreadyUsed(name)) return false;
+        if (isCardAlreadyUsed(name)) {
+            removePersonFromCache(personBinding);
+            return false;
+        }
         if (categoryReserves[catKey] && categoryReserves[catKey].some(item => item && item.personLabel?.value === name)) return false;
-        if (isForbiddenImageName(personBinding.image.value)) return false;
+        if (isForbiddenImageName(personBinding.image.value)) {
+            removePersonFromCache(personBinding);
+            return false;
+        }
 
         const fileName = decodeURIComponent(personBinding.image.value.split('/').pop());
         const imageUrl = await getCommonsImageUrl(fileName);
-        if (!imageUrl) return false;
+        if (!imageUrl) {
+            removePersonFromCache(personBinding);
+            return false;
+        }
 
         if (settings.excludeBlackAndWhite) {
             const isBW = await isBlackAndWhite(imageUrl);
-            if (isBW) return false;
+            if (isBW) {
+                removePersonFromCache(personBinding);
+                return false;
+            }
         }
 
         // Загрузка во внеэкранный объект Image: сначала напрямую (Wikimedia отдает CORS), затем через weserv-прокси
@@ -3570,13 +3582,19 @@ async function fetchAndStoreReservePerson(category) {
         try {
             img = await loadOffscreenCors(imageUrl);
         } catch (directErr) {
-            img = await loadOffscreenCors(makeWeservProxyUrl(imageUrl));
+            try {
+                img = await loadOffscreenCors(makeWeservProxyUrl(imageUrl));
+            } catch (proxyErr) {
+                removePersonFromCache(personBinding);
+                return false;
+            }
         }
 
         // Проверка наличия ровно одного лица нейросетью
         const faceCheck = await verifySingleFace(img);
         if (!faceCheck.valid) {
             console.warn(`[RESERVE_HELPER] Проверка лица не пройдена для "${name}": ${faceCheck.reason}`);
+            removePersonFromCache(personBinding);
             return false;
         }
 
@@ -3892,6 +3910,7 @@ function getAnyCachedWikidataPerson(category) {
                     p && p.personLabel?.value && 
                     p.image?.value && 
                     !sessionShownNames.has(p.personLabel.value) &&
+                    !isCardAlreadyUsed(p.personLabel.value) &&
                     !isForbiddenImageName(p.image.value)
                 );
                 if (available.length > 0) {
@@ -3912,6 +3931,7 @@ function getAnyCachedWikidataPerson(category) {
                 p && p.personLabel?.value && 
                 p.image?.value && 
                 !sessionShownNames.has(p.personLabel.value) &&
+                !isCardAlreadyUsed(p.personLabel.value) &&
                 !isForbiddenImageName(p.image.value)
             );
             if (available.length > 0) {
@@ -3981,7 +4001,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         );
 
         if (wikidataCache[cacheKey].length > 0) {
-            let available = wikidataCache[cacheKey].filter(p => p && p.personLabel && p.personLabel.value && !sessionShownNames.has(p.personLabel.value));
+            let available = wikidataCache[cacheKey].filter(p => p && p.personLabel && p.personLabel.value && !sessionShownNames.has(p.personLabel.value) && !isCardAlreadyUsed(p.personLabel.value));
             if (available.length > 0) {
                 const cachedPerson = available[Math.floor(Math.random() * available.length)];
                 if (cachedPerson && cachedPerson.personLabel && cachedPerson.personLabel.value && cachedPerson.image && cachedPerson.image.value && cachedPerson.gender && cachedPerson.birthDate && cachedPerson.person && cachedPerson.person.value) {
@@ -4076,7 +4096,10 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
             console.log('[CACHE_UPDATE] wikidataCache updated in localStorage.');
 
-            let freshList = list.filter(p => p && p.personLabel && p.personLabel.value && !sessionShownNames.has(p.personLabel.value));
+            let freshList = list.filter(p => p && p.personLabel && p.personLabel.value && !sessionShownNames.has(p.personLabel.value) && !isCardAlreadyUsed(p.personLabel.value));
+            if (!freshList || freshList.length === 0) {
+                freshList = list.filter(p => p && p.personLabel && p.personLabel.value && !sessionShownNames.has(p.personLabel.value));
+            }
             if (!freshList || freshList.length === 0) {
                 freshList = list;
             }
@@ -4139,10 +4162,16 @@ async function startPreloadNextAvailablePerson() {
 
     try {
         let commonsUrl;
-        if (personBindingForPreload.isOfflineFallback || personBindingForPreload.isCatalogPerson) {
-            commonsUrl = personBindingForPreload.image.value;
+        const rawPreloadUrl = personBindingForPreload.image.value;
+        if (rawPreloadUrl && rawPreloadUrl.includes('Special:FilePath/') && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+            const rawFilePart = rawPreloadUrl.split('Special:FilePath/').pop().split('?')[0];
+            const cleanFileName = decodeURIComponent(rawFilePart);
+            const resolvedUrl = await getCommonsImageUrl(cleanFileName);
+            commonsUrl = resolvedUrl || rawPreloadUrl;
+        } else if (personBindingForPreload.isOfflineFallback || personBindingForPreload.isCatalogPerson) {
+            commonsUrl = rawPreloadUrl;
         } else {
-            const fileName = decodeURIComponent(personBindingForPreload.image.value.split('/').pop());
+            const fileName = decodeURIComponent(rawPreloadUrl.split('/').pop());
             commonsUrl = await getCommonsImageUrl(fileName);
             if (!commonsUrl) {
                 console.warn(`[PRELOAD_WARN] No Commons URL for ${fileName} (person: ${personBindingForPreload.personLabel.value}) during preload. Preload for this item skipped.`);
@@ -4264,12 +4293,15 @@ async function startPreloadNextAvailablePerson() {
                     reject(new Error(`Face check failed: ${faceCheck.reason}`));
                     return;
                 }
-                console.log(`[PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: ${commonsUrl} for ${personBindingForPreload.personLabel.value}`);
+                const resolvedCdnUrl = (preloadedImage.currentSrc && !preloadedImage.currentSrc.includes('Special:FilePath'))
+                    ? preloadedImage.currentSrc
+                    : commonsUrl;
+                console.log(`[PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: ${resolvedCdnUrl} for ${personBindingForPreload.personLabel.value}`);
                 preloadedPersonContainer = {
                     data: nextPersonToPreloadEntry, 
                     imageElement: preloadedImage,
-                    commonsUrl: commonsUrl,
-                    proxyUrl: commonsUrl
+                    commonsUrl: resolvedCdnUrl,
+                    proxyUrl: resolvedCdnUrl
                 };
                 resolve();
             };
@@ -4423,6 +4455,7 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
     if (hasCompletePreload) {
         console.log(`[LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: ${currentPersonCandidate.personLabel.value}`);
         const preloadedProxyUrl = preloadedPersonContainer.proxyUrl;
+        const preloadedCorsMode = preloadedPersonContainer.imageElement?.crossOrigin || null;
         
         await new Promise((resolvePreloadAssign) => {
             let isPreloadAssignDone = false;
@@ -4435,10 +4468,29 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 preloadedPersonContainer = null;
                 imageLoadPathDetail = "preload_assign_timeout_fallback_to_fetch";
                 resolvePreloadAssign();
-            }, 5000);
+            }, 3000);
+
+            const onAssignError = () => {
+                if (isPreloadAssignDone) return;
+                isPreloadAssignDone = true;
+                clearTimeout(assignTimeout);
+                personImage.onload = null;
+                personImage.onerror = null;
+                personImage.style.opacity = ''; 
+                personImage.style.filter = '';
+                console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
+                preloadedPersonContainer = null; 
+                imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
+                resolvePreloadAssign(); 
+            };
 
             const onAssignSuccess = () => {
                 if (isPreloadAssignDone) return;
+                if (!personImage.complete || personImage.naturalWidth === 0) {
+                    console.warn(`[LOAD_PERSON_PRELOAD_EMPTY] Preloaded image element has naturalWidth=0 for ${currentPersonCandidate.personLabel.value}, falling back to fetch.`);
+                    onAssignError();
+                    return;
+                }
                 isPreloadAssignDone = true;
                 clearTimeout(assignTimeout);
                 personImage.onload = null;
@@ -4466,27 +4518,21 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 resolvePreloadAssign();
             };
 
-            const onAssignError = () => {
-                if (isPreloadAssignDone) return;
-                isPreloadAssignDone = true;
-                clearTimeout(assignTimeout);
-                personImage.onload = null;
-                personImage.onerror = null;
-                personImage.style.opacity = ''; 
-                personImage.style.filter = '';
-                console.warn(`[LOAD_PERSON_PRELOAD_ASSIGN_FAIL] Error assigning preloaded image src: ${preloadedProxyUrl} for ${currentPersonCandidate.personLabel.value}. Fallback to fresh fetch.`);
-                preloadedPersonContainer = null; 
-                imageLoadPathDetail = "preload_assign_failed_fallback_to_fetch";
-                resolvePreloadAssign(); 
-            };
-
+            // Match CORS attribute to how the preloaded image was fetched so browser reuses cached bitmap cleanly
+            if (preloadedCorsMode) {
+                personImage.crossOrigin = preloadedCorsMode;
+            } else {
+                personImage.removeAttribute('crossorigin');
+            }
             personImage.onload = onAssignSuccess;
             personImage.onerror = onAssignError;
             personImage.src = preloadedProxyUrl;
 
-            if ((personImage.complete && personImage.naturalWidth > 0) || 
-                (preloadedPersonContainer && preloadedPersonContainer.imageElement && preloadedPersonContainer.imageElement.complete && preloadedPersonContainer.imageElement.naturalWidth > 0)) {
+            // Only confirm synchronously if personImage ITSELF has already decoded the assigned URL
+            if (personImage.complete && personImage.naturalWidth > 0) {
                 onAssignSuccess();
+            } else if (circularProgressContainer && gameMode !== 'closed') {
+                circularProgressContainer.classList.remove('hidden');
             }
         });
     } else if (preloadedPersonContainer && 
@@ -4526,7 +4572,7 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 // Prefer pristine 960px CDN image if available and online
                 if (typeof navigator !== 'undefined' && navigator.onLine !== false && currentPersonCandidate.imageUrl && !currentPersonCandidate.imageUrl.startsWith('data:')) {
                     commonsUrl = currentPersonCandidate.imageUrl;
-                } else if (currentPersonCandidate.dataUrl) {
+                } else if (currentPersonCandidate.dataUrl && (typeof navigator === 'undefined' || navigator.onLine === false)) {
                     commonsUrl = currentPersonCandidate.dataUrl;
                 } else if (currentPersonCandidate.isOfflineFallback || 
                            currentPersonCandidate.isCatalogPerson || 
@@ -4541,6 +4587,12 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                         currentPersonCandidate = await fetchPersonData(true, category);
                         continue;
                     }
+                }
+                if (commonsUrl && commonsUrl.includes('Special:FilePath/') && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+                    const rawFilePart = commonsUrl.split('Special:FilePath/').pop().split('?')[0];
+                    const cleanName = decodeURIComponent(rawFilePart);
+                    const upgradedUrl = await getCommonsImageUrl(cleanName);
+                    if (upgradedUrl) commonsUrl = upgradedUrl;
                 }
                 
                 if (!currentPersonCandidate.isCatalogPerson && !currentPersonCandidate.isOfflineReserve &&
@@ -4885,10 +4937,14 @@ async function ensureBufferStock() {
     try {
         const nextCard = takePersonFromShelf();
         if (nextCard && nextCard.person) {
-            sessionList.push(nextCard);
-            console.log(`[BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: ${nextCard.person.personLabel?.value}. Buffer: ${sessionList.length}/${TARGET_BUFFER_RESERVE}`);
-            if (!isCurrentlyPreloading && !preloadedPersonContainer) {
-                startPreloadNextAvailablePerson();
+            const nextName = nextCard.person.personLabel?.value;
+            const currentName = currentPerson?.personLabel?.value;
+            if (nextName && nextName !== currentName && !sessionList.some(e => e?.person?.personLabel?.value === nextName)) {
+                sessionList.push(nextCard);
+                console.log(`[BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: ${nextName}. Buffer: ${sessionList.length}/${TARGET_BUFFER_RESERVE}`);
+                if (!isCurrentlyPreloading && !preloadedPersonContainer) {
+                    startPreloadNextAvailablePerson();
+                }
             }
         }
     } finally {
@@ -5194,12 +5250,17 @@ async function preloadCandidateImageOffscreen(candidate) {
         return svg;
     }
 
-    // 3. Resolve Commons URL
+    // 3. Resolve Commons URL (upgrade Special:FilePath to cacheable 960px CDN URL when online)
     let commonsUrl;
-    if (candidate.isOfflineFallback || candidate.isCatalogPerson || candidate.isOfflineReserve || (candidate.image?.value && candidate.image.value.startsWith('data:'))) {
-        commonsUrl = candidate.image.value;
+    const rawCandidateUrl = candidate.image?.value;
+    if (rawCandidateUrl && rawCandidateUrl.includes('Special:FilePath/') && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+        const rawFilePart = rawCandidateUrl.split('Special:FilePath/').pop().split('?')[0];
+        const cleanFileName = decodeURIComponent(rawFilePart);
+        commonsUrl = (await getCommonsImageUrl(cleanFileName)) || rawCandidateUrl;
+    } else if (candidate.isOfflineFallback || candidate.isCatalogPerson || candidate.isOfflineReserve || (rawCandidateUrl && rawCandidateUrl.startsWith('data:'))) {
+        commonsUrl = rawCandidateUrl;
     } else {
-        const fileName = decodeURIComponent(candidate.image.value.split('/').pop());
+        const fileName = decodeURIComponent(rawCandidateUrl.split('/').pop());
         commonsUrl = await getCommonsImageUrl(fileName);
     }
 
@@ -5276,7 +5337,7 @@ async function preloadCandidateImageOffscreen(candidate) {
         }
     }
 
-    return commonsUrl;
+    return (bgImg.currentSrc && !bgImg.currentSrc.includes('Special:FilePath')) ? bgImg.currentSrc : commonsUrl;
 }
 
 async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
@@ -5348,6 +5409,16 @@ async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
     updateDataSourceIndicator(determinedStatus, determinedLabel);
     updateUI(currentPerson);
 
+    personImage.removeAttribute('crossorigin');
+    personImage.onerror = () => {
+        personImage.onerror = null;
+        const fallbackImg = nextCandidate.dataUrl || generateOfflineAvatarSvg(
+            nextCandidate.personLabel?.value || 'Unknown',
+            nextCandidate.gender_string || 'unknown',
+            nextCandidate.status_string || 'alive'
+        );
+        personImage.src = fallbackImg;
+    };
     personImage.src = readyImgSrc;
     personImage.classList.add('loaded');
 
@@ -5404,16 +5475,29 @@ async function requestBackgroundNewPhoto() {
         let candidate = null;
         let readySrc = null;
 
-        // 1. If preloaded container already has a completed image, use it directly!
+        // 1. If preloaded container already has a completed image (and isn't current person), consume it AND remove from sessionList!
         if (preloadedPersonContainer && 
             preloadedPersonContainer.data && 
+            preloadedPersonContainer.data.person &&
+            preloadedPersonContainer.data.person.personLabel?.value !== currentPerson?.personLabel?.value &&
             preloadedPersonContainer.imageElement && 
             preloadedPersonContainer.imageElement.complete && 
             preloadedPersonContainer.imageElement.naturalWidth > 0) {
             
             console.log('[BACKGROUND_PHOTO] Using existing completed preloaded container.');
             candidate = preloadedPersonContainer.data.person;
-            readySrc = preloadedPersonContainer.proxyUrl || preloadedPersonContainer.imageElement.src;
+            const resolvedPreloadUrl = (preloadedPersonContainer.imageElement.currentSrc && !preloadedPersonContainer.imageElement.currentSrc.includes('Special:FilePath'))
+                ? preloadedPersonContainer.imageElement.currentSrc
+                : (preloadedPersonContainer.proxyUrl || preloadedPersonContainer.imageElement.src);
+            readySrc = resolvedPreloadUrl;
+            const consumedName = candidate?.personLabel?.value;
+            if (consumedName) {
+                if (sessionList.length > 0 && sessionList[0]?.person?.personLabel?.value === consumedName) {
+                    sessionList.shift();
+                } else {
+                    sessionList = sessionList.filter(item => item?.person?.personLabel?.value !== consumedName);
+                }
+            }
             preloadedPersonContainer = null;
         } else {
             // 2. Fetch candidate from buffer, reserve, or catalog
