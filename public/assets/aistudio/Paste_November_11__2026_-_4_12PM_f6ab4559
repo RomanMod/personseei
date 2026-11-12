@@ -1,0 +1,250 @@
+[14:10:33.76] [LOG] [LOAD_SESSION] Starting game session with instant candidate render and background buffer... (gen: 4)
+[14:10:33.78] [LOG] [RESERVE_STOCK] [loadSession_init] Buffer: 0/1 | Shelf (Total: 48/60): MA: 13/15, MD: 9/15, FA: 13/15, FD: 13/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:33.80] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "female-alive": "Ruslana". Осталось в категории: 12/15
+[14:10:33.82] [LOG] [LOAD_SESSION_INSTANT] Rendering first person immediately from shelf in 61ms: Ruslana
+[14:10:33.84] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Ruslana (gen: 4)
+[14:10:33.86] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[14:10:33.87] [LOG] [LOAD_PERSON] Proceeding with standard fetch for Ruslana. Reason: fetch_no_preload_match
+[14:10:33.89] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 1/3 for person: Ruslana
+[14:10:33.91] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Ruslana_in_Cologne%2C_Germany_05.JPG/960px-Ruslana_in_Cologne%2C_Germany_05.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[14:10:33.93] [LOG] [GAME_FLOW] New game started successfully.
+[14:10:33.95] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[14:10:33.97] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:33.99] [LOG] [PHOTO_STATUS] Loaded photos in session: 0, Remaining in sessionList: 0, Preloaded: None or no label
+[14:10:34.00] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 0/1 | Shelf (Total: 47/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 13/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:34.03] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"3cCR2PTAYdD1xRrc","result":true}
+[14:10:34.05] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentSessionId" to Telegram cloud storage.
+[14:10:34.07] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"znNhTXH8huivgtAm","result":true}
+[14:10:34.09] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttemptStartTime" from Telegram cloud storage.
+[14:10:34.11] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"uydIAQ308IWspIDC","result":true}
+[14:10:34.14] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[14:10:34.16] [LOG] [SHEETS_SENT] Dispatched anonymized event "new_game_started" to Google Sheets (Spam: false)
+[14:10:34.19] [LOG] [SHEETS_SENT] Dispatched anonymized event "telegram_user_identified" to Google Sheets (Spam: false)
+[14:10:34.22] [LOG] [IMAGE_LOAD_SUCCESS] Image loaded successfully: https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Ruslana_in_Cologne%2C_Germany_05.JPG/960px-Ruslana_in_Cologne%2C_Germany_05.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[14:10:34.24] [LOG] [LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched & verified with 1 face for Ruslana. Path: direct_fetch_success
+[14:10:34.25] [LOG] [UI_UPDATE] updateUI called for person: Ruslana
+[14:10:34.28] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"hQxIHIhwdguXuoWW","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794406234281"}}
+[14:10:34.30] [LOG] [STATE_CHANGE] Attempt start time set to 1794406234281 for person: Ruslana. Saved to localStorage.
+[14:10:34.35] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q215383","person_name":"Ruslana","new_language":"ru","game_mode":"open","load_source":"fetch_direct","load_path_detail":"direct_fetch_success","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:34.38] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[14:10:34.42] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 47/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 13/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:34.46] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "female-deceased": "Marilyn Monroe". Осталось в категории: 12/15
+[14:10:34.49] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Marilyn Monroe. Buffer: 1/1
+[14:10:34.51] [LOG] [PRELOAD] Starting preload for: Marilyn Monroe
+[14:10:34.53] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 46/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:34.55] [LOG] [RESERVE_STOCK] [loadSession_ready] Buffer: 1/1 | Shelf (Total: 46/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:34.57] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[14:10:34.59] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:34.61] [LOG] [PHOTO_STATUS] Loaded photos in session: 1, Remaining in sessionList: 1, Preloaded: None or no label
+[14:10:34.63] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 46/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:34.65] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[14:10:34.67] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:34.94] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Monroecirca1953.jpg/960px-Monroecirca1953.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail for Marilyn Monroe
+[14:10:34.98] [LOG] [PRELOAD] Preloading process attempt finished.
+[14:10:36.96] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[14:10:37.13] [LOG] [SHEETS_SENT] Dispatched anonymized event "new_game_started" to Google Sheets (Spam: false)
+[14:10:37.59] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/1 for category male-deceased is taking too long and will be aborted.
+[14:10:37.65] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[14:10:37.68] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/1 for category male-deceased is taking too long and will be aborted.
+[14:10:37.78] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/1 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[14:10:37.84] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure
+[14:10:37.88] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[14:10:37.91] [WARN] [WIKIDATA_FETCH_ERROR] Live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure. Checking cached pool...
+[14:10:37.93] [LOG] [WIKIDATA_CACHE_FALLBACK] Serving cached Wikidata person: Tatiana Egorova
+[14:10:37.96] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/1 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[14:10:37.97] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure
+[14:10:37.99] [WARN] [WIKIDATA_FETCH_ERROR] Live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure. Checking cached pool...
+[14:10:38.01] [LOG] [WIKIDATA_CACHE_FALLBACK] Serving cached Wikidata person: Hannelore Elsner
+[14:10:38.03] [LOG] [LOAD_PERSON_ATTEMPT] Image fetch attempt 2/3 for person: Hannelore Elsner
+[14:10:38.05] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Hessischer Film- und Kinopreis 2012 - Hannelore Elsner 1 (cropped).jpg
+[14:10:38.55] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[14:10:38.57] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[14:10:39.04] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Hessischer_Film-_und_Kinopreis_2012_-_Hannelore_Elsner_1_%28cropped%29.jpg/960px-Hessischer_Film-_und_Kinopreis_2012_-_Hannelore_Elsner_1_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 995ms
+[14:10:39.08] [LOG] [IMAGE_LOAD] Attempting to load image directly: https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Hessischer_Film-_und_Kinopreis_2012_-_Hannelore_Elsner_1_%28cropped%29.jpg/960px-Hessischer_Film-_und_Kinopreis_2012_-_Hannelore_Elsner_1_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[14:10:39.77] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"oioupfdZ8gWwYPYp","result":true}
+[14:10:39.81] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[14:10:39.84] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"onBorKTR3h6kvcq3","result":true}
+[14:10:39.88] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[14:10:39.92] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"zY0inycKXg6EueG8","result":true}
+[14:10:39.96] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[14:10:40.00] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"hQxIHIhwdguXuoWW","result":true}
+[14:10:40.03] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[14:10:40.05] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"SFNpo9PTJzC0sYcy","result":true}
+[14:10:40.07] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[14:10:40.09] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"rBcMXBNnSkeM14lL","result":true}
+[14:10:40.12] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[14:10:40.78] [LOG] [IMAGE_LOAD_SUCCESS] Image loaded successfully: https://thumb.wikimedia.org/wikipedia/commons/thumb/3/32/Hessischer_Film-_und_Kinopreis_2012_-_Hannelore_Elsner_1_%28cropped%29.jpg/960px-Hessischer_Film-_und_Kinopreis_2012_-_Hannelore_Elsner_1_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[14:10:40.84] [LOG] [LOAD_PERSON_FETCH_SUCCESS] Image successfully fetched & verified with 1 face for Hannelore Elsner. Path: direct_fetch_success
+[14:10:40.86] [WARN] [LOAD_PERSON_SUPERSEDED] Aborting stale candidate before setting currentPerson for "Heath Ledger" (gen: 2 !== current 4).
+[14:10:45.96] [LOG] [AUTO_COLLAPSE] Auto-collapsing top controls as gameplay is active.
+[14:10:46.04] [LOG] [TOP_CONTROLS] Collapsed state: true (manual: false)
+[14:10:46.10] [LOG] [USER_ACTION] Status selected: Alive
+[14:10:47.10] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/1 for category male-deceased is taking too long and will be aborted.
+[14:10:47.16] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[14:10:47.23] [LOG] [USER_ACTION] "Check" button clicked.
+[14:10:47.25] [LOG] [GAME_STATE] Attempt 1/10. Total guesses this game: 1.
+[14:10:47.27] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: alive
+[14:10:47.29] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[14:10:47.31] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"JYfRcqaUa401rT5O","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1]"}}
+[14:10:47.33] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1]
+[14:10:47.34] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 13 seconds (12972ms). Start: 1794406234281, End: 1794406247253
+[14:10:47.36] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"gOSrMIPMHWDd1EbX","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[13]"}}
+[14:10:47.38] [LOG] [STATE_CHANGE] Attempt duration 13s added. Saved to localStorage. Durations: [13]
+[14:10:47.43] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794406233_4560","attempt_number_in_session":1,"time_for_attempt_seconds":13,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:47.47] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q215383","person_name":"Ruslana","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":1,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:47.50] [LOG] [CHECK_UI] Guess was CORRECT.
+[14:10:47.52] [LOG] [CHECK_UI] Stats display updated.
+[14:10:47.54] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"wiq1zD0wcANb0G7G","method":"saveStorageValue","params":{"key":"currentAttempts","value":"1"}}
+[14:10:47.56] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"wCZsYSw2zGlnHtoD","method":"saveStorageValue","params":{"key":"totalGuesses","value":"1"}}
+[14:10:47.58] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"FFJHj2n4EeJBwkez","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"1"}}
+[14:10:47.59] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"humkLa46jnd7rd9K","method":"saveStorageValue","params":{"key":"failedGuesses","value":"0"}}
+[14:10:47.61] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[14:10:47.63] [LOG] [UI_UPDATE] updateUI called for person: Ruslana
+[14:10:47.65] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 1 Max: 10 IsInitialCall: false
+[14:10:47.67] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[14:10:47.70] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/1 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[14:10:47.72] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure
+[14:10:47.74] [WARN] [WIKIDATA_FETCH_ERROR] Live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure. Checking cached pool...
+[14:10:47.77] [LOG] [WIKIDATA_CACHE_FALLBACK] Serving cached Wikidata person: Janice E. Voss
+[14:10:47.79] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"JYfRcqaUa401rT5O","result":true}
+[14:10:47.80] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[14:10:47.82] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[14:10:47.84] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:47.86] [LOG] [PHOTO_STATUS] Loaded photos in session: 2, Remaining in sessionList: 1, Preloaded: Marilyn Monroe
+[14:10:47.88] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 46/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:47.90] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"gOSrMIPMHWDd1EbX","result":true}
+[14:10:47.92] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[14:10:47.94] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"wiq1zD0wcANb0G7G","result":true}
+[14:10:47.96] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[14:10:47.98] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"wCZsYSw2zGlnHtoD","result":true}
+[14:10:48.00] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[14:10:48.39] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[14:10:48.42] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[14:10:50.42] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"FFJHj2n4EeJBwkez","result":true}
+[14:10:50.46] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[14:10:50.49] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"humkLa46jnd7rd9K","result":true}
+[14:10:50.53] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[14:10:50.78] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
+[14:10:52.27] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[14:10:53.75] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[14:10:53.77] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 46/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:53.78] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 1/10 (gen: 5)
+[14:10:53.81] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794406233_4560","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Marilyn Monroe","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:53.84] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-alive": "Tom Cruise". Осталось в категории: 12/15
+[14:10:53.87] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-deceased": "Chadwick Boseman". Осталось в категории: 8/15
+[14:10:53.89] [LOG] [SHELF_THRESHOLD] В категории "male-deceased" осталось 8/15 (зазор 5 сработал). Запускаем пополнение категории...
+[14:10:53.91] [LOG] [RESERVE_STOCK] [category_restock_complete] Buffer: 2/1 | Shelf (Total: 44/60): MA: 12/15, MD: 8/15, FA: 12/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:53.94] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "female-alive": "Lina Kostenko". Осталось в категории: 11/15
+[14:10:53.97] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[14:10:53.98] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Marilyn Monroe. Осталось на полочках: 43/60
+[14:10:54.00] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Marilyn Monroe (gen: 5)
+[14:10:54.02] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[14:10:54.04] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Marilyn Monroe
+[14:10:54.06] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4e/Monroecirca1953.jpg/960px-Monroecirca1953.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[14:10:54.08] [LOG] [UI_UPDATE] updateUI called for person: Marilyn Monroe
+[14:10:54.10] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"BoaJpEunNWMDFAsN","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794406254100"}}
+[14:10:54.11] [LOG] [STATE_CHANGE] Attempt start time set to 1794406254100 for person: Marilyn Monroe. Saved to localStorage.
+[14:10:54.14] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q4616","person_name":"Marilyn Monroe","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:54.16] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Marilyn Monroe is now cleared as it's either used or failed assign.
+[14:10:54.18] [LOG] [PRELOAD] Starting preload for: Tom Cruise
+[14:10:54.20] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "award" in: https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/Tom_Cruise_at_53rd_Saturn_Awards_2026-01.jpg/960px-Tom_Cruise_at_53rd_Saturn_Awards_2026-01.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[14:10:54.22] [WARN] [PRELOAD_FORBIDDEN_SKIP] Skipping forbidden/monument/team/18+ image for Tom Cruise.
+[14:10:54.24] [LOG] [PRELOAD] Preloading process attempt finished.
+[14:10:54.26] [LOG] [PRELOAD] Starting preload for: Chadwick Boseman
+[14:10:54.28] [LOG] [RESERVE_STOCK] [buffer_full] Buffer: 2/1 | Shelf (Total: 43/60): MA: 12/15, MD: 8/15, FA: 11/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:54.30] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[14:10:54.32] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:54.34] [LOG] [PHOTO_STATUS] Loaded photos in session: 3, Remaining in sessionList: 2, Preloaded: None or no label
+[14:10:54.36] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 2/1 | Shelf (Total: 43/60): MA: 12/15, MD: 8/15, FA: 11/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:54.38] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[14:10:54.40] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:54.42] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[14:10:54.92] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"BoaJpEunNWMDFAsN","result":true}
+[14:10:54.94] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[14:10:55.48] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://commons.wikimedia.org/wiki/Special:FilePath/Chadwick_Boseman_by_Gage_Skidmore_July_2017_(cropped).jpg?width=600 for Chadwick Boseman
+[14:10:55.50] [LOG] [PRELOAD] Preloading process attempt finished.
+[14:10:56.79] [LOG] [USER_ACTION] Status selected: Alive
+[14:10:56.96] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/1 for category male-deceased is taking too long and will be aborted.
+[14:10:57.03] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...
+[14:10:57.12] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/1 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[14:10:57.16] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure
+[14:10:57.20] [WARN] [WIKIDATA_FETCH_ERROR] Live fetch failed for male-deceased: Failed to fetch person data (category: male-deceased) after 1 attempts. Last error on attempt 1: Wikidata API error: network failure. Checking cached pool...
+[14:10:57.23] [LOG] [WIKIDATA_CACHE_FALLBACK] Serving cached Wikidata person: Wangari Muta Maathai
+[14:10:57.26] [LOG] [SHEETS_SENT] Dispatched anonymized event "next_photo_requested" to Google Sheets (Spam: false)
+[14:10:57.32] [LOG] [USER_ACTION] "Check" button clicked.
+[14:10:57.36] [LOG] [GAME_STATE] Attempt 2/10. Total guesses this game: 2.
+[14:10:57.38] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: dead
+[14:10:57.41] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: false, Overall Correct: false
+[14:10:57.43] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"ll3T8wMVilc0QgdR","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,0]"}}
+[14:10:57.45] [LOG] [STATE_CHANGE] Guess result (0) added to success/fail history. Saved to localStorage. History: [1,0]
+[14:10:57.47] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 3 seconds (3262ms). Start: 1794406254100, End: 1794406257362
+[14:10:57.48] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"nJ6T3CwA9OzdPYIl","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[13,3]"}}
+[14:10:57.50] [LOG] [STATE_CHANGE] Attempt duration 3s added. Saved to localStorage. Durations: [13,3]
+[14:10:57.54] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794406233_4560","attempt_number_in_session":2,"time_for_attempt_seconds":3,"attempt_result":0,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:57.57] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q4616","person_name":"Marilyn Monroe","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":2,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:57.59] [LOG] [CHECK_UI] Guess was INCORRECT.
+[14:10:57.61] [LOG] [CHECK_UI] Stats display updated.
+[14:10:57.63] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"fg47qI9KukRbc53M","method":"saveStorageValue","params":{"key":"currentAttempts","value":"2"}}
+[14:10:57.65] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"hbxmLVB6UMMb8t90","method":"saveStorageValue","params":{"key":"totalGuesses","value":"2"}}
+[14:10:57.67] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"YSqHkgWTSld1Kwfx","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"1"}}
+[14:10:57.69] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"KBHyT78JBqQsQUDz","method":"saveStorageValue","params":{"key":"failedGuesses","value":"1"}}
+[14:10:57.70] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[14:10:57.72] [LOG] [UI_UPDATE] updateUI called for person: Marilyn Monroe
+[14:10:57.74] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 2 Max: 10 IsInitialCall: false
+[14:10:57.76] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[14:10:57.78] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"ll3T8wMVilc0QgdR","result":true}
+[14:10:57.80] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[14:10:57.82] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"nJ6T3CwA9OzdPYIl","result":true}
+[14:10:57.84] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[14:10:57.86] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[14:10:57.88] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:57.90] [LOG] [PHOTO_STATUS] Loaded photos in session: 4, Remaining in sessionList: 2, Preloaded: Chadwick Boseman
+[14:10:57.92] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 2/1 | Shelf (Total: 43/60): MA: 12/15, MD: 8/15, FA: 11/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:57.94] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[14:10:57.96] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[14:10:57.99] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[14:10:58.01] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"fg47qI9KukRbc53M","result":true}
+[14:10:58.04] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[14:10:58.05] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"hbxmLVB6UMMb8t90","result":true}
+[14:10:58.07] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[14:10:58.09] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"YSqHkgWTSld1Kwfx","result":true}
+[14:10:58.11] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[14:10:58.13] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"KBHyT78JBqQsQUDz","result":true}
+[14:10:58.15] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[14:10:58.77] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[14:10:58.79] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 2/1 | Shelf (Total: 43/60): MA: 12/15, MD: 8/15, FA: 11/15, FD: 12/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:58.80] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 2/10 (gen: 6)
+[14:10:58.83] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794406233_4560","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":2,"is_preloading":false,"preloaded_person_name":"Chadwick Boseman","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:58.86] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "female-deceased": "Audrey Hepburn". Осталось в категории: 11/15
+[14:10:58.89] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-alive": "Johnny Depp". Осталось в категории: 11/15
+[14:10:58.91] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[14:10:58.93] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Chadwick Boseman. Осталось на полочках: 41/60
+[14:10:58.95] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Chadwick Boseman (gen: 6)
+[14:10:58.97] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[14:10:58.99] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Chadwick Boseman
+[14:10:59.01] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://commons.wikimedia.org/wiki/Special:FilePath/Chadwick_Boseman_by_Gage_Skidmore_July_2017_(cropped).jpg?width=600
+[14:10:59.02] [LOG] [UI_UPDATE] updateUI called for person: Chadwick Boseman
+[14:10:59.04] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"J1ojCMdmcWMNPljL","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794406259048"}}
+[14:10:59.06] [LOG] [STATE_CHANGE] Attempt start time set to 1794406259048 for person: Chadwick Boseman. Saved to localStorage.
+[14:10:59.11] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q232785","person_name":"Chadwick Boseman","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794406233_4560","session_id":"1794406233_4560","language":"ru","current_theme":"night"}
+[14:10:59.12] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Chadwick Boseman is now cleared as it's either used or failed assign.
+[14:10:59.14] [LOG] [PRELOAD] Starting preload for: Lina Kostenko
+[14:10:59.17] [LOG] [RESERVE_STOCK] [buffer_full] Buffer: 3/1 | Shelf (Total: 41/60): MA: 11/15, MD: 8/15, FA: 11/15, FD: 11/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:59.19] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[14:10:59.21] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:59.23] [LOG] [PHOTO_STATUS] Loaded photos in session: 5, Remaining in sessionList: 3, Preloaded: None or no label
+[14:10:59.25] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 3/1 | Shelf (Total: 41/60): MA: 11/15, MD: 8/15, FA: 11/15, FD: 11/15 (Real photos: 0) | Cache: 149 | Catalog: 0/100
+[14:10:59.27] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[14:10:59.29] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[14:10:59.31] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[14:10:59.34] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"J1ojCMdmcWMNPljL","result":true}
+[14:10:59.36] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[14:10:59.38] [LOG] [SESSION_LIFECYCLE] Active session "1794406233_4560" is within 32-minute grace period (1s idle). Player continues game!
+[14:10:59.40] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e6/Lina_Kostenko.jpg/960px-Lina_Kostenko.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail for Lina Kostenko
+[14:10:59.42] [LOG] [PRELOAD] Preloading process attempt finished.
+[14:11:00.13] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
+[14:11:01.66] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[14:11:02.19] [LOG] [SHEETS_SENT] Dispatched anonymized event "next_photo_requested" to Google Sheets (Spam: false)
+[14:11:02.41] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[14:11:06.48] [WARN] [WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt 1/1 for category male-deceased is taking too long and will be aborted.
+[14:11:06.50] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (signal is aborted without reason). Attempting CORS proxy fallback...

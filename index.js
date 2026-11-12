@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.0';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.1';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2328,7 +2328,7 @@ function isForbiddenImageName(urlOrFilename) {
         'hockey_club', 'match', 'game', '_vs_', '-vs-', 'versus', 'championship',
         'tournament', 'derby', 'zsc_lions', 'jersey', 'players', 'substitutes',
         'bench', 'podium', 'duet', 'trophy', 'ceremony', 'cup', 'presentation',
-        'champions', 'award', 'awardees', 'athletes', 'winners', 'girls', 'three',
+        'champions', 'award_ceremony_group', 'awardees', 'athletes', 'winners', 'girls', 'three',
         'triplet', 'relay', 'pair', 'partners'
     ];
 
@@ -2342,19 +2342,31 @@ function isForbiddenImageName(urlOrFilename) {
     }
 
     for (const kw of nsfwKeywords) {
-        if (clean.includes(kw)) {
+        const rx = new RegExp(`(^|[^a-z0-9])${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`, 'i');
+        if (rx.test(clean)) {
             console.warn(`[IMAGE_FILTER_REJECT] Rejected NSFW/18+ keyword "${kw}" in: ${urlOrFilename}`);
             return true;
         }
     }
     for (const kw of monumentArtKeywords) {
-        if (clean.includes(kw)) {
+        const rx = new RegExp(`(^|[^a-z0-9])${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`, 'i');
+        if (rx.test(clean)) {
             console.warn(`[IMAGE_FILTER_REJECT] Rejected Monument/Statue/Art keyword "${kw}" in: ${urlOrFilename}`);
             return true;
         }
     }
     for (const kw of groupKeywords) {
-        if (clean.includes(kw)) {
+        if (kw === '_and_' || kw === 'with_' || kw === '_vs_' || kw === '-vs-') {
+            // Skip '_and_' inside "(cropped ...)" annotations
+            const cleanNoParen = clean.replace(/\([^)]*\)/g, '');
+            if (cleanNoParen.includes(kw)) {
+                console.warn(`[IMAGE_FILTER_REJECT] Rejected Group/Team keyword "${kw}" in: ${urlOrFilename}`);
+                return true;
+            }
+            continue;
+        }
+        const rx = new RegExp(`(^|[^a-z0-9])${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`, 'i');
+        if (rx.test(clean)) {
             console.warn(`[IMAGE_FILTER_REJECT] Rejected Group/Team keyword "${kw}" in: ${urlOrFilename}`);
             return true;
         }
@@ -3372,6 +3384,16 @@ function sanitizeOfflineReserve() {
             return true;
         });
 
+        // Reset isSeedFallback to false for any card that has a real photo URL or real base64
+        for (const item of categoryReserves[catKey]) {
+            if (item && (item.imageUrl || (item.dataUrl && !item.dataUrl.startsWith('data:image/svg')))) {
+                if (item.isSeedFallback) {
+                    item.isSeedFallback = false;
+                    modified = true;
+                }
+            }
+        }
+
         if (categoryReserves[catKey].length !== initialLength) {
             modified = true;
         }
@@ -3423,6 +3445,7 @@ async function checkAndRestockCategory(targetCatKey = null) {
     }
 
     const keysToRestock = targetCatKey ? [targetCatKey] : CATEGORY_KEYS;
+    let didRestockAny = false;
 
     for (const catKey of keysToRestock) {
         if (!CATEGORY_KEYS.includes(catKey)) continue;
@@ -3438,6 +3461,7 @@ async function checkAndRestockCategory(targetCatKey = null) {
         }
 
         isCategoryRestocking[catKey] = true;
+        didRestockAny = true;
         const { gender, status } = parseCategoryKey(catKey);
         const catFilter = { gender, status };
 
@@ -3455,7 +3479,7 @@ async function checkAndRestockCategory(targetCatKey = null) {
                     added++;
                     console.log(`[RESERVE_HELPER] ✅ Категория "${catKey}": добавлена карточка ${added}/${SHELF_RESTOCK_BATCH} (В категории: ${categoryReserves[catKey].length}/${SHELF_TARGET_PER_CATEGORY}).`);
                 }
-                await new Promise(r => setTimeout(r, 600));
+                await new Promise(r => setTimeout(r, 450));
             }
             console.log(`[RESERVE_HELPER] 🏁 Категория "${catKey}": партия завершена (+${added} свежих фото). Всего: ${categoryReserves[catKey].length}/${SHELF_TARGET_PER_CATEGORY}`);
         } catch (err) {
@@ -3465,8 +3489,10 @@ async function checkAndRestockCategory(targetCatKey = null) {
         }
     }
 
-    saveCategoryReserves();
-    logReserveStatus('category_restock_complete');
+    if (didRestockAny) {
+        saveCategoryReserves();
+        logReserveStatus('category_restock_complete');
+    }
 }
 
 async function checkAndRestockReserveShelf() {
@@ -3479,7 +3505,13 @@ async function checkAndRestockReserveShelf() {
 async function fetchAndStoreReservePerson(category) {
     try {
         const catKey = normalizeCategoryKey(category) || 'male-alive';
-        const personBinding = await fetchPersonData(false, category);
+        // Важно: запрашиваем напрямую из Викиданных/кэша категории (без возврата к takePersonFromShelf!)
+        let personBinding = null;
+        try {
+            personBinding = await fetchPersonDataInner(false, category);
+        } catch (innerErr) {
+            personBinding = getAnyCachedWikidataPerson(category);
+        }
         if (!personBinding || !personBinding.personLabel?.value || !personBinding.image?.value) return false;
         const name = personBinding.personLabel.value;
         
@@ -3497,17 +3529,26 @@ async function fetchAndStoreReservePerson(category) {
             if (isBW) return false;
         }
 
-        // Загрузка во внеэкранный объект Image
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        const proxyUrl = makeWeservProxyUrl(imageUrl);
-        img.src = proxyUrl;
-
-        await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('timeout')), 7000);
-            img.onload = () => { clearTimeout(timeout); resolve(); };
-            img.onerror = () => { clearTimeout(timeout); reject(new Error('load_error')); };
+        // Загрузка во внеэкранный объект Image: сначала напрямую (Wikimedia отдает CORS), затем через weserv-прокси
+        const loadOffscreenCors = (srcUrl) => new Promise((resolve, reject) => {
+            const imageObj = new Image();
+            imageObj.crossOrigin = 'anonymous';
+            const timeout = setTimeout(() => {
+                imageObj.onload = null;
+                imageObj.onerror = null;
+                reject(new Error('timeout'));
+            }, 6500);
+            imageObj.onload = () => { clearTimeout(timeout); resolve(imageObj); };
+            imageObj.onerror = () => { clearTimeout(timeout); reject(new Error('load_error')); };
+            imageObj.src = srcUrl;
         });
+
+        let img = null;
+        try {
+            img = await loadOffscreenCors(imageUrl);
+        } catch (directErr) {
+            img = await loadOffscreenCors(makeWeservProxyUrl(imageUrl));
+        }
 
         // Проверка наличия ровно одного лица нейросетью
         const faceCheck = await verifySingleFace(img);
@@ -3711,7 +3752,10 @@ function logReserveStatus(context = 'STATUS') {
     let realCount = 0;
     for (const k of CATEGORY_KEYS) {
         if (Array.isArray(categoryReserves[k])) {
-            realCount += categoryReserves[k].filter(p => p && !p.isSeedFallback).length;
+            realCount += categoryReserves[k].filter(p => p && (
+                (p.imageUrl && !p.imageUrl.startsWith('data:')) ||
+                (p.dataUrl && !p.dataUrl.startsWith('data:image/svg') && p.dataUrl.length > 1000)
+            )).length;
         }
     }
 
@@ -3898,7 +3942,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
     const start = performance.now();
     let query;
     let attempts = 0;
-    const maxQueryAttempts = 1;
+    const maxQueryAttempts = 2;
     const categoryKey = `${category?.gender || 'any'}-${category?.status || 'any'}`;
     const cacheKey = `${useRandom}-${categoryKey}`;
     
@@ -3947,15 +3991,30 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
                              .filter(id => id)
                              .join(', ')})).`;
 
+    const POPULAR_OCCUPATIONS = [
+        'wd:Q33999',   // actor
+        'wd:Q177220',  // singer / musician
+        'wd:Q901',     // scientist
+        'wd:Q82955',   // politician
+        'wd:Q36180',   // writer
+        'wd:Q2526255', // film director
+        'wd:Q483501',  // artist / painter
+        'wd:Q49757',   // poet
+        'wd:Q10833314',// athlete
+        'wd:Q496418'   // philosopher
+    ];
+
     while (attempts < maxQueryAttempts) {
         attempts++;
-        const offset = settings.dynamicOffset ? Math.floor(Math.random() * settings.maxOffset) : 0;
+        const offset = settings.dynamicOffset ? Math.floor(Math.random() * 12) : 0;
+        const randomOcc = POPULAR_OCCUPATIONS[Math.floor(Math.random() * POPULAR_OCCUPATIONS.length)];
+        const mainSubjectClause = attempts === 1 ? `?person wdt:P106 ${randomOcc};` : '?person wdt:P31 wd:Q5;';
         
-        // Strict SPARQL query: ?person wdt:P31 wd:Q5 enforces Human (eliminates animals/ducks, monuments, objects)
-        query = `#TOOL: iPersonSeeTrivia/2.5.0 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
+        // Fast, indexed SPARQL query with occupation-based lookup (150-400ms on Wikidata)
+        query = `#TOOL: iPersonSeeTrivia/2.5.1 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com)
             SELECT ?person ?personLabel ?image ?gender ?deathDate ?birthDate
             WHERE {
-                ?person wdt:P31 wd:Q5;
+                ${mainSubjectClause}
                         wdt:P18 ?image;
                         wdt:P569 ?birthDate.
                 ${genderClause}
@@ -4069,7 +4128,8 @@ async function startPreloadNextAvailablePerson() {
             }
         }
 
-        if (isForbiddenImageName(personBindingForPreload.image?.value) || isForbiddenImageName(commonsUrl)) {
+        if (!personBindingForPreload.isCatalogPerson && !personBindingForPreload.isOfflineReserve &&
+            (isForbiddenImageName(personBindingForPreload.image?.value) || isForbiddenImageName(commonsUrl))) {
             console.warn(`[PRELOAD_FORBIDDEN_SKIP] Skipping forbidden/monument/team/18+ image for ${personBindingForPreload.personLabel.value}.`);
             sessionList.shift();
             removePersonFromCache(personBindingForPreload);
@@ -4460,7 +4520,8 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                     }
                 }
                 
-                if (isForbiddenImageName(currentPersonCandidate.image?.value) || isForbiddenImageName(commonsUrl)) {
+                if (!currentPersonCandidate.isCatalogPerson && !currentPersonCandidate.isOfflineReserve &&
+                    (isForbiddenImageName(currentPersonCandidate.image?.value) || isForbiddenImageName(commonsUrl))) {
                     console.warn(`[LOAD_PERSON_FORBIDDEN_SKIP] Skipping forbidden/monument/team/18+ image for ${currentPersonCandidate.personLabel.value}. Fetching new person.`);
                     removePersonFromCache(currentPersonCandidate);
                     currentPersonCandidate = await fetchPersonData(true, category);
@@ -4879,8 +4940,9 @@ async function loadSession() {
         }
     }
 
-    // Continuously fill the buffer up to 8 candidates in background
+    // Подготавливаем ровно 1 следующую карточку в буфер предзагрузки и проверяем полки <= 10 в фоне
     ensureBufferStock();
+    checkAndRestockCategory();
     logReserveStatus('loadSession_ready');
 }
 
@@ -4903,16 +4965,6 @@ async function loadNextPerson(triggerButton = 'unknown') {
         console.log('[LOAD_NEXT_PERSON] Max attempts reached. Cannot load next person.');
         updateNewGameButtonPosition(); 
         return;
-    }
-
-    // If buffer is low (< 4), instantly pull candidates from reserve so buffer is always healthy!
-    while (sessionList.length < 4 && currentAttempts < maxAttempts) {
-        const instantCandidate = getInstantReserveCandidate();
-        if (instantCandidate && instantCandidate.person) {
-            sessionList.push(instantCandidate);
-        } else {
-            break;
-        }
     }
 
     userGenderGuess = null;
