@@ -1,0 +1,251 @@
+=== App Version: v2.5.3 (11/12/2026, 11:47:46 PM) ===
+[23:55:15.52] [LOG] [PRELOAD] Starting preload for: Princess Diana
+[23:55:15.54] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 47/60): MA: 14/15, MD: 10/15, FA: 15/15, FD: 8/15 (Real photos: 47) | Cache: 199 | Catalog: 0/100
+[23:55:15.57] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Silvana Gallardo 1977 PBS publicity.jpg
+[23:55:15.59] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[23:55:15.62] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[23:55:15.64] [LOG] [PHOTO_STATUS] Loaded photos in session: 3, Remaining in sessionList: 1, Preloaded: None or no label
+[23:55:15.66] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 47/60): MA: 14/15, MD: 10/15, FA: 15/15, FD: 8/15 (Real photos: 47) | Cache: 199 | Catalog: 0/100
+[23:55:15.69] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[23:55:15.71] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[23:55:15.74] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[23:55:15.77] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"pXBs9EjWAwc8Dcbp","result":true}
+[23:55:15.79] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[23:55:15.82] [LOG] [RESERVE_HELPER] 🏁 Категория "male-alive": партия завершена (+5 свежих фото). Всего: 14/15
+[23:55:15.84] [LOG] [RESERVE_HELPER] 📦 Категория "male-deceased": осталось 10/15 (зазор 5 сработал). Скачиваем партию из 5 фото...
+[23:55:15.87] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[23:55:15.90] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[23:55:15.93] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[23:55:15.95] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
+[23:55:15.98] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled for Princess Diana
+[23:55:16.00] [LOG] [PRELOAD] Preloading process attempt finished.
+[23:55:16.03] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/e/e8/Silvana_Gallardo_1977_PBS_publicity.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 464ms
+[23:55:16.12] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:16.14] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Silvana Gallardo": insufficient_human_skin
+[23:55:16.17] [LOG] [CACHE_PURGE] Removed bad or failing person "Silvana Gallardo" from local wikidataCache.
+[23:55:16.61] [WARN] [IMAGE_FILTER_REJECT] Rejected Monument/Statue/Art keyword "stamp" in: http://commons.wikimedia.org/wiki/Special:FilePath/Rajesh%20Khanna%202013%20stamp%20of%20India%20%28cropped%29.jpg
+[23:55:16.67] [LOG] [WIKIDATA_QUERY_SUCCESS] Attempt 1/2 successful for category male-deceased. Found 24 results. Time: 802ms
+[23:55:16.72] [LOG] [CACHE_UPDATE] wikidataCache updated in localStorage.
+[23:55:16.76] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Willi Girmes vor der Haustüre.jpg
+[23:55:16.79] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:16.82] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Joanne Pransky
+[23:55:16.85] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: -rp17 - Tag 3 (34533311696).jpg
+[23:55:17.06] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/-rp17_-_Tag_3_%2834533311696%29.jpg/960px--rp17_-_Tag_3_%2834533311696%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 211ms
+[23:55:17.13] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:17.17] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Joanne Pransky": insufficient_human_skin
+[23:55:17.20] [LOG] [CACHE_PURGE] Removed bad or failing person "Joanne Pransky" from local wikidataCache.
+[23:55:17.23] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/1/15/Willi_Girmes_vor_der_Haust%C3%BCre.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 477ms
+[23:55:17.56] [LOG] [RESERVE_HELPER] ✅ Категория "male-deceased": добавлена карточка 1/5 (В категории: 11/15).
+[23:55:17.68] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:17.71] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Rocío Dúrcal
+[23:55:17.74] [LOG] [SHEETS_SENT] Dispatched anonymized event "next_photo_requested" to Google Sheets (Spam: false)
+[23:55:18.05] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[23:55:18.10] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Chester Bennington
+[23:55:18.13] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Linkin Park-Rock im Park 2014- by 2eight 3SC0327.jpg
+[23:55:18.17] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[23:55:18.20] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:18.23] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Ursel Brunner
+[23:55:18.26] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Brunner, Ursel cropped, Bestanddeelnr 915-5765.jpg
+[23:55:18.39] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Linkin_Park-Rock_im_Park_2014-_by_2eight_3SC0327.jpg/960px-Linkin_Park-Rock_im_Park_2014-_by_2eight_3SC0327.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 259ms
+[23:55:18.72] [LOG] [RESERVE_HELPER] ✅ Категория "male-deceased": добавлена карточка 2/5 (В категории: 12/15).
+[23:55:18.76] [LOG] [USER_ACTION] Status selected: Alive
+[23:55:18.79] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/3/3c/Brunner%2C_Ursel_cropped%2C_Bestanddeelnr_915-5765.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 538ms
+[23:55:18.86] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:18.89] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Ursel Brunner": insufficient_human_skin
+[23:55:18.91] [LOG] [CACHE_PURGE] Removed bad or failing person "Ursel Brunner" from local wikidataCache.
+[23:55:19.20] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[23:55:19.25] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Chris Cornell
+[23:55:19.29] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: ChrisCornell2013.jpg
+[23:55:19.33] [LOG] [USER_ACTION] "Check" button clicked.
+[23:55:19.36] [LOG] [GAME_STATE] Attempt 2/10. Total guesses this game: 2.
+[23:55:19.39] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: alive
+[23:55:19.42] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[23:55:19.44] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"XIcmzEKlu3DDIZIu","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1]"}}
+[23:55:19.47] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1]
+[23:55:19.51] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 4 seconds (4217ms). Start: 1794527715146, End: 1794527719363
+[23:55:19.54] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"NhadaltMqPjNFVvk","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[11,4]"}}
+[23:55:19.56] [LOG] [STATE_CHANGE] Attempt duration 4s added. Saved to localStorage. Durations: [11,4]
+[23:55:19.60] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794527697_6972","attempt_number_in_session":2,"time_for_attempt_seconds":4,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794527697_6972","language":"ru","current_theme":"night"}
+[23:55:19.63] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q13909","person_name":"Angelina Jolie","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":2,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794527697_6972","session_id":"1794527697_6972","language":"ru","current_theme":"night"}
+[23:55:19.66] [LOG] [CHECK_UI] Guess was CORRECT.
+[23:55:19.69] [LOG] [CHECK_UI] Stats display updated.
+[23:55:19.71] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"2nobVET5zrOTePIi","method":"saveStorageValue","params":{"key":"currentAttempts","value":"2"}}
+[23:55:19.74] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"MZK0EOdVBe9V8txj","method":"saveStorageValue","params":{"key":"totalGuesses","value":"2"}}
+[23:55:19.76] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"8J7lFBuPrv9nr9j7","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"2"}}
+[23:55:19.79] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"2XUsH2yGxs1GmHNK","method":"saveStorageValue","params":{"key":"failedGuesses","value":"0"}}
+[23:55:19.81] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[23:55:19.83] [LOG] [UI_UPDATE] updateUI called for person: Angelina Jolie
+[23:55:19.86] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 2 Max: 10 IsInitialCall: false
+[23:55:19.88] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[23:55:19.91] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"XIcmzEKlu3DDIZIu","result":true}
+[23:55:19.94] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[23:55:19.96] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"NhadaltMqPjNFVvk","result":true}
+[23:55:19.99] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[23:55:20.01] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"2nobVET5zrOTePIi","result":true}
+[23:55:20.03] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[23:55:20.06] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[23:55:20.08] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[23:55:20.11] [LOG] [PHOTO_STATUS] Loaded photos in session: 4, Remaining in sessionList: 1, Preloaded: Princess Diana
+[23:55:20.13] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 49/60): MA: 14/15, MD: 12/15, FA: 15/15, FD: 8/15 (Real photos: 49) | Cache: 219 | Catalog: 0/100
+[23:55:20.16] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:20.19] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Jenny Gröllmann
+[23:55:20.22] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Jenny Gröllmann.png
+[23:55:20.25] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/ChrisCornell2013.jpg/960px-ChrisCornell2013.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 957ms
+[23:55:20.48] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (2.13% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:20.54] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Chris Cornell": insufficient_human_skin
+[23:55:20.58] [LOG] [CACHE_PURGE] Removed bad or failing person "Chris Cornell" from local wikidataCache.
+[23:55:20.62] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/5/58/Jenny_Gr%C3%B6llmann.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 409ms
+[23:55:20.74] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:20.76] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Jenny Gröllmann": insufficient_human_skin
+[23:55:20.78] [LOG] [CACHE_PURGE] Removed bad or failing person "Jenny Gröllmann" from local wikidataCache.
+[23:55:20.81] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[23:55:20.84] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 49/60): MA: 14/15, MD: 12/15, FA: 15/15, FD: 8/15 (Real photos: 49) | Cache: 217 | Catalog: 0/100
+[23:55:20.86] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 2/10 (gen: 4)
+[23:55:20.89] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794527697_6972","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Princess Diana","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794527697_6972","language":"ru","current_theme":"night"}
+[23:55:20.92] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[23:55:20.94] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Princess Diana. Осталось на полочках: 49/60
+[23:55:20.96] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Princess Diana (gen: 4)
+[23:55:20.99] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[23:55:21.01] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Princess Diana
+[23:55:21.03] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[23:55:21.06] [LOG] [UI_UPDATE] updateUI called for person: Princess Diana
+[23:55:21.08] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"vD6bCPnKnMyXn2zH","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794527721086"}}
+[23:55:21.11] [LOG] [STATE_CHANGE] Attempt start time set to 1794527721086 for person: Princess Diana. Saved to localStorage.
+[23:55:21.14] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q9685","person_name":"Princess Diana","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794527697_6972","session_id":"1794527697_6972","language":"ru","current_theme":"night"}
+[23:55:21.17] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Princess Diana is now cleared as it's either used or failed assign.
+[23:55:21.20] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[23:55:21.22] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 49/60): MA: 14/15, MD: 12/15, FA: 15/15, FD: 8/15 (Real photos: 49) | Cache: 217 | Catalog: 0/100
+[23:55:21.29] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-alive": "Rafael Nadal". Осталось в категории: 13/15
+[23:55:21.32] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Rafael Nadal. Buffer: 1/1
+[23:55:21.34] [LOG] [PRELOAD] Starting preload for: Rafael Nadal
+[23:55:21.36] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 48/60): MA: 13/15, MD: 12/15, FA: 15/15, FD: 8/15 (Real photos: 48) | Cache: 217 | Catalog: 0/100
+[23:55:21.39] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[23:55:21.42] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[23:55:21.44] [LOG] [PHOTO_STATUS] Loaded photos in session: 5, Remaining in sessionList: 1, Preloaded: None or no label
+[23:55:21.47] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 48/60): MA: 13/15, MD: 12/15, FA: 15/15, FD: 8/15 (Real photos: 48) | Cache: 217 | Catalog: 0/100
+[23:55:21.50] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[23:55:21.52] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[23:55:21.55] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[23:55:21.58] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[23:55:21.63] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Sérgio Borges
+[23:55:21.65] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Sérgio Borges interpretando "Onde vais rio que eu canto" - Festival RTP da Canção 1970.png
+[23:55:21.68] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:21.71] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Cordula Trantow
+[23:55:21.74] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: CT 2020.jpg
+[23:55:21.76] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/7/71/Rafael_Nadal_en_2024_%28cropped%29.jpg/960px-Rafael_Nadal_en_2024_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail for Rafael Nadal
+[23:55:21.78] [LOG] [PRELOAD] Preloading process attempt finished.
+[23:55:21.81] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
+[23:55:21.92] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/CT_2020.jpg/960px-CT_2020.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 183ms
+[23:55:22.08] [LOG] [RESERVE_HELPER] ✅ Категория "female-deceased": добавлена карточка 1/5 (В категории: 9/15).
+[23:55:22.11] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/2/23/S%C3%A9rgio_Borges_interpretando_%22Onde_vais_rio_que_eu_canto%22_-_Festival_RTP_da_Can%C3%A7%C3%A3o_1970.png/960px-S%C3%A9rgio_Borges_interpretando_%22Onde_vais_rio_que_eu_canto%22_-_Festival_RTP_da_Can%C3%A7%C3%A3o_1970.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 453ms
+[23:55:22.56] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:22.70] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Anita Pallenberg
+[23:55:22.76] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Anita Pallenberg (cropped).png
+[23:55:22.85] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:22.88] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Sérgio Borges": insufficient_human_skin
+[23:55:22.90] [LOG] [CACHE_PURGE] Removed bad or failing person "Sérgio Borges" from local wikidataCache.
+[23:55:23.04] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Anita_Pallenberg_%28cropped%29.png/960px-Anita_Pallenberg_%28cropped%29.png?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 283ms
+[23:55:23.09] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[23:55:23.15] [LOG] [USER_ACTION] Status selected: Alive
+[23:55:23.26] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"2XUsH2yGxs1GmHNK","result":true}
+[23:55:23.31] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[23:55:23.39] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"MZK0EOdVBe9V8txj","result":true}
+[23:55:23.42] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[23:55:23.44] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"8J7lFBuPrv9nr9j7","result":true}
+[23:55:23.47] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[23:55:23.49] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[23:55:23.52] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: David Lynch
+[23:55:23.55] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: David Lynch at the 1990 Emmy Awards.jpg
+[23:55:23.58] [LOG] [USER_ACTION] "Check" button clicked.
+[23:55:23.61] [LOG] [GAME_STATE] Attempt 3/10. Total guesses this game: 3.
+[23:55:23.63] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: dead
+[23:55:23.65] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: false, Overall Correct: false
+[23:55:23.68] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"kBI36nJOa1BPYfR4","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,0]"}}
+[23:55:23.70] [LOG] [STATE_CHANGE] Guess result (0) added to success/fail history. Saved to localStorage. History: [1,1,0]
+[23:55:23.73] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 3 seconds (2526ms). Start: 1794527721086, End: 1794527723612
+[23:55:23.75] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"pdxHjrYEIRp9TWWF","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[11,4,3]"}}
+[23:55:23.77] [LOG] [STATE_CHANGE] Attempt duration 3s added. Saved to localStorage. Durations: [11,4,3]
+[23:55:23.81] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794527697_6972","attempt_number_in_session":3,"time_for_attempt_seconds":3,"attempt_result":0,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794527697_6972","language":"ru","current_theme":"night"}
+[23:55:23.85] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q9685","person_name":"Princess Diana","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":3,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794527697_6972","session_id":"1794527697_6972","language":"ru","current_theme":"night"}
+[23:55:23.87] [LOG] [CHECK_UI] Guess was INCORRECT.
+[23:55:23.90] [LOG] [CHECK_UI] Stats display updated.
+[23:55:23.92] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"nmcsKXBlxDprDweh","method":"saveStorageValue","params":{"key":"currentAttempts","value":"3"}}
+[23:55:23.94] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"Gy7g3DFAapAdVgr7","method":"saveStorageValue","params":{"key":"totalGuesses","value":"3"}}
+[23:55:23.97] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"CGWnn3rMSub34RlS","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"2"}}
+[23:55:23.99] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"HTDD4tUzqj30Phk0","method":"saveStorageValue","params":{"key":"failedGuesses","value":"1"}}
+[23:55:24.01] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[23:55:24.03] [LOG] [UI_UPDATE] updateUI called for person: Princess Diana
+[23:55:24.06] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 3 Max: 10 IsInitialCall: false
+[23:55:24.08] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[23:55:24.14] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:24.17] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Anita Pallenberg": insufficient_human_skin
+[23:55:24.19] [LOG] [CACHE_PURGE] Removed bad or failing person "Anita Pallenberg" from local wikidataCache.
+[23:55:24.22] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[23:55:24.24] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[23:55:24.26] [LOG] [PHOTO_STATUS] Loaded photos in session: 6, Remaining in sessionList: 1, Preloaded: Rafael Nadal
+[23:55:24.29] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 49/60): MA: 13/15, MD: 12/15, FA: 15/15, FD: 9/15 (Real photos: 49) | Cache: 214 | Catalog: 0/100
+[23:55:24.31] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"kBI36nJOa1BPYfR4","result":true}
+[23:55:24.34] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[23:55:24.36] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"pdxHjrYEIRp9TWWF","result":true}
+[23:55:24.39] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[23:55:24.41] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"nmcsKXBlxDprDweh","result":true}
+[23:55:24.43] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[23:55:24.46] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"Gy7g3DFAapAdVgr7","result":true}
+[23:55:24.48] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[23:55:24.50] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"CGWnn3rMSub34RlS","result":true}
+[23:55:24.53] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[23:55:24.55] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"HTDD4tUzqj30Phk0","result":true}
+[23:55:24.58] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[23:55:24.60] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"vD6bCPnKnMyXn2zH","result":true}
+[23:55:24.62] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[23:55:24.65] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/d/de/David_Lynch_at_the_1990_Emmy_Awards.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 1107ms
+[23:55:24.68] [LOG] [SHEETS_SENT] Dispatched anonymized event "photo_loaded" to Google Sheets (Spam: false)
+[23:55:24.70] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:24.73] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Cass Elliot
+[23:55:24.76] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Mama Cass in 1973.jpg
+[23:55:24.92] [LOG] [RESERVE_HELPER] ✅ Категория "male-deceased": добавлена карточка 3/5 (В категории: 13/15).
+[23:55:24.95] [LOG] [SHEETS_SENT] Dispatched anonymized event "next_photo_requested" to Google Sheets (Spam: false)
+[23:55:24.98] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/9/95/Mama_Cass_in_1973.jpg/960px-Mama_Cass_in_1973.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 223ms
+[23:55:25.11] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:25.13] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Cass Elliot": insufficient_human_skin
+[23:55:25.16] [LOG] [CACHE_PURGE] Removed bad or failing person "Cass Elliot" from local wikidataCache.
+[23:55:25.40] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[23:55:25.47] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Jimmy Cliff
+[23:55:25.51] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Jimmy Cliff - Festival du Bout du Monde 2012 - 022 (cropped).jpg
+[23:55:25.63] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:25.67] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Zaha Hadid
+[23:55:25.70] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Zaha Hadid in Heydar Aliyev Cultural center in Baku nov 2013 (cropped).jpg
+[23:55:25.89] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5f/Jimmy_Cliff_-_Festival_du_Bout_du_Monde_2012_-_022_%28cropped%29.jpg/960px-Jimmy_Cliff_-_Festival_du_Bout_du_Monde_2012_-_022_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 376ms
+[23:55:26.18] [LOG] [RESERVE_HELPER] ✅ Категория "male-deceased": добавлена карточка 4/5 (В категории: 14/15).
+[23:55:26.21] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/9/90/Zaha_Hadid_in_Heydar_Aliyev_Cultural_center_in_Baku_nov_2013_%28cropped%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 518ms
+[23:55:26.33] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:26.36] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Zaha Hadid": insufficient_human_skin
+[23:55:26.39] [LOG] [CACHE_PURGE] Removed bad or failing person "Zaha Hadid" from local wikidataCache.
+[23:55:26.66] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[23:55:26.71] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Chris Wood
+[23:55:26.75] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Chris Wood - Traffic - 1974.jpg
+[23:55:26.80] [LOG] [SHEETS_SENT] Dispatched anonymized event "guess_made" to Google Sheets (Spam: false)
+[23:55:26.86] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:26.89] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Barbara Rudnik
+[23:55:26.92] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Oliver Mark - Barbara Rudnik, München 2006.jpg
+[23:55:26.95] [LOG] [SHEETS_SENT] Dispatched anonymized event "attempt_completed" to Google Sheets (Spam: false)
+[23:55:27.12] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/Chris_Wood_-_Traffic_-_1974.jpg/960px-Chris_Wood_-_Traffic_-_1974.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 370ms
+[23:55:27.28] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/3/38/Oliver_Mark_-_Barbara_Rudnik%2C_M%C3%BCnchen_2006.jpg/960px-Oliver_Mark_-_Barbara_Rudnik%2C_M%C3%BCnchen_2006.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 361ms
+[23:55:27.92] [LOG] [RESERVE_HELPER] ✅ Категория "female-deceased": добавлена карточка 2/5 (В категории: 10/15).
+[23:55:28.10] [LOG] [RESERVE_HELPER] ✅ Категория "male-deceased": добавлена карточка 5/5 (В категории: 15/15).
+[23:55:28.40] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:28.42] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Bärbel Bohley
+[23:55:28.45] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Bundesarchiv Bild 183-1990-0905-019, Berlin, Besetzung Stasizentrale, Bärbel Bohley cropped.jpg
+[23:55:28.57] [LOG] [RESERVE_HELPER] 🏁 Категория "male-deceased": партия завершена (+5 свежих фото). Всего: 15/15
+[23:55:28.60] [LOG] [RESERVE_HELPER] 📊 Категория "female-alive": 15/15 карточек. Пополнение пока не требуется.
+[23:55:28.70] [LOG] [RESERVE_STOCK] [category_restock_complete] Buffer: 1/1 | Shelf (Total: 53/60): MA: 13/15, MD: 15/15, FA: 15/15, FD: 10/15 (Real photos: 53) | Cache: 211 | Catalog: 0/100
+[23:55:28.85] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/9/94/Bundesarchiv_Bild_183-1990-0905-019%2C_Berlin%2C_Besetzung_Stasizentrale%2C_B%C3%A4rbel_Bohley_cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 400ms
+[23:55:28.95] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[23:55:29.00] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Bärbel Bohley": insufficient_human_skin
+[23:55:29.05] [LOG] [CACHE_PURGE] Removed bad or failing person "Bärbel Bohley" from local wikidataCache.
+[23:55:29.53] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[23:55:29.62] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Susan Butcher
+[23:55:29.67] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Susan Butcher 1997.JPG
+[23:55:29.71] [LOG] [SESSION_LIFECYCLE] Active session "1794527697_6972" is within 32-minute grace period (6s idle). Player continues game!
+[23:55:29.89] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/0/0b/Susan_Butcher_1997.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 224ms
+[23:55:30.13] [LOG] [RESERVE_HELPER] ✅ Категория "female-deceased": добавлена карточка 3/5 (В категории: 11/15).

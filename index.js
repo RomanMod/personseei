@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.3';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.4';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -40,7 +40,13 @@ const originalConsoleWarn = console.warn;
 const originalConsoleError = console.error;
 
 window.diagnosticsEnabled = safeGetItem('diagnostics_enabled') === 'true'; // Disabled by default, can be toggled by tapping version badge 10 times
+const savedDiagSpoilerOpen = safeGetItem('diagnostics_spoiler_open');
+window.diagnosticsSpoilerOpen = savedDiagSpoilerOpen === null ? true : savedDiagSpoilerOpen === 'true'; // Active only when spoiler is expanded
 window.appLogs = [];
+
+function isDiagnosticsLogsActive() {
+    return Boolean(window.diagnosticsEnabled && window.diagnosticsSpoilerOpen);
+}
 
 // Helper for early safe localStorage access before wrapper is defined
 function safeGetItem(key) {
@@ -135,7 +141,7 @@ function formatDurationSeconds(totalSeconds) {
 }
 
 try {
-    if (window.diagnosticsEnabled) {
+    if (isDiagnosticsLogsActive()) {
         const savedLogsString = safeGetItem('appLogs_persistent');
         if (savedLogsString) {
             window.appLogs = JSON.parse(savedLogsString);
@@ -151,10 +157,18 @@ try {
 
 // Throttled storage write helper to avoid lagging the main thread
 let saveLogsTimeout = null;
+function cancelScheduledLogsSave() {
+    if (saveLogsTimeout) {
+        clearTimeout(saveLogsTimeout);
+        saveLogsTimeout = null;
+    }
+}
+
 function scheduleSaveLogs() {
-    if (saveLogsTimeout) return;
+    if (!isDiagnosticsLogsActive() || saveLogsTimeout) return;
     saveLogsTimeout = setTimeout(() => {
         saveLogsTimeout = null;
+        if (!isDiagnosticsLogsActive()) return;
         try {
             safeSetItem('appLogs_persistent', JSON.stringify(window.appLogs));
         } catch (e) {}
@@ -162,7 +176,7 @@ function scheduleSaveLogs() {
 }
 
 function captureLog(type, args) {
-    if (!window.diagnosticsEnabled) {
+    if (!isDiagnosticsLogsActive()) {
         return;
     }
     const timeStr = new Date().toISOString().split('T')[1].slice(0, 11);
@@ -180,9 +194,10 @@ function captureLog(type, args) {
     
     scheduleSaveLogs();
     
-    // Only update DOM if the diagnostics panel is open/visible to prevent expensive layout/rendering calculations
+    // Only update DOM if both the diagnostics panel and spoiler are open/visible
     const diagPanel = document.getElementById('diagnostics-panel');
-    if (diagPanel && diagPanel.style.display !== 'none') {
+    const diagDetails = document.getElementById('diagnostics-details');
+    if (diagPanel && diagPanel.style.display !== 'none' && (!diagDetails || diagDetails.open)) {
         const debugPre = document.getElementById('debug-log-output');
         if (debugPre) {
             debugPre.textContent = window.appLogs.join('\n');
@@ -193,6 +208,7 @@ function captureLog(type, args) {
 }
 
 console.log = function(...args) {
+    if (!isDiagnosticsLogsActive()) return;
     originalConsoleLog.apply(console, args);
     captureLog('LOG', args);
 };
@@ -214,7 +230,7 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 window.addEventListener('beforeunload', () => {
-    if (window.diagnosticsEnabled && window.appLogs && window.appLogs.length > 0) {
+    if (isDiagnosticsLogsActive() && window.appLogs && window.appLogs.length > 0) {
         try {
             safeSetItem('appLogs_persistent', JSON.stringify(window.appLogs));
         } catch (e) {}
@@ -273,7 +289,7 @@ const localStorage = (() => {
                 'theme', 'language', 'mode', 'totalGuesses', 
                 'successfulGuesses', 'failedGuesses', 'currentAttempts', 
                 'guessResultsHistory', 'attemptDurations', 'currentSessionId', 
-                'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled'
+                'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled', 'diagnostics_spoiler_open'
             ]);
 
             if (TG_ALLOWED_CLOUD_KEYS.has(key) && isCloudStorageSupported()) {
@@ -306,7 +322,7 @@ const localStorage = (() => {
                 'theme', 'language', 'mode', 'totalGuesses', 
                 'successfulGuesses', 'failedGuesses', 'currentAttempts', 
                 'guessResultsHistory', 'attemptDurations', 'currentSessionId', 
-                'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled'
+                'currentAttemptStartTime', 'top_controls_collapsed', 'diagnostics_enabled', 'diagnostics_spoiler_open'
             ]);
 
             if (TG_ALLOWED_CLOUD_KEYS.has(key) && isCloudStorageSupported()) {
@@ -6077,8 +6093,37 @@ function setupDiagnosticsPanel() {
     console.log('[DIAG_SETUP] Initializing diagnostics panel listeners...');
     
     const diagPanel = document.getElementById('diagnostics-panel');
+    const diagDetails = document.getElementById('diagnostics-details');
     if (diagPanel) {
         diagPanel.style.display = window.diagnosticsEnabled ? 'block' : 'none';
+    }
+    if (diagDetails) {
+        diagDetails.open = Boolean(window.diagnosticsSpoilerOpen);
+        diagDetails.addEventListener('toggle', () => {
+            const isOpen = Boolean(diagDetails.open);
+            if (window.diagnosticsSpoilerOpen === isOpen) return;
+            window.diagnosticsSpoilerOpen = isOpen;
+            try {
+                localStorage.setItem('diagnostics_spoiler_open', isOpen ? 'true' : 'false');
+            } catch (e) {}
+
+            if (!isOpen) {
+                // Spoiler collapsed: stop all log generation, pending writes, and clear buffer
+                cancelScheduledLogsSave();
+                window.appLogs = [];
+                try {
+                    localStorage.removeItem('appLogs_persistent');
+                } catch (e) {}
+                const debugPre = document.getElementById('debug-log-output');
+                if (debugPre) {
+                    debugPre.textContent = '';
+                }
+            } else if (window.diagnosticsEnabled) {
+                // Spoiler expanded: resume full logging and display diagnostics right away
+                console.log(`[DIAG] Spoiler expanded — logging RESUMED (v${APP_VERSION_FALLBACK}).`);
+                runSystemDiagnostics();
+            }
+        });
     }
 
     // Google Sheets Webhook Configuration UI
@@ -6338,6 +6383,13 @@ function setupDiagnosticsPanel() {
                 let currentVersion = APP_VERSION_FALLBACK;
 
                 if (window.diagnosticsEnabled) {
+                    window.diagnosticsSpoilerOpen = true;
+                    try {
+                        localStorage.setItem('diagnostics_spoiler_open', 'true');
+                    } catch (e) {}
+                    if (diagDetails) {
+                        diagDetails.open = true;
+                    }
                     runSystemDiagnostics();
                     console.log('[SYSTEM] Diagnostics and logs ENABLED via secret code.');
                     
@@ -6357,11 +6409,11 @@ function setupDiagnosticsPanel() {
                         updateLanguage();
                     }, 2000);
                 } else {
+                    cancelScheduledLogsSave();
                     window.appLogs = [];
                     try {
                         localStorage.removeItem('appLogs_persistent');
                     } catch (e) {}
-                    console.log('[SYSTEM] Diagnostics and logs DISABLED.');
                     
                     // Immediately show the version without any "diagnostics disabled" text
                     updateLanguage();
@@ -6501,9 +6553,9 @@ const initApp = () => {
     // Setup Help / Instructions Modal
     initHelpModal();
 
-    // Setup diagnostics panel and run initial diagnostics if enabled
+    // Setup diagnostics panel and run initial diagnostics only if enabled AND expanded
     setupDiagnosticsPanel();
-    if (window.diagnosticsEnabled) {
+    if (isDiagnosticsLogsActive()) {
         runSystemDiagnostics();
     }
 
