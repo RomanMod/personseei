@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.6';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.7';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -2853,7 +2853,7 @@ const offlinePeople = [
     {
         person: { value: "https://en.wikipedia.org/wiki/Alan_Turing" },
         personLabel: { value: "Alan Turing" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Alan_Turing_Aged_16_c.1928.jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/6/66/Alan_Turing_%281951%29_%28crop%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1912-06-23T00:00:00Z" },
         deathDate: { value: "1954-06-07T00:00:00Z" },
@@ -2886,7 +2886,7 @@ const offlinePeople = [
     {
         person: { value: "https://en.wikipedia.org/wiki/Stephen_Hawking" },
         personLabel: { value: "Stephen Hawking" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Stephen_Hawking.starchild.jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/e/eb/Stephen_Hawking.StarChild.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1942-01-08T00:00:00Z" },
         deathDate: { value: "2018-03-14T00:00:00Z" },
@@ -2897,7 +2897,7 @@ const offlinePeople = [
     {
         person: { value: "https://en.wikipedia.org/wiki/Robin_Williams" },
         personLabel: { value: "Robin Williams" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Robin_Williams_2011a_(cropped).jpg?width=600" },
+        image: { value: "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Robin_Williams_1996_%28cropped%29_2.jpg/960px-Robin_Williams_1996_%28cropped%29_2.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1951-07-21T00:00:00Z" },
         deathDate: { value: "2014-08-11T00:00:00Z" },
@@ -3046,7 +3046,7 @@ const offlinePeople = [
     {
         person: { value: "https://en.wikipedia.org/wiki/Whitney_Houston" },
         personLabel: { value: "Whitney Houston" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/5/52/Whitney_Houston_%28cropped3%29.JPEG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1963-08-09T00:00:00Z" },
         deathDate: { value: "2012-02-11T00:00:00Z" },
@@ -3427,9 +3427,36 @@ function sanitizeOfflineReserve() {
             return true;
         });
 
-        // Reset isSeedFallback to false for any card that has a real photo URL or real base64
+        const knownBrokenFragments = [
+            'Alan_Turing_Aged_16_c.1928.jpg',
+            'Stephen_Hawking.starchild.jpg',
+            'Heath_Ledger_(The_Patriot_premiere).jpg',
+            'David_Bowie_1974.jpg',
+            'Prince_at_Coachella_cropped.jpg',
+            'Bohdan_Stupka_in_Wroc',
+            'Robin_Williams_2011a_(cropped).jpg',
+            'Whitney_Houston_Welcome_Heroes_cropped.jpg',
+            'Amy_Winehouse_f4962007_cropped.jpg',
+            'Carrie_Fisher_2013-A_crop.jpg',
+            'Betty_White_2011.jpg'
+        ];
+
+        // Heal stale catalog URLs & reset isSeedFallback for cards with real photo data
         for (const item of categoryReserves[catKey]) {
-            if (item && (item.imageUrl || (item.dataUrl && !item.dataUrl.startsWith('data:image/svg')))) {
+            if (!item) continue;
+            const currentUrl = item.imageUrl || item.image?.value || '';
+            if (currentUrl && knownBrokenFragments.some(frag => currentUrl.includes(frag))) {
+                const match = Array.isArray(peopleCatalog)
+                    ? peopleCatalog.find(c => c && c.personLabel?.value === item.personLabel?.value && c.image?.value)
+                    : null;
+                if (match) {
+                    item.imageUrl = match.image.value;
+                    item.image = { value: match.image.value };
+                    if (match.person?.value) item.person = match.person;
+                    modified = true;
+                }
+            }
+            if (item.imageUrl || (item.dataUrl && !item.dataUrl.startsWith('data:image/svg'))) {
                 if (item.isSeedFallback) {
                     item.isSeedFallback = false;
                     modified = true;

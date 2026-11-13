@@ -286,7 +286,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q7251" },
         personLabel: { value: "Alan Turing" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Alan_Turing_Aged_16_c.1928.jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/6/66/Alan_Turing_%281951%29_%28crop%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1912-06-23T00:00:00Z" },
         deathDate: { value: "1954-06-07T00:00:00Z" },
@@ -319,7 +319,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q17714" },
         personLabel: { value: "Stephen Hawking" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Stephen_Hawking.starchild.jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/e/eb/Stephen_Hawking.StarChild.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1942-01-08T00:00:00Z" },
         deathDate: { value: "2018-03-14T00:00:00Z" },
@@ -330,7 +330,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q40572" },
         personLabel: { value: "Heath Ledger" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Heath_Ledger_(The_Patriot_premiere).jpg?width=600" },
+        image: { value: "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Heath_Ledger.jpg/960px-Heath_Ledger.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1979-04-04T00:00:00Z" },
         deathDate: { value: "2008-01-22T00:00:00Z" },
@@ -352,7 +352,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q5383" },
         personLabel: { value: "David Bowie" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/David_Bowie_1974.jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/e/e8/David-Bowie_Chicago_2002-08-08_photoby_Adam-Bielawski-cropped.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1947-01-08T00:00:00Z" },
         deathDate: { value: "2016-01-10T00:00:00Z" },
@@ -363,7 +363,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q7542" },
         personLabel: { value: "Prince" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Prince_at_Coachella_cropped.jpg?width=600" },
+        image: { value: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Prince_Brussels_1986_%28retouched%29.jpg/960px-Prince_Brussels_1986_%28retouched%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1958-06-07T00:00:00Z" },
         deathDate: { value: "2016-04-21T00:00:00Z" },
@@ -493,9 +493,9 @@ export const peopleCatalog = [
         isCatalogPerson: true
     },
     {
-        person: { value: "http://www.wikidata.org/entity/Q2646394" },
+        person: { value: "http://www.wikidata.org/entity/Q264253" },
         personLabel: { value: "Bohdan Stupka" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Bohdan_Stupka_in_Wroc%C5%82aw,_November_2008_(cropped).jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/b/be/Bohdan_Stupka.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1941-08-27T00:00:00Z" },
         deathDate: { value: "2012-07-22T00:00:00Z" },
@@ -515,9 +515,9 @@ export const peopleCatalog = [
         isCatalogPerson: true
     },
     {
-        person: { value: "http://www.wikidata.org/entity/Q36807" },
+        person: { value: "http://www.wikidata.org/entity/Q83338" },
         personLabel: { value: "Robin Williams" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Robin_Williams_2011a_(cropped).jpg?width=600" },
+        image: { value: "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b7/Robin_Williams_1996_%28cropped%29_2.jpg/960px-Robin_Williams_1996_%28cropped%29_2.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail" },
         gender: { value: "http://www.wikidata.org/entity/Q6581097" },
         birthDate: { value: "1951-07-21T00:00:00Z" },
         deathDate: { value: "2014-08-11T00:00:00Z" },
@@ -910,7 +910,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q34389" },
         personLabel: { value: "Whitney Houston" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Whitney_Houston_Welcome_Heroes_cropped.jpg?width=600" },
+        image: { value: "https://upload.wikimedia.org/wikipedia/commons/5/52/Whitney_Houston_%28cropped3%29.JPEG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1963-08-09T00:00:00Z" },
         deathDate: { value: "2012-02-11T00:00:00Z" },
@@ -919,9 +919,9 @@ export const peopleCatalog = [
         isCatalogPerson: true
     },
     {
-        person: { value: "http://www.wikidata.org/entity/Q15862" },
+        person: { value: "http://www.wikidata.org/entity/Q15897" },
         personLabel: { value: "Amy Winehouse" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Amy_Winehouse_f4962007_cropped.jpg?width=600" },
+        image: { value: "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cf/Amy_Winehouse_f4962007_crop.jpg/960px-Amy_Winehouse_f4962007_crop.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1983-09-14T00:00:00Z" },
         deathDate: { value: "2011-07-23T00:00:00Z" },
@@ -943,7 +943,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q108941" },
         personLabel: { value: "Carrie Fisher" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Carrie_Fisher_2013-A_crop.jpg?width=600" },
+        image: { value: "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/03/Carrie_Fisher_2013-a_straightened.jpg/960px-Carrie_Fisher_2013-a_straightened.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1956-10-21T00:00:00Z" },
         deathDate: { value: "2016-12-27T00:00:00Z" },
@@ -998,7 +998,7 @@ export const peopleCatalog = [
     {
         person: { value: "http://www.wikidata.org/entity/Q373895" },
         personLabel: { value: "Betty White" },
-        image: { value: "https://commons.wikimedia.org/wiki/Special:FilePath/Betty_White_2011.jpg?width=600" },
+        image: { value: "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/19/BettyWhiteJune09.jpg/960px-BettyWhiteJune09.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail" },
         gender: { value: "http://www.wikidata.org/entity/Q6581072" },
         birthDate: { value: "1922-01-17T00:00:00Z" },
         deathDate: { value: "2021-12-31T00:00:00Z" },

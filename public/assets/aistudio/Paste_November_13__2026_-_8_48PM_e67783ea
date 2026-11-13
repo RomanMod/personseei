@@ -1,0 +1,251 @@
+=== App Version: v2.5.6 (11/13/2026, 5:26:51 PM) ===
+[18:22:07.01] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: dead
+[18:22:07.16] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: false, Overall Correct: false
+[18:22:07.32] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"NhanuP13FTU4DMWs","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[0,1,0,1,0,0,0]"}}
+[18:22:07.48] [LOG] [STATE_CHANGE] Guess result (0) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,0,0]
+[18:22:07.63] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 6 seconds (6206ms). Start: 1794594120655, End: 1794594126861
+[18:22:07.78] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"04AjulcqiV77NmPW","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[13,10,9,8,7,6,6]"}}
+[18:22:07.92] [LOG] [STATE_CHANGE] Attempt duration 6s added. Saved to localStorage. Durations: [13,10,9,8,7,6,6]
+[18:22:08.08] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[18:22:08.26] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794593982_4923","attempt_number_in_session":7,"time_for_attempt_seconds":6,"attempt_result":0,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:08.41] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[18:22:08.60] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q373468","person_name":"Sebastian Horsley","game_mode":"open","actual_gender":"male","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":7,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:08.76] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"NhanuP13FTU4DMWs","result":true}
+[18:22:08.93] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[18:22:09.09] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"04AjulcqiV77NmPW","result":true}
+[18:22:09.24] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[18:22:09.40] [LOG] [CHECK_UI] Guess was INCORRECT.
+[18:22:09.56] [LOG] [CHECK_UI] Stats display updated.
+[18:22:09.73] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"2VvZq4l1HfPMpnVX","method":"saveStorageValue","params":{"key":"currentAttempts","value":"7"}}
+[18:22:09.98] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"YUB4xIPC1Z8YfXjR","method":"saveStorageValue","params":{"key":"totalGuesses","value":"7"}}
+[18:22:10.15] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"QDbaJ3QXN5yMbYiU","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"2"}}
+[18:22:10.30] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"w9offpFTZHYh8Rgn","method":"saveStorageValue","params":{"key":"failedGuesses","value":"5"}}
+[18:22:10.46] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[18:22:10.62] [LOG] [UI_UPDATE] updateUI called for person: Sebastian Horsley
+[18:22:10.78] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 7 Max: 10 IsInitialCall: false
+[18:22:10.96] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[18:22:11.36] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"2VvZq4l1HfPMpnVX","result":true}
+[18:22:11.51] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[18:22:11.66] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"YUB4xIPC1Z8YfXjR","result":true}
+[18:22:11.81] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[18:22:11.96] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"QDbaJ3QXN5yMbYiU","result":true}
+[18:22:12.13] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[18:22:12.28] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"w9offpFTZHYh8Rgn","result":true}
+[18:22:12.44] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[18:22:12.62] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[18:22:12.80] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:22:12.99] [LOG] [PHOTO_STATUS] Loaded photos in session: 7, Remaining in sessionList: 1, Preloaded: Angelina Jolie
+[18:22:13.20] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 53/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 14/15 (Real photos: 53) | Cache: 96 | Catalog: 0/100
+[18:22:13.74] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (7s idle). Player continues game!
+[18:22:14.67] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[18:22:14.83] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 53/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 14/15 (Real photos: 53) | Cache: 96 | Catalog: 0/100
+[18:22:15.04] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 7/10 (gen: 11)
+[18:22:15.21] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[18:22:15.40] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794593982_4923","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Angelina Jolie","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:15.55] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[18:22:15.70] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Angelina Jolie. Осталось на полочках: 53/60
+[18:22:15.87] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Angelina Jolie (gen: 11)
+[18:22:16.05] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[18:22:16.22] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Angelina Jolie
+[18:22:16.43] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Angelina_Jolie-643531_%28cropped%29.jpg/960px-Angelina_Jolie-643531_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[18:22:16.59] [LOG] [VERSION_BADGE_COLOR] Индикатор версии: зелёный (Wikidata / Кэш) -> жёлтый (Демо-каталог) | Статус: "Демо-каталог ⚠️" (status=catalog) | Источник: Offline Catalog | Персона: "Angelina Jolie"
+[18:22:16.74] [LOG] [UI_UPDATE] updateUI called for person: Angelina Jolie
+[18:22:16.90] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"Y0hHULOTX5yDJfyX","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794594136900"}}
+[18:22:17.08] [LOG] [STATE_CHANGE] Attempt start time set to 1794594136900 for person: Angelina Jolie. Saved to localStorage.
+[18:22:17.23] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[18:22:17.42] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q13909","person_name":"Angelina Jolie","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:17.58] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Angelina Jolie is now cleared as it's either used or failed assign.
+[18:22:17.75] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[18:22:17.91] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 53/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 14/15 (Real photos: 53) | Cache: 96 | Catalog: 0/100
+[18:22:18.11] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "female-deceased": "Princess Diana". Осталось в категории: 13/15
+[18:22:18.26] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Princess Diana. Buffer: 1/1
+[18:22:18.43] [LOG] [PRELOAD] Starting preload for: Princess Diana
+[18:22:18.60] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 52/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 52) | Cache: 96 | Catalog: 0/100
+[18:22:18.76] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"Y0hHULOTX5yDJfyX","result":true}
+[18:22:18.94] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[18:22:19.15] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled for Princess Diana
+[18:22:19.30] [LOG] [PRELOAD] Preloading process attempt finished.
+[18:22:19.45] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[18:22:19.62] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:22:19.77] [LOG] [PHOTO_STATUS] Loaded photos in session: 8, Remaining in sessionList: 1, Preloaded: Princess Diana
+[18:22:19.92] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 52/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 52) | Cache: 96 | Catalog: 0/100
+[18:22:20.11] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[18:22:20.27] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:22:20.43] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[18:22:22.25] [LOG] [USER_ACTION] Status selected: Alive
+[18:22:23.29] [LOG] [USER_ACTION] "Check" button clicked.
+[18:22:23.44] [LOG] [GAME_STATE] Attempt 8/10. Total guesses this game: 8.
+[18:22:23.57] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: alive
+[18:22:23.70] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[18:22:23.86] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"BZxejZjuBTKzNs2s","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[0,1,0,1,0,0,0,1]"}}
+[18:22:23.99] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,0,0,1]
+[18:22:24.13] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 7 seconds (6542ms). Start: 1794594136900, End: 1794594143442
+[18:22:24.28] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"ZRiwMZByrh9PZ6eJ","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[13,10,9,8,7,6,6,7]"}}
+[18:22:24.42] [LOG] [STATE_CHANGE] Attempt duration 7s added. Saved to localStorage. Durations: [13,10,9,8,7,6,6,7]
+[18:22:24.55] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[18:22:24.71] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794593982_4923","attempt_number_in_session":8,"time_for_attempt_seconds":7,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:24.85] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[18:22:25.00] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q13909","person_name":"Angelina Jolie","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":8,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:25.14] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"BZxejZjuBTKzNs2s","result":true}
+[18:22:25.28] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[18:22:25.41] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"ZRiwMZByrh9PZ6eJ","result":true}
+[18:22:25.55] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[18:22:25.70] [LOG] [CHECK_UI] Guess was CORRECT.
+[18:22:25.86] [LOG] [CHECK_UI] Stats display updated.
+[18:22:26.01] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"rAc9aNjvsr5HurgA","method":"saveStorageValue","params":{"key":"currentAttempts","value":"8"}}
+[18:22:26.15] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"6Q8lcZglyR4V9Cd2","method":"saveStorageValue","params":{"key":"totalGuesses","value":"8"}}
+[18:22:26.29] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"g0XtRNlcpdXdoNjL","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"3"}}
+[18:22:26.43] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"NRySbL8bdsjBJHQU","method":"saveStorageValue","params":{"key":"failedGuesses","value":"5"}}
+[18:22:26.57] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[18:22:26.71] [LOG] [UI_UPDATE] updateUI called for person: Angelina Jolie
+[18:22:26.84] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 8 Max: 10 IsInitialCall: false
+[18:22:26.98] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[18:22:27.20] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"rAc9aNjvsr5HurgA","result":true}
+[18:22:27.33] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[18:22:27.46] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"6Q8lcZglyR4V9Cd2","result":true}
+[18:22:27.61] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[18:22:27.74] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"g0XtRNlcpdXdoNjL","result":true}
+[18:22:27.91] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[18:22:28.08] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"NRySbL8bdsjBJHQU","result":true}
+[18:22:28.22] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[18:22:28.35] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[18:22:28.49] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:22:28.62] [LOG] [PHOTO_STATUS] Loaded photos in session: 8, Remaining in sessionList: 1, Preloaded: Princess Diana
+[18:22:28.77] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 52/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 52) | Cache: 96 | Catalog: 0/100
+[18:22:36.43] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[18:22:36.58] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 52/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 52) | Cache: 96 | Catalog: 0/100
+[18:22:36.71] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 8/10 (gen: 12)
+[18:22:36.85] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[18:22:37.01] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794593982_4923","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Princess Diana","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:37.16] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[18:22:37.29] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Princess Diana. Осталось на полочках: 52/60
+[18:22:37.43] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Princess Diana (gen: 12)
+[18:22:37.59] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[18:22:37.73] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Princess Diana
+[18:22:37.86] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+[18:22:38.01] [LOG] [UI_UPDATE] updateUI called for person: Princess Diana
+[18:22:38.15] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"pCwRZ5AMNZB0sJ9U","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794594158149"}}
+[18:22:38.28] [LOG] [STATE_CHANGE] Attempt start time set to 1794594158149 for person: Princess Diana. Saved to localStorage.
+[18:22:38.42] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[18:22:38.57] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q9685","person_name":"Princess Diana","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:22:38.71] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Princess Diana is now cleared as it's either used or failed assign.
+[18:22:38.84] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[18:22:38.97] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 52/60): MA: 12/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 52) | Cache: 96 | Catalog: 0/100
+[18:22:39.16] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-alive": "Robert Downey Jr.". Осталось в категории: 11/15
+[18:22:39.29] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Robert Downey Jr.. Buffer: 1/1
+[18:22:39.43] [LOG] [PRELOAD] Starting preload for: Robert Downey Jr.
+[18:22:39.56] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 51/60): MA: 11/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 51) | Cache: 96 | Catalog: 0/100
+[18:22:39.75] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"pCwRZ5AMNZB0sJ9U","result":true}
+[18:22:39.93] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[18:22:40.11] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/RobertDowneyJr-byPhilipRomano7_%28cropped%29.jpg/960px-RobertDowneyJr-byPhilipRomano7_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail for Robert Downey Jr.
+[18:22:40.24] [LOG] [PRELOAD] Preloading process attempt finished.
+[18:22:40.38] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[18:22:40.51] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:22:40.65] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: Robert Downey Jr.
+[18:22:40.78] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 51/60): MA: 11/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 51) | Cache: 96 | Catalog: 0/100
+[18:22:40.92] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[18:22:41.07] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:22:41.22] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[18:22:43.74] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (7s idle). Player continues game!
+[18:23:13.74] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:23:43.76] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:24:13.77] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:24:43.79] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:25:13.81] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:25:43.82] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:26:13.84] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:26:43.84] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:27:13.86] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:27:43.86] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:28:13.88] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:28:43.90] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:29:13.91] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:29:43.93] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:30:13.95] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:30:43.96] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:31:13.98] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:31:44.00] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:32:14.01] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:32:44.03] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:33:14.04] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:33:44.05] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:34:14.07] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:34:44.08] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:35:14.10] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:35:44.10] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:36:14.12] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:36:44.13] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:37:14.15] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:37:44.17] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:38:14.18] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:38:44.20] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:39:14.22] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:39:44.22] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:40:14.24] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:40:44.25] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:41:14.27] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:41:44.29] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:42:14.30] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:42:44.32] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:43:14.34] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:43:44.36] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:44:14.37] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:44:44.39] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:45:14.41] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:45:44.42] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:46:14.43] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:46:44.45] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:47:14.46] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:47:44.41] [LOG] [LIFE_CYCLE] Window focused. Checking inactivity timeout...
+[18:47:44.66] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[18:47:44.88] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (30s idle). Player continues game!
+[18:47:45.12] [LOG] [LIFE_CYCLE] Window focused. Checking inactivity timeout...
+[18:47:45.34] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[18:47:45.58] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (1s idle). Player continues game!
+[18:47:45.77] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (0s idle). Player continues game!
+[18:47:51.46] [LOG] [LIFE_CYCLE] Window focused. Checking inactivity timeout...
+[18:47:51.60] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[18:47:51.74] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (6s idle). Player continues game!
+[18:47:51.87] [LOG] [LIFE_CYCLE] Window focused. Checking inactivity timeout...
+[18:47:52.02] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[18:47:52.18] [LOG] [SESSION_LIFECYCLE] Active session "1794593982_4923" is within 32-minute grace period (0s idle). Player continues game!
+[18:47:52.31] [LOG] [USER_ACTION] Status selected: Alive
+[18:47:53.04] [LOG] [USER_ACTION] "Check" button clicked.
+[18:47:53.18] [LOG] [GAME_STATE] Attempt 9/10. Total guesses this game: 9.
+[18:47:53.31] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: dead
+[18:47:53.44] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: false, Overall Correct: false
+[18:47:53.57] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"prCEqgWO5qvTJAiI","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[0,1,0,1,0,0,0,1,0]"}}
+[18:47:53.71] [LOG] [STATE_CHANGE] Guess result (0) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,0,0,1,0]
+[18:47:53.85] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 1515 seconds (1515033ms). Start: 1794594158149, End: 1794595673182
+[18:47:53.98] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"JJtOUzPS277geG2V","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[13,10,9,8,7,6,6,7,1515]"}}
+[18:47:54.12] [LOG] [STATE_CHANGE] Attempt duration 1515s added. Saved to localStorage. Durations: [13,10,9,8,7,6,6,7,1515]
+[18:47:54.25] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[18:47:54.41] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794593982_4923","attempt_number_in_session":9,"time_for_attempt_seconds":1515,"attempt_result":0,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:47:54.55] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[18:47:54.72] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q9685","person_name":"Princess Diana","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":9,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794593982_4923","session_id":"1794593982_4923","language":"ru","current_theme":"night"}
+[18:47:54.85] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"prCEqgWO5qvTJAiI","result":true}
+[18:47:54.98] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[18:47:55.14] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"JJtOUzPS277geG2V","result":true}
+[18:47:55.27] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[18:47:55.40] [LOG] [CHECK_UI] Guess was INCORRECT.
+[18:47:55.54] [LOG] [CHECK_UI] Stats display updated.
+[18:47:55.68] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"CbPJSTHddaJ2HdNS","method":"saveStorageValue","params":{"key":"currentAttempts","value":"9"}}
+[18:47:55.81] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"MLoqykoN0b5GgIiG","method":"saveStorageValue","params":{"key":"totalGuesses","value":"9"}}
+[18:47:55.94] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"Dq1ABVkGYnFSfkf2","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"3"}}
+[18:47:56.08] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"0W5Ym8LqvB4HUgSY","method":"saveStorageValue","params":{"key":"failedGuesses","value":"6"}}
+[18:47:56.21] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[18:47:56.34] [LOG] [UI_UPDATE] updateUI called for person: Princess Diana
+[18:47:56.46] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 9 Max: 10 IsInitialCall: false
+[18:47:56.59] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[18:47:56.76] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"CbPJSTHddaJ2HdNS","result":true}
+[18:47:56.89] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[18:47:57.02] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"MLoqykoN0b5GgIiG","result":true}
+[18:47:57.17] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[18:47:57.31] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"Dq1ABVkGYnFSfkf2","result":true}
+[18:47:57.44] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[18:47:57.57] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"0W5Ym8LqvB4HUgSY","result":true}
+[18:47:57.70] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[18:47:57.83] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[18:47:57.99] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[18:47:58.14] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: Robert Downey Jr.
+[18:47:58.26] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 51/60): MA: 11/15, MD: 13/15, FA: 14/15, FD: 13/15 (Real photos: 51) | Cache: 96 | Catalog: 0/100
