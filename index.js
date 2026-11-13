@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.4';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.6';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -226,6 +226,10 @@ window.addEventListener('error', (event) => {
 });
 
 window.addEventListener('unhandledrejection', (event) => {
+    const reasonStr = event.reason ? String(event.reason.message || event.reason) : '';
+    if (reasonStr.includes('Abort') || reasonStr.includes('Failed to fetch') || reasonStr.includes('Network')) {
+        return;
+    }
     console.error(`[UNHANDLED_PROMISE] Got unhandled rejection: ${event.reason}`);
 });
 
@@ -1892,7 +1896,7 @@ function updateLanguage() {
         toggleTopControlsText.textContent = isTopControlsCollapsed ? (texts.topControlsSettings || 'Налаштування') : (texts.topControlsCollapse || 'Згорнути');
     }
 
-    updateUI(currentPerson); 
+    updateUI(currentPerson, false); 
     updateTelegramUserInfoDisplay(); 
 
     updateModeSelect();
@@ -2594,9 +2598,6 @@ async function getCommonsImageUrl(fileName) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 4000);
         const response = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(cleanFileName)}&prop=imageinfo&iiprop=url&iiurlwidth=960&format=json&origin=*`, {
-            headers: {
-                'Api-User-Agent': 'iPersonSeeTrivia/2.5.0 (https://romanmod.github.io/personseei/; contact: KRV.MOD@gmail.com) WebApp'
-            },
             signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -3098,8 +3099,11 @@ function getNextCatalogPerson(category) {
         console.log(`[CATALOG_DECK] Deck "${catKey}" refilled and shuffled (${shuffled.length} candidates).`);
     }
 
-    // Prefer candidate not yet shown in this game session
-    let candidateIndex = categoryDecks[catKey].findIndex(p => !sessionShownNames.has(p.personLabel.value));
+    // Prefer candidate not yet shown in this session AND never used across previous games
+    let candidateIndex = categoryDecks[catKey].findIndex(p => !sessionShownNames.has(p.personLabel.value) && !isCardAlreadyUsed(p.personLabel.value));
+    if (candidateIndex === -1) {
+        candidateIndex = categoryDecks[catKey].findIndex(p => !sessionShownNames.has(p.personLabel.value));
+    }
     if (candidateIndex === -1) {
         candidateIndex = categoryDecks[catKey].length - 1;
     }
@@ -3470,6 +3474,8 @@ function isCardAlreadyUsed(name) {
 }
 
 let isCategoryRestocking = {};
+let globalRestockCooldownUntil = 0;
+let lastReserveFetchApiOutage = false;
 
 /**
  * 📦 Фоновый помощник пополнения полочки по категориям:
@@ -3483,12 +3489,18 @@ async function checkAndRestockCategory(targetCatKey = null) {
         return;
     }
 
+    if (Date.now() < globalRestockCooldownUntil) {
+        return;
+    }
+
     const keysToRestock = targetCatKey ? [targetCatKey] : CATEGORY_KEYS;
     let didRestockAny = false;
+    let consecutiveApiOutages = 0;
 
     for (const catKey of keysToRestock) {
         if (!CATEGORY_KEYS.includes(catKey)) continue;
         if (isCategoryRestocking[catKey]) continue;
+        if (Date.now() < globalRestockCooldownUntil) break;
 
         const currentCount = Array.isArray(categoryReserves[catKey]) ? categoryReserves[catKey].length : 0;
         const missing = SHELF_TARGET_PER_CATEGORY - currentCount;
@@ -3513,10 +3525,21 @@ async function checkAndRestockCategory(targetCatKey = null) {
 
             while (added < SHELF_RESTOCK_BATCH && categoryReserves[catKey].length < SHELF_TARGET_PER_CATEGORY && attempts < maxAttempts) {
                 attempts++;
+                lastReserveFetchApiOutage = false;
                 const ok = await fetchAndStoreReservePerson(catFilter);
                 if (ok) {
                     added++;
+                    consecutiveApiOutages = 0;
                     console.log(`[RESERVE_HELPER] ✅ Категория "${catKey}": добавлена карточка ${added}/${SHELF_RESTOCK_BATCH} (В категории: ${categoryReserves[catKey].length}/${SHELF_TARGET_PER_CATEGORY}).`);
+                } else if (lastReserveFetchApiOutage) {
+                    consecutiveApiOutages++;
+                    if (consecutiveApiOutages >= 2) {
+                        globalRestockCooldownUntil = Date.now() + 90000;
+                        console.warn(`[RESERVE_HELPER_COOLDOWN] Источники Wikidata/API временно недоступны (${consecutiveApiOutages} сбоя подряд). Фоновое пополнение поставлено на паузу на 90с.`);
+                        break;
+                    }
+                } else {
+                    consecutiveApiOutages = 0;
                 }
                 await new Promise(r => setTimeout(r, 450));
             }
@@ -3543,6 +3566,7 @@ async function checkAndRestockReserveShelf() {
  */
 async function fetchAndStoreReservePerson(category) {
     try {
+        lastReserveFetchApiOutage = false;
         const catKey = normalizeCategoryKey(category) || 'male-alive';
         // Важно: запрашиваем напрямую из Викиданных/кэша категории (без возврата к takePersonFromShelf!)
         let personBinding = null;
@@ -3550,6 +3574,9 @@ async function fetchAndStoreReservePerson(category) {
             personBinding = await fetchPersonDataInner(false, category);
         } catch (innerErr) {
             personBinding = getAnyCachedWikidataPerson(category);
+            if (!personBinding) {
+                lastReserveFetchApiOutage = true;
+            }
         }
         if (!personBinding || !personBinding.personLabel?.value || !personBinding.image?.value) return false;
         const name = personBinding.personLabel.value;
@@ -3850,14 +3877,19 @@ function removePersonFromCache(personToRemove) {
     }
 }
 
-// Strict serialized promise queue to guarantee Wikidata SPARQL requests never overlap and honor rate limits
+// Strict serialized promise queue to guarantee Wikidata API/SPARQL requests never overlap and honor rate limits
 let sparqlQueue = Promise.resolve();
 let lastSparqlRequestTimestamp = 0;
-const MIN_SPARQL_INTERVAL_MS = 380; // 380ms pacing prevents HTTP 429 rate limits
+const MIN_SPARQL_INTERVAL_MS = 450; // Pacing prevents HTTP 429 rate limits
+let sparqlUnavailableUntil = 0; // Circuit breaker: skip failing SPARQL for 3 min and use Action API directly
 
 async function executeThrottledSparqlQuery(query, controller) {
     return new Promise((resolve, reject) => {
         sparqlQueue = sparqlQueue.then(async () => {
+            if (Date.now() < sparqlUnavailableUntil) {
+                throw new Error('SPARQL temporarily paused (cooldown), routing to Wikidata Action API');
+            }
+
             const now = performance.now();
             const elapsed = now - lastSparqlRequestTimestamp;
             if (elapsed < MIN_SPARQL_INTERVAL_MS) {
@@ -3865,14 +3897,12 @@ async function executeThrottledSparqlQuery(query, controller) {
             }
             lastSparqlRequestTimestamp = performance.now();
 
+            // Do NOT append MediaWiki-only "&origin=*" to query.wikidata.org/sparql (triggers 403/CORS blocks on QtWebEngine/Ubuntu)
             const endpoint = 'https://query.wikidata.org/sparql';
-            const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json&origin=*`;
+            const url = `${endpoint}?query=${encodeURIComponent(query)}&format=json`;
 
             let response = null;
-            let usedProxy = false;
-
             try {
-                // Direct SPARQL query with standard headers
                 response = await fetch(url, {
                     method: 'GET',
                     headers: {
@@ -3881,35 +3911,152 @@ async function executeThrottledSparqlQuery(query, controller) {
                     signal: controller.signal
                 });
             } catch (directErr) {
-                console.warn(`[WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (${directErr.message}). Attempting CORS proxy fallback...`);
-            }
-
-            // If direct request failed, returned 429 (rate-limit), or was blocked:
-            if (!response || !response.ok) {
-                const proxyUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
-                try {
-                    const proxyController = new AbortController();
-                    const proxyTimer = setTimeout(() => proxyController.abort(), 2500);
-                    const proxyRes = await fetch(proxyUrl, {
-                        method: 'GET',
-                        signal: proxyController.signal
-                    });
-                    clearTimeout(proxyTimer);
-                    if (proxyRes && proxyRes.ok) {
-                        response = proxyRes;
-                        usedProxy = true;
-                        console.log(`[WIKIDATA_PROXY_SUCCESS] CORS proxy fallback succeeded via corsproxy.io.`);
-                    }
-                } catch (proxyErr) {}
+                if (directErr && directErr.name === 'AbortError') {
+                    throw directErr;
+                }
+                sparqlUnavailableUntil = Date.now() + 3 * 60 * 1000;
+                console.warn(`[WIKIDATA_DIRECT_FAIL] Direct SPARQL query failed (${directErr.message}). Pausing SPARQL for 3m and switching to Wikidata Action API fallback...`);
+                throw new Error(`Wikidata SPARQL network failure: ${directErr.message}`);
             }
 
             if (!response || !response.ok) {
                 const status = response ? response.status : 'network failure';
+                if (response && (response.status === 403 || response.status === 429 || response.status >= 500)) {
+                    sparqlUnavailableUntil = Date.now() + 3 * 60 * 1000;
+                    console.warn(`[WIKIDATA_SPARQL_HTTP_${response.status}] SPARQL returned HTTP ${response.status}. Pausing SPARQL for 3m and switching to Wikidata Action API fallback...`);
+                }
                 throw new Error(`Wikidata API error: ${status}`);
             }
 
             const data = await response.json();
-            return { data, usedProxy };
+            return { data, usedProxy: false };
+        }).then(resolve).catch(reject);
+    });
+}
+
+// Official CORS-native Wikidata Action API fallback (www.wikidata.org/w/api.php?origin=*)
+// Works reliably across Ubuntu Telegram Desktop (QtWebEngine), Android WebView, and desktop browsers without external proxies.
+async function fetchWikidataCandidatesViaActionApi(category, useOccupationFilter, occupationId, controller) {
+    return new Promise((resolve, reject) => {
+        sparqlQueue = sparqlQueue.then(async () => {
+            const now = performance.now();
+            const elapsed = now - lastSparqlRequestTimestamp;
+            if (elapsed < 750) {
+                await new Promise(r => setTimeout(r, 750 - elapsed));
+            }
+            lastSparqlRequestTimestamp = performance.now();
+
+            const clauses = ['haswbstatement:P31=Q5', 'haswbstatement:P18', 'haswbstatement:P569'];
+            if (category?.gender === 'male') {
+                clauses.push('haswbstatement:P21=Q6581097');
+            } else if (category?.gender === 'female') {
+                clauses.push('haswbstatement:P21=Q6581072');
+            }
+            if (category?.status === 'alive') {
+                clauses.push('-haswbstatement:P570');
+            } else if (category?.status === 'deceased') {
+                clauses.push('haswbstatement:P570');
+            }
+            if (useOccupationFilter && occupationId) {
+                const cleanOcc = String(occupationId).replace(/^wd:/, '');
+                clauses.push(`haswbstatement:P106=${cleanOcc}`);
+            }
+
+            const srsearch = clauses.join(' ');
+            const randomOffset = settings.dynamicOffset ? Math.floor(Math.random() * 100) : 0;
+
+            const runSearch = async (offsetVal) => {
+                const searchUrl = `https://www.wikidata.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(srsearch)}&srnamespace=0&srlimit=25&sroffset=${offsetVal}&format=json&origin=*`;
+                const res = await fetch(searchUrl, { signal: controller.signal });
+                if (!res.ok) throw new Error(`Wikidata Action API search HTTP ${res.status}`);
+                return res.json();
+            };
+
+            let searchData = await runSearch(randomOffset);
+            let hits = Array.isArray(searchData?.query?.search) ? searchData.query.search : [];
+            if (hits.length === 0 && randomOffset > 0) {
+                const totalHits = Number(searchData?.query?.searchinfo?.totalhits || 0);
+                if (totalHits > 0) {
+                    const safeOffset = totalHits > 25 ? Math.floor(Math.random() * Math.min(totalHits - 25, 200)) : 0;
+                    searchData = await runSearch(safeOffset);
+                    hits = Array.isArray(searchData?.query?.search) ? searchData.query.search : [];
+                }
+            }
+
+            const qids = hits.map(h => h && h.title).filter(id => typeof id === 'string' && /^Q\d+$/.test(id));
+            if (qids.length === 0) {
+                return { list: [], source: 'Wikidata Action API' };
+            }
+
+            await new Promise(r => setTimeout(r, 350));
+            lastSparqlRequestTimestamp = performance.now();
+
+            const entUrl = `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${qids.join('|')}&props=claims|labels&languages=en&format=json&origin=*`;
+            const entRes = await fetch(entUrl, { signal: controller.signal });
+            if (!entRes.ok) throw new Error(`Wikidata Action API entities HTTP ${entRes.status}`);
+            const entData = await entRes.json();
+            const entities = entData?.entities || {};
+
+            const allowedCountryQids = (settings.selectedCountries !== 'all' && settings.strictCountryFilter && Array.isArray(settings.selectedCountries))
+                ? settings.selectedCountries.map(code => settings.countryMap?.[code]).filter(Boolean)
+                : null;
+            const minBirthYear = Number(settings.birthYearFilter) || 1880;
+            const candidates = [];
+
+            for (const qid of qids) {
+                const ent = entities[qid];
+                if (!ent || ent.missing) continue;
+                const label = ent.labels?.en?.value;
+                if (!label || /^Q\d+$/.test(label)) continue;
+
+                const p18File = ent.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+                if (!p18File || typeof p18File !== 'string') continue;
+                const imageUrl = `http://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(p18File.replace(/ /g, '_'))}`;
+                if (isForbiddenImageName(imageUrl)) continue;
+
+                const genderClaim = ent.claims?.P21?.[0]?.mainsnak?.datavalue?.value?.id;
+                if (genderClaim !== 'Q6581097' && genderClaim !== 'Q6581072') continue;
+                if (category?.gender === 'male' && genderClaim !== 'Q6581097') continue;
+                if (category?.gender === 'female' && genderClaim !== 'Q6581072') continue;
+
+                const birthRaw = ent.claims?.P569?.[0]?.mainsnak?.datavalue?.value?.time;
+                if (!birthRaw || typeof birthRaw !== 'string') continue;
+                const cleanBirth = birthRaw.replace(/^\+/, '');
+                const yearMatch = cleanBirth.match(/^(-?\d+)-/);
+                if (!yearMatch) continue;
+                const birthYear = parseInt(yearMatch[1], 10);
+                if (isNaN(birthYear) || birthYear < minBirthYear) continue;
+
+                const deathClaims = ent.claims?.P570;
+                const deathRaw = deathClaims?.[0]?.mainsnak?.datavalue?.value?.time;
+                const cleanDeath = deathRaw ? deathRaw.replace(/^\+/, '') : null;
+
+                if (category?.status === 'alive') {
+                    if ((Array.isArray(deathClaims) && deathClaims.length > 0) || birthYear < 1915) continue;
+                } else if (category?.status === 'deceased') {
+                    if (!cleanDeath) continue;
+                }
+
+                if (allowedCountryQids && allowedCountryQids.length > 0) {
+                    const p27Claims = Array.isArray(ent.claims?.P27) ? ent.claims.P27 : [];
+                    const personCountries = p27Claims.map(c => c?.mainsnak?.datavalue?.value?.id).filter(Boolean);
+                    if (!personCountries.some(cid => allowedCountryQids.includes(cid))) continue;
+                }
+
+                const entry = {
+                    person: { type: 'uri', value: `http://www.wikidata.org/entity/${qid}` },
+                    personLabel: { type: 'literal', value: label },
+                    image: { type: 'uri', value: imageUrl },
+                    gender: { type: 'uri', value: `http://www.wikidata.org/entity/${genderClaim}` },
+                    birthDate: { type: 'literal', value: cleanBirth }
+                };
+                if (cleanDeath) {
+                    entry.deathDate = { type: 'literal', value: cleanDeath };
+                }
+                candidates.push(entry);
+            }
+
+            return { list: candidates, source: 'Wikidata Action API' };
         }).then(resolve).catch(reject);
     });
 }
@@ -4089,24 +4236,49 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => {
-            console.warn(`[WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata query attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} is taking too long and will be aborted.`);
+            console.warn(`[WIKIDATA_QUERY_TIMEOUT_EVENT] Wikidata SPARQL attempt ${attempts}/${maxQueryAttempts} for category ${categoryKey} timed out. Falling back to Wikidata Action API.`);
             controller.abort();
-        }, WIKIDATA_QUERY_TIMEOUT_MS);
+        }, 5500);
 
         try {
-            const { data, usedProxy } = await executeThrottledSparqlQuery(query, controller);
-            clearTimeout(timeoutId);
+            let list = [];
+            let dataSourceLabel = 'Wikidata Live';
 
-            const rawList = data.results && data.results.bindings; 
-            const list = Array.isArray(rawList) ? rawList.filter(p => p && p.image?.value && !isForbiddenImageName(p.image.value)) : [];
+            try {
+                const { data, usedProxy } = await executeThrottledSparqlQuery(query, controller);
+                clearTimeout(timeoutId);
+                const rawList = data.results && data.results.bindings;
+                list = Array.isArray(rawList) ? rawList.filter(p => p && p.image?.value && !isForbiddenImageName(p.image.value)) : [];
+                dataSourceLabel = usedProxy ? 'Wikidata Proxy' : 'Wikidata Live';
+            } catch (sparqlErr) {
+                clearTimeout(timeoutId);
+                if (sparqlErr && sparqlErr.name === 'AbortError') {
+                    sparqlUnavailableUntil = Date.now() + 3 * 60 * 1000;
+                }
+                const actionController = new AbortController();
+                const actionTimer = setTimeout(() => actionController.abort(), WIKIDATA_QUERY_TIMEOUT_MS);
+                try {
+                    const actionRes = await fetchWikidataCandidatesViaActionApi(category, attempts === 1, randomOcc, actionController);
+                    clearTimeout(actionTimer);
+                    list = Array.isArray(actionRes?.list) ? actionRes.list : [];
+                    dataSourceLabel = actionRes?.source || 'Wikidata Action API';
+                    if (list.length > 0) {
+                        console.log(`[WIKIDATA_ACTION_API_SUCCESS] Fallback API fetched ${list.length} valid candidates for category ${categoryKey}.`);
+                    }
+                } catch (actionErr) {
+                    clearTimeout(actionTimer);
+                    throw actionErr;
+                }
+            }
+
             const duration = (performance.now() - start).toFixed(0);
             
             if (!list || !list.length) { 
-                console.warn(`[WIKIDATA_QUERY_WARN] No results or invalid list for category ${categoryKey}, attempt ${attempts}/${maxQueryAttempts}. Response:`, data);
+                console.warn(`[WIKIDATA_QUERY_WARN] No results or invalid list for category ${categoryKey}, attempt ${attempts}/${maxQueryAttempts}.`);
                 if (attempts === maxQueryAttempts) throw new Error(`No person found for category ${categoryKey} after ${maxQueryAttempts} query attempts with different offsets.`);
                 continue; 
             }
-            console.log(`[WIKIDATA_QUERY_SUCCESS] Attempt ${attempts}/${maxQueryAttempts} successful for category ${categoryKey}. Found ${list.length} results. Time: ${duration}ms`);
+            console.log(`[WIKIDATA_QUERY_SUCCESS] Attempt ${attempts}/${maxQueryAttempts} successful (${dataSourceLabel}) for category ${categoryKey}. Found ${list.length} results. Time: ${duration}ms`);
 
             wikidataCache[cacheKey] = (wikidataCache[cacheKey] || []).concat(list).slice(-100); 
             localStorage.setItem('wikidataCache', JSON.stringify(wikidataCache));
@@ -4122,7 +4294,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
             const randomPerson = freshList[Math.floor(Math.random() * freshList.length)];
             if (randomPerson && randomPerson.personLabel && randomPerson.personLabel.value && randomPerson.image && randomPerson.image.value && randomPerson.gender && randomPerson.birthDate && randomPerson.person && randomPerson.person.value) {
                 sessionShownNames.add(randomPerson.personLabel.value);
-                randomPerson.dataSource = usedProxy ? 'Wikidata Proxy' : 'Wikidata Live';
+                randomPerson.dataSource = dataSourceLabel;
                 return randomPerson;
             } else {
                 console.warn(`[WIKIDATA_QUERY_WARN] Randomly selected person is invalid, attempt ${attempts}/${maxQueryAttempts}. Person:`, randomPerson);
@@ -4630,7 +4802,13 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
                 
                 await loadImageWithFallback(commonsUrl, personImage); 
                 personImage.style.filter = '';
-                personImage.style.opacity = ''; 
+                if (gameMode === 'closed') {
+                    personImage.style.opacity = '0';
+                    personImage.style.visibility = 'hidden';
+                } else {
+                    personImage.style.opacity = '';
+                    personImage.style.visibility = '';
+                }
                 
                 // Verify that loaded photo contains strictly ONE human face (bypass for verified offline reserve / catalog / SVG)
                 let faceCheck = { valid: true };
@@ -4657,14 +4835,34 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
 
             } catch (error) { 
                 console.error(`[LOAD_PERSON_ERROR] Error processing person/image (fetch attempt ${attempts}/${maxImageLoadAttempts}): ${error.message}`);
+                if (currentPersonCandidate?.dataUrl && currentPersonCandidate.dataUrl.startsWith('data:image/') && !currentPersonCandidate.dataUrl.startsWith('data:image/svg')) {
+                    console.log(`[LOAD_PERSON_RESERVE_DATAURL_RESCUE] Falling back to locally saved HD dataUrl for "${currentPersonCandidate.personLabel?.value}".`);
+                    try {
+                        await loadImageWithFallback(currentPersonCandidate.dataUrl, personImage);
+                        personImage.style.filter = '';
+                        if (gameMode === 'closed') {
+                            personImage.style.opacity = '0';
+                            personImage.style.visibility = 'hidden';
+                        } else {
+                            personImage.style.opacity = '';
+                            personImage.style.visibility = '';
+                        }
+                        successfullyLoadedImage = true;
+                        imageLoadPathDetail = 'reserve_dataurl_rescue';
+                        gaLoadSource = 'reserve_dataurl_rescue';
+                        break;
+                    } catch (dataUrlErr) {}
+                }
                 removePersonFromCache(currentPersonCandidate);
                 if (attempts < maxImageLoadAttempts) {
                      console.log("[LOAD_PERSON_RETRY_FETCH] Fetching a new person due to error in current slot.");
                      currentPersonCandidate = await fetchPersonData(true, category); 
                      if (gameMode === 'closed') {
                          personImage.style.opacity = '0';
+                         personImage.style.visibility = 'hidden';
                      } else {
                          personImage.style.opacity = '';
+                         personImage.style.visibility = '';
                      }
                 } else {
                     console.error(`[LOAD_PERSON_FAILURE] Max image fetch attempts (${maxImageLoadAttempts}) reached for this slot. No image loaded.`);
@@ -4775,7 +4973,7 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
         dataSource: determinedLabel
     };
     updateDataSourceIndicator(determinedStatus, determinedLabel);
-    updateUI(currentPerson); 
+    updateUI(currentPerson, true); 
     
     // Record displayed card as used so it never repeats in future rounds or re-enters reserve shelf
     if (currentPersonCandidate?.personLabel?.value) {
@@ -4808,7 +5006,7 @@ async function loadPersonFromData(personDataToDisplay, category = null, loadToke
 }
 
 
-function updateUI(personToDisplay) { 
+function updateUI(personToDisplay, countAsNewLoad = false) { 
     console.log('[UI_UPDATE] updateUI called for person:', personToDisplay && personToDisplay.personLabel && personToDisplay.personLabel.value ? personToDisplay.personLabel.value : 'No person');
     const personDetails = document.getElementById('person-details');
     const texts = translations[selectedLanguage];
@@ -4858,7 +5056,7 @@ function updateUI(personToDisplay) {
         
         updateModeVisibility(); 
         if (personToDisplay) { 
-             loadedPhotos++;
+             if (countAsNewLoad) loadedPhotos++;
              const cpContainer = document.getElementById('circular-progress-container');
              if (cpContainer) {
                  cpContainer.classList.add('hidden');
@@ -5423,7 +5621,7 @@ async function applyNewPhotoSwap(nextCandidate, readyImgSrc) {
     };
 
     updateDataSourceIndicator(determinedStatus, determinedLabel);
-    updateUI(currentPerson);
+    updateUI(currentPerson, true);
 
     personImage.removeAttribute('crossorigin');
     personImage.onerror = () => {
@@ -5688,7 +5886,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
     
     requestAnimationFrame(() => {
         personInfo.style.display = 'block'; 
-        personInfo.classList.remove('correct', 'incorrect'); 
+        personInfo.classList.remove('hidden', 'correct', 'incorrect'); 
 
         const statusBadge = document.getElementById('person-status-badge');
         const statusTextEl = document.getElementById('person-status-text');
@@ -5698,6 +5896,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
             overlay.classList.add('hidden'); 
             personImage.classList.add('loaded'); 
             personImage.style.opacity = ''; 
+            personImage.style.visibility = '';
             console.log('[CHECK_UI] Mode CLOSED: Revealing image.');
         }
         if (isOverallCorrect) {
@@ -5746,7 +5945,7 @@ document.getElementById('check-btn').addEventListener('click', () => {
         localStorage.setItem('failedGuesses', failedGuesses.toString());
         console.log('[STATE_CHANGE] Game stats after check saved to localStorage.');
 
-        updateUI(currentPerson); 
+        updateUI(currentPerson, false); 
         updateNewGameButtonPosition(); 
 
         if (currentAttempts >= maxAttempts) {

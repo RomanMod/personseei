@@ -1,0 +1,251 @@
+=== App Version: v2.5.5 (11/13/2026, 5:09:20 PM) ===
+[17:14:30.38] [LOG] [STATE_CHANGE] Attempt start time set to 1794590070385 for person: Rosa Parks. Saved to localStorage.
+[17:14:30.41] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[17:14:30.45] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q410","person_name":"Rosa Parks","new_language":"uk","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","session_id":"1794590036_6244","language":"uk","current_theme":"night"}
+[17:14:30.49] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Rosa Parks is now cleared as it's either used or failed assign.
+[17:14:30.52] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[17:14:30.54] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 22/60): MA: 8/15, MD: 1/15, FA: 6/15, FD: 7/15 (Real photos: 22) | Cache: 0 | Catalog: 0/100
+[17:14:30.57] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-alive": "Jeff Bezos". Осталось в категории: 7/15
+[17:14:30.60] [LOG] [SHELF_THRESHOLD] В категории "male-alive" осталось 7/15 (зазор 5 сработал). Запускаем пополнение категории...
+[17:14:30.63] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Jeff Bezos. Buffer: 1/1
+[17:14:30.66] [LOG] [PRELOAD] Starting preload for: Jeff Bezos
+[17:14:30.68] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 21/60): MA: 7/15, MD: 1/15, FA: 6/15, FD: 7/15 (Real photos: 21) | Cache: 0 | Catalog: 0/100
+[17:14:30.71] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[17:14:30.74] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:14:30.77] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: None or no label
+[17:14:30.80] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 21/60): MA: 7/15, MD: 1/15, FA: 6/15, FD: 7/15 (Real photos: 21) | Cache: 0 | Catalog: 0/100
+[17:14:30.83] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[17:14:30.85] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:14:30.88] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[17:14:30.91] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[17:14:30.95] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[17:14:30.99] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:31.03] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg/960px-260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail for Jeff Bezos
+[17:14:31.06] [LOG] [PRELOAD] Preloading process attempt finished.
+[17:14:31.09] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:31.11] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-deceased, attempt 2/2...
+[17:14:31.35] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:31.43] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:31.47] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:31.66] [LOG] [USER_ACTION] Status selected: Alive
+[17:14:31.77] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:31.86] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:31.89] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[17:14:31.96] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[17:14:31.99] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[17:14:32.14] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:32.21] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:32.24] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[17:14:32.28] [LOG] [USER_ACTION] "Check" button clicked.
+[17:14:32.31] [LOG] [GAME_STATE] Attempt 9/10. Total guesses this game: 9.
+[17:14:32.35] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: dead
+[17:14:32.38] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: false, Overall Correct: false
+[17:14:32.42] [LOG] [STATE_CHANGE] Guess result (0) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,1,0,1,0]
+[17:14:32.44] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 2 seconds (1931ms). Start: 1794590070385, End: 1794590072316
+[17:14:32.47] [LOG] [STATE_CHANGE] Attempt duration 2s added. Saved to localStorage. Durations: [4,2,3,2,2,2,2,2,2]
+[17:14:32.51] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[17:14:32.59] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794590036_6244","attempt_number_in_session":9,"time_for_attempt_seconds":2,"attempt_result":0,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","language":"uk","current_theme":"night"}
+[17:14:32.64] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[17:14:32.68] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q410","person_name":"Rosa Parks","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":9,"new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","session_id":"1794590036_6244","language":"uk","current_theme":"night"}
+[17:14:32.72] [LOG] [CHECK_UI] Guess was INCORRECT.
+[17:14:32.75] [LOG] [CHECK_UI] Stats display updated.
+[17:14:32.78] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[17:14:32.80] [LOG] [UI_UPDATE] updateUI called for person: Rosa Parks
+[17:14:32.83] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 9 Max: 10 IsInitialCall: false
+[17:14:32.85] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[17:14:32.90] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[17:14:32.93] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:14:32.96] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: Jeff Bezos
+[17:14:33.00] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 21/60): MA: 7/15, MD: 1/15, FA: 6/15, FD: 7/15 (Real photos: 21) | Cache: 0 | Catalog: 0/100
+[17:14:33.05] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:33.13] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:33.18] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:33.32] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:33.38] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:33.41] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:33.66] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[17:14:33.69] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-deceased, querying Wikidata.
+[17:14:33.74] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:33.81] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:33.83] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
+[17:14:33.88] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[17:14:33.91] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-alive, querying Wikidata.
+[17:14:34.27] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:34.33] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:34.37] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:34.47] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:34.54] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:34.57] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-deceased, attempt 2/2...
+[17:14:34.84] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:34.88] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[17:14:34.91] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[17:14:34.93] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:34.96] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:35.41] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:35.44] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[17:14:35.48] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[17:14:35.53] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:35.57] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[17:14:35.66] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:35.73] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:35.75] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:36.04] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:36.12] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:36.15] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[17:14:36.22] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[17:14:36.25] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-deceased, querying Wikidata.
+[17:14:36.42] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:36.48] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:36.51] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
+[17:14:36.80] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:36.86] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:36.89] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:37.19] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:37.27] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:37.31] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:37.36] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[17:14:37.40] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-alive, querying Wikidata.
+[17:14:37.56] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:37.63] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:37.66] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-deceased, attempt 2/2...
+[17:14:37.80] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[17:14:37.84] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[17:14:37.94] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:38.01] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:38.05] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:38.33] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:38.40] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:38.43] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[17:14:38.46] [LOG] [LIFE_CYCLE] Window focused. Checking inactivity timeout...
+[17:14:38.48] [LOG] [LIFE_CYCLE] App resumed / screen turned on / window focused.
+[17:14:38.51] [LOG] [SESSION_LIFECYCLE] Active session "1794590036_6244" is within 32-minute grace period (6s idle). Player continues game!
+[17:14:38.54] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[17:14:38.57] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 21/60): MA: 7/15, MD: 1/15, FA: 6/15, FD: 7/15 (Real photos: 21) | Cache: 0 | Catalog: 0/100
+[17:14:38.60] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 9/10 (gen: 35)
+[17:14:38.63] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[17:14:38.69] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794590036_6244","trigger_button":"next_after_check","new_language":"uk","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Jeff Bezos","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","language":"uk","current_theme":"night"}
+[17:14:38.72] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[17:14:38.75] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Jeff Bezos. Осталось на полочках: 21/60
+[17:14:38.78] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Jeff Bezos (gen: 35)
+[17:14:38.81] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[17:14:38.83] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Jeff Bezos
+[17:14:38.86] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg/960px-260202-D-PM193-2205_SECWAR_Arsenal_of_Freedom_Tour_-_Florida_%283x4_cropped_on_Bezos_and_rotated%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[17:14:38.88] [LOG] [UI_UPDATE] updateUI called for person: Jeff Bezos
+[17:14:38.91] [LOG] [STATE_CHANGE] Attempt start time set to 1794590078915 for person: Jeff Bezos. Saved to localStorage.
+[17:14:38.94] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[17:14:38.98] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q312556","person_name":"Jeff Bezos","new_language":"uk","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","session_id":"1794590036_6244","language":"uk","current_theme":"night"}
+[17:14:39.01] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Jeff Bezos is now cleared as it's either used or failed assign.
+[17:14:39.03] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[17:14:39.07] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[17:14:39.09] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:14:39.12] [LOG] [PHOTO_STATUS] Loaded photos in session: 10, Remaining in sessionList: 0, Preloaded: None or no label
+[17:14:39.14] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 0/1 | Shelf (Total: 21/60): MA: 7/15, MD: 1/15, FA: 6/15, FD: 7/15 (Real photos: 21) | Cache: 0 | Catalog: 0/100
+[17:14:39.17] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[17:14:39.20] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:14:39.22] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[17:14:39.26] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[17:14:39.32] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[17:14:39.43] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:39.52] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:39.54] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:39.79] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:39.87] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:39.89] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[17:14:40.02] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[17:14:40.05] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-deceased, querying Wikidata.
+[17:14:40.19] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:40.29] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:40.32] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:40.56] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:40.64] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:40.67] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
+[17:14:40.80] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[17:14:40.84] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-alive, querying Wikidata.
+[17:14:40.95] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:41.03] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:41.08] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:41.25] [LOG] [USER_ACTION] Status selected: Alive
+[17:14:41.36] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:41.44] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:41.48] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-deceased, attempt 2/2...
+[17:14:41.60] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[17:14:41.64] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[17:14:41.76] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:41.80] [LOG] [USER_ACTION] "Check" button clicked.
+[17:14:41.85] [LOG] [GAME_STATE] Attempt 10/10. Total guesses this game: 10.
+[17:14:41.89] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: alive
+[17:14:41.93] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[17:14:41.97] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,1,0,1,0,1]
+[17:14:42.01] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 3 seconds (2944ms). Start: 1794590078915, End: 1794590081859
+[17:14:42.04] [LOG] [STATE_CHANGE] Attempt duration 3s added. Saved to localStorage. Durations: [4,2,3,2,2,2,2,2,2,3]
+[17:14:42.06] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[17:14:42.10] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794590036_6244","attempt_number_in_session":10,"time_for_attempt_seconds":3,"attempt_result":1,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","language":"uk","current_theme":"night"}
+[17:14:42.14] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[17:14:42.19] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q312556","person_name":"Jeff Bezos","game_mode":"open","actual_gender":"male","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":10,"new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","session_id":"1794590036_6244","language":"uk","current_theme":"night"}
+[17:14:42.23] [LOG] [CHECK_UI] Guess was CORRECT.
+[17:14:42.28] [LOG] [CHECK_UI] Stats display updated.
+[17:14:42.32] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[17:14:42.38] [LOG] [UI_UPDATE] updateUI called for person: Jeff Bezos
+[17:14:42.41] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 10 Max: 10 IsInitialCall: false
+[17:14:42.45] [LOG] [UI_UPDATE] Game is over, scheduling New Game button move to game over location in 5s.
+[17:14:42.50] [LOG] [GAME_OVER] All attempts used. Game over.
+[17:14:42.54] [LOG] [GA_EVENT_SENT] Name: game_over, Params: {"total_attempts":10,"successful_guesses":5,"failed_guesses":5,"success_rate":"50%","new_language":"uk","game_mode":"open","session_id":"1794590036_6244","current_theme":"night","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794590036_6244","language":"uk"}
+[17:14:42.58] [LOG] [STATE_CHANGE] Game over: currentSessionId and currentAttemptStartTime cleared from localStorage.
+[17:14:42.62] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:42.66] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:42.70] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=false, canMakeGuess=false, isResultVisible=true, mode=open
+[17:14:42.72] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[17:14:42.75] [LOG] [PHOTO_STATUS] Loaded photos in session: 10, Remaining in sessionList: 0, Preloaded: None or no label
+[17:14:42.78] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 0/1 | Shelf (Total: 21/60): MA: 7/15, MD: 1/15, FA: 6/15, FD: 7/15 (Real photos: 21) | Cache: 0 | Catalog: 0/100
+[17:14:42.81] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:42.88] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:42.91] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[17:14:43.05] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:43.09] [LOG] [SHEETS_SENT] Dispatched anonymized event "game_over" to Google Sheets (Spam: false)
+[17:14:43.12] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:43.15] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:43.17] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[17:14:43.20] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[17:14:43.44] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:43.52] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:43.56] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[17:14:43.62] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[17:14:43.68] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-deceased, querying Wikidata.
+[17:14:43.85] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:43.93] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:43.97] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:44.22] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:44.31] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:44.35] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
+[17:14:44.44] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[17:14:44.47] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-alive, querying Wikidata.
+[17:14:44.60] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:44.68] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:44.71] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:44.99] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:45.14] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:45.18] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-deceased, attempt 2/2...
+[17:14:45.22] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[17:14:45.25] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[17:14:45.36] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:45.43] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:45.47] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:45.74] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:45.82] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:45.85] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-alive, attempt 2/2...
+[17:14:45.95] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-alive, CacheKey: false-female-alive
+[17:14:45.98] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-alive, querying Wikidata.
+[17:14:46.12] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:46.20] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category female-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:46.24] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: female-deceased) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:46.51] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:46.58] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category male-deceased failed. Retrying. Error: Wikidata API error: network failure
+[17:14:46.61] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for male-deceased, attempt 2/2...
+[17:14:46.73] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[17:14:46.76] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-female-deceased, querying Wikidata.
+[17:14:46.89] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:46.97] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:47.01] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-alive) after 2 attempts. Last error on attempt 2: Wikidata API error: network failure
+[17:14:47.27] [WARN] [WIKIDATA_DIRECT_FAIL] Direct SPARQL query issue (Failed to fetch). Attempting CORS proxy fallback...
+[17:14:47.35] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 1/2 for category female-alive failed. Retrying. Error: Wikidata API error: network failure
+[17:14:47.38] [LOG] [WIKIDATA_FETCH_RETRY] Retrying query for female-alive, attempt 2/2...
