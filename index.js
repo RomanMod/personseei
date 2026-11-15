@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.7';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.8';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -1837,6 +1837,37 @@ function updateLanguage() {
     const forceReloadBtn = document.getElementById('force-reload-btn');
     if (forceReloadBtn) forceReloadBtn.textContent = forceReloadTexts[selectedLanguage] || forceReloadTexts.en;
 
+    const saveSheetsWebhookBtn = document.getElementById('save-sheets-webhook-btn');
+    if (saveSheetsWebhookBtn) {
+        const saveWebhookTexts = {
+            uk: 'Зберегти',
+            ru: 'Сохранить',
+            en: 'Save',
+            de: 'Speichern',
+            fr: 'Enregistrer',
+            es: 'Guardar',
+            zh: '保存',
+            it: 'Salva',
+            alien: '☍Ψ'
+        };
+        saveSheetsWebhookBtn.textContent = saveWebhookTexts[selectedLanguage] || saveWebhookTexts.en;
+    }
+    const testSheetsWebhookBtn = document.getElementById('test-sheets-webhook-btn');
+    if (testSheetsWebhookBtn) {
+        const testWebhookTexts = {
+            uk: 'Тест',
+            ru: 'Тест',
+            en: 'Test',
+            de: 'Test',
+            fr: 'Test',
+            es: 'Test',
+            zh: '测试',
+            it: 'Test',
+            alien: '☌Ψ'
+        };
+        testSheetsWebhookBtn.textContent = testWebhookTexts[selectedLanguage] || testWebhookTexts.en;
+    }
+
     const sheetsModeLabel = document.getElementById('sheets-mode-label');
     if (sheetsModeLabel) {
         sheetsModeLabel.textContent = selectedLanguage === 'ru' 
@@ -2491,6 +2522,10 @@ async function verifySingleFace(imgElement) {
         const imgData = ctx.getImageData(0, 0, sampleW, sampleH).data;
 
         let skinPixels = 0;
+        let lowChromaPixels = 0;
+        let midTonePixels = 0;
+        let sumY = 0;
+        let sumY2 = 0;
         let leftThirdSkin = 0;
         let rightThirdSkin = 0;
         let centerThirdSkin = 0;
@@ -2507,8 +2542,19 @@ async function verifySingleFace(imgElement) {
                 const g = imgData[idx + 1];
                 const b = imgData[idx + 2];
 
+                const maxCh = Math.max(r, g, b);
+                const minCh = Math.min(r, g, b);
+                if (maxCh - minCh <= 18) {
+                    lowChromaPixels++;
+                }
+
                 // YCbCr skin color transformation
                 const yVal = 0.299 * r + 0.587 * g + 0.114 * b;
+                sumY += yVal;
+                sumY2 += yVal * yVal;
+                if (yVal >= 45 && yVal <= 215) {
+                    midTonePixels++;
+                }
                 const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
                 const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
 
@@ -2519,8 +2565,6 @@ async function verifySingleFace(imgElement) {
                     sumX2 += x * x;
                     
                     // Measure saturation to distinguish living human skin from grey/stone statues
-                    const maxCh = Math.max(r, g, b);
-                    const minCh = Math.min(r, g, b);
                     const sat = maxCh === 0 ? 0 : (maxCh - minCh) / maxCh;
                     totalSat += sat;
 
@@ -2537,9 +2581,18 @@ async function verifySingleFace(imgElement) {
 
         const totalPixels = sampleW * sampleH;
         const skinPercentage = (skinPixels / totalPixels) * 100;
+        const lowChromaRatio = lowChromaPixels / totalPixels;
+        const meanY = sumY / totalPixels;
+        const yStdDev = Math.sqrt(Math.max(0, (sumY2 / totalPixels) - (meanY * meanY)));
+        const midToneRatio = midTonePixels / totalPixels;
 
-        // Statues (grey bronze/stone), monuments, buildings, ducks, animals have < 2.5% skin tones
+        // Statues (grey bronze/stone), monuments, buildings, ducks, animals have < 2.5% skin tones.
+        // Exception: authentic grayscale/B&W photographic portraits when B&W photos are allowed (no colored background, real tonal depth & midtones).
         if (skinPercentage < 2.5) {
+            if (!settings.excludeBlackAndWhite && lowChromaRatio >= 0.88 && yStdDev >= 24 && midToneRatio >= 0.28) {
+                console.log(`[FACE_CANVAS_BW_PASS] Monochrome portrait accepted (lowChroma: ${(lowChromaRatio * 100).toFixed(0)}%, yStdDev: ${yStdDev.toFixed(1)}, midTones: ${(midToneRatio * 100).toFixed(0)}%).`);
+                return { valid: true, reason: 'monochrome_portrait_passed', faceCount: 1 };
+            }
             console.warn(`[FACE_CANVAS_REJECT] Very low skin-tone coverage (${skinPercentage.toFixed(2)}% < 2.5%). Likely statue, monument, duck, or non-human entity.`);
             return { valid: false, reason: 'insufficient_human_skin', faceCount: 0 };
         }
@@ -2547,6 +2600,10 @@ async function verifySingleFace(imgElement) {
         // Check if detected material has near-zero saturation (marble/stone bust/grey statue)
         const avgSat = skinPixels > 0 ? (totalSat / skinPixels) : 0;
         if (avgSat < 0.12) {
+            if (!settings.excludeBlackAndWhite && lowChromaRatio >= 0.88 && yStdDev >= 24 && midToneRatio >= 0.28) {
+                console.log(`[FACE_CANVAS_BW_PASS] Monochrome portrait accepted on low-sat pass (lowChroma: ${(lowChromaRatio * 100).toFixed(0)}%, yStdDev: ${yStdDev.toFixed(1)}).`);
+                return { valid: true, reason: 'monochrome_portrait_passed', faceCount: 1 };
+            }
             console.warn(`[FACE_CANVAS_REJECT] Extremely low skin saturation (${avgSat.toFixed(2)} < 0.12). Likely monochrome marble bust, bronze sculpture, or stone monument.`);
             return { valid: false, reason: 'sculpture_low_saturation', faceCount: 0 };
         }
@@ -4083,7 +4140,11 @@ async function fetchWikidataCandidatesViaActionApi(category, useOccupationFilter
                 candidates.push(entry);
             }
 
-            return { list: candidates, source: 'Wikidata Action API' };
+            const freshCandidates = candidates.filter(c => {
+                const n = c?.personLabel?.value;
+                return n && !sessionShownNames.has(n) && !isCardAlreadyUsed(n);
+            });
+            return { list: freshCandidates.length > 0 ? freshCandidates : candidates, source: 'Wikidata Action API' };
         }).then(resolve).catch(reject);
     });
 }
@@ -4270,6 +4331,7 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
         try {
             let list = [];
             let dataSourceLabel = 'Wikidata Live';
+            let needActionApiFallback = false;
 
             try {
                 const { data, usedProxy } = await executeThrottledSparqlQuery(query, controller);
@@ -4277,11 +4339,19 @@ async function fetchPersonDataInner(useRandom = false, category = null) {
                 const rawList = data.results && data.results.bindings;
                 list = Array.isArray(rawList) ? rawList.filter(p => p && p.image?.value && !isForbiddenImageName(p.image.value)) : [];
                 dataSourceLabel = usedProxy ? 'Wikidata Proxy' : 'Wikidata Live';
+                if (list.length === 0) {
+                    console.warn(`[WIKIDATA_SPARQL_EMPTY] SPARQL returned 0 usable candidates for ${categoryKey} (attempt ${attempts}/${maxQueryAttempts}). Switching to Wikidata Action API fallback...`);
+                    needActionApiFallback = true;
+                }
             } catch (sparqlErr) {
                 clearTimeout(timeoutId);
                 if (sparqlErr && sparqlErr.name === 'AbortError') {
                     sparqlUnavailableUntil = Date.now() + 3 * 60 * 1000;
                 }
+                needActionApiFallback = true;
+            }
+
+            if (needActionApiFallback) {
                 const actionController = new AbortController();
                 const actionTimer = setTimeout(() => actionController.abort(), WIKIDATA_QUERY_TIMEOUT_MS);
                 try {

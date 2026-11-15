@@ -1,0 +1,251 @@
+=== App Version: v2.5.7 (11/13/2026, 7:12:37 PM) ===
+[19:31:50.93] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[19:31:51.24] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"QuJC0Z8jrBCfpaDk","result":true}
+[19:31:51.38] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[19:31:51.52] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"DjLjlCfyab11ZaPx","result":true}
+[19:31:51.65] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[19:31:51.79] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"JG06gqWUVnglN7KS","result":true}
+[19:31:51.94] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[19:31:52.10] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"Hrf6c8wUWaqwaBFo","result":true}
+[19:31:52.22] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[19:31:52.35] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Emma_Bonino_-_World_Economic_Forum_on_Europe_2010.jpg/960px-Emma_Bonino_-_World_Economic_Forum_on_Europe_2010.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 2887ms
+[19:31:52.49] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[19:31:52.62] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:31:52.76] [LOG] [PHOTO_STATUS] Loaded photos in session: 7, Remaining in sessionList: 1, Preloaded: Indira Gandhi
+[19:31:52.90] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 52/60): MA: 14/15, MD: 14/15, FA: 11/15, FD: 13/15 (Real photos: 52) | Cache: 82 | Catalog: 0/100
+[19:31:53.25] [LOG] [RESERVE_HELPER] ✅ Категория "female-deceased": добавлена карточка 4/5 (В категории: 14/15).
+[19:31:53.87] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[19:31:54.03] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Liliane Chappuis
+[19:31:54.16] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Liliane Chappuis.jpg
+[19:31:54.48] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9a/Liliane_Chappuis.jpg/960px-Liliane_Chappuis.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 318ms
+[19:31:55.24] [LOG] [RESERVE_HELPER] ✅ Категория "female-deceased": добавлена карточка 5/5 (В категории: 15/15).
+[19:31:55.86] [LOG] [RESERVE_HELPER] 🏁 Категория "female-deceased": партия завершена (+5 свежих фото). Всего: 15/15
+[19:31:56.08] [LOG] [RESERVE_STOCK] [category_restock_complete] Buffer: 1/1 | Shelf (Total: 54/60): MA: 14/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 54) | Cache: 82 | Catalog: 0/100
+[19:31:56.37] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[19:31:56.51] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 54/60): MA: 14/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 54) | Cache: 82 | Catalog: 0/100
+[19:31:56.64] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 7/10 (gen: 12)
+[19:31:56.78] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[19:31:56.94] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794597970_5806","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Indira Gandhi","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:31:57.09] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[19:31:57.22] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Indira Gandhi. Осталось на полочках: 54/60
+[19:31:57.36] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Indira Gandhi (gen: 12)
+[19:31:57.52] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[19:31:57.66] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Indira Gandhi
+[19:31:57.79] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a1/Indira_Gandhi_official_portrait.png/960px-Indira_Gandhi_official_portrait.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[19:31:57.93] [LOG] [UI_UPDATE] updateUI called for person: Indira Gandhi
+[19:31:58.07] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"5tlNzAFaTF5ruHYR","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794598318071"}}
+[19:31:58.21] [LOG] [STATE_CHANGE] Attempt start time set to 1794598318071 for person: Indira Gandhi. Saved to localStorage.
+[19:31:58.34] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[19:31:58.49] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q1149","person_name":"Indira Gandhi","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:31:58.63] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Indira Gandhi is now cleared as it's either used or failed assign.
+[19:31:58.77] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[19:31:58.90] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 54/60): MA: 14/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 54) | Cache: 82 | Catalog: 0/100
+[19:31:59.17] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-alive": "Paul McCartney". Осталось в категории: 13/15
+[19:31:59.32] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Paul McCartney. Buffer: 1/1
+[19:31:59.46] [LOG] [PRELOAD] Starting preload for: Paul McCartney
+[19:31:59.64] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 53/60): MA: 13/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 53) | Cache: 82 | Catalog: 0/100
+[19:31:59.77] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"5tlNzAFaTF5ruHYR","result":true}
+[19:31:59.91] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[19:32:00.05] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg/960px-MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail for Paul McCartney
+[19:32:00.19] [LOG] [PRELOAD] Preloading process attempt finished.
+[19:32:00.33] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:32:00.47] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:00.61] [LOG] [PHOTO_STATUS] Loaded photos in session: 8, Remaining in sessionList: 1, Preloaded: Paul McCartney
+[19:32:00.74] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 53/60): MA: 13/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 53) | Cache: 82 | Catalog: 0/100
+[19:32:00.89] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:32:01.02] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:01.16] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[19:32:06.12] [LOG] [USER_ACTION] Status selected: Alive
+[19:32:06.83] [LOG] [USER_ACTION] "Check" button clicked.
+[19:32:06.98] [LOG] [GAME_STATE] Attempt 8/10. Total guesses this game: 8.
+[19:32:07.12] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: dead
+[19:32:07.26] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: false, Overall Correct: false
+[19:32:07.40] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"PGhFDdNeDRGOhenX","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,1,1,1,1,0,0]"}}
+[19:32:07.54] [LOG] [STATE_CHANGE] Guess result (0) added to success/fail history. Saved to localStorage. History: [1,1,1,1,1,1,0,0]
+[19:32:07.70] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 9 seconds (8917ms). Start: 1794598318071, End: 1794598326988
+[19:32:07.83] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"DqRHcaL5DeFdNFNN","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[61,7,132,6,12,11,8,9]"}}
+[19:32:07.97] [LOG] [STATE_CHANGE] Attempt duration 9s added. Saved to localStorage. Durations: [61,7,132,6,12,11,8,9]
+[19:32:08.13] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[19:32:08.29] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794597970_5806","attempt_number_in_session":8,"time_for_attempt_seconds":9,"attempt_result":0,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:08.43] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[19:32:08.58] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q1149","person_name":"Indira Gandhi","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":8,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:08.75] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"PGhFDdNeDRGOhenX","result":true}
+[19:32:08.89] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[19:32:09.04] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"DqRHcaL5DeFdNFNN","result":true}
+[19:32:09.17] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[19:32:09.32] [LOG] [CHECK_UI] Guess was INCORRECT.
+[19:32:09.46] [LOG] [CHECK_UI] Stats display updated.
+[19:32:09.61] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"PIKwEBRIVIu25ThH","method":"saveStorageValue","params":{"key":"currentAttempts","value":"8"}}
+[19:32:09.75] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"GmLBQZ3BFjj2cR1z","method":"saveStorageValue","params":{"key":"totalGuesses","value":"8"}}
+[19:32:09.91] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"dgxyXdALnpX14fzH","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"6"}}
+[19:32:10.05] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"3N4kbTRUEhUIiNt3","method":"saveStorageValue","params":{"key":"failedGuesses","value":"2"}}
+[19:32:10.19] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[19:32:10.32] [LOG] [UI_UPDATE] updateUI called for person: Indira Gandhi
+[19:32:10.45] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 8 Max: 10 IsInitialCall: false
+[19:32:10.59] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[19:32:10.86] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"PIKwEBRIVIu25ThH","result":true}
+[19:32:11.03] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[19:32:11.17] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"GmLBQZ3BFjj2cR1z","result":true}
+[19:32:11.31] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[19:32:11.44] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"dgxyXdALnpX14fzH","result":true}
+[19:32:11.57] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[19:32:11.71] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"3N4kbTRUEhUIiNt3","result":true}
+[19:32:11.84] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[19:32:11.98] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[19:32:12.12] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:12.26] [LOG] [PHOTO_STATUS] Loaded photos in session: 8, Remaining in sessionList: 1, Preloaded: Paul McCartney
+[19:32:12.39] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 53/60): MA: 13/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 53) | Cache: 82 | Catalog: 0/100
+[19:32:14.82] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[19:32:14.97] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 53/60): MA: 13/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 53) | Cache: 82 | Catalog: 0/100
+[19:32:15.12] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 8/10 (gen: 13)
+[19:32:15.25] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[19:32:15.41] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794597970_5806","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Paul McCartney","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:15.56] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[19:32:15.72] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Paul McCartney. Осталось на полочках: 53/60
+[19:32:15.87] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Paul McCartney (gen: 13)
+[19:32:16.03] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[19:32:16.19] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Paul McCartney
+[19:32:16.33] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg/960px-MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[19:32:16.46] [LOG] [UI_UPDATE] updateUI called for person: Paul McCartney
+[19:32:16.59] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"vIli44w36Iq3hzKt","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794598336598"}}
+[19:32:16.73] [LOG] [STATE_CHANGE] Attempt start time set to 1794598336598 for person: Paul McCartney. Saved to localStorage.
+[19:32:16.87] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[19:32:17.01] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q2599","person_name":"Paul McCartney","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:17.16] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Paul McCartney is now cleared as it's either used or failed assign.
+[19:32:17.30] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[19:32:17.44] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 53/60): MA: 13/15, MD: 14/15, FA: 11/15, FD: 15/15 (Real photos: 53) | Cache: 82 | Catalog: 0/100
+[19:32:17.63] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-deceased": "Joseph Augustus Zarelli". Осталось в категории: 13/15
+[19:32:17.77] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Joseph Augustus Zarelli. Buffer: 1/1
+[19:32:17.90] [LOG] [PRELOAD] Starting preload for: Joseph Augustus Zarelli
+[19:32:18.04] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 52/60): MA: 13/15, MD: 13/15, FA: 11/15, FD: 15/15 (Real photos: 52) | Cache: 82 | Catalog: 0/100
+[19:32:18.20] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"vIli44w36Iq3hzKt","result":true}
+[19:32:18.35] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[19:32:18.50] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://upload.wikimedia.org/wikipedia/commons/c/c2/Boy_in_the_Box_1957_Recon_001C.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled for Joseph Augustus Zarelli
+[19:32:18.63] [LOG] [PRELOAD] Preloading process attempt finished.
+[19:32:18.78] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:32:18.93] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:19.07] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: Joseph Augustus Zarelli
+[19:32:19.21] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 52/60): MA: 13/15, MD: 13/15, FA: 11/15, FD: 15/15 (Real photos: 52) | Cache: 82 | Catalog: 0/100
+[19:32:19.34] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:32:19.48] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:19.61] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[19:32:19.81] [LOG] [SESSION_LIFECYCLE] Active session "1794597970_5806" is within 32-minute grace period (5s idle). Player continues game!
+[19:32:23.86] [LOG] [USER_ACTION] Status selected: Alive
+[19:32:24.51] [LOG] [USER_ACTION] "Check" button clicked.
+[19:32:24.65] [LOG] [GAME_STATE] Attempt 9/10. Total guesses this game: 9.
+[19:32:24.83] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: alive
+[19:32:24.97] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[19:32:25.11] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"ZEdx35ymMnTXrvcA","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,1,1,1,1,0,0,1]"}}
+[19:32:25.25] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1,1,1,1,1,0,0,1]
+[19:32:25.39] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 8 seconds (8058ms). Start: 1794598336598, End: 1794598344656
+[19:32:25.54] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"GXVvS1vs94sAbJPy","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[61,7,132,6,12,11,8,9,8]"}}
+[19:32:25.67] [LOG] [STATE_CHANGE] Attempt duration 8s added. Saved to localStorage. Durations: [61,7,132,6,12,11,8,9,8]
+[19:32:25.80] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[19:32:25.96] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794597970_5806","attempt_number_in_session":9,"time_for_attempt_seconds":8,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:26.12] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[19:32:26.27] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q2599","person_name":"Paul McCartney","game_mode":"open","actual_gender":"male","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":9,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:26.41] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"ZEdx35ymMnTXrvcA","result":true}
+[19:32:26.54] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[19:32:26.68] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"GXVvS1vs94sAbJPy","result":true}
+[19:32:26.85] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[19:32:26.98] [LOG] [CHECK_UI] Guess was CORRECT.
+[19:32:27.16] [LOG] [CHECK_UI] Stats display updated.
+[19:32:27.34] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"xU6TAPxHJoTZtMph","method":"saveStorageValue","params":{"key":"currentAttempts","value":"9"}}
+[19:32:27.47] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"RfeZyVIE38tJh66t","method":"saveStorageValue","params":{"key":"totalGuesses","value":"9"}}
+[19:32:27.61] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"HRHXLN6vNovkSLyn","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"7"}}
+[19:32:27.76] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"pddIZHjNi6soP2di","method":"saveStorageValue","params":{"key":"failedGuesses","value":"2"}}
+[19:32:27.92] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[19:32:28.06] [LOG] [UI_UPDATE] updateUI called for person: Paul McCartney
+[19:32:28.21] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 9 Max: 10 IsInitialCall: false
+[19:32:28.35] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[19:32:28.53] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"xU6TAPxHJoTZtMph","result":true}
+[19:32:28.66] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[19:32:28.80] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"RfeZyVIE38tJh66t","result":true}
+[19:32:28.96] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[19:32:29.11] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"HRHXLN6vNovkSLyn","result":true}
+[19:32:29.26] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[19:32:29.40] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"pddIZHjNi6soP2di","result":true}
+[19:32:29.53] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[19:32:29.69] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[19:32:29.84] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:29.98] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: Joseph Augustus Zarelli
+[19:32:30.14] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 52/60): MA: 13/15, MD: 13/15, FA: 11/15, FD: 15/15 (Real photos: 52) | Cache: 82 | Catalog: 0/100
+[19:32:32.12] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[19:32:32.28] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 52/60): MA: 13/15, MD: 13/15, FA: 11/15, FD: 15/15 (Real photos: 52) | Cache: 82 | Catalog: 0/100
+[19:32:32.42] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 9/10 (gen: 14)
+[19:32:32.55] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[19:32:32.71] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794597970_5806","trigger_button":"next_after_check","new_language":"ru","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Joseph Augustus Zarelli","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:32.85] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[19:32:32.99] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Joseph Augustus Zarelli. Осталось на полочках: 52/60
+[19:32:33.17] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Joseph Augustus Zarelli (gen: 14)
+[19:32:33.31] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[19:32:33.46] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Joseph Augustus Zarelli
+[19:32:33.68] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://upload.wikimedia.org/wikipedia/commons/c/c2/Boy_in_the_Box_1957_Recon_001C.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled
+[19:32:33.83] [LOG] [VERSION_BADGE_COLOR] Индикатор версии: жёлтый (Демо-каталог) -> синий/голубой (Полочка / Резерв) | Статус: "Локальный резерв 📸" (status=reserve) | Источник: Offline Local Reserve | Персона: "Joseph Augustus Zarelli"
+[19:32:33.96] [LOG] [UI_UPDATE] updateUI called for person: Joseph Augustus Zarelli
+[19:32:34.12] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"hFgDbrwDf3oNMQVN","method":"saveStorageValue","params":{"key":"currentAttemptStartTime","value":"1794598354127"}}
+[19:32:34.26] [LOG] [STATE_CHANGE] Attempt start time set to 1794598354127 for person: Joseph Augustus Zarelli. Saved to localStorage.
+[19:32:34.41] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[19:32:34.56] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q331015","person_name":"Joseph Augustus Zarelli","new_language":"ru","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:34.71] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Joseph Augustus Zarelli is now cleared as it's either used or failed assign.
+[19:32:34.85] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[19:32:34.98] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"hFgDbrwDf3oNMQVN","result":true}
+[19:32:35.13] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttemptStartTime" to Telegram cloud storage.
+[19:32:35.40] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:32:35.57] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:35.71] [LOG] [PHOTO_STATUS] Loaded photos in session: 10, Remaining in sessionList: 0, Preloaded: None or no label
+[19:32:35.85] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 0/1 | Shelf (Total: 52/60): MA: 13/15, MD: 13/15, FA: 11/15, FD: 15/15 (Real photos: 52) | Cache: 82 | Catalog: 0/100
+[19:32:35.99] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:32:36.13] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:36.29] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[19:32:39.43] [LOG] [USER_ACTION] Status selected: Dead
+[19:32:40.47] [LOG] [USER_ACTION] "Check" button clicked.
+[19:32:40.64] [LOG] [GAME_STATE] Attempt 10/10. Total guesses this game: 10.
+[19:32:40.77] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: dead
+[19:32:40.91] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[19:32:41.06] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"OTds65wmlxF285Ul","method":"saveStorageValue","params":{"key":"guessResultsHistory","value":"[1,1,1,1,1,1,0,0,1,1]"}}
+[19:32:41.21] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [1,1,1,1,1,1,0,0,1,1]
+[19:32:41.36] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 7 seconds (6520ms). Start: 1794598354127, End: 1794598360647
+[19:32:41.49] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"eIZ39uVtt2vkWmjX","method":"saveStorageValue","params":{"key":"attemptDurations","value":"[61,7,132,6,12,11,8,9,8,7]"}}
+[19:32:41.63] [LOG] [STATE_CHANGE] Attempt duration 7s added. Saved to localStorage. Durations: [61,7,132,6,12,11,8,9,8,7]
+[19:32:41.76] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[19:32:41.92] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794597970_5806","attempt_number_in_session":10,"time_for_attempt_seconds":7,"attempt_result":1,"game_mode":"open","new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:42.05] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[19:32:42.22] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q331015","person_name":"Joseph Augustus Zarelli","game_mode":"open","actual_gender":"male","guessed_status":"dead","actual_status":"dead","is_status_correct":1,"is_overall_correct":1,"attempt_number":10,"new_language":"ru","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","session_id":"1794597970_5806","language":"ru","current_theme":"night"}
+[19:32:42.39] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"OTds65wmlxF285Ul","result":true}
+[19:32:42.59] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "guessResultsHistory" to Telegram cloud storage.
+[19:32:42.76] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"eIZ39uVtt2vkWmjX","result":true}
+[19:32:42.89] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "attemptDurations" to Telegram cloud storage.
+[19:32:43.03] [LOG] [CHECK_UI] Guess was CORRECT.
+[19:32:43.18] [LOG] [CHECK_UI] Stats display updated.
+[19:32:43.33] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"yVFVsHeJeDI6YePw","method":"saveStorageValue","params":{"key":"currentAttempts","value":"10"}}
+[19:32:43.47] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"ORdLHUGq27Y3QH9p","method":"saveStorageValue","params":{"key":"totalGuesses","value":"10"}}
+[19:32:43.61] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"Q6ZiCtvHVH4uYoIL","method":"saveStorageValue","params":{"key":"successfulGuesses","value":"8"}}
+[19:32:43.74] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"kcsQkSDNdEAze2jq","method":"saveStorageValue","params":{"key":"failedGuesses","value":"2"}}
+[19:32:43.88] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[19:32:44.04] [LOG] [UI_UPDATE] updateUI called for person: Joseph Augustus Zarelli
+[19:32:44.18] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 10 Max: 10 IsInitialCall: false
+[19:32:44.31] [LOG] [UI_UPDATE] Game is over, scheduling New Game button move to game over location in 5s.
+[19:32:44.44] [LOG] [GAME_OVER] All attempts used. Game over.
+[19:32:44.59] [LOG] [GA_EVENT_SENT] Name: game_over, Params: {"total_attempts":10,"successful_guesses":8,"failed_guesses":2,"success_rate":"80%","new_language":"ru","game_mode":"open","session_id":"1794597970_5806","current_theme":"night","debug_mode":true,"telegram_user_id":"usr_2d375f9f","ga_session_id":"1794597970_5806","language":"ru"}
+[19:32:44.73] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"TkFiwtbMiv9prLtX","method":"deleteStorageValues","params":{"keys":["currentSessionId"]}}
+[19:32:44.89] [LOG] [Telegram.WebView] > postEvent web_app_invoke_custom_method {"req_id":"jgqeqUXqkkN3f5D7","method":"deleteStorageValues","params":{"keys":["currentAttemptStartTime"]}}
+[19:32:45.05] [LOG] [STATE_CHANGE] Game over: currentSessionId and currentAttemptStartTime cleared from localStorage.
+[19:32:45.38] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"yVFVsHeJeDI6YePw","result":true}
+[19:32:45.53] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "currentAttempts" to Telegram cloud storage.
+[19:32:45.67] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"ORdLHUGq27Y3QH9p","result":true}
+[19:32:45.81] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "totalGuesses" to Telegram cloud storage.
+[19:32:45.94] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"Q6ZiCtvHVH4uYoIL","result":true}
+[19:32:46.07] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "successfulGuesses" to Telegram cloud storage.
+[19:32:46.21] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"kcsQkSDNdEAze2jq","result":true}
+[19:32:46.34] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously saved key "failedGuesses" to Telegram cloud storage.
+[19:32:46.47] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"TkFiwtbMiv9prLtX","result":true}
+[19:32:46.60] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentSessionId" from Telegram cloud storage.
+[19:32:46.73] [LOG] [Telegram.WebView] < receiveEvent custom_method_invoked {"req_id":"jgqeqUXqkkN3f5D7","result":true}
+[19:32:46.89] [LOG] [TG_CLOUD_STORAGE_OK] Asynchronously removed key "currentAttemptStartTime" from Telegram cloud storage.
+[19:32:47.04] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=false, canMakeGuess=false, isResultVisible=true, mode=open
+[19:32:47.20] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:32:47.33] [LOG] [PHOTO_STATUS] Loaded photos in session: 10, Remaining in sessionList: 0, Preloaded: None or no label
+[19:32:47.47] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 0/1 | Shelf (Total: 52/60): MA: 13/15, MD: 13/15, FA: 11/15, FD: 15/15 (Real photos: 52) | Cache: 82 | Catalog: 0/100
+[19:32:49.06] [LOG] [SHEETS_SENT] Dispatched anonymized event "game_over" to Google Sheets (Spam: false)
+[19:32:49.44] [LOG] [UI_UPDATE_DELAYED] 5s timeout elapsed. Moving New Game button to game over location.

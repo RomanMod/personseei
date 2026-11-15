@@ -1,0 +1,251 @@
+=== App Version: v2.5.7 (11/13/2026, 7:36:06 PM) ===
+[19:39:41.75] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[19:39:41.79] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q34389","person_name":"Whitney Houston","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":7,"new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:41.82] [LOG] [CHECK_UI] Guess was INCORRECT.
+[19:39:41.84] [LOG] [CHECK_UI] Stats display updated.
+[19:39:41.87] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[19:39:41.90] [LOG] [UI_UPDATE] updateUI called for person: Whitney Houston
+[19:39:41.93] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 7 Max: 10 IsInitialCall: false
+[19:39:41.96] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[19:39:41.99] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[19:39:42.04] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:42.08] [LOG] [PHOTO_STATUS] Loaded photos in session: 7, Remaining in sessionList: 1, Preloaded: Paul McCartney
+[19:39:42.13] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 37/60): MA: 10/15, MD: 9/15, FA: 13/15, FD: 5/15 (Real photos: 37) | Cache: 65 | Catalog: 0/100
+[19:39:42.19] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Jako_nikdy_%2810%29_-_Ji%C5%99%C3%AD_Schmitzer.jpg/960px-Jako_nikdy_%2810%29_-_Ji%C5%99%C3%AD_Schmitzer.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 939ms
+[19:39:42.22] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0f/Kenneth_Norman_Fletcher.jpg/960px-Kenneth_Norman_Fletcher.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 777ms
+[19:39:42.29] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[19:39:42.33] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Ken Fletcher": insufficient_human_skin
+[19:39:42.37] [LOG] [CACHE_PURGE] Removed bad or failing person "Ken Fletcher" from local wikidataCache.
+[19:39:42.76] [LOG] [RESERVE_HELPER] ✅ Категория "male-alive": добавлена карточка 3/5 (В категории: 11/15).
+[19:39:42.85] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[19:39:42.94] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Dean Paul Martin
+[19:39:42.99] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Dean_Paul_Martin.jpg
+[19:39:43.10] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Dean_Paul_Martin.jpg/960px-Dean_Paul_Martin.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 107ms
+[19:39:43.24] [WARN] [FACE_CANVAS_REJECT] Detected 2 horizontal skin peaks with high dispersion (stdDev: 0.23 > 0.23). Multi-person/sports action photo.
+[19:39:43.29] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Dean Paul Martin": multi_person_horizontal_peaks
+[19:39:43.34] [LOG] [CACHE_PURGE] Removed bad or failing person "Dean Paul Martin" from local wikidataCache.
+[19:39:43.38] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[19:39:43.41] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 38/60): MA: 11/15, MD: 9/15, FA: 13/15, FD: 5/15 (Real photos: 38) | Cache: 63 | Catalog: 0/100
+[19:39:43.44] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 7/10 (gen: 12)
+[19:39:43.48] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[19:39:43.52] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794598745_3419","trigger_button":"next_after_check","new_language":"uk","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Paul McCartney","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:43.55] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[19:39:43.58] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Paul McCartney. Осталось на полочках: 38/60
+[19:39:43.61] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Paul McCartney (gen: 12)
+[19:39:43.64] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[19:39:43.66] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Paul McCartney
+[19:39:43.69] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg/960px-MaccaLyricsRFH051121_%2815_of_18%29_%28updated%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+[19:39:43.73] [LOG] [UI_UPDATE] updateUI called for person: Paul McCartney
+[19:39:43.76] [LOG] [STATE_CHANGE] Attempt start time set to 1794598783763 for person: Paul McCartney. Saved to localStorage.
+[19:39:43.79] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[19:39:43.83] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q2599","person_name":"Paul McCartney","new_language":"uk","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:43.86] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Paul McCartney is now cleared as it's either used or failed assign.
+[19:39:43.88] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[19:39:43.91] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 38/60): MA: 11/15, MD: 9/15, FA: 13/15, FD: 5/15 (Real photos: 38) | Cache: 63 | Catalog: 0/100
+[19:39:44.01] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "male-deceased": "Philipos C. Loizou". Осталось в категории: 8/15
+[19:39:44.04] [LOG] [SHELF_THRESHOLD] В категории "male-deceased" осталось 8/15 (зазор 5 сработал). Запускаем пополнение категории...
+[19:39:44.07] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Philipos C. Loizou. Buffer: 1/1
+[19:39:44.10] [LOG] [PRELOAD] Starting preload for: Philipos C. Loizou
+[19:39:44.13] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 37/60): MA: 11/15, MD: 8/15, FA: 13/15, FD: 5/15 (Real photos: 37) | Cache: 63 | Catalog: 0/100
+[19:39:44.16] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:39:44.20] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:44.23] [LOG] [PHOTO_STATUS] Loaded photos in session: 8, Remaining in sessionList: 1, Preloaded: None or no label
+[19:39:44.26] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 37/60): MA: 11/15, MD: 8/15, FA: 13/15, FD: 5/15 (Real photos: 37) | Cache: 63 | Catalog: 0/100
+[19:39:44.29] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:39:44.32] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:44.35] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[19:39:44.38] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[19:39:44.42] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: Jukka Kuoppamäki
+[19:39:44.45] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Jukka_Kuoppamäki_Vihreät_Niityt_iskelmätapahtumassa_2006.jpg
+[19:39:44.49] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[19:39:44.52] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[19:39:44.54] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Loizou_2012.jpeg/960px-Loizou_2012.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail for Philipos C. Loizou
+[19:39:44.57] [LOG] [PRELOAD] Preloading process attempt finished.
+[19:39:44.61] [WARN] [WIKIDATA_QUERY_WARN] No results or invalid list for category female-deceased, attempt 1/2.
+[19:39:44.67] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Jukka_Kuoppam%C3%A4ki_Vihre%C3%A4t_Niityt_iskelm%C3%A4tapahtumassa_2006.jpg/960px-Jukka_Kuoppam%C3%A4ki_Vihre%C3%A4t_Niityt_iskelm%C3%A4tapahtumassa_2006.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 225ms
+[19:39:44.97] [LOG] [RESERVE_HELPER] ✅ Категория "male-alive": добавлена карточка 4/5 (В категории: 12/15).
+[19:39:45.36] [LOG] [SESSION_LIFECYCLE] Active session "1794598745_3419" is within 32-minute grace period (2s idle). Player continues game!
+[19:39:45.45] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-alive, CacheKey: false-male-alive
+[19:39:45.48] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-alive. Person: John Lithgow
+[19:39:45.51] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: John_Lithgow_at_Met_Opera_Opening_in_2008.jpg
+[19:39:45.72] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/5/52/John_Lithgow_at_Met_Opera_Opening_in_2008.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 203ms
+[19:39:46.12] [LOG] [RESERVE_HELPER] ✅ Категория "male-alive": добавлена карточка 5/5 (В категории: 13/15).
+[19:39:46.61] [LOG] [RESERVE_HELPER] 🏁 Категория "male-alive": партия завершена (+5 свежих фото). Всего: 13/15
+[19:39:46.74] [LOG] [RESERVE_STOCK] [category_restock_complete] Buffer: 1/1 | Shelf (Total: 39/60): MA: 13/15, MD: 8/15, FA: 13/15, FD: 5/15 (Real photos: 39) | Cache: 63 | Catalog: 0/100
+[19:39:47.41] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "with_" in: http://commons.wikimedia.org/wiki/Special:FilePath/Anton_Chekhov_with_bow-tie_sepia_image.jpg
+[19:39:47.45] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "_and_" in: http://commons.wikimedia.org/wiki/Special:FilePath/Brockhaus_and_Efron_Encyclopedic_Dictionary_B82_49-5.jpg
+[19:39:47.49] [WARN] [WIKIDATA_QUERY_WARN] No results or invalid list for category male-deceased, attempt 1/2.
+[19:39:47.53] [LOG] [USER_ACTION] Status selected: Alive
+[19:39:48.34] [LOG] [USER_ACTION] "Check" button clicked.
+[19:39:48.38] [LOG] [GAME_STATE] Attempt 8/10. Total guesses this game: 8.
+[19:39:48.41] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: alive
+[19:39:48.45] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[19:39:48.49] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,1,0,1]
+[19:39:48.53] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 5 seconds (4619ms). Start: 1794598783763, End: 1794598788382
+[19:39:48.56] [LOG] [STATE_CHANGE] Attempt duration 5s added. Saved to localStorage. Durations: [4,3,2,2,3,3,3,5]
+[19:39:48.59] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[19:39:48.63] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794598745_3419","attempt_number_in_session":8,"time_for_attempt_seconds":5,"attempt_result":1,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:48.65] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[19:39:48.70] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q2599","person_name":"Paul McCartney","game_mode":"open","actual_gender":"male","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":8,"new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:48.73] [LOG] [CHECK_UI] Guess was CORRECT.
+[19:39:48.76] [LOG] [CHECK_UI] Stats display updated.
+[19:39:48.80] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[19:39:48.82] [LOG] [UI_UPDATE] updateUI called for person: Paul McCartney
+[19:39:48.85] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 8 Max: 10 IsInitialCall: false
+[19:39:48.88] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[19:39:48.92] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[19:39:48.96] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:49.00] [LOG] [PHOTO_STATUS] Loaded photos in session: 8, Remaining in sessionList: 1, Preloaded: Philipos C. Loizou
+[19:39:49.04] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 39/60): MA: 13/15, MD: 8/15, FA: 13/15, FD: 5/15 (Real photos: 39) | Cache: 63 | Catalog: 0/100
+[19:39:49.53] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "with_" in: http://commons.wikimedia.org/wiki/Special:FilePath/Chanter_Angelos_Akotandos_-_St_Anne_with_the_Virgin_-_Google_Art_Project.jpg
+[19:39:49.56] [LOG] [WIKIDATA_ACTION_API_SUCCESS] Fallback API fetched 5 valid candidates for category female-deceased.
+[19:39:49.59] [LOG] [WIKIDATA_QUERY_SUCCESS] Attempt 2/2 successful (Wikidata Action API) for category female-deceased. Found 5 results. Time: 8866ms
+[19:39:49.62] [LOG] [CACHE_UPDATE] wikidataCache updated in localStorage.
+[19:39:49.66] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Anna_Lindh_2002.jpg
+[19:39:49.90] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/4/46/Anna_Lindh_2002.jpg/960px-Anna_Lindh_2002.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 245ms
+[19:39:49.97] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[19:39:50.01] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 39/60): MA: 13/15, MD: 8/15, FA: 13/15, FD: 5/15 (Real photos: 39) | Cache: 68 | Catalog: 0/100
+[19:39:50.04] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 8/10 (gen: 13)
+[19:39:50.07] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[19:39:50.11] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794598745_3419","trigger_button":"next_after_check","new_language":"uk","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Philipos C. Loizou","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:50.14] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[19:39:50.17] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Philipos C. Loizou. Осталось на полочках: 39/60
+[19:39:50.20] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Philipos C. Loizou (gen: 13)
+[19:39:50.22] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[19:39:50.25] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Philipos C. Loizou
+[19:39:50.28] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Loizou_2012.jpeg/960px-Loizou_2012.jpeg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[19:39:50.31] [LOG] [VERSION_BADGE_COLOR] Индикатор версии: жёлтый (Демо-каталог) -> синий/голубой (Полочка / Резерв) | Статус: "Локальний резерв 📸" (status=reserve) | Источник: Offline Local Reserve | Персона: "Philipos C. Loizou"
+[19:39:50.35] [LOG] [UI_UPDATE] updateUI called for person: Philipos C. Loizou
+[19:39:50.38] [LOG] [STATE_CHANGE] Attempt start time set to 1794598790379 for person: Philipos C. Loizou. Saved to localStorage.
+[19:39:50.40] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[19:39:50.44] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q7184653","person_name":"Philipos C. Loizou","new_language":"uk","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:50.47] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Philipos C. Loizou is now cleared as it's either used or failed assign.
+[19:39:50.50] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[19:39:50.53] [LOG] [RESERVE_STOCK] [replenish_start] Buffer: 0/1 | Shelf (Total: 39/60): MA: 13/15, MD: 8/15, FA: 13/15, FD: 5/15 (Real photos: 39) | Cache: 68 | Catalog: 0/100
+[19:39:50.61] [LOG] [SHELF_DISPATCH] 🏷️ Взяли карточку с полочки "female-alive": "Yvonne Ruwaida". Осталось в категории: 12/15
+[19:39:50.64] [LOG] [BUFFER_PRELOAD_QUEUED] Queued next card from shelf for preloading: Yvonne Ruwaida. Buffer: 1/1
+[19:39:50.67] [LOG] [PRELOAD] Starting preload for: Yvonne Ruwaida
+[19:39:50.70] [LOG] [RESERVE_STOCK] [replenish_finish] Buffer: 1/1 | Shelf (Total: 38/60): MA: 13/15, MD: 8/15, FA: 12/15, FD: 5/15 (Real photos: 38) | Cache: 68 | Catalog: 0/100
+[19:39:50.73] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:39:50.76] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:50.79] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: None or no label
+[19:39:50.82] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 38/60): MA: 13/15, MD: 8/15, FA: 12/15, FD: 5/15 (Real photos: 38) | Cache: 68 | Catalog: 0/100
+[19:39:50.85] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:39:50.87] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:50.91] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[19:39:51.11] [LOG] [RESERVE_HELPER] ✅ Категория "female-deceased": добавлена карточка 4/5 (В категории: 6/15).
+[19:39:51.14] [LOG] [PRELOAD_SUCCESS] Image preloaded successfully directly with 1 verified face: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Yvonne_Ruwaida.jpg/960px-Yvonne_Ruwaida.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail for Yvonne Ruwaida
+[19:39:51.17] [LOG] [PRELOAD] Preloading process attempt finished.
+[19:39:51.59] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: female-deceased, CacheKey: false-female-deceased
+[19:39:51.65] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-female-deceased. Person: Elina Linna
+[19:39:51.68] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Elina_Linna_(V)_Sverige.jpg
+[19:39:51.92] [LOG] [USER_ACTION] Status selected: Alive
+[19:39:52.00] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/0/00/Elina_Linna_%28V%29_Sverige.jpg/960px-Elina_Linna_%28V%29_Sverige.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 322ms
+[19:39:52.12] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "_and_" in: http://commons.wikimedia.org/wiki/Special:FilePath/Brockhaus_and_Efron_Encyclopedic_Dictionary_B82_13-4.jpg
+[19:39:52.17] [WARN] [WIKIDATA_QUERY_WARN] No results or invalid list for category male-deceased, attempt 2/2.
+[19:39:52.22] [ERROR] [WIKIDATA_QUERY_ERROR] Query attempt 2/2 for category male-deceased failed. Retrying. Error: No person found for category male-deceased after 2 query attempts with different offsets.
+[19:39:52.25] [ERROR] [WIKIDATA_FETCH_FINAL_ERROR] Failed to fetch person data (category: male-deceased) after 2 attempts. Last error on attempt 2: No person found for category male-deceased after 2 query attempts with different offsets.
+[19:39:52.28] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Siv_Holma_2.jpg
+[19:39:52.60] [LOG] [RESERVE_HELPER] ✅ Категория "female-deceased": добавлена карточка 5/5 (В категории: 7/15).
+[19:39:52.63] [LOG] [USER_ACTION] "Check" button clicked.
+[19:39:52.66] [LOG] [GAME_STATE] Attempt 9/10. Total guesses this game: 9.
+[19:39:52.68] [LOG] [CHECK_ACTION] Actual person - Gender: male, Status: dead
+[19:39:52.72] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: false, Overall Correct: false
+[19:39:52.76] [LOG] [STATE_CHANGE] Guess result (0) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,1,0,1,0]
+[19:39:52.80] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 2 seconds (2282ms). Start: 1794598790379, End: 1794598792661
+[19:39:52.84] [LOG] [STATE_CHANGE] Attempt duration 2s added. Saved to localStorage. Durations: [4,3,2,2,3,3,3,5,2]
+[19:39:52.89] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[19:39:52.94] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794598745_3419","attempt_number_in_session":9,"time_for_attempt_seconds":2,"attempt_result":0,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:52.99] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[19:39:53.04] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q7184653","person_name":"Philipos C. Loizou","game_mode":"open","actual_gender":"male","guessed_status":"alive","actual_status":"dead","is_status_correct":0,"is_overall_correct":0,"attempt_number":9,"new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:53.09] [LOG] [CHECK_UI] Guess was INCORRECT.
+[19:39:53.13] [LOG] [CHECK_UI] Stats display updated.
+[19:39:53.16] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[19:39:53.19] [LOG] [UI_UPDATE] updateUI called for person: Philipos C. Loizou
+[19:39:53.21] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 9 Max: 10 IsInitialCall: false
+[19:39:53.24] [LOG] [UI_UPDATE] Game is active, moving New Game button to initial location.
+[19:39:53.28] [LOG] [RESERVE_HELPER] 🏁 Категория "female-deceased": партия завершена (+5 свежих фото). Всего: 7/15
+[19:39:53.39] [LOG] [RESERVE_STOCK] [category_restock_complete] Buffer: 1/1 | Shelf (Total: 40/60): MA: 13/15, MD: 8/15, FA: 12/15, FD: 7/15 (Real photos: 40) | Cache: 68 | Catalog: 0/100
+[19:39:53.44] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=false, isResultVisible=true, mode=open
+[19:39:53.47] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:53.50] [LOG] [PHOTO_STATUS] Loaded photos in session: 9, Remaining in sessionList: 1, Preloaded: Yvonne Ruwaida
+[19:39:53.53] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 1/1 | Shelf (Total: 40/60): MA: 13/15, MD: 8/15, FA: 12/15, FD: 7/15 (Real photos: 40) | Cache: 68 | Catalog: 0/100
+[19:39:53.57] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://thumb.wikimedia.org/wikipedia/commons/thumb/5/58/Siv_Holma_2.jpg/960px-Siv_Holma_2.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail. API Time: 1281ms
+[19:39:54.13] [LOG] [USER_ACTION] "Next Photo" (after guess) button clicked.
+[19:39:54.18] [LOG] [RESERVE_STOCK] [loadNextPerson_next_after_check] Buffer: 1/1 | Shelf (Total: 40/60): MA: 13/15, MD: 8/15, FA: 12/15, FD: 7/15 (Real photos: 40) | Cache: 68 | Catalog: 0/100
+[19:39:54.23] [LOG] [LOAD_NEXT_PERSON] Called. Trigger: next_after_check. Current attempts: 9/10 (gen: 14)
+[19:39:54.28] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "next_photo_requested" in 1-Game=1-Row summary mode.
+[19:39:54.34] [LOG] [GA_EVENT_SENT] Name: next_photo_requested, Params: {"session_id":"1794598745_3419","trigger_button":"next_after_check","new_language":"uk","game_mode":"open","remaining_in_session":1,"is_preloading":false,"preloaded_person_name":"Yvonne Ruwaida","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:54.39] [LOG] [LOAD_NEXT_PERSON] User guesses and checked flag reset.
+[19:39:54.43] [LOG] [LOAD_NEXT_PERSON] Показываем карточку: Yvonne Ruwaida. Осталось на полочках: 40/60
+[19:39:54.48] [LOG] [LOAD_PERSON] loadPersonFromData called for person: Yvonne Ruwaida (gen: 14)
+[19:39:54.52] [LOG] [LOAD_PERSON_SETUP] Open Mode: Overlay OFF
+[19:39:54.57] [LOG] [LOAD_PERSON] Attempting to use PRELOADED and COMPLETE image for: Yvonne Ruwaida
+[19:39:54.60] [LOG] [LOAD_PERSON_PRELOAD_ASSIGN_SUCCESS] Assigned preloaded image to display: https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Yvonne_Ruwaida.jpg/960px-Yvonne_Ruwaida.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail
+[19:39:54.64] [LOG] [UI_UPDATE] updateUI called for person: Yvonne Ruwaida
+[19:39:54.67] [LOG] [STATE_CHANGE] Attempt start time set to 1794598794669 for person: Yvonne Ruwaida. Saved to localStorage.
+[19:39:54.70] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "photo_loaded" in 1-Game=1-Row summary mode.
+[19:39:54.74] [LOG] [GA_EVENT_SENT] Name: photo_loaded, Params: {"person_id":"Q4975999","person_name":"Yvonne Ruwaida","new_language":"uk","game_mode":"open","load_source":"preload_success","load_path_detail":"preload_assigned_successfully","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:54.79] [LOG] [PRELOAD_CONSUMED_OR_INVALIDATED] Preload data for Yvonne Ruwaida is now cleared as it's either used or failed assign.
+[19:39:54.83] [LOG] [PRELOAD] Session list empty, nothing to preload.
+[19:39:54.88] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:39:54.92] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:54.97] [LOG] [PHOTO_STATUS] Loaded photos in session: 10, Remaining in sessionList: 0, Preloaded: None or no label
+[19:39:55.01] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 0/1 | Shelf (Total: 40/60): MA: 13/15, MD: 8/15, FA: 12/15, FD: 7/15 (Real photos: 40) | Cache: 68 | Catalog: 0/100
+[19:39:55.05] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=true, canMakeGuess=true, isResultVisible=false, mode=open
+[19:39:55.10] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:55.14] [LOG] [LOAD_NEXT_PERSON_UI] UI reset for the next person.
+[19:39:55.44] [LOG] [RESERVE_HELPER] ✅ Категория "male-deceased": добавлена карточка 2/5 (В категории: 9/15).
+[19:39:55.81] [LOG] [USER_ACTION] Status selected: Alive
+[19:39:55.94] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[19:39:55.99] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[19:39:56.42] [LOG] [USER_ACTION] "Check" button clicked.
+[19:39:56.47] [LOG] [GAME_STATE] Attempt 10/10. Total guesses this game: 10.
+[19:39:56.51] [LOG] [CHECK_ACTION] Actual person - Gender: female, Status: alive
+[19:39:56.56] [LOG] [CHECK_ACTION] Guess result - Gender Correct: true (Mode: open), Status Correct: true, Overall Correct: true
+[19:39:56.61] [LOG] [STATE_CHANGE] Guess result (1) added to success/fail history. Saved to localStorage. History: [0,1,0,1,0,1,0,1,0,1]
+[19:39:56.65] [LOG] [CHECK_ACTION_TIME] Time for this attempt: 2 seconds (1801ms). Start: 1794598794669, End: 1794598796470
+[19:39:56.70] [LOG] [STATE_CHANGE] Attempt duration 2s added. Saved to localStorage. Durations: [4,3,2,2,3,3,3,5,2,2]
+[19:39:56.74] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "attempt_completed" in 1-Game=1-Row summary mode.
+[19:39:56.79] [LOG] [GA_EVENT_SENT] Name: attempt_completed, Params: {"session_id":"1794598745_3419","attempt_number_in_session":10,"time_for_attempt_seconds":2,"attempt_result":1,"game_mode":"open","new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:56.84] [LOG] [SHEETS_SUMMARY_FILTER] Bypassed micro-event "guess_made" in 1-Game=1-Row summary mode.
+[19:39:56.89] [LOG] [GA_EVENT_SENT] Name: guess_made, Params: {"person_id":"Q4975999","person_name":"Yvonne Ruwaida","game_mode":"open","actual_gender":"female","guessed_status":"alive","actual_status":"alive","is_status_correct":1,"is_overall_correct":1,"attempt_number":10,"new_language":"uk","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","session_id":"1794598745_3419","language":"uk","current_theme":"night"}
+[19:39:56.94] [LOG] [CHECK_UI] Guess was CORRECT.
+[19:39:56.98] [LOG] [CHECK_UI] Stats display updated.
+[19:39:57.01] [LOG] [STATE_CHANGE] Game stats after check saved to localStorage.
+[19:39:57.05] [LOG] [UI_UPDATE] updateUI called for person: Yvonne Ruwaida
+[19:39:57.11] [LOG] [UI_UPDATE] updateNewGameButtonPosition called. Attempts: 10 Max: 10 IsInitialCall: false
+[19:39:57.15] [LOG] [UI_UPDATE] Game is over, scheduling New Game button move to game over location in 5s.
+[19:39:57.19] [LOG] [GAME_OVER] All attempts used. Game over.
+[19:39:57.25] [LOG] [GA_EVENT_SENT] Name: game_over, Params: {"total_attempts":10,"successful_guesses":5,"failed_guesses":5,"success_rate":"50%","new_language":"uk","game_mode":"open","session_id":"1794598745_3419","current_theme":"night","debug_mode":true,"telegram_user_id":"usr_ff0e371e","ga_session_id":"1794598745_3419","language":"uk"}
+[19:39:57.29] [LOG] [STATE_CHANGE] Game over: currentSessionId and currentAttemptStartTime cleared from localStorage.
+[19:39:57.32] [LOG] [UI_UPDATE_MODE] updateModeVisibility: gameIsActive=false, canMakeGuess=false, isResultVisible=true, mode=open
+[19:39:57.38] [LOG] [UI_UPDATE_MODE_OVERLAY] Open mode: Overlay hidden, Image shown.
+[19:39:57.41] [LOG] [PHOTO_STATUS] Loaded photos in session: 10, Remaining in sessionList: 0, Preloaded: None or no label
+[19:39:57.45] [LOG] [RESERVE_STOCK] [photo_status] Buffer: 0/1 | Shelf (Total: 41/60): MA: 13/15, MD: 9/15, FA: 12/15, FD: 7/15 (Real photos: 41) | Cache: 68 | Catalog: 0/100
+[19:39:57.70] [LOG] [SHEETS_SENT] Dispatched anonymized event "game_over" to Google Sheets (Spam: false)
+[19:39:59.27] [WARN] [IMAGE_FILTER_REJECT] Rejected Group/Team keyword "_and_" in: http://commons.wikimedia.org/wiki/Special:FilePath/Louis_Armstrong%2C_by_Harry_Warnecke_and_Gus_Schoenbaechler%2C_1947.jpg
+[19:39:59.32] [WARN] [IMAGE_FILTER_REJECT] Rejected Monument/Statue/Art keyword "stamp" in: http://commons.wikimedia.org/wiki/Special:FilePath/Rajkumar_2009_stamp_of_India_(cropped).jpg
+[19:39:59.37] [LOG] [WIKIDATA_ACTION_API_SUCCESS] Fallback API fetched 6 valid candidates for category male-deceased.
+[19:39:59.41] [LOG] [WIKIDATA_QUERY_SUCCESS] Attempt 1/2 successful (Wikidata Action API) for category male-deceased. Found 6 results. Time: 3477ms
+[19:39:59.46] [LOG] [CACHE_UPDATE] wikidataCache updated in localStorage.
+[19:39:59.50] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: DeAndré_1960.jpg
+[19:39:59.54] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/c/c4/DeAndr%C3%A9_1960.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 36ms
+[19:39:59.60] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[19:39:59.63] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Fabrizio De André": insufficient_human_skin
+[19:39:59.67] [LOG] [CACHE_PURGE] Removed bad or failing person "Fabrizio De André" from local wikidataCache.
+[19:40:00.15] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[19:40:00.19] [LOG] [WIKIDATA_FETCH_CACHE] Using valid cached data for false-male-deceased. Person: Meat Loaf
+[19:40:00.23] [LOG] [COMMONS_API] Fetching high-definition (960px) image URL for file: Meatloaf_1971_(cropped).JPG
+[19:40:00.31] [LOG] [COMMONS_API_SUCCESS] Got high-definition image URL (width ~960px): https://upload.wikimedia.org/wikipedia/commons/7/7e/Meatloaf_1971_%28cropped%29.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail_unscaled. API Time: 86ms
+[19:40:00.38] [WARN] [FACE_CANVAS_REJECT] Very low skin-tone coverage (0.00% < 2.5%). Likely statue, monument, duck, or non-human entity.
+[19:40:00.43] [WARN] [RESERVE_HELPER] Проверка лица не пройдена для "Meat Loaf": insufficient_human_skin
+[19:40:00.47] [LOG] [CACHE_PURGE] Removed bad or failing person "Meat Loaf" from local wikidataCache.
+[19:40:00.97] [LOG] [WIKIDATA_FETCH] Attempting to fetch person data. Random: false, Category: male-deceased, CacheKey: false-male-deceased
+[19:40:01.01] [LOG] [WIKIDATA_FETCH] No valid cache hit for false-male-deceased, querying Wikidata.
+[19:40:01.24] [WARN] [WIKIDATA_QUERY_WARN] No results or invalid list for category male-deceased, attempt 1/2.
+[19:40:02.19] [LOG] [UI_UPDATE_DELAYED] 5s timeout elapsed. Moving New Game button to game over location.
+[19:40:05.11] [LOG] [WIKIDATA_ACTION_API_SUCCESS] Fallback API fetched 1 valid candidates for category male-deceased.
+[19:40:05.14] [LOG] [WIKIDATA_QUERY_SUCCESS] Attempt 2/2 successful (Wikidata Action API) for category male-deceased. Found 1 results. Time: 4171ms
+[19:40:05.17] [LOG] [CACHE_UPDATE] wikidataCache updated in localStorage.
+[19:40:05.19] [LOG] [CACHE_PURGE] Removed bad or failing person "Kenneth Johansson" from local wikidataCache.
