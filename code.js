@@ -1,6 +1,6 @@
 /**
  * PersonSeeI - Google Sheets Analytics & Real-Time Webhook Engine
- * Version: 2.5.0
+ * Version: 2.5.9
  * 
  * Ключевые возможности:
  * 1. 🟢 Яркая изумрудно-зеленая строка-разделитель при нажатии «Новая игра» (new_game_started).
@@ -68,7 +68,8 @@ const SUMMARY_HEADERS = [
   'Кол-во событий',
   'Длительность',
   'Новые фото (клики)',
-  'Активное время'
+  'Активное время',
+  'Локация (примерно)'
 ];
 
 // Шапка «Подробности»
@@ -94,7 +95,8 @@ const DETAILS_HEADERS = [
   '% успеха',
   'Язык игры',
   'Режим',
-  'Агент / Браузер'
+  'Агент / Браузер',
+  'Локация (примерно)'
 ];
 
 /**
@@ -291,7 +293,7 @@ function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify({
     status: 'ok',
     app: 'PersonSeeI Trivia Webhook',
-    version: '2.5.0',
+    version: '2.5.9',
     rows_position: NEW_ROWS_POSITION,
     sheets: ['Общая', 'Подробности'],
     timestamp: new Date().toISOString()
@@ -344,7 +346,8 @@ function doPost(e) {
         data.event_count || 1,
         data.session_duration || data.duration_formatted || '0:00',
         data.find_new_clicks || 0,
-        formatDuration((data.active_time_seconds || 0) * 1000)
+        formatDuration((data.active_time_seconds || 0) * 1000),
+        data.approx_location || data.timezone || ''
       ];
 
       addRowToSheet(summarySheet, summaryRow, {
@@ -436,7 +439,8 @@ function doPost(e) {
         data.success_rate || '',
         data.language || '',
         data.game_mode || '',
-        data.user_agent || ''
+        data.user_agent || '',
+        data.approx_location || data.timezone || ''
       ];
 
       addRowToSheet(detailsSheet, detailsRow, rowOptions);

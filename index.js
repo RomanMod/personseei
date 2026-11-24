@@ -3,7 +3,7 @@ import { peopleCatalog } from './src/data/peopleCatalog.js';
 
 // === GLOBAL APPLICATION CONFIGURATION ===
 /* global __APP_VERSION__ */
-const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.8';
+const CURRENT_APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '2.5.9';
 const APP_VERSION_FALLBACK = CURRENT_APP_VERSION;
 const FALLBACK_PLACEHOLDER_URI = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='500' viewBox='0 0 400 500'%3E%3Crect width='400' height='500' fill='%23131313'/%3E%3Ccircle cx='200' cy='180' r='60' fill='%232C2C2E'/%3E%3Cpath d='M120 340 C120 260 280 260 280 340 Z' fill='%232C2C2E'/%3E%3C/svg%3E";
 
@@ -102,6 +102,97 @@ let sheetsLoggingMode = safeGetItem('sheets_logging_mode') || 'summary';
 let gameSessionStartTime = Date.now();
 let sessionGuessedPersons = [];
 let sessionFindNewClicks = 0;
+
+const APPROX_LOCATION_CACHE_KEY = 'ipersonsee_approx_location_v1';
+let cachedApproxLocation = '';
+let cachedApproxCountry = '';
+let cachedApproxCity = '';
+let approxLocationStarted = false;
+
+try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+        const savedLoc = window.sessionStorage.getItem(APPROX_LOCATION_CACHE_KEY);
+        if (savedLoc) {
+            const parsedLoc = JSON.parse(savedLoc);
+            if (parsedLoc && parsedLoc.label) {
+                cachedApproxLocation = String(parsedLoc.label);
+                cachedApproxCountry = String(parsedLoc.country || '');
+                cachedApproxCity = String(parsedLoc.city || '');
+            }
+        }
+    }
+} catch (e) {}
+
+function formatTimezoneLocationFallback(timeZone) {
+    if (!timeZone || timeZone === 'unknown') return '';
+    const parts = String(timeZone).split('/');
+    if (parts.length >= 2) {
+        const city = parts[parts.length - 1].replace(/_/g, ' ');
+        return `${city} (${parts[0]})`;
+    }
+    return String(timeZone);
+}
+
+function getApproxPlayerLocation(timeZone) {
+    if (cachedApproxLocation) return cachedApproxLocation;
+    return formatTimezoneLocationFallback(timeZone);
+}
+
+async function resolveApproxPlayerLocation() {
+    if (cachedApproxLocation || approxLocationStarted) return cachedApproxLocation;
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) return '';
+    approxLocationStarted = true;
+
+    const saveLoc = (city, region, country) => {
+        const cleanCity = city ? String(city).trim() : '';
+        const cleanRegion = region ? String(region).trim() : '';
+        const cleanCountry = country ? String(country).trim() : '';
+        const primaryPlace = cleanCity || cleanRegion;
+        const label = (primaryPlace && cleanCountry && primaryPlace !== cleanCountry)
+            ? `${primaryPlace}, ${cleanCountry}`
+            : (cleanCountry || primaryPlace);
+        if (!label) return false;
+        cachedApproxLocation = label;
+        cachedApproxCountry = cleanCountry;
+        cachedApproxCity = primaryPlace;
+        try {
+            if (typeof window !== 'undefined' && window.sessionStorage) {
+                window.sessionStorage.setItem(APPROX_LOCATION_CACHE_KEY, JSON.stringify({
+                    label,
+                    country: cleanCountry,
+                    city: primaryPlace
+                }));
+            }
+        } catch (e) {}
+        return true;
+    };
+
+    const fetchWithTimeout = async (url, timeoutMs = 2500) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timer);
+            if (!res.ok) return null;
+            return await res.json();
+        } catch (e) {
+            clearTimeout(timer);
+            return null;
+        }
+    };
+
+    const geo1 = await fetchWithTimeout('https://get.geojs.io/v1/ip/geo.json');
+    if (geo1 && saveLoc(geo1.city, geo1.region, geo1.country)) {
+        return cachedApproxLocation;
+    }
+
+    const geo2 = await fetchWithTimeout('https://ipwho.is/');
+    if (geo2 && geo2.success !== false && saveLoc(geo2.city, geo2.region, geo2.country)) {
+        return cachedApproxLocation;
+    }
+
+    return '';
+}
 function getFormattedPlayerLocalTime(d = new Date()) {
     try {
         const year = d.getFullYear();
@@ -1276,6 +1367,7 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
 
     const now = new Date();
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown';
+    const approxLocation = getApproxPlayerLocation(timeZone);
     const clientPlatform = detectClientPlatform();
     const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code || '';
     
@@ -1305,6 +1397,9 @@ function sendToGoogleSheet(eventName, eventParams = {}) {
         local_time_string: now.toLocaleString(),
         timezone: timeZone,
         timezone_offset: now.getTimezoneOffset(),
+        approx_location: approxLocation,
+        approx_country: cachedApproxCountry || '',
+        approx_city: cachedApproxCity || '',
         platform: clientPlatform,
         device_lang: navigator.language || '',
         telegram_lang: tgLang,
@@ -6949,6 +7044,7 @@ const bootstrapApp = () => {
             console.warn('[BOOTSTRAP_WARN] Background CloudStorage exception:', e);
         }
     }
+    resolveApproxPlayerLocation();
 };
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
